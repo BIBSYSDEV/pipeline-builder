@@ -437,7 +437,8 @@ Resources:
         - CodePipelineTrustRole
         - Arn
       Stages:
-        - Actions:
+        - Name: Source
+          Actions:
             - ActionTypeId:
                 Category: Source
                 Owner: AWS
@@ -455,8 +456,9 @@ Resources:
                     - - !Ref ProjectId
                       - SourceArtifact
               RunOrder: 1
-          Name: Source
-        - Actions:
+
+        - Name: Build
+          Actions:
             - ActionTypeId:
                 Category: Build
                 Owner: AWS
@@ -476,8 +478,9 @@ Resources:
                     - - !Ref ProjectId
                       - BuildArtifact
               RunOrder: 1
-          Name: Build
-        - Actions:
+
+        - Name: Test
+          Actions:
             - ActionTypeId:
                 Category: Deploy
                 Owner: AWS
@@ -491,7 +494,9 @@ Resources:
                   - ''
                   - - '{"ProjectId":"'
                     - !Ref ProjectId
-                    - '"}'
+                    - '",'
+                    - '"Stage":"Test"'
+                    - '}'
                 RoleArn: !GetAtt 
                   - CloudFormationTrustRole
                   - Arn
@@ -553,7 +558,7 @@ Resources:
                     - test
               Name: DeleteTestStack
               RunOrder: 4
-          Name: Test
+
         - Actions:
             - ActionTypeId:
                 Category: Deploy
@@ -568,7 +573,9 @@ Resources:
                   - ''
                   - - '{"ProjectId":"'
                     - !Ref ProjectId
-                    - '"}'
+                    - '",'
+                    - '"Stage":"Prod"'
+                    - '}'
                 RoleArn: !GetAtt 
                   - CloudFormationTrustRole
                   - Arn
