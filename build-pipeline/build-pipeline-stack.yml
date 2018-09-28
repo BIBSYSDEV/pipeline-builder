@@ -209,7 +209,39 @@ Resources:
             Value: !Ref S3Bucket
         Image: 'aws/codebuild/eb-java-8-amazonlinux-64:2.4.3'
         Type: container
-      Name: !Ref ProjectId
+      Name: !Join
+        - '-'
+        - - !Ref ProjectId
+          - Build
+      ServiceRole: !Ref CodeBuildRole
+      Source:
+        Type: codepipeline
+    Type: 'AWS::CodeBuild::Project'
+  CodeBuildTestProject:
+    DependsOn:
+      - CodeBuildPolicy
+    Properties:
+      Source:
+        Type: CODEPIPELINE
+        Buildspec: testspec.yml
+      Artifacts:
+        Packaging: zip
+        Type: codepipeline
+      Description: !Join
+        - ''
+        - - 'CodeBuild Test Project for '
+          - !Ref AppName
+      Environment:
+        ComputeType: small
+        EnvironmentVariables:
+          - Name: S3_BUCKET
+            Value: !Ref S3Bucket
+        Image: 'aws/codebuild/eb-java-8-amazonlinux-64:2.4.3'
+        Type: container
+      Name: !Join
+        - '-'
+        - - !Ref ProjectId
+          - Test
       ServiceRole: !Ref CodeBuildRole
       Source:
         Type: codepipeline
@@ -269,6 +301,9 @@ Resources:
                   - !GetAtt
                     - CodeBuildProject
                     - Arn
+                  - !GetAtt
+                    - CodeBuildTestProject
+                    - Arn
               - Action:
                   - 'cloudformation:DescribeStacks'
                   - 'cloudformation:DescribeChangeSet'
@@ -280,7 +315,6 @@ Resources:
                   - !Join
                     - ':'
                     - - arn
-                      - aws
                       - cloudformation
                       - !Ref 'AWS::Region'
                       - !Ref 'AWS::AccountId'
@@ -366,6 +400,7 @@ Resources:
       - CodePipelineTrustRole
       - S3Bucket
       - CodeBuildProject
+      - CodeBuildTestProject
       - CloudFormationTrustRole
     Description: Creating a deployment pipeline for your project in AWS CodePipeline
     Properties:
@@ -409,7 +444,10 @@ Resources:
                 Provider: CodeBuild
                 Version: 1
               Configuration:
-                ProjectName: !Ref ProjectId
+                ProjectName: !Join
+                  - '-'
+                  - - !Ref ProjectId
+                    - Build
               InputArtifacts:
                 - Name: !Join
                     - '-'
@@ -422,7 +460,6 @@ Resources:
                     - - !Ref ProjectId
                       - BuildArtifact
               RunOrder: 1
-
         - Name: Test
           Actions:
             - ActionTypeId:
@@ -479,11 +516,21 @@ Resources:
               OutputArtifacts: []
               RunOrder: 2
             - ActionTypeId:
-                Category: Approval # TODO: automated function tests
+                Category: Build
                 Owner: AWS
-                Provider: Manual
+                Provider: CodeBuild
                 Version: 1
-              Name: ApproveTestStack
+              Configuration:
+                ProjectName: !Join
+                  - '-'
+                  - - !Ref ProjectId
+                    - Test
+              InputArtifacts:
+                - Name: !Join
+                    - '-'
+                    - - !Ref ProjectId
+                      - SourceArtifact
+              Name: FeatureTest
               RunOrder: 3
             - ActionTypeId:
                 Category: Deploy
