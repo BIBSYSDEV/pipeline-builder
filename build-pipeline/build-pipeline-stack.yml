@@ -221,9 +221,6 @@ Resources:
     DependsOn:
       - CodeBuildPolicy
     Properties:
-      Source:
-        Type: CODEPIPELINE
-        Buildspec: testspec.yml
       Artifacts:
         Packaging: zip
         Type: codepipeline
@@ -245,6 +242,7 @@ Resources:
       ServiceRole: !Ref CodeBuildRole
       Source:
         Type: codepipeline
+        BuildSpec: testspec.yml
     Type: 'AWS::CodeBuild::Project'
   CodeBuildRole:
     Description: Creating service role in IAM for Amazon EC2 instances
@@ -315,6 +313,7 @@ Resources:
                   - !Join
                     - ':'
                     - - arn
+                      - aws
                       - cloudformation
                       - !Ref 'AWS::Region'
                       - !Ref 'AWS::AccountId'
