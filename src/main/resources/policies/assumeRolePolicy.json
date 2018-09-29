@@ -7,7 +7,9 @@
         "Service": [
           "lambda.amazonaws.com",
           "codepipeline.amazonaws.com",
-          "codebuild.amazonaws.com"
+          "codebuild.amazonaws.com",
+          "cloudformation.amazonaws.com",
+          "iam.amazonaws.com"
         ]
       },
       "Action": [
