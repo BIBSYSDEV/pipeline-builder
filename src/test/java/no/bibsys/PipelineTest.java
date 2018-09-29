@@ -1,5 +1,12 @@
 package no.bibsys;
 
+import com.amazonaws.SdkClientException;
+import com.amazonaws.protocol.MarshallingInfo;
+import com.amazonaws.protocol.OperationInfo;
+import com.amazonaws.protocol.ProtocolMarshaller;
+import com.amazonaws.protocol.json.SdkJsonGenerator;
+import com.amazonaws.protocol.json.StructuredJsonGenerator;
+import com.amazonaws.protocol.json.internal.JsonProtocolMarshaller;
 import com.amazonaws.services.codebuild.AWSCodeBuild;
 import com.amazonaws.services.codebuild.AWSCodeBuildClientBuilder;
 import com.amazonaws.services.codebuild.model.ArtifactsType;
@@ -7,6 +14,8 @@ import com.amazonaws.services.codebuild.model.ComputeType;
 import com.amazonaws.services.codebuild.model.CreateProjectRequest;
 import com.amazonaws.services.codebuild.model.DeleteProjectRequest;
 import com.amazonaws.services.codebuild.model.EnvironmentType;
+import com.amazonaws.services.codebuild.model.EnvironmentVariable;
+import com.amazonaws.services.codebuild.model.EnvironmentVariableType;
 import com.amazonaws.services.codebuild.model.ProjectArtifacts;
 import com.amazonaws.services.codebuild.model.ProjectEnvironment;
 import com.amazonaws.services.codebuild.model.ProjectSource;
@@ -25,6 +34,7 @@ import com.amazonaws.services.codepipeline.model.InputArtifact;
 import com.amazonaws.services.codepipeline.model.OutputArtifact;
 import com.amazonaws.services.codepipeline.model.PipelineDeclaration;
 import com.amazonaws.services.codepipeline.model.StageDeclaration;
+import com.amazonaws.services.codepipeline.model.transform.CreatePipelineRequestMarshaller;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClientBuilder;
 import com.amazonaws.services.identitymanagement.model.AttachRolePolicyRequest;
@@ -39,15 +49,21 @@ import com.amazonaws.services.identitymanagement.model.ListAttachedRolePoliciesR
 import com.amazonaws.services.identitymanagement.model.NoSuchEntityException;
 import com.amazonaws.services.identitymanagement.model.PutRolePolicyRequest;
 import com.amazonaws.services.identitymanagement.model.Role;
+import com.fasterxml.jackson.databind.MappingJsonFactory;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.apache.http.entity.ContentType;
 import org.junit.Test;
 
 public class PipelineTest implements EnvUtils {
@@ -86,7 +102,12 @@ public class PipelineTest implements EnvUtils {
         request.setPipeline(pipelineDeclaration);
         client.createPipeline(request);
 
+
+
+
     }
+
+
 
 
 
@@ -201,7 +222,9 @@ public class PipelineTest implements EnvUtils {
         ProjectEnvironment env = new ProjectEnvironment()
             .withComputeType(ComputeType.BUILD_GENERAL1_SMALL)
             .withType(EnvironmentType.LINUX_CONTAINER)
-            .withImage("aws/codebuild/eb-java-8-amazonlinux-64:2.4.3");
+            .withImage("aws/codebuild/eb-java-8-amazonlinux-64:2.4.3")
+            .withEnvironmentVariables(new EnvironmentVariable().withName("S3_BUCKET")
+                .withValue(s3Bucket).withType(EnvironmentVariableType.PLAINTEXT));
 
         return env;
     }

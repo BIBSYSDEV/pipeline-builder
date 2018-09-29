@@ -3,7 +3,11 @@
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": "s3:*",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
       "Resource": [
         "arn:aws:s3:::java-pipeline/*",
         "arn:aws:s3:::java-pipeline"
@@ -11,7 +15,11 @@
     },
     {
       "Effect":"Allow",
-      "Action":"logs:*",
+      "Action":[
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
       "Resource":[
         "*"
       ]
