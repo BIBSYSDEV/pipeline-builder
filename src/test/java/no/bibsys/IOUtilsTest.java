@@ -16,7 +16,7 @@ public class IOUtilsTest {
 
 
     private IOUtils ioUtils=new IOUtils();
-    private Path path= Paths.get("policies", "policies/assumeRolePolicy.json");
+    private Path path= Paths.get("policies", "assumeRolePolicy.json");
 
     @Test
     public void IOUtilsShouldReadAResourceFileAsInputStream() throws IOException {
@@ -38,7 +38,7 @@ public class IOUtilsTest {
     public void IOUtilsShouldReadResourceAsString() throws IOException {
        String content= ioUtils.resourceAsString(path);
        String trimmed=ioUtils.removeMultipleWhiteSpaces(content);
-       String expected="{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Effect\": \"Allow\", \"Principal\": { \"Service\": [ \"lambda.amazonaws.com\" ] }, \"Action\": [ \"sts:AssumeRole\" ] } ]}";
+       String expected="{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Effect\": \"Allow\", \"Principal\": { \"Service\": [ \"lambda.amazonaws.com\", \"codepipeline.amazonaws.com\", \"codebuild.amazonaws.com\" ] }, \"Action\": [ \"sts:AssumeRole\" ] } ]}";
         assertThat(trimmed.length(),is(not(equalTo(0))));
         assertThat(trimmed,is(equalTo(expected)));
     }
