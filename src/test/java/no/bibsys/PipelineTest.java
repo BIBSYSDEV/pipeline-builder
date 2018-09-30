@@ -1,15 +1,12 @@
 package no.bibsys;
 
-import static com.amazonaws.regions.ServiceAbbreviations.CloudFormation;
-
-import com.amazonaws.auth.policy.actions.CloudFormationActions;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
+import com.amazonaws.services.cloudformation.model.Capability;
 import com.amazonaws.services.cloudformation.model.CreateChangeSetRequest;
 import com.amazonaws.services.cloudformation.model.CreateStackRequest;
-import com.amazonaws.services.cloudformation.model.CreateStackSetRequest;
-import com.amazonaws.services.cloudformation.model.OnFailure;
-import com.amazonaws.services.cloudformation.model.ValidateTemplateRequest;
+import com.amazonaws.services.cloudformation.model.DeleteStackRequest;
+import com.amazonaws.services.cloudformation.model.Parameter;
 import com.amazonaws.services.codepipeline.AWSCodePipeline;
 import com.amazonaws.services.codepipeline.AWSCodePipelineClientBuilder;
 import com.amazonaws.services.codepipeline.model.ActionCategory;
@@ -22,6 +19,7 @@ import com.amazonaws.services.codepipeline.model.PipelineDeclaration;
 import com.amazonaws.services.codepipeline.model.StageDeclaration;
 import com.amazonaws.services.identitymanagement.model.Role;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +27,7 @@ import java.util.Map;
 import no.bibsys.build.CodeBuild;
 import no.bibsys.role.RoleHelper;
 import no.bibsys.source.GithubSource;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class PipelineTest implements EnvUtils {
@@ -45,6 +44,7 @@ public class PipelineTest implements EnvUtils {
   private RoleHelper roleHelper=new RoleHelper();
   private CodeBuild codeBuild=new CodeBuild(buildProjectName,buildArtifactName,s3Bucket);
 
+  private IOUtils ioUtils=new IOUtils();
   private final  GithubCredentials githubCredentials;
 
   public PipelineTest(){
@@ -57,10 +57,40 @@ public class PipelineTest implements EnvUtils {
   }
 
 
+
+
+  @Test
+  public void  testTemplate() throws IOException {
+//    deleteStack();
+    AmazonCloudFormation cf= AmazonCloudFormationClientBuilder.defaultClient();
+    CreateStackRequest stack=new CreateStackRequest();
+
+    stack.setStackName("JavaTestStack");
+    String templateBody=ioUtils.resourceAsString(Paths.get("policies","pipelineTemplate.json"));
+    stack.setTemplateBody(templateBody);
+    List<Parameter> parameters=new ArrayList<>();
+    parameters.add(new Parameter().withParameterKey("ProjectName").withParameterValue("JavaCloudFormationProject"));
+    parameters.add(new Parameter().withParameterKey("Branch").withParameterValue("master"));
+    parameters.add(new Parameter().withParameterKey("PipelineRoleName")
+        .withParameterValue("TestRoleCloudFormationPipeline"));
+
+    stack.setParameters(parameters);
+    stack.withCapabilities(Capability.CAPABILITY_NAMED_IAM);
+    cf.createStack(stack);
+  }
+
+
+
+  private void deleteStack(){
+    AmazonCloudFormation cf= AmazonCloudFormationClientBuilder.defaultClient();
+    DeleteStackRequest delete=new DeleteStackRequest().withStackName("JavaTestStack");
+    cf.deleteStack(delete);
+  }
+
   @Test
   public void testPipeline() throws IOException, InterruptedException {
 
-    Role role = roleHelper.createRole(rolename);
+    Role role = roleHelper.createPipelineRole(rolename);
     codeBuild.createBuildProjectForCodePipeline(role);
 
     AWSCodePipeline client = AWSCodePipelineClientBuilder.defaultClient();
@@ -109,7 +139,7 @@ public class PipelineTest implements EnvUtils {
     stageDeclaration.setName("TestStackStage");
     ActionDeclaration actionDeclaration=new ActionDeclaration();
     actionDeclaration.setName("TestStack");
-//    actionDeclaration.setRoleArn();
+
     ActionTypeId actionTypeId=new ActionTypeId();
     actionTypeId.setCategory(ActionCategory.Deploy);
     actionTypeId.setOwner("AWS");
@@ -133,19 +163,19 @@ public class PipelineTest implements EnvUtils {
 
 
 
-  public void deployTestEnvironment(){
-
-
-    AmazonCloudFormation cloudFormation = AmazonCloudFormationClientBuilder.defaultClient();
-    CreateStackSetRequest stackSetRequest=new CreateStackSetRequest();
-//    CreateChangeSetRequest
-    CreateStackRequest createStackRequest=new CreateStackRequest();
-    createStackRequest.withCapabilities("CAPABILITY_IAM");
-    createStackRequest.setOnFailure(OnFailure.ROLLBACK);
-
-
-
-  }
+//  public void deployTestEnvironment(){
+//
+//
+//    AmazonCloudFormation cloudFormation = AmazonCloudFormationClientBuilder.defaultClient();
+//    CreateStackSetRequest stackSetRequest=new CreateStackSetRequest();
+////    CreateChangeSetRequest
+//    CreateStackRequest createStackRequest=new CreateStackRequest();
+//    createStackRequest.withCapabilities("CAPABILITY_IAM");
+//    createStackRequest.setOnFailure(OnFailure.ROLLBACK);
+//
+//
+//
+//  }
 
 
 

@@ -54,18 +54,18 @@ public class RoleHelper {
 
   }
 
-  public  Role createRole(String roleName) throws IOException {
-    AmazonIdentityManagement iam = AmazonIdentityManagementClientBuilder.defaultClient();
+  public  Role createPipelineRole(String roleName) throws IOException {
     deleteRole(roleName);
     createEmptyRole(iam, roleName);
     attachPolicies(iam, roleName);
     PutRolePolicyRequest inlinePolicy = bucketAccessInlinePolicy(roleName);
     iam.putRolePolicy(inlinePolicy);
-
     Role role = getRole(roleName).get();
     return role;
-
   }
+
+
+
 
 
   private PutRolePolicyRequest bucketAccessInlinePolicy(String roleName) throws IOException {
@@ -82,7 +82,7 @@ public class RoleHelper {
 
 
   private void attachPolicies(AmazonIdentityManagement iam, String roleName) {
-    List<String> policies = listDefaultAmazonPolicies();
+    List<String> policies = buildPipelinePolicies();
     policies.forEach(p -> attacheRolePolicy(iam, roleName, p));
   }
 
@@ -130,7 +130,7 @@ public class RoleHelper {
 
 
 
-  private List<String> listDefaultAmazonPolicies() {
+  private List<String> buildPipelinePolicies() {
     List<String> policies = new ArrayList<>();
     policies.add("arn:aws:iam::aws:policy/AWSCodePipelineFullAccess");
     policies.add("arn:aws:iam::aws:policy/AWSCodeCommitFullAccess");
@@ -138,6 +138,10 @@ public class RoleHelper {
 //        policies.add("arn:aws:iam::aws:policy/AmazonS3FullAccess");
     return policies;
   }
+
+
+
+
 
 
 
