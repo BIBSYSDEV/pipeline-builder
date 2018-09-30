@@ -31,7 +31,7 @@ public class IOUtils {
 
     public String resourceAsString(Path path) throws IOException {
         List<String> lines=linesfromResource(path);
-        String result=String.join("",lines);
+        String result=String.join("\n",lines);
         return result;
     }
 

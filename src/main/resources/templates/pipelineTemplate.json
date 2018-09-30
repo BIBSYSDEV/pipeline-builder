@@ -2,6 +2,9 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "CloudFormation template for Building a pipeline",
   "Parameters": {
+    "PipelineBucket":{
+      "Type":"String"
+    },
     "ProjectName": {
       "Type": "String",
       "Default": "UnknownProject"
@@ -62,8 +65,15 @@
                     "s3:GetObjectVersion"
                   ],
                   "Resource": [
-                    "arn:aws:s3:::java-pipeline/*",
-                    "arn:aws:s3:::java-pipeline"
+                    {"Fn:Join":["",[
+                      "arn:aws:s3:::",
+                      {"Ref":"PipelineBucket"},
+                      "/*"
+                    ]]},
+                    {"Fn:Join":["",[
+                      "arn:aws:s3:::",
+                      {"Ref":"PipelineBucket"}
+                    ]]}
                   ]
                 },
                 {

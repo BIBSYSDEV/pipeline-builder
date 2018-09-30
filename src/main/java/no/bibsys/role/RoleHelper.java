@@ -18,7 +18,6 @@ import com.amazonaws.services.identitymanagement.model.PutRolePolicyRequest;
 import com.amazonaws.services.identitymanagement.model.Role;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -26,67 +25,42 @@ import no.bibsys.IOUtils;
 
 public class RoleHelper {
 
-  AmazonIdentityManagement iam = AmazonIdentityManagementClientBuilder.defaultClient();
-
-  IOUtils ioUtils=new IOUtils();
-
+  private AmazonIdentityManagement iam = AmazonIdentityManagementClientBuilder.defaultClient();
+  private  IOUtils ioUtils = new IOUtils();
 
 
-  public void deleteRole(String rolename){
-     getRole(rolename)
+  public void deleteRole(String rolename) {
+    getRole(rolename)
         .map(this::deleteInlinePolicies)
-         .map(this::detachPolicies)
-        .map(role->new DeleteRoleRequest().withRoleName(role.getRoleName()))
-         .ifPresent(deleteRequest->iam.deleteRole(deleteRequest));
+        .map(this::detachPolicies)
+        .map(role -> new DeleteRoleRequest().withRoleName(role.getRoleName()))
+        .ifPresent(deleteRequest -> iam.deleteRole(deleteRequest));
   }
 
 
-  public Optional<Role> getRole(String rolename){
+  public Optional<Role> getRole(String rolename) {
     GetRoleRequest getRole = new GetRoleRequest().withRoleName(rolename);
-    try{
+    try {
       GetRoleResult result = iam.getRole(getRole);
       return Optional.of(result.getRole());
-    }
-    catch(NoSuchEntityException e){
+    } catch (NoSuchEntityException e) {
       return Optional.empty();
     }
 
 
   }
 
-  public  Role createPipelineRole(String roleName) throws IOException {
-    deleteRole(roleName);
-    createEmptyRole(iam, roleName);
-    attachPolicies(iam, roleName);
-    PutRolePolicyRequest inlinePolicy = bucketAccessInlinePolicy(roleName);
-    iam.putRolePolicy(inlinePolicy);
-    Role role = getRole(roleName).get();
-    return role;
-  }
 
 
 
 
 
-  private PutRolePolicyRequest bucketAccessInlinePolicy(String roleName) throws IOException {
 
-    String inlinePolicyName=roleName+"_bucket_access";
-    String accessToBucket = ioUtils
-        .resourceAsString(Paths.get("policies", "accessToBucket.json"));
-
-    return new PutRolePolicyRequest()
-        .withPolicyDocument(accessToBucket)
-        .withRoleName(roleName)
-        .withPolicyName(inlinePolicyName);
-  }
-
-
-  private void attachPolicies(AmazonIdentityManagement iam, String roleName) {
-    List<String> policies = buildPipelinePolicies();
+  public void attachPolicies(String roleName,List<String> policies) {
     policies.forEach(p -> attacheRolePolicy(iam, roleName, p));
   }
 
-  private void createEmptyRole(AmazonIdentityManagement iam, String roleName) throws IOException {
+  public void createEmptyRole(String roleName) throws IOException {
     CreateRoleRequest createRoleRequest = new CreateRoleRequest();
     createRoleRequest.setRoleName(roleName);
     String assumeRolePolicyDocument = ioUtils
@@ -114,13 +88,13 @@ public class RoleHelper {
 
   private Role deleteInlinePolicies(Role role) {
     List<String> inlinePolicies = listInlinePolicies(role);
-    inlinePolicies.stream().forEach(policy->iam.deleteRolePolicy(new DeleteRolePolicyRequest()
-    .withPolicyName(policy).withRoleName(role.getRoleName())));
+    inlinePolicies.stream().forEach(policy -> iam.deleteRolePolicy(new DeleteRolePolicyRequest()
+        .withPolicyName(policy).withRoleName(role.getRoleName())));
     return role;
   }
 
   private List<String> listInlinePolicies(Role role) {
-    ListRolePoliciesRequest inlinePolicies=new ListRolePoliciesRequest();
+    ListRolePoliciesRequest inlinePolicies = new ListRolePoliciesRequest();
     inlinePolicies.setRoleName(role.getRoleName());
     ListRolePoliciesResult result = iam
         .listRolePolicies(inlinePolicies);
@@ -130,19 +104,9 @@ public class RoleHelper {
 
 
 
-  private List<String> buildPipelinePolicies() {
-    List<String> policies = new ArrayList<>();
-    policies.add("arn:aws:iam::aws:policy/AWSCodePipelineFullAccess");
-    policies.add("arn:aws:iam::aws:policy/AWSCodeCommitFullAccess");
-    policies.add("arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess");
-//        policies.add("arn:aws:iam::aws:policy/AmazonS3FullAccess");
-    return policies;
+  public void putRolePolicy(PutRolePolicyRequest putRolePolicyRequest){
+    iam.putRolePolicy(putRolePolicyRequest);
   }
-
-
-
-
-
 
 
   private void attacheRolePolicy(AmazonIdentityManagement iam, String roleName,
@@ -166,7 +130,6 @@ public class RoleHelper {
     }
 
   }
-
 
 
 }

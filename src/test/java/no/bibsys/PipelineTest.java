@@ -3,7 +3,6 @@ package no.bibsys;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
 import com.amazonaws.services.cloudformation.model.Capability;
-import com.amazonaws.services.cloudformation.model.CreateChangeSetRequest;
 import com.amazonaws.services.cloudformation.model.CreateStackRequest;
 import com.amazonaws.services.cloudformation.model.DeleteStackRequest;
 import com.amazonaws.services.cloudformation.model.Parameter;
@@ -25,9 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import no.bibsys.build.CodeBuild;
-import no.bibsys.role.RoleHelper;
+import no.bibsys.role.PipelineRole;
 import no.bibsys.source.GithubSource;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class PipelineTest implements EnvUtils {
@@ -41,7 +39,6 @@ public class PipelineTest implements EnvUtils {
   private final String buildProjectName="CodeBuild_"+branchName;
 
 
-  private RoleHelper roleHelper=new RoleHelper();
   private CodeBuild codeBuild=new CodeBuild(buildProjectName,buildArtifactName,s3Bucket);
 
   private IOUtils ioUtils=new IOUtils();
@@ -66,14 +63,14 @@ public class PipelineTest implements EnvUtils {
     CreateStackRequest stack=new CreateStackRequest();
 
     stack.setStackName("JavaTestStack");
-    String templateBody=ioUtils.resourceAsString(Paths.get("policies","pipelineTemplate.json"));
+    String templateBody=ioUtils.resourceAsString(Paths.get("templates","pipelineTemplate.yaml"));
     stack.setTemplateBody(templateBody);
     List<Parameter> parameters=new ArrayList<>();
     parameters.add(new Parameter().withParameterKey("ProjectName").withParameterValue("JavaCloudFormationProject"));
     parameters.add(new Parameter().withParameterKey("Branch").withParameterValue("master"));
     parameters.add(new Parameter().withParameterKey("PipelineRoleName")
         .withParameterValue("TestRoleCloudFormationPipeline"));
-
+    parameters.add(new Parameter().withParameterKey("PipelineBucket").withParameterValue("java-pipeline"));
     stack.setParameters(parameters);
     stack.withCapabilities(Capability.CAPABILITY_NAMED_IAM);
     cf.createStack(stack);
@@ -90,7 +87,8 @@ public class PipelineTest implements EnvUtils {
   @Test
   public void testPipeline() throws IOException, InterruptedException {
 
-    Role role = roleHelper.createPipelineRole(rolename);
+    PipelineRole pipelineRole=new PipelineRole(buildProjectName,branchName);
+    Role role = pipelineRole.createPipelineRole(rolename);
     codeBuild.createBuildProjectForCodePipeline(role);
 
     AWSCodePipeline client = AWSCodePipelineClientBuilder.defaultClient();
@@ -124,7 +122,7 @@ public class PipelineTest implements EnvUtils {
     StageDeclaration sourceStage=githubSource.addSourceStage();
     stageDeclarations.add(sourceStage);
 
-    StageDeclaration buildStage = codeBuild.addBuildStage(githubSource.getArtifactName());
+    StageDeclaration buildStage = codeBuild.addBuildStageToPipeline(githubSource.getArtifactName());
     stageDeclarations.add(buildStage);
 
     stageDeclarations.add(testStack(codeBuild,role));
