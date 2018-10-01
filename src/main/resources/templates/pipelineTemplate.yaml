@@ -66,6 +66,7 @@ Resources:
   Pipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
+      RoleArn: !GetAtt PipelineRole.Arn
       Name:
         !Join
         - '-'
@@ -74,6 +75,11 @@ Resources:
       ArtifactStore:
         Type: S3
         Location: !Ref PipelineBucket
+      Stages:
+        - Actions:
+            - ActionTypeId:
+                Category : Source
+                Owner:
 
 
 
