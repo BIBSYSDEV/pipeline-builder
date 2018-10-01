@@ -23,12 +23,11 @@ public class GithubSource extends PipelineStep implements EnvUtils {
   private final String artifactName;
 
   public GithubSource(GithubCredentials credentials,
-      Role role,
-      String artifactName) {
+      Role role,String projectName) {
 
     this.githubCredentials=credentials;
     this.role = role;
-    this.artifactName=artifactName;
+    this.artifactName=String.format("%s_%s",projectName,credentials.getBranch());
   }
 
 
@@ -41,16 +40,20 @@ public class GithubSource extends PipelineStep implements EnvUtils {
     stageDeclaration.setName(stageName);
     ActionDeclaration action = new ActionDeclaration();
 
-    ActionTypeId actionType = new ActionTypeId()
+    action.setConfiguration(configurationMap());
+    action.setName("GithubPull");
+
+
+    ActionTypeId actionTypeId = new ActionTypeId()
         .withCategory(ActionCategory.Source)
         .withProvider("GitHub")
         .withVersion("1")// no idea what this version is about
         .withOwner(ActionOwner.ThirdParty);
-    Map<String, String> configuration = configurationMap();
 
-    action.setConfiguration(configuration);
-    action.setName("GithubPull");
-    action.setActionTypeId(actionType);
+
+    action.setActionTypeId(actionTypeId);
+
+
     List<OutputArtifact> outputArtifacts = createOutputArtifacts();
     action.setOutputArtifacts(outputArtifacts);
 

@@ -5,6 +5,7 @@ import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
 import com.amazonaws.services.cloudformation.model.Capability;
 import com.amazonaws.services.cloudformation.model.CreateStackRequest;
 import com.amazonaws.services.cloudformation.model.DeleteStackRequest;
+import com.amazonaws.services.cloudformation.model.DeleteStackResult;
 import com.amazonaws.services.cloudformation.model.Parameter;
 import com.amazonaws.services.codepipeline.AWSCodePipeline;
 import com.amazonaws.services.codepipeline.AWSCodePipelineClientBuilder;
@@ -23,9 +24,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import no.bibsys.build.CodeBuild;
+import no.bibsys.codebuild.CodeBuild;
 import no.bibsys.role.PipelineRole;
 import no.bibsys.source.GithubSource;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class PipelineTest implements EnvUtils {
@@ -35,11 +37,11 @@ public class PipelineTest implements EnvUtils {
   private final String s3Bucket = "java-pipeline";
   private final String pipelineName = "testJavaPipeline";
   private final String branchName="master";
-  private final String buildArtifactName= "CodeBuildArtifact_"+branchName;
-  private final String buildProjectName="CodeBuild_"+branchName;
+  private final String projectName="emne-test";
 
 
-  private CodeBuild codeBuild=new CodeBuild(buildProjectName,buildArtifactName,s3Bucket);
+
+  private CodeBuild codeBuild=new CodeBuild(projectName,branchName,s3Bucket);
 
   private IOUtils ioUtils=new IOUtils();
   private final  GithubCredentials githubCredentials;
@@ -57,9 +59,12 @@ public class PipelineTest implements EnvUtils {
 
 
   @Test
-  public void  testTemplate() throws IOException {
-//    deleteStack();
+  public void  testTemplate() throws IOException, InterruptedException {
+    deleteStack();
+//    Thread.sleep(7000);
     AmazonCloudFormation cf= AmazonCloudFormationClientBuilder.defaultClient();
+
+
     CreateStackRequest stack=new CreateStackRequest();
 
     stack.setStackName("JavaTestStack");
@@ -69,8 +74,11 @@ public class PipelineTest implements EnvUtils {
     parameters.add(new Parameter().withParameterKey("ProjectName").withParameterValue("JavaCloudFormationProject"));
     parameters.add(new Parameter().withParameterKey("Branch").withParameterValue("master"));
     parameters.add(new Parameter().withParameterKey("PipelineRoleName")
-        .withParameterValue("TestRoleCloudFormationPipeline"));
+        .withParameterValue("CustomPipelineRole"));
     parameters.add(new Parameter().withParameterKey("PipelineBucket").withParameterValue("java-pipeline"));
+    String auth=getEnvVariable("oauth");
+    parameters.add(new Parameter().withParameterKey("GitHubAuth").withParameterValue(auth));
+
     stack.setParameters(parameters);
     stack.withCapabilities(Capability.CAPABILITY_NAMED_IAM);
     cf.createStack(stack);
@@ -82,12 +90,13 @@ public class PipelineTest implements EnvUtils {
     AmazonCloudFormation cf= AmazonCloudFormationClientBuilder.defaultClient();
     DeleteStackRequest delete=new DeleteStackRequest().withStackName("JavaTestStack");
     cf.deleteStack(delete);
+
   }
 
-  @Test
+  @Ignore
   public void testPipeline() throws IOException, InterruptedException {
 
-    PipelineRole pipelineRole=new PipelineRole(buildProjectName,branchName);
+    PipelineRole pipelineRole=new PipelineRole(projectName,branchName);
     Role role = pipelineRole.createPipelineRole(rolename);
     codeBuild.createBuildProjectForCodePipeline(role);
 
@@ -118,7 +127,7 @@ public class PipelineTest implements EnvUtils {
   private List<StageDeclaration> createStageDeclarations(Role role) {
     List<StageDeclaration> stageDeclarations = new ArrayList<>();
 
-    GithubSource githubSource=new GithubSource(githubCredentials,role,"emneApp");
+    GithubSource githubSource=new GithubSource(githubCredentials,role,projectName);
     StageDeclaration sourceStage=githubSource.addSourceStage();
     stageDeclarations.add(sourceStage);
 
@@ -159,7 +168,9 @@ public class PipelineTest implements EnvUtils {
 
   }
 
-
+  private String branchDescription(){
+    return String.format("%s_%s",projectName,branchName);
+  }
 
 //  public void deployTestEnvironment(){
 //

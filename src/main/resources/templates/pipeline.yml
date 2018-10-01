@@ -1,7 +1,0 @@
-AWSTemplateFormatVersion: 2010-09-09
-Description: A Java Spring web service deployed to AWS Lambda.
-Resources:
-  CloudFormationRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:

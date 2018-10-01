@@ -1,4 +1,4 @@
-package no.bibsys.build;
+package no.bibsys.codebuild;
 
 import com.amazonaws.services.codebuild.AWSCodeBuild;
 import com.amazonaws.services.codebuild.AWSCodeBuildClientBuilder;
@@ -38,10 +38,10 @@ public class CodeBuild {
 
   private final String outputArtifactName;
 
-  public CodeBuild(String buildProjectName,String outputArtifactName,String s3Bucket) {
-    this.buildProjectName = buildProjectName;
+  public CodeBuild(String projectName,String branchName,String s3Bucket) {
+    this.buildProjectName = String.format("CodeBuild_%s_%s",projectName,branchName);
     this.s3Bucket=s3Bucket;
-    this.outputArtifactName =outputArtifactName;
+    this.outputArtifactName =String.format("%s_%s_CodeBuild_artifact",projectName,branchName);
   }
 
 
@@ -77,7 +77,6 @@ public class CodeBuild {
   private ActionTypeId defaultActionTypeId() {
     return new ActionTypeId()
           .withCategory(ActionCategory.Build)
-          .withOwner("AWS")
           .withProvider("CodeBuild")
           .withVersion("1")
           .withOwner(ActionOwner.AWS);

@@ -12,9 +12,11 @@ public class PipelineRole {
 
 
   private final String s3BucketName;
+  private final String branch;
 
   public PipelineRole(String projectName,String branch){
-    s3BucketName=String.join("-",projectName,branch);
+    s3BucketName=projectName;
+    this.branch=branch;
   }
 
   private RoleHelper helper=new RoleHelper();
@@ -46,6 +48,7 @@ public class PipelineRole {
     String inlinePolicyName = roleName + "_bucket_access";
     String accessToBucket = ioUtils
         .resourceAsString(Paths.get("policies", "accessToBucket.json"));
+    accessToBucket.replaceAll("\\[BUCKET_NAME\\]",s3BucketName);
 
     return new PutRolePolicyRequest()
         .withPolicyDocument(accessToBucket)

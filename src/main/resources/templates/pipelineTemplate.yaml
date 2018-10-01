@@ -1,6 +1,8 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template for Building a pipeline
 Parameters:
+  GitHubAuth:
+    Type: String
   PipelineBucket:
     Type: String
   ProjectName:
@@ -13,7 +15,47 @@ Parameters:
     Type: String
     MinLength: 1
     MaxLength: 100
+
 Resources:
+
+  CreateStackRole:
+    DependsOn:
+    - PipelineRole
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Sid: 1
+          Effect: Allow
+          Action:
+          - sts:AssumeRole
+          Principal:
+            Service:
+              - cloudformation.amazonaws.com
+              - codepipeline.amazonaws.com
+              - codebuild.amazonaws.com
+              - iam.amazonaws.com
+            AWS: !GetAtt PipelineRole.Arn
+
+      Policies:
+        -
+          PolicyName: "passRole"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Action:
+                  - 'iam:PassRole'
+                Effect: Allow
+                Resource: "*"
+              -
+                Action:
+                  - 'cloudformation:CreateChangeSet'
+                Effect: Allow
+                Resource:
+                - arn:aws:cloudformation:eu-west-1:aws:transform/Serverless-2016-10-31
+
   PipelineRole:
     Type: AWS::IAM::Role
     Properties:
@@ -36,6 +78,7 @@ Resources:
       - arn:aws:iam::aws:policy/AWSCodePipelineFullAccess
       - arn:aws:iam::aws:policy/AWSCodeCommitFullAccess
       - arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess
+
       Policies:
       - PolicyName: s3Access
         PolicyDocument:
@@ -47,39 +90,150 @@ Resources:
             - s3:GetObject
             - s3:GetObjectVersion
             Resource:
-             - !Join
-               - ''
-               - - "arn:aws:s3:::"
-                 - !Ref PipelineBucket
-                 - "/*"
-             - !Join
-               - ''
-               - - "arn:aws:s3:::"
-                 - !Ref PipelineBucket
+            - !Join
+              - ''
+              - - "arn:aws:s3:::"
+                - !Ref PipelineBucket
+                - "/*"
+            - !Join
+              - ''
+              - - "arn:aws:s3:::"
+                - !Ref PipelineBucket
           - Effect: Allow
             Action:
             - logs:CreateLogGroup
             - logs:CreateLogStream
             - logs:PutLogEvents
-            Resource:
-            - "*"
+            Resource: "*"
+      -
+        PolicyName: assumeRole
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+          -
+            Action:
+            - 'sts:AssumeRole'
+            Effect: Allow
+            Resource: "*"
+
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Description: CodeBuild project for using in the CodePipeline
+    Properties:
+      Name:
+        !Join
+      - "_"
+      - - "CodeBuild"
+        - !Ref ProjectName
+        - !Ref Branch
+      Artifacts:
+        Name:
+          !Join
+        - "_"
+        - - !Ref ProjectName
+          - !Ref Branch
+          - "Codebuild_artifact"
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: "aws/codebuild/eb-java-8-amazonlinux-64:2.4.3"
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+        - Name: S3_BUCKET
+          Type: PLAINTEXT
+          Value: !Ref PipelineBucket
+      ServiceRole: !GetAtt PipelineRole.Arn
   Pipeline:
+    DependsOn:
+      - CodeBuildProject
+      - CreateStackRole
+      - PipelineRole
     Type: AWS::CodePipeline::Pipeline
     Properties:
       RoleArn: !GetAtt PipelineRole.Arn
       Name:
         !Join
-        - '-'
-        - - !Ref ProjectName
-          - !Ref Branch
+      - '-'
+      - - !Ref ProjectName
+        - !Ref Branch
       ArtifactStore:
         Type: S3
         Location: !Ref PipelineBucket
       Stages:
-        - Actions:
-            - ActionTypeId:
-                Category : Source
-                Owner:
+      - Name: Github_pull
+        Actions:
+        - Name: Source
+          ActionTypeId:
+            Category: Source
+            Provider: GitHub
+            Owner: ThirdParty
+            Version: 1
+          Configuration:
+            Owner: BIBSYSDEV
+            Repo:   authority-registry
+            Branch: master
+            OAuthToken: !Ref GitHubAuth
+          OutputArtifacts:
+          - Name: !Join
+            - "_"
+            - - "Source"
+              - !Ref ProjectName
+              - !Ref Branch
+      - Name: CodeBuild
+        Actions:
+        - Name: CodeBuildAction
+          ActionTypeId:
+            Category: Build
+            Owner: AWS
+            Provider: CodeBuild
+            Version: 1
+          InputArtifacts:
+          - Name: !Join
+            - "_"
+            - - "Source"
+              - !Ref ProjectName
+              - !Ref Branch
+          OutputArtifacts:
+          - Name: !Join
+            - "_"
+            - - "CodeBuild"
+              - !Ref ProjectName
+              - !Ref Branch
 
+          Configuration:
+            ProjectName:
+              !Join
+            - "_"
+            - - "CodeBuild"
+              - !Ref ProjectName
+              - !Ref Branch
+      - Name: TestStack
+        Actions:
+        - Name: CreateTestStack
+
+          ActionTypeId:
+            Category: Deploy
+            Owner: AWS
+            Version: 1
+            Provider: CloudFormation
+          Configuration:
+            ActionMode: CHANGE_SET_REPLACE
+            StackName: TestStack
+            ChangeSetName: TestStageChangeSet
+            RoleArn: !GetAtt CreateStackRole.Arn
+            TemplatePath: !Join
+                           -  "_"
+                           -  - "CodeBuild"
+                              - !Ref ProjectName
+                              - !Ref Branch
+                              - '::template-export.yml'
+#        - Name: ExecuteTestStack
+#          ActionTypeId:
+#            Category: Deploy
+#            Owner: AWS
+#            Version: 1
+#            Provider: CloudFormation
 
 
