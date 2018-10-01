@@ -126,6 +126,7 @@ Resources:
                   - 'config:DescribeConfigRules'
                   - 'config:PutConfigRule'
                   - 'config:DeleteConfigRule'
+                  - 'ssm:PutParameter'
                 Effect: Allow
                 Resource: '*'
               - Action:
@@ -155,6 +156,8 @@ Resources:
               - 'logs:CreateLogGroup'
               - 'logs:CreateLogStream'
               - 'logs:PutLogEvents'
+              - 'ssm:GetParameter'
+              - 'ssm:GetParameters'
             Effect: Allow
             Resource: '*'
           - Action:
@@ -216,6 +219,9 @@ Resources:
       ServiceRole: !Ref CodeBuildRole
       Source:
         Type: codepipeline
+      Cache:
+        Type: S3
+        Location: !Ref S3Bucket
     Type: 'AWS::CodeBuild::Project'
   CodeBuildTestProject:
     DependsOn:
@@ -233,7 +239,7 @@ Resources:
         EnvironmentVariables:
           - Name: S3_BUCKET
             Value: !Ref S3Bucket
-        Image: 'aws/codebuild/eb-java-8-amazonlinux-64:2.4.3'
+        Image: 'aws/codebuild/nodejs:10.1.0'
         Type: container
       Name: !Join
         - '-'
