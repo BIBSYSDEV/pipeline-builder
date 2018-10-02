@@ -127,6 +127,7 @@ Resources:
                   - 'config:PutConfigRule'
                   - 'config:DeleteConfigRule'
                   - 'ssm:PutParameter'
+                  - 'ssm:DeleteParameter'
                 Effect: Allow
                 Resource: '*'
               - Action:
