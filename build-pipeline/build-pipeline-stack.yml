@@ -126,6 +126,8 @@ Resources:
                   - 'config:DescribeConfigRules'
                   - 'config:PutConfigRule'
                   - 'config:DeleteConfigRule'
+                  - 'ssm:PutParameter'
+                  - 'ssm:DeleteParameter'
                 Effect: Allow
                 Resource: '*'
               - Action:
@@ -155,6 +157,8 @@ Resources:
               - 'logs:CreateLogGroup'
               - 'logs:CreateLogStream'
               - 'logs:PutLogEvents'
+              - 'ssm:GetParameter'
+              - 'ssm:GetParameters'
             Effect: Allow
             Resource: '*'
           - Action:
@@ -209,10 +213,46 @@ Resources:
             Value: !Ref S3Bucket
         Image: 'aws/codebuild/eb-java-8-amazonlinux-64:2.4.3'
         Type: container
-      Name: !Ref ProjectId
+      Name: !Join
+        - '-'
+        - - !Ref ProjectId
+          - Build
       ServiceRole: !Ref CodeBuildRole
       Source:
         Type: codepipeline
+      Cache:
+        Type: S3
+        Location: !Ref S3Bucket
+    Type: 'AWS::CodeBuild::Project'
+  CodeBuildTestProject:
+    DependsOn:
+      - CodeBuildPolicy
+    Properties:
+      Artifacts:
+        Packaging: zip
+        Type: codepipeline
+      Description: !Join
+        - ''
+        - - 'CodeBuild Test Project for '
+          - !Ref AppName
+      Environment:
+        ComputeType: small
+        EnvironmentVariables:
+          - Name: S3_BUCKET
+            Value: !Ref S3Bucket
+        Image: 'aws/codebuild/nodejs:10.1.0'
+        Type: container
+      Name: !Join
+        - '-'
+        - - !Ref ProjectId
+          - Test
+      ServiceRole: !Ref CodeBuildRole
+      Source:
+        Type: codepipeline
+        BuildSpec: testspec.yml
+      Cache:
+        Type: S3
+        Location: !Ref S3Bucket
     Type: 'AWS::CodeBuild::Project'
   CodeBuildRole:
     Description: Creating service role in IAM for Amazon EC2 instances
@@ -268,6 +308,9 @@ Resources:
                 Resource:
                   - !GetAtt
                     - CodeBuildProject
+                    - Arn
+                  - !GetAtt
+                    - CodeBuildTestProject
                     - Arn
               - Action:
                   - 'cloudformation:DescribeStacks'
@@ -351,6 +394,9 @@ Resources:
                   - 'logs:CreateLogGroup'
                   - 'logs:CreateLogStream'
                   - 'logs:PutLogEvents'
+                  - 'dynamodb:CreateTable'
+                  - 'dynamodb:DeleteTable'
+                  - 'dynamodb:DescribeTable'
                 Effect: Allow
                 Resource: '*'
             Version: 2012-10-17
@@ -366,6 +412,7 @@ Resources:
       - CodePipelineTrustRole
       - S3Bucket
       - CodeBuildProject
+      - CodeBuildTestProject
       - CloudFormationTrustRole
     Description: Creating a deployment pipeline for your project in AWS CodePipeline
     Properties:
@@ -409,7 +456,10 @@ Resources:
                 Provider: CodeBuild
                 Version: 1
               Configuration:
-                ProjectName: !Ref ProjectId
+                ProjectName: !Join
+                  - '-'
+                  - - !Ref ProjectId
+                    - Build
               InputArtifacts:
                 - Name: !Join
                     - '-'
@@ -422,7 +472,6 @@ Resources:
                     - - !Ref ProjectId
                       - BuildArtifact
               RunOrder: 1
-
         - Name: Test
           Actions:
             - ActionTypeId:
@@ -479,11 +528,21 @@ Resources:
               OutputArtifacts: []
               RunOrder: 2
             - ActionTypeId:
-                Category: Approval # TODO: automated function tests
+                Category: Build
                 Owner: AWS
-                Provider: Manual
+                Provider: CodeBuild
                 Version: 1
-              Name: ApproveTestStack
+              Configuration:
+                ProjectName: !Join
+                  - '-'
+                  - - !Ref ProjectId
+                    - Test
+              InputArtifacts:
+                - Name: !Join
+                    - '-'
+                    - - !Ref ProjectId
+                      - SourceArtifact
+              Name: FeatureTest
               RunOrder: 3
             - ActionTypeId:
                 Category: Deploy
