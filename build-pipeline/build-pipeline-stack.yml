@@ -249,6 +249,9 @@ Resources:
       Source:
         Type: codepipeline
         BuildSpec: testspec.yml
+      Cache:
+        Type: S3
+        Location: !Ref S3Bucket
     Type: 'AWS::CodeBuild::Project'
   CodeBuildRole:
     Description: Creating service role in IAM for Amazon EC2 instances
