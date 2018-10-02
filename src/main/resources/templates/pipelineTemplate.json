@@ -1,0 +1,150 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description"             : "CloudFormation template for building a pipeline",
+  "Parameters"              : {
+    "GitHubAuth"      : {
+      "Type": "String"
+    },
+    "PipelineBucket"  : {
+      "Type": "String"
+    },
+    "ProjectId"       : {
+      "Type": "String"
+    },
+    "Branch"          : {
+      "Type": "String"
+    },
+    "PipelineRoleName": {
+      "Type": "String"
+    }
+  },
+  "Resources"               : {
+    "CreateStackRole": {
+      "Type"      : "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version"  : "2012-10-17",
+          "Statement": [
+            {
+              "Effect"   : "Allow",
+              "Action"   : [
+                "sts:AssumeRole"
+              ],
+              "Principal": {
+                "Service": [
+                  "cloudformation.amazonaws.com",
+                  "codepipeline.amazonaws.com",
+                  "codebuild.amazonaws.com",
+                  "iam.amazon.aws"
+                ],
+                "AWS"    : {
+                  "Fn::GetAtt": [
+                    "PipelineRole",
+                    "Arn"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "Policies"                : [
+          {
+            "PolicyName"    : "passRole",
+            "PolicyDocument": {
+              "Version"  : "2012-10-17",
+              "Statement": [
+                {
+                  "Action"  : ["iam:PassRole"],
+                  "Effect"  : "Allow",
+                  "Resource": "*"
+                },
+                {
+                  "Action"  : ["cloudformation:CreateChangeSet"],
+                  "Effect"  : "Allow",
+                  "Resource": "arn:aws:cloudformation:eu-west-1:aws:transform/Serverless-2016-10-31"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "PipelineRole"   : {
+      "Type"      : "AWS::IAM::Role",
+      "Properties": {
+        "RoleName"                : {
+          "Ref": "PipelineRoleName"
+        },
+        "AssumeRolePolicyDocument": {
+          "Version"          : "2012-10-17",
+          "Statement"        : [
+            {
+              "Effect"   : "Allow",
+              "Action"   : [
+                "sts:AssumeRole"
+              ],
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com",
+                  "codepipeline.amazonaws.com",
+                  "codebuild.amazonaws.com",
+                  "cloudformation.amazonaws.com",
+                  "iam.amazonaws.com"
+                ]
+              }
+            }
+          ],
+          "ManagedPolicyArns": [
+            "arn:aws:iam::aws:policy/AWSCodePipelineFullAccess",
+            "arn:aws:iam::aws:policy/AWSCodeCommitFullAccess",
+            "arn:aws:iam::aws:policy/AWSCodeBuildAdminAcces"
+          ],
+          "Policies"         : [
+            {
+              "PolicyName"    : "s3Access",
+              "PolicyDocument": {
+                "Version"  : "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect"  : "Allow",
+                    "Action"  : [
+                      "s3:PutObject",
+                      "s3:GetObject",
+                      "s3:GetOBjectVersion"
+                    ],
+                    "Resource": [
+                      {
+                        "Fn:Join": [
+                          "",
+                          [
+                            "arn:aws:s3:::",
+                            {"Ref": "PipelineBucket"},
+                            "/*"
+                          ]
+                        ]
+                      },
+                      {
+                        "Fn:Join": [
+                          "", ["arn:aws:s3:::", {"Ref": "PipelineBucket"}]
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "PolicyName": "cloudFormationAccess",
+              "PolicyDocument":{
+                "Version": "2012-10-17",
+                "Statement":{
+
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

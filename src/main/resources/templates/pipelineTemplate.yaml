@@ -1,23 +1,27 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template for Building a pipeline
 Parameters:
-  GitHubAuth:
+  GithubAuth:
     Type: String
-  PipelineBucket:
+  GithubOwner:
     Type: String
-  ProjectName:
+    Default: "BIBSYSDEV"
+  GithubRepo:
     Type: String
-    Default: UnknownProject
-  Branch:
+    Default: "authority-registry"
+  PipelineBucketname:
     Type: String
-    Default: UknownBranch
-  PipelineRoleName:
+  PipelineRolename:
     Type: String
     MinLength: 1
     MaxLength: 100
+  ProjectId :
+    Type: String
+  ProjectBranch :
+    Type: String
+
 
 Resources:
-
   CreateStackRole:
     DependsOn:
     - PipelineRole
@@ -60,7 +64,7 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       RoleName:
-        Ref: PipelineRoleName
+        Ref: PipelineRolename
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -93,18 +97,38 @@ Resources:
             - !Join
               - ''
               - - "arn:aws:s3:::"
-                - !Ref PipelineBucket
+                - !Ref PipelineBucketname
                 - "/*"
             - !Join
               - ''
               - - "arn:aws:s3:::"
-                - !Ref PipelineBucket
+                - !Ref PipelineBucketname
           - Effect: Allow
             Action:
             - logs:CreateLogGroup
             - logs:CreateLogStream
             - logs:PutLogEvents
             Resource: "*"
+      -
+        PolicyName: cloudFormationAccess
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            -
+              Effect: Allow
+              Action:
+                - cloudformation:DescribeChangeSet
+              Resource:
+                        - !Join
+                          - ':'
+                          - - 'arn:aws:cloudformation'
+                            - !Ref 'AWS::Region'
+                            - !Ref 'AWS::AccountId'
+                            - !Join
+                                - '/'
+                                - - 'stack'
+                                  - !Ref ProjectId
+                                  - '*'
       -
         PolicyName: assumeRole
         PolicyDocument:
@@ -124,15 +148,15 @@ Resources:
         !Join
       - "_"
       - - "CodeBuild"
-        - !Ref ProjectName
-        - !Ref Branch
+        - !Ref ProjectId
+        - !Ref ProjectBranch
       Artifacts:
         Name:
           !Join
-        - "_"
-        - - !Ref ProjectName
-          - !Ref Branch
-          - "Codebuild_artifact"
+          - "_"
+          - - !Ref ProjectId
+            - !Ref ProjectBranch
+            - "Codebuild_artifact"
         Type: CODEPIPELINE
       Source:
         Type: CODEPIPELINE
@@ -143,7 +167,7 @@ Resources:
         EnvironmentVariables:
         - Name: S3_BUCKET
           Type: PLAINTEXT
-          Value: !Ref PipelineBucket
+          Value: !Ref PipelineBucketname
       ServiceRole: !GetAtt PipelineRole.Arn
   Pipeline:
     DependsOn:
@@ -156,11 +180,11 @@ Resources:
       Name:
         !Join
       - '-'
-      - - !Ref ProjectName
-        - !Ref Branch
+      - - !Ref ProjectId
+        - !Ref ProjectId
       ArtifactStore:
         Type: S3
-        Location: !Ref PipelineBucket
+        Location: !Ref PipelineBucketname
       Stages:
       - Name: Github_pull
         Actions:
@@ -174,13 +198,13 @@ Resources:
             Owner: BIBSYSDEV
             Repo:   authority-registry
             Branch: master
-            OAuthToken: !Ref GitHubAuth
+            OAuthToken: !Ref GithubAuth
           OutputArtifacts:
           - Name: !Join
             - "_"
             - - "Source"
-              - !Ref ProjectName
-              - !Ref Branch
+              - !Ref ProjectId
+              - !Ref ProjectBranch
       - Name: CodeBuild
         Actions:
         - Name: CodeBuildAction
@@ -193,22 +217,22 @@ Resources:
           - Name: !Join
             - "_"
             - - "Source"
-              - !Ref ProjectName
-              - !Ref Branch
+              - !Ref ProjectId
+              - !Ref ProjectBranch
           OutputArtifacts:
           - Name: !Join
             - "_"
             - - "CodeBuild"
-              - !Ref ProjectName
-              - !Ref Branch
+              - !Ref ProjectId
+              - !Ref ProjectBranch
 
           Configuration:
             ProjectName:
               !Join
             - "_"
             - - "CodeBuild"
-              - !Ref ProjectName
-              - !Ref Branch
+              - !Ref ProjectId
+              - !Ref ProjectBranch
       - Name: TestStack
         Actions:
         - Name: CreateTestStack
@@ -226,9 +250,10 @@ Resources:
             TemplatePath: !Join
                            -  "_"
                            -  - "CodeBuild"
-                              - !Ref ProjectName
-                              - !Ref Branch
+                              - !Ref ProjectId
+                              - !Ref ProjectBranch
                               - '::template-export.yml'
+
 #        - Name: ExecuteTestStack
 #          ActionTypeId:
 #            Category: Deploy

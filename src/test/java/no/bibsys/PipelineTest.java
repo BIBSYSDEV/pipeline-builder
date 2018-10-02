@@ -18,6 +18,9 @@ import com.amazonaws.services.codepipeline.model.DeletePipelineRequest;
 import com.amazonaws.services.codepipeline.model.PipelineDeclaration;
 import com.amazonaws.services.codepipeline.model.StageDeclaration;
 import com.amazonaws.services.identitymanagement.model.Role;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigParseOptions;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -41,6 +44,11 @@ public class PipelineTest implements EnvUtils {
 
 
 
+  ConfigParseOptions options= ConfigParseOptions.defaults();
+
+
+
+
   private CodeBuild codeBuild=new CodeBuild(projectName,branchName,s3Bucket);
 
   private IOUtils ioUtils=new IOUtils();
@@ -60,6 +68,7 @@ public class PipelineTest implements EnvUtils {
 
   @Test
   public void  testTemplate() throws IOException, InterruptedException {
+
     deleteStack();
 //    Thread.sleep(7000);
     AmazonCloudFormation cf= AmazonCloudFormationClientBuilder.defaultClient();
@@ -71,7 +80,7 @@ public class PipelineTest implements EnvUtils {
     String templateBody=ioUtils.resourceAsString(Paths.get("templates","pipelineTemplate.yaml"));
     stack.setTemplateBody(templateBody);
     List<Parameter> parameters=new ArrayList<>();
-    parameters.add(new Parameter().withParameterKey("ProjectName").withParameterValue("JavaCloudFormationProject"));
+    parameters.add(new Parameter().withParameterKey("ProjectId").withParameterValue("JavaCloudFormationProject"));
     parameters.add(new Parameter().withParameterKey("Branch").withParameterValue("master"));
     parameters.add(new Parameter().withParameterKey("PipelineRoleName")
         .withParameterValue("CustomPipelineRole"));
