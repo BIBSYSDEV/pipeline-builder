@@ -5,10 +5,8 @@ Parameters:
     Type: String
   GithubOwner:
     Type: String
-    Default: "BIBSYSDEV"
   GithubRepo:
     Type: String
-    Default: "authority-registry"
   PipelineBucketname:
     Type: String
   PipelineRolename:
@@ -19,9 +17,27 @@ Parameters:
     Type: String
   ProjectBranch :
     Type: String
-
+  CodebuildProjectname:
+    Type: String
+  CodebuildOutputArtifact:
+    Type: String
+  SourceStageOutputArtifact:
+    Type: String
 
 Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      AccessControl: Private
+      BucketName: !Ref PipelineBucketname
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          -  ServerSideEncryptionByDefault:
+               SSEAlgorithm: aws:kms
+
   CreateStackRole:
     DependsOn:
     - PipelineRole
@@ -94,15 +110,8 @@ Resources:
             - s3:GetObject
             - s3:GetObjectVersion
             Resource:
-            - !Join
-              - ''
-              - - "arn:aws:s3:::"
-                - !Ref PipelineBucketname
-                - "/*"
-            - !Join
-              - ''
-              - - "arn:aws:s3:::"
-                - !Ref PipelineBucketname
+            - !Join ["", [!GetAtt S3Bucket.Arn, "/*"]]
+            - !GetAtt S3Bucket.Arn
           - Effect: Allow
             Action:
             - logs:CreateLogGroup
@@ -144,19 +153,9 @@ Resources:
     Type: AWS::CodeBuild::Project
     Description: CodeBuild project for using in the CodePipeline
     Properties:
-      Name:
-        !Join
-      - "_"
-      - - "CodeBuild"
-        - !Ref ProjectId
-        - !Ref ProjectBranch
+      Name: !Ref CodebuildProjectname
       Artifacts:
-        Name:
-          !Join
-          - "_"
-          - - !Ref ProjectId
-            - !Ref ProjectBranch
-            - "Codebuild_artifact"
+        Name: !Ref CodebuildOutputArtifact
         Type: CODEPIPELINE
       Source:
         Type: CODEPIPELINE
@@ -169,6 +168,7 @@ Resources:
           Type: PLAINTEXT
           Value: !Ref PipelineBucketname
       ServiceRole: !GetAtt PipelineRole.Arn
+
   Pipeline:
     DependsOn:
       - CodeBuildProject
@@ -178,10 +178,8 @@ Resources:
     Properties:
       RoleArn: !GetAtt PipelineRole.Arn
       Name:
-        !Join
-      - '-'
-      - - !Ref ProjectId
-        - !Ref ProjectId
+        !Join ['-',[!Ref ProjectId, !Ref ProjectBranch]]
+
       ArtifactStore:
         Type: S3
         Location: !Ref PipelineBucketname
@@ -195,16 +193,12 @@ Resources:
             Owner: ThirdParty
             Version: 1
           Configuration:
-            Owner: BIBSYSDEV
-            Repo:   authority-registry
-            Branch: master
+            Owner: !Ref GithubOwner
+            Repo:   !Ref GithubRepo
             OAuthToken: !Ref GithubAuth
+            Branch: !Ref ProjectBranch
           OutputArtifacts:
-          - Name: !Join
-            - "_"
-            - - "Source"
-              - !Ref ProjectId
-              - !Ref ProjectBranch
+          - Name: !Ref SourceStageOutputArtifact
       - Name: CodeBuild
         Actions:
         - Name: CodeBuildAction
@@ -214,25 +208,12 @@ Resources:
             Provider: CodeBuild
             Version: 1
           InputArtifacts:
-          - Name: !Join
-            - "_"
-            - - "Source"
-              - !Ref ProjectId
-              - !Ref ProjectBranch
+          - Name: !Ref SourceStageOutputArtifact
           OutputArtifacts:
-          - Name: !Join
-            - "_"
-            - - "CodeBuild"
-              - !Ref ProjectId
-              - !Ref ProjectBranch
-
+          - Name: !Ref CodebuildOutputArtifact
           Configuration:
-            ProjectName:
-              !Join
-            - "_"
-            - - "CodeBuild"
-              - !Ref ProjectId
-              - !Ref ProjectBranch
+            ProjectName: !Ref CodebuildProjectname
+
       - Name: TestStack
         Actions:
         - Name: CreateTestStack
@@ -247,18 +228,4 @@ Resources:
             StackName: TestStack
             ChangeSetName: TestStageChangeSet
             RoleArn: !GetAtt CreateStackRole.Arn
-            TemplatePath: !Join
-                           -  "_"
-                           -  - "CodeBuild"
-                              - !Ref ProjectId
-                              - !Ref ProjectBranch
-                              - '::template-export.yml'
-
-#        - Name: ExecuteTestStack
-#          ActionTypeId:
-#            Category: Deploy
-#            Owner: AWS
-#            Version: 1
-#            Provider: CloudFormation
-
-
+            TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
