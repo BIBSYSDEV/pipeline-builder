@@ -139,10 +139,11 @@ Resources:
           Statement:
           - Effect: Allow
             Action:
+            - cloudformation:DescribeStacks
             - cloudformation:DescribeChangeSet
             - cloudformation:CreateChangeSet
+            - cloudformation:DeleteChangeSet
             - cloudformation:ExecuteChangeSet
-            - cloudformation:DeleteStack
             Resource:
             - !Sub
               - 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackName}/*'
