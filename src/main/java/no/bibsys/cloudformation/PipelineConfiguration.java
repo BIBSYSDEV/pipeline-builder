@@ -2,43 +2,46 @@ package no.bibsys.cloudformation;
 
 public class PipelineConfiguration extends CloudFormationConfigrable {
 
-    private String bucketName;
-    private String roleName;
-    private String sourceOutputArtifactName;
+
+    private  final String sourceOutputArtifactName;
+    private final String testStackName;
+
+
+    private final String pipelineName;
 
 
     public PipelineConfiguration(String projectId, String branchName) {
         super(projectId,branchName);
-        this.bucketName = initBucketName();
-        this.roleName=initRoleName();
+
         this.sourceOutputArtifactName=initSourceOutputArtifactName();
+        this.testStackName=initTestStackName();
+        this. pipelineName = initializePipelineName();
+    }
+
+    private String initializePipelineName() {
+        return format(projectId,branchName,"pipeline");
+    }
+
+    private String initTestStackName() {
+        return format(projectId,branchName,"testStack");
     }
 
     private String initSourceOutputArtifactName() {
-        return format(projectId,branchName,"source-output");
-    }
-
-    private String initRoleName() {
-        return  format(projectId,branchName);
-    }
-
-    private String initBucketName() {
-        String postfix=devOrProd();
-        return format(projectId,postfix);
+        return format(projectId,branchName,"sourceOutput");
     }
 
 
-    public String getBucketName() {
-        return bucketName;
-    }
-
-    public String getRoleName() {
-        return roleName;
+    public String getPipelineName() {
+        return pipelineName;
     }
 
 
     public String getSourceOutputArtifactName() {
         return sourceOutputArtifactName;
+    }
+
+    public String getTestStackName() {
+        return testStackName;
     }
 
 

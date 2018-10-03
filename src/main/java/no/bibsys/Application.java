@@ -23,7 +23,8 @@ public class Application {
     public PipelineStackConfiguration pipeineStackConfiguration() {
         String projectName = "emne-test";
         String branchName = "master";
-        PipelineStackConfiguration pipelineStackConfiguration = new PipelineStackConfiguration(projectName, branchName);
+        PipelineStackConfiguration pipelineStackConfiguration = new PipelineStackConfiguration(
+            projectName, branchName);
         return pipelineStackConfiguration;
 
     }
@@ -32,7 +33,7 @@ public class Application {
     public CreateStackRequest createStackRequest(
         PipelineStackConfiguration pipelineStack) throws IOException {
         CreateStackRequest createStackRequest = new CreateStackRequest();
-        createStackRequest.setStackName(pipelineStack.getName());
+        createStackRequest.setStackName(pipelineStack.getPipelineStackName());
         List<Parameter> parameters = new ArrayList<>();
         parameters
             .add(newParameter("GithubAuth", pipelineStack.getGithubConf().getAuth()));
@@ -40,20 +41,29 @@ public class Application {
             newParameter("GithubOwner", pipelineStack.getGithubConf().getOwner()));
         parameters
             .add(newParameter("GithubRepo", pipelineStack.getGithubConf().getRepo()));
-        parameters.add(newParameter("PipelineBucketname",
-            pipelineStack.getPipelineConfiguration().getBucketName()));
-        parameters.add(newParameter("PipelineRolename",
-            pipelineStack.getPipelineConfiguration().getRoleName()));
 
-        parameters.add(newParameter("SourceStageOutputArtifact",pipelineStack
+        parameters.add(newParameter("PipelineName",
+            pipelineStack.getPipelineConfiguration().getPipelineName()));
+
+        parameters.add(newParameter("PipelineBucketname", pipelineStack.getBucketName()));
+
+        parameters.add(newParameter("PipelineRolename", pipelineStack.getPipelineRole()));
+
+        parameters.add(newParameter("CreateStackRolename", pipelineStack.getCreateStackRole()));
+
+        parameters.add(newParameter("SourceStageOutputArtifact", pipelineStack
             .getPipelineConfiguration().getSourceOutputArtifactName()));
 
         parameters.add(newParameter("ProjectId", pipelineStack.getProjectId()));
         parameters.add(newParameter("ProjectBranch", pipelineStack.getBranchName()));
 
-        parameters.add(newParameter("CodebuildOutputArtifact",pipelineStack.getCodeBuildConfiguration().getOutputArtifact()));
-        parameters.add(newParameter("CodebuildProjectname",pipelineStack.getCodeBuildConfiguration().getProjectName()));
+        parameters.add(newParameter("CodebuildOutputArtifact",
+            pipelineStack.getCodeBuildConfiguration().getOutputArtifact()));
+        parameters.add(newParameter("CodebuildProjectname",
+            pipelineStack.getCodeBuildConfiguration().getProjectName()));
 
+        parameters.add(newParameter("TestStackName",
+            pipelineStack.getPipelineConfiguration().getTestStackName()));
 
         createStackRequest.setParameters(parameters);
         createStackRequest.withCapabilities(Capability.CAPABILITY_NAMED_IAM);
@@ -70,9 +80,6 @@ public class Application {
     private Parameter newParameter(String key, String value) {
         return new Parameter().withParameterKey(key).withParameterValue(value);
     }
-
-
-
 
 
 }
