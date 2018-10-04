@@ -3,6 +3,8 @@ package no.bibsys;
 import com.amazonaws.services.cloudformation.model.Capability;
 import com.amazonaws.services.cloudformation.model.CreateStackRequest;
 import com.amazonaws.services.cloudformation.model.Parameter;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -10,6 +12,9 @@ import java.util.List;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
 
 public class Application {
+
+
+    Config config= ConfigFactory.load().resolve();
 
 
     private IOUtils ioUtils = new IOUtils();
@@ -22,7 +27,7 @@ public class Application {
 
     public PipelineStackConfiguration pipeineStackConfiguration() {
         String projectName = "emne-test";
-        String branchName = "master";
+        String branchName = config.getString("pipeline.branch");
         PipelineStackConfiguration pipelineStackConfiguration = new PipelineStackConfiguration(
             projectName, branchName);
         return pipelineStackConfiguration;
