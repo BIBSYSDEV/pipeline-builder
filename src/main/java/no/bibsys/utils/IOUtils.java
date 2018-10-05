@@ -1,4 +1,4 @@
-package no.bibsys;
+package no.bibsys.utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,6 +15,19 @@ public class IOUtils {
     public InputStream inputStreamFromResources(Path path){
         String pathString=path.toString();
         return this.getClass().getClassLoader().getResourceAsStream(pathString);
+    }
+
+
+    public String streamToString(InputStream stream) throws IOException {
+        BufferedReader reader=new BufferedReader(new InputStreamReader(stream));
+        List<String> lines=new ArrayList<>();
+        String line=reader.readLine();
+        while(line!=null){
+            lines.add(line);
+            line=reader.readLine();
+        }
+        String output=String.join("",lines);
+        return output;
     }
 
 

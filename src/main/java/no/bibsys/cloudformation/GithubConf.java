@@ -2,7 +2,7 @@ package no.bibsys.cloudformation;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import no.bibsys.EnvUtils;
+import no.bibsys.utils.EnvUtils;
 
 public class GithubConf implements EnvUtils {
 

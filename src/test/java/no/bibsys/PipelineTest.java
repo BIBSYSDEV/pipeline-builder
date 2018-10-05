@@ -11,6 +11,9 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.VersionListing;
 import java.io.IOException;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
+import no.bibsys.utils.EnvUtils;
+import no.bibsys.utils.IOUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class PipelineTest implements EnvUtils {
@@ -19,6 +22,7 @@ public class PipelineTest implements EnvUtils {
 
 
   @Test
+  @Ignore
   public void  testTemplate() throws IOException, InterruptedException {
     Application application=new Application();
 

@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import no.bibsys.utils.IOUtils;
 import org.junit.Test;
 
 public class IOUtilsTest {
@@ -38,7 +39,8 @@ public class IOUtilsTest {
     public void IOUtilsShouldReadResourceAsString() throws IOException {
        String content= ioUtils.resourceAsString(path);
        String trimmed=ioUtils.removeMultipleWhiteSpaces(content);
-       String expected="{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Effect\": \"Allow\", \"Principal\": { \"Service\": [ \"lambda.amazonaws.com\", \"codepipeline.amazonaws.com\", \"codebuild.amazonaws.com\" ] }, \"Action\": [ \"sts:AssumeRole\" ] } ]}";
+       String expected="{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Effect\": \"Allow\", \"Principal\": { \"Service\": [ \"lambda.amazonaws.com\", \"codepipeline.amazonaws.com\", \"codebuild.amazonaws.com\", \"cloudformation.amazonaws.com\", \"iam.amazonaws.com\" ] }, \"Action\": [ \"sts:AssumeRole\" ] } ]\n"
+           + "}";
         assertThat(trimmed.length(),is(not(equalTo(0))));
         assertThat(trimmed,is(equalTo(expected)));
     }

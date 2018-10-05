@@ -1,4 +1,4 @@
-package no.bibsys;
+package no.bibsys.utils;
 
 public interface EnvUtils {
 

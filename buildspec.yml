@@ -1,0 +1,20 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+    # Upgrade AWS CLI to the latest version
+    - pip install --upgrade awscli
+  pre_build:
+    commands:
+    - echo Test started on `date`
+    - sh gradlew clean test
+  build:
+    commands:
+    - echo Build started on `date`
+    - sh gradlew clean build fatJar
+    - aws cloudformation package --template template.yml --s3-bucket $S3_BUCKET --output-template template-export.yml
+
+artifacts:
+  files:
+  - template-export.yml

@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
+import no.bibsys.utils.IOUtils;
 
 public class Application {
 
