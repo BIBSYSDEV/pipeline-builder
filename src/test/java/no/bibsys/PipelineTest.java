@@ -22,7 +22,6 @@ public class PipelineTest implements EnvUtils {
 
 
   @Test
-  @Ignore
   public void  testTemplate() throws IOException, InterruptedException {
     Application application=new Application();
 

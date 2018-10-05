@@ -33,9 +33,8 @@ Outputs:
     Description: AWS  role for AWS Lambda used for passRole to Lambda functions.
     Export:
       Name: !Join ['-',[!Ref ProjectId, !Ref ProjectBranch, 'LambdaTrustRole' ]]
-    Value: !GetAtt
-    - LambdaTrustRole
-    - Arn
+    Value: !GetAtt LambdaTrustRole.Arn
+
 
 
 Resources:
@@ -56,6 +55,7 @@ Resources:
     Type: 'AWS::IAM::Role'
     Description: A service role that will be assumed by the Lambda function
     Properties:
+      RoleName: !Join ['-',[!Ref ProjectId, !Ref ProjectBranch, 'LambdaTrustRole']]
       AssumeRolePolicyDocument:
         Statement:
         - Action: 'sts:AssumeRole'
@@ -85,7 +85,7 @@ Resources:
             Resource: '*'
           Version: 2012-10-17
         PolicyName: LambdaWorkerPolicy
-      RoleName: !Join ['-',[!Ref ProjectId, !Ref ProjectBranch, 'Lambda']]
+
 
 
   CreateStackRole:
@@ -242,6 +242,10 @@ Resources:
           Type: PLAINTEXT
           Value: !Ref PipelineBucketname
       ServiceRole: !GetAtt PipelineRole.Arn
+      Cache:
+        Location: !Join ['/',[!Ref PipelineBucketname, 'dependencycache']]
+        Type: S3
+
 
   Pipeline:
     DependsOn:

@@ -3,7 +3,7 @@ package no.bibsys.handler;
 
 import no.bibsys.handler.requests.BranchRequest;
 
-public class SimpleHandler extends no.bibys.handlers.HandlerHelper<BranchRequest,String> {
+public class SimpleHandler extends HandlerHelper<BranchRequest,String> {
 
 
     public SimpleHandler() {
