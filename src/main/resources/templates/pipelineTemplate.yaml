@@ -46,43 +46,6 @@ Resources:
         - ServerSideEncryptionByDefault:
             SSEAlgorithm: aws:kms
 
-#  LambdaTrustRole:
-#    Type: 'AWS::IAM::Role'
-#    Description: A service role that will be assumed by the Lambda function
-#    Properties:
-#      RoleName: !Ref PipelineLambdaTrustRoleName
-#      AssumeRolePolicyDocument:
-#        Statement:
-#        - Action: 'sts:AssumeRole'
-#          Effect: Allow
-#          Principal:
-#            Service:
-#            - lambda.amazonaws.com
-#      ManagedPolicyArns:
-#      - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
-#      - 'arn:aws:iam::aws:policy/service-role/AWSConfigRulesExecutionRole'
-#      Path: /
-#      Policies:
-#      - PolicyDocument:
-#          Statement:
-#          - Action:
-#            - 'logs:CreateLogGroup'
-#            - 'logs:CreateLogStream'
-#            - 'logs:PutLogEvents'
-#            - 'dynamodb:CreateTable'
-#            - 'dynamodb:DeleteTable'
-#            - 'dynamodb:DescribeTable'
-#            - "dynamodb:BatchGetItem"
-#            - "dynamodb:BatchWriteItem"
-#            - "dynamodb:PutItem"
-#            - "dynamodb:GetItem"
-#            Effect: Allow
-#            Resource: '*'
-#          Version: 2012-10-17
-#        PolicyName: LambdaWorkerPolicy
-
-
-
   CreateStackRole:
     DependsOn:
     - PipelineRole
@@ -122,6 +85,9 @@ Resources:
             Action:
               - 'iam:GetRole'
               - 'iam:CreateRole'
+              - 'iam:PutRolePolicy'
+              - 'iam:DetachRolePolicy'
+              - 'iam:DeltePolicy'
             Resource: '*'
             Effect: Allow
       -
@@ -211,6 +177,7 @@ Resources:
             - cloudformation:CreateChangeSet
             - cloudformation:DeleteChangeSet
             - cloudformation:ExecuteChangeSet
+            - cloudformation:DeleteStack
             Resource:
             - !Sub
               - 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackName}/*'

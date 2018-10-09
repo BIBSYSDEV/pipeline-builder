@@ -3,10 +3,12 @@ package no.bibsys.cloudformation;
 public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
     private final String pipelineStackName;
-    private final CloudFormationTemplateParameters cloudFormationParameters;
     private String bucketName;
     private final String pipelineRoleName;
-    private final String createStackRole;
+    private final String createStackRoleName;
+    private final CloudFormationTemplateParameters cloudFormationParameters;
+
+
 
     public PipelineStackConfiguration(String projectName, String branchName) {
         super(projectName,branchName);
@@ -15,10 +17,13 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
             new CloudFormationTemplateParameters(projectName,branchName);
         this.bucketName=initBucketName();
         this.pipelineRoleName = initPipelineRoleName();
-        this.createStackRole=initCreateStackRole();
+        this.createStackRoleName=initCreateStackRole();
     }
 
 
+    private String initCreateStackRole() {
+        return  format("CreateStack",randomId);
+    }
 
     private String initBucketName() {
         return format(projectId,branchName);
@@ -36,7 +41,7 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
 
     private String pipelineStackName(){
-        return format(projectId,branchName,"pipelineStack");
+        return format(projectId,shortBranch,"pipelineStack");
     }
 
     public GithubConf getGithubConf() {
@@ -65,14 +70,10 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
 
 
-    private String initCreateStackRole() {
-        return  format(projectId,branchName,"create-stack");
-    }
 
 
-
-    public String getCreateStackRole() {
-        return createStackRole;
+    public String getCreateStackRoleName() {
+        return createStackRoleName;
     }
 
 

@@ -65,7 +65,7 @@ public class Application {
         parameters.add(newParameter("PipelineLambdaTrustRoleName", pipelineStack.getPipelineConfiguration().getLambdaTrustRolename()));
         parameters.add(newParameter("ProjectStage",pipelineStack.getStage()));
 
-        parameters.add(newParameter("CreateStackRolename", pipelineStack.getCreateStackRole()));
+        parameters.add(newParameter("CreateStackRolename", pipelineStack.getCreateStackRoleName()));
 
         parameters.add(newParameter("SourceStageOutputArtifact", pipelineStack
             .getPipelineConfiguration().getSourceOutputArtifactName()));

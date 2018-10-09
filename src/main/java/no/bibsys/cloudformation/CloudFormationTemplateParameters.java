@@ -5,10 +5,8 @@ public class CloudFormationTemplateParameters extends CloudFormationConfigurable
 
     private GithubConf githubConf;
     private PipelineConfiguration pipelineConfiguration;
-
-
-
     private CodeBuildConfiguration codeBuildConfiguration;
+
 
     public CloudFormationTemplateParameters(
         String projectName,

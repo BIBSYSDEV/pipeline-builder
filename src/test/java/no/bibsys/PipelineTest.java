@@ -22,8 +22,6 @@ import org.junit.Test;
 public class PipelineTest implements EnvUtils {
 
 
-
-
   @Test
 //  @Ignore
   public void  testTemplate() throws IOException, InterruptedException {
@@ -36,9 +34,9 @@ public class PipelineTest implements EnvUtils {
         .createStackRequest(pipelineStackConfiguration);
     AmazonCloudFormation cf= AmazonCloudFormationClientBuilder.defaultClient();
 
-    deleteDynamoTables();
 
-//    cf.createStack(stack);
+
+    cf.createStack(stack);
   }
 
   private void deleteDynamoTables() throws InterruptedException {
