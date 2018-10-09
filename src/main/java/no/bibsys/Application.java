@@ -1,8 +1,16 @@
 package no.bibsys;
 
+import com.amazonaws.services.cloudformation.AmazonCloudFormation;
+import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
 import com.amazonaws.services.cloudformation.model.Capability;
 import com.amazonaws.services.cloudformation.model.CreateStackRequest;
+import com.amazonaws.services.cloudformation.model.DeleteStackRequest;
 import com.amazonaws.services.cloudformation.model.Parameter;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.ListVersionsRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.VersionListing;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.io.IOException;
@@ -53,7 +61,9 @@ public class Application {
 
         parameters.add(newParameter("PipelineBucketname", pipelineStack.getBucketName()));
 
-        parameters.add(newParameter("PipelineRolename", pipelineStack.getPipelineRole()));
+        parameters.add(newParameter("PipelineRolename", pipelineStack.getPipelineRoleName()));
+        parameters.add(newParameter("PipelineLambdaTrustRoleName", pipelineStack.getPipelineConfiguration().getLambdaTrustRolename()));
+        parameters.add(newParameter("ProjectStage",pipelineStack.getStage()));
 
         parameters.add(newParameter("CreateStackRolename", pipelineStack.getCreateStackRole()));
 
@@ -69,7 +79,7 @@ public class Application {
             pipelineStack.getCodeBuildConfiguration().getProjectName()));
 
         parameters.add(newParameter("TestStackName",
-            pipelineStack.getPipelineConfiguration().getTestStackName()));
+            pipelineStack.getPipelineConfiguration().getSystemStack()));
 
         createStackRequest.setParameters(parameters);
         createStackRequest.withCapabilities(Capability.CAPABILITY_NAMED_IAM);
@@ -86,6 +96,66 @@ public class Application {
     private Parameter newParameter(String key, String value) {
         return new Parameter().withParameterKey(key).withParameterValue(value);
     }
+
+    public void deleteStacks(PipelineStackConfiguration pipelineStackConfiguration){
+        AmazonCloudFormation acf= AmazonCloudFormationClientBuilder.defaultClient();
+
+        String systemStack=pipelineStackConfiguration.getPipelineConfiguration().getSystemStack();
+        DeleteStackRequest deleteStackRequest=new DeleteStackRequest()
+            .withStackName(systemStack);
+
+        acf.deleteStack(deleteStackRequest);
+
+        String pipelineGenerationStack=pipelineStackConfiguration.getPipelineStackName();
+        deleteBucket(pipelineStackConfiguration.getBucketName());
+        deleteStackRequest=new DeleteStackRequest().withStackName(pipelineGenerationStack);
+        acf.deleteStack(deleteStackRequest);
+
+    }
+
+
+    public void deleteBucket(String bucketName){
+        try {
+            AmazonS3 s3 = AmazonS3ClientBuilder.defaultClient();
+            emptyBucket(bucketName, s3);
+
+            s3.deleteBucket(bucketName);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+    private void emptyBucket(String bucketName, AmazonS3 s3) {
+        VersionListing versionListing= s3.listVersions(new ListVersionsRequest().withBucketName(bucketName));
+        while(versionListing.isTruncated()){
+            versionListing.getVersionSummaries().forEach(version ->
+                s3.deleteVersion(bucketName, version.getKey(), version.getVersionId()));
+            versionListing= s3.listNextBatchOfVersions(versionListing);
+        }
+        versionListing.getVersionSummaries().forEach(version ->
+            s3.deleteVersion(bucketName, version.getKey(), version.getVersionId()));
+
+        ObjectListing objectListing = s3.listObjects(bucketName);
+        while(objectListing.isTruncated()){
+            objectListing.getObjectSummaries().stream()
+                .forEach(object -> s3.deleteObject(bucketName, object.getKey()));
+            objectListing=s3.listNextBatchOfObjects(objectListing);
+        }
+
+        objectListing.getObjectSummaries().stream()
+            .forEach(object -> s3.deleteObject(bucketName, object.getKey()));
+
+
+        if(versionListing.isTruncated() || objectListing.isTruncated() ){
+            emptyBucket(bucketName,s3);
+        }
+
+    }
+
+
+
 
 
 }

@@ -4,12 +4,15 @@ import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
 import com.amazonaws.services.cloudformation.model.CreateStackRequest;
 import com.amazonaws.services.cloudformation.model.DeleteStackRequest;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ListVersionsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.VersionListing;
 import java.io.IOException;
+import java.util.List;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.utils.EnvUtils;
 import no.bibsys.utils.IOUtils;
@@ -18,73 +21,49 @@ import org.junit.Test;
 
 public class PipelineTest implements EnvUtils {
 
-  private IOUtils ioUtils=new IOUtils();
+
 
 
   @Test
+//  @Ignore
   public void  testTemplate() throws IOException, InterruptedException {
+
     Application application=new Application();
 
     PipelineStackConfiguration pipelineStackConfiguration =application.pipeineStackConfiguration();
-    deleteStack(pipelineStackConfiguration);
+    application.deleteStacks(pipelineStackConfiguration);
     CreateStackRequest stack = application
         .createStackRequest(pipelineStackConfiguration);
     AmazonCloudFormation cf= AmazonCloudFormationClientBuilder.defaultClient();
 
+    deleteDynamoTables();
 
-
-
-    cf.createStack(stack);
+//    cf.createStack(stack);
   }
 
-
-
-  private void deleteStack(PipelineStackConfiguration pipelineStackConfiguration){
-    AmazonCloudFormation cf= AmazonCloudFormationClientBuilder.defaultClient();
-    deleteBucket(pipelineStackConfiguration.getBucketName());
-
-    DeleteStackRequest delete=new DeleteStackRequest().withStackName(pipelineStackConfiguration.getPipelineStackName());
-    cf.deleteStack(delete);
-
-  }
-
-  private void deleteBucket(String bucketName){
-    try {
-      AmazonS3 s3 = AmazonS3ClientBuilder.defaultClient();
-      emptyBucket(bucketName, s3);
-
-      s3.deleteBucket(bucketName);
+  private void deleteDynamoTables() throws InterruptedException {
+    AmazonDynamoDB dynamoDB= AmazonDynamoDBClientBuilder.defaultClient();
+    List<String> tableNames=dynamoDB.listTables().getTableNames();
+    while (tableNames.size()>0){
+    try{
+      for(String table:tableNames){
+        dynamoDB=AmazonDynamoDBClientBuilder.defaultClient();
+        dynamoDB.deleteTable(table);
+        Thread.sleep(10000);
+      }
+      tableNames=dynamoDB.listTables().getTableNames();
+      Thread.sleep(10000);
     }
-    catch (Exception e){
+    catch(Exception e){
       e.printStackTrace();
-    }
-  }
 
-  private void emptyBucket(String bucketName, AmazonS3 s3) {
-    VersionListing versionListing= s3.listVersions(new ListVersionsRequest().withBucketName(bucketName));
-    while(versionListing.isTruncated()){
-      versionListing.getVersionSummaries().forEach(version ->
-          s3.deleteVersion(bucketName, version.getKey(), version.getVersionId()));
-       versionListing= s3.listNextBatchOfVersions(versionListing);
-    }
-    versionListing.getVersionSummaries().forEach(version ->
-        s3.deleteVersion(bucketName, version.getKey(), version.getVersionId()));
-
-    ObjectListing objectListing = s3.listObjects(bucketName);
-    while(objectListing.isTruncated()){
-      objectListing.getObjectSummaries().stream()
-          .forEach(object -> s3.deleteObject(bucketName, object.getKey()));
-      objectListing=s3.listNextBatchOfObjects(objectListing);
+      Thread.sleep(10000);
+      dynamoDB=AmazonDynamoDBClientBuilder.defaultClient();
+      tableNames=dynamoDB.listTables().getTableNames();
     }
 
-    objectListing.getObjectSummaries().stream()
-        .forEach(object -> s3.deleteObject(bucketName, object.getKey()));
 
-
-    if(versionListing.isTruncated() || objectListing.isTruncated() ){
-        emptyBucket(bucketName,s3);
     }
-
   }
 
 

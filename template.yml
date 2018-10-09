@@ -2,13 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Lambda function for Dynamic Pipelines
 
-#Parameters:
-#  ProjectId:
-#    Type: String
-#  Branch:
-#    Type: String
-#  TrustRoleArn:
-#    Type: String
+
 Resources:
   RestApi:
     Type: AWS::Serverless::Api
@@ -28,22 +22,3 @@ Resources:
           Properties:
             Path: "/lambda"
             Method: post
-#            RestApiId: !Ref RestApi
-#Outputs:
-#  ServerlessApiValue:
-#    Description: URL for application
-#    Value: !Sub
-#    - 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/${BranchValue}'
-#    - { BranchValue: !Ref Branch }
-#    Export:
-#  Name: AppRestApi
-
-
-#
-#  RestApiUrlParameter:
-#    Type: "AWS::SSM::Parameter"
-#    Properties:
-#      Name: "restApiUrlParameter"
-#      Type: "String"
-#      Value: !Join ['', ['https://', !Ref 'RestApi', '.execute-api.', !Ref 'AWS::Region', '.amazonaws.com/',!Ref Branch]]
-#      Description: "SSM Parameter for storing RestApi URL"

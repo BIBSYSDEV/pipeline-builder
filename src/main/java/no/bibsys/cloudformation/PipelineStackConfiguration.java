@@ -1,11 +1,11 @@
 package no.bibsys.cloudformation;
 
-public class PipelineStackConfiguration extends CloudFormationConfigrable{
+public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
     private final String pipelineStackName;
     private final CloudFormationTemplateParameters cloudFormationParameters;
     private String bucketName;
-    private final String pipelineRole;
+    private final String pipelineRoleName;
     private final String createStackRole;
 
     public PipelineStackConfiguration(String projectName, String branchName) {
@@ -14,15 +14,14 @@ public class PipelineStackConfiguration extends CloudFormationConfigrable{
         this.cloudFormationParameters=
             new CloudFormationTemplateParameters(projectName,branchName);
         this.bucketName=initBucketName();
-        this.pipelineRole = initPipelineRoleName();
+        this.pipelineRoleName = initPipelineRoleName();
         this.createStackRole=initCreateStackRole();
     }
 
 
 
     private String initBucketName() {
-        String postfix=devOrProd();
-        return format(projectId,postfix);
+        return format(projectId,branchName);
     }
 
 
@@ -55,13 +54,13 @@ public class PipelineStackConfiguration extends CloudFormationConfigrable{
 
 
     private String initPipelineRoleName() {
-        return  format(projectId,branchName,"build-pipeline-role");
+        return  format("PipelineRole",getRandomId());
     }
 
 
 
-    public String getPipelineRole() {
-        return pipelineRole;
+    public String getPipelineRoleName() {
+        return pipelineRoleName;
     }
 
 

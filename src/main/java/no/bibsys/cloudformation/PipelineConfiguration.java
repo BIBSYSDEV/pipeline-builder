@@ -1,29 +1,37 @@
 package no.bibsys.cloudformation;
 
-public class PipelineConfiguration extends CloudFormationConfigrable {
+public class PipelineConfiguration extends CloudFormationConfigurable {
 
 
     private  final String sourceOutputArtifactName;
-    private final String testStackName;
-
+    private final String systemStack;
 
     private final String pipelineName;
+
+
+    private final String lambdaTrustRolename;
+
 
 
     public PipelineConfiguration(String projectId, String branchName) {
         super(projectId,branchName);
 
         this.sourceOutputArtifactName=initSourceOutputArtifactName();
-        this.testStackName=initTestStackName();
+        this.systemStack = initSystemStack();
         this. pipelineName = initializePipelineName();
+        this.lambdaTrustRolename =initializeLambdaTrustRole();
+    }
+
+    private String initializeLambdaTrustRole() {
+        return format(projectId,"lambdaRole",randomId);
     }
 
     private String initializePipelineName() {
         return format(projectId,branchName,"pipeline");
     }
 
-    private String initTestStackName() {
-        return format(projectId,branchName,"testStack");
+    private String initSystemStack() {
+        return format(projectId,branchName,"systemStack");
     }
 
     private String initSourceOutputArtifactName() {
@@ -40,8 +48,13 @@ public class PipelineConfiguration extends CloudFormationConfigrable {
         return sourceOutputArtifactName;
     }
 
-    public String getTestStackName() {
-        return testStackName;
+    public String getSystemStack() {
+        return systemStack;
+    }
+
+
+    public String getLambdaTrustRolename() {
+        return lambdaTrustRolename;
     }
 
 

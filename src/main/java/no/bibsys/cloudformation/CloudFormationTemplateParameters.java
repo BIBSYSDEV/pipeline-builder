@@ -1,6 +1,6 @@
 package no.bibsys.cloudformation;
 
-public class CloudFormationTemplateParameters extends CloudFormationConfigrable {
+public class CloudFormationTemplateParameters extends CloudFormationConfigurable {
 
 
     private GithubConf githubConf;

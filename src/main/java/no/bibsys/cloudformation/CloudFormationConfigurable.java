@@ -1,6 +1,9 @@
 package no.bibsys.cloudformation;
 
-public class CloudFormationConfigrable {
+
+import org.apache.commons.codec.digest.DigestUtils;
+
+public class CloudFormationConfigurable {
 
     public static final String MASTER_BRANCH="master";
 
@@ -9,13 +12,20 @@ public class CloudFormationConfigrable {
 
 
 
-    public CloudFormationConfigrable(String projectId, String branchName) {
+    protected final String randomId;
+    protected final String stage;
+
+
+
+    public CloudFormationConfigurable(String projectId, String branchName) {
         this.projectId = projectId;
         this.branchName = branchName;
+        this.stage=testOrProd();
+        this.randomId=DigestUtils.sha1Hex(branchName);
     }
 
 
-    public String devOrProd(){
+    public String testOrProd(){
         if(branchName.equalsIgnoreCase(MASTER_BRANCH)){
             return "prod";
         }
@@ -38,4 +48,11 @@ public class CloudFormationConfigrable {
         return branchName;
     }
 
+    public String getStage() {
+        return stage;
+    }
+
+    public String getRandomId() {
+        return randomId;
+    }
 }

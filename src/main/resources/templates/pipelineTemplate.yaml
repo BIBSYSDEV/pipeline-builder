@@ -5,6 +5,8 @@ Parameters:
     Type: String
   ProjectBranch:
     Type: String
+  ProjectStage:
+    Type: String
   GithubAuth:
     Type: String
   GithubOwner:
@@ -19,6 +21,8 @@ Parameters:
     Type: String
   PipelineName:
     Type: String
+  PipelineLambdaTrustRoleName:
+    Type: String
   CodebuildProjectname:
     Type: String
   CodebuildOutputArtifact:
@@ -27,15 +31,6 @@ Parameters:
     Type: String
   TestStackName:
     Type: String
-
-Outputs:
-  LambdaTrustRole:
-    Description: AWS  role for AWS Lambda used for passRole to Lambda functions.
-    Export:
-      Name: !Join ['-',[!Ref ProjectId, !Ref ProjectBranch, 'LambdaTrustRole' ]]
-    Value: !GetAtt LambdaTrustRole.Arn
-
-
 
 Resources:
   S3Bucket:
@@ -51,40 +46,40 @@ Resources:
         - ServerSideEncryptionByDefault:
             SSEAlgorithm: aws:kms
 
-  LambdaTrustRole:
-    Type: 'AWS::IAM::Role'
-    Description: A service role that will be assumed by the Lambda function
-    Properties:
-      RoleName: !Join ['-',[!Ref ProjectId, !Ref ProjectBranch, 'LambdaTrustRole']]
-      AssumeRolePolicyDocument:
-        Statement:
-        - Action: 'sts:AssumeRole'
-          Effect: Allow
-          Principal:
-            Service:
-            - lambda.amazonaws.com
-      ManagedPolicyArns:
-      - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
-      - 'arn:aws:iam::aws:policy/service-role/AWSConfigRulesExecutionRole'
-      Path: /
-      Policies:
-      - PolicyDocument:
-          Statement:
-          - Action:
-            - 'logs:CreateLogGroup'
-            - 'logs:CreateLogStream'
-            - 'logs:PutLogEvents'
-            - 'dynamodb:CreateTable'
-            - 'dynamodb:DeleteTable'
-            - 'dynamodb:DescribeTable'
-            - "dynamodb:BatchGetItem"
-            - "dynamodb:BatchWriteItem"
-            - "dynamodb:PutItem"
-            - "dynamodb:GetItem"
-            Effect: Allow
-            Resource: '*'
-          Version: 2012-10-17
-        PolicyName: LambdaWorkerPolicy
+#  LambdaTrustRole:
+#    Type: 'AWS::IAM::Role'
+#    Description: A service role that will be assumed by the Lambda function
+#    Properties:
+#      RoleName: !Ref PipelineLambdaTrustRoleName
+#      AssumeRolePolicyDocument:
+#        Statement:
+#        - Action: 'sts:AssumeRole'
+#          Effect: Allow
+#          Principal:
+#            Service:
+#            - lambda.amazonaws.com
+#      ManagedPolicyArns:
+#      - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+#      - 'arn:aws:iam::aws:policy/service-role/AWSConfigRulesExecutionRole'
+#      Path: /
+#      Policies:
+#      - PolicyDocument:
+#          Statement:
+#          - Action:
+#            - 'logs:CreateLogGroup'
+#            - 'logs:CreateLogStream'
+#            - 'logs:PutLogEvents'
+#            - 'dynamodb:CreateTable'
+#            - 'dynamodb:DeleteTable'
+#            - 'dynamodb:DescribeTable'
+#            - "dynamodb:BatchGetItem"
+#            - "dynamodb:BatchWriteItem"
+#            - "dynamodb:PutItem"
+#            - "dynamodb:GetItem"
+#            Effect: Allow
+#            Resource: '*'
+#          Version: 2012-10-17
+#        PolicyName: LambdaWorkerPolicy
 
 
 
@@ -123,6 +118,12 @@ Resources:
             Effect: Allow
             Resource:
             - arn:aws:cloudformation:eu-west-1:aws:transform/Serverless-2016-10-31
+          -
+            Action:
+              - 'iam:GetRole'
+              - 'iam:CreateRole'
+            Resource: '*'
+            Effect: Allow
       -
         PolicyName: s3Access
         PolicyDocument:
@@ -246,7 +247,6 @@ Resources:
         Location: !Join ['/',[!Ref PipelineBucketname, 'dependencycache']]
         Type: S3
 
-
   Pipeline:
     DependsOn:
     - CodeBuildProject
@@ -303,13 +303,13 @@ Resources:
             ActionMode: CHANGE_SET_REPLACE
             StackName: !Ref TestStackName
             ChangeSetName: TestStageChangeSet
-            Capabilities: CAPABILITY_IAM
+            Capabilities: CAPABILITY_NAMED_IAM
             RoleArn: !GetAtt CreateStackRole.Arn
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
                !Sub
-                - '{"ProjectId":"${ProjectIdValue}", "Branch":"${BranchValue}"}'
-                - { ProjectIdValue: !Ref ProjectId, BranchValue: !Ref ProjectBranch }
+                - '{"ProjectId":"${ProjectIdValue}", "Stage":"${StageValue}", "LambdaTrustRolename": "${PipelineLambdaTrustRoleName}"}'
+                - { ProjectIdValue: !Ref ProjectId, StageValue: !Ref ProjectStage }
 
           InputArtifacts:
           - Name: !Ref CodebuildOutputArtifact
