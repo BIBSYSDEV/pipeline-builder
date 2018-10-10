@@ -10,7 +10,7 @@ public class CodeBuildConfiguration extends CloudFormationConfigurable {
     public CodeBuildConfiguration(String projectId, String branchName) {
         super(projectId, branchName);
         this.projectName=format(projectId,branchName);
-        this.outputArtifact=format(projectId,branchName,"codeBuildArtifact");
+        this.outputArtifact=format(projectId,shortBranch,"codeBuildArtifact");
     }
 
     public String getProjectName() {

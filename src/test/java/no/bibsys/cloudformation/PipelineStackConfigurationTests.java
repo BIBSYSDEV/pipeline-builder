@@ -6,14 +6,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import no.bibsys.Application;
 import org.junit.Test;
 
-public class PipelineStackConfigurationTests {
+public class PipelineStackConfigurationTests extends ConfigurationTests {
 
-    Application application=new Application();
-    PipelineStackConfiguration conf=application.pipelineStackConfiguration();
-    private String branchName=conf.getBranchName();
-    private String randomId=conf.getRandomId();
-    private String projectId=conf.getProjectId();
-    private String shortBranch=conf.getShortBranch();
 
     @Test
     public void pipelineStacknameShouldContainProjectName(){
@@ -41,5 +35,7 @@ public class PipelineStackConfigurationTests {
         assertThat(conf.getBucketName(),containsString(shortBranch));
 
     }
+
+
 
 }

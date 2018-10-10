@@ -30,23 +30,19 @@ public class Application {
     private IOUtils ioUtils = new IOUtils();
 
 
-    public void run() throws IOException {
-        PipelineStackConfiguration pipelineStackConfiguration = pipelineStackConfiguration();
+    public void run(String projectName,String branch) throws IOException {
+        PipelineStackConfiguration pipelineStackConfiguration = pipelineStackConfiguration(projectName,branch);
         deleteStacks(pipelineStackConfiguration);
         CreateStackRequest createStackRequest = createStackRequest(pipelineStackConfiguration);
         AmazonCloudFormation acf = AmazonCloudFormationClientBuilder.defaultClient();
         acf.createStack(createStackRequest);
-
-
     }
 
 
 
-    public PipelineStackConfiguration pipelineStackConfiguration() {
-        String projectName = "emne-test";
-        String branchName = config.getString("pipeline.branch");
-        PipelineStackConfiguration pipelineStackConfiguration = new PipelineStackConfiguration(
-            projectName, branchName);
+    public PipelineStackConfiguration pipelineStackConfiguration(String projectName,String branch) {
+                PipelineStackConfiguration pipelineStackConfiguration = new PipelineStackConfiguration(
+            projectName, branch);
         return pipelineStackConfiguration;
 
     }
