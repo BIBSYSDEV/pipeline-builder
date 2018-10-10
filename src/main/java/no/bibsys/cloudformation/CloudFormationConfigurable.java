@@ -10,6 +10,9 @@ public class CloudFormationConfigurable {
 
     protected final String projectId;
     protected final String branchName;
+
+
+
     protected final String shortBranch;
     protected final String randomId;
     protected final String stage;
@@ -64,5 +67,7 @@ public class CloudFormationConfigurable {
     }
 
 
-
+    public String getShortBranch() {
+        return shortBranch;
+    }
 }
