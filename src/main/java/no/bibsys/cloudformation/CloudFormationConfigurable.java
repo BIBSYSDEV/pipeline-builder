@@ -29,15 +29,15 @@ public class CloudFormationConfigurable {
 
     private String shortBranch(String branchName){
         int cutIndex=Math.min(branchName.length(),maxBranchNameLength);
-        return branchName.substring(cutIndex);
+        return branchName.substring(0,cutIndex);
     }
 
 
-    public String testOrProd() {
+    private String testOrProd() {
         if (branchName.equalsIgnoreCase(MASTER_BRANCH)) {
             return "prod";
         } else {
-            return "dev";
+            return "dev2";
         }
     }
 
@@ -62,4 +62,7 @@ public class CloudFormationConfigurable {
     public String getRandomId() {
         return randomId;
     }
+
+
+
 }

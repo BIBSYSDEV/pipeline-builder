@@ -17,24 +17,32 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.utils.IOUtils;
 
 public class Application {
 
 
-    Config config= ConfigFactory.load().resolve();
+    Config config = ConfigFactory.load().resolve();
 
 
     private IOUtils ioUtils = new IOUtils();
 
-    public static void main(String[] args) {
-        Application application = new Application();
-        application.pipeineStackConfiguration();
+
+    public void run() throws IOException {
+        PipelineStackConfiguration pipelineStackConfiguration = pipelineStackConfiguration();
+        deleteStacks(pipelineStackConfiguration);
+        CreateStackRequest createStackRequest = createStackRequest(pipelineStackConfiguration);
+        AmazonCloudFormation acf = AmazonCloudFormationClientBuilder.defaultClient();
+        acf.createStack(createStackRequest);
+
+
     }
 
 
-    public PipelineStackConfiguration pipeineStackConfiguration() {
+
+    public PipelineStackConfiguration pipelineStackConfiguration() {
         String projectName = "emne-test";
         String branchName = config.getString("pipeline.branch");
         PipelineStackConfiguration pipelineStackConfiguration = new PipelineStackConfiguration(
@@ -44,7 +52,7 @@ public class Application {
     }
 
 
-    public CreateStackRequest createStackRequest(
+    private CreateStackRequest createStackRequest(
         PipelineStackConfiguration pipelineStack) throws IOException {
         CreateStackRequest createStackRequest = new CreateStackRequest();
         createStackRequest.setStackName(pipelineStack.getPipelineStackName());
@@ -62,8 +70,9 @@ public class Application {
         parameters.add(newParameter("PipelineBucketname", pipelineStack.getBucketName()));
 
         parameters.add(newParameter("PipelineRolename", pipelineStack.getPipelineRoleName()));
-        parameters.add(newParameter("PipelineLambdaTrustRoleName", pipelineStack.getPipelineConfiguration().getLambdaTrustRolename()));
-        parameters.add(newParameter("ProjectStage",pipelineStack.getStage()));
+        parameters.add(newParameter("PipelineLambdaTrustRoleName",
+            pipelineStack.getPipelineConfiguration().getLambdaTrustRolename()));
+        parameters.add(newParameter("ProjectStage", pipelineStack.getStage()));
 
         parameters.add(newParameter("CreateStackRolename", pipelineStack.getCreateStackRoleName()));
 
@@ -78,8 +87,8 @@ public class Application {
         parameters.add(newParameter("CodebuildProjectname",
             pipelineStack.getCodeBuildConfiguration().getProjectName()));
 
-        parameters.add(newParameter("TestStackName",
-            pipelineStack.getPipelineConfiguration().getSystemStack()));
+        parameters.add(newParameter("ServiceStackName",
+            pipelineStack.getPipelineConfiguration().getServiceStack()));
 
         createStackRequest.setParameters(parameters);
         createStackRequest.withCapabilities(Capability.CAPABILITY_NAMED_IAM);
@@ -97,65 +106,87 @@ public class Application {
         return new Parameter().withParameterKey(key).withParameterValue(value);
     }
 
-    public void deleteStacks(PipelineStackConfiguration pipelineStackConfiguration){
-        AmazonCloudFormation acf= AmazonCloudFormationClientBuilder.defaultClient();
+    public void deleteStacks(PipelineStackConfiguration pipelineStackConfiguration) {
+        AmazonCloudFormation acf = AmazonCloudFormationClientBuilder.defaultClient();
 
-        String systemStack=pipelineStackConfiguration.getPipelineConfiguration().getSystemStack();
-        DeleteStackRequest deleteStackRequest=new DeleteStackRequest()
+        String systemStack = pipelineStackConfiguration.getPipelineConfiguration()
+            .getServiceStack();
+
+        DeleteStackRequest deleteStackRequest = new DeleteStackRequest()
             .withStackName(systemStack);
 
         acf.deleteStack(deleteStackRequest);
+        awaitDeleteStack(acf, systemStack);
 
-        String pipelineGenerationStack=pipelineStackConfiguration.getPipelineStackName();
+        String pipelineGenerationStack = pipelineStackConfiguration.getPipelineStackName();
         deleteBucket(pipelineStackConfiguration.getBucketName());
-        deleteStackRequest=new DeleteStackRequest().withStackName(pipelineGenerationStack);
+        deleteStackRequest = new DeleteStackRequest().withStackName(pipelineGenerationStack);
         acf.deleteStack(deleteStackRequest);
 
     }
 
 
-    public void deleteBucket(String bucketName){
+    private void awaitDeleteStack(AmazonCloudFormation acf, String stackname) {
+
+        int counter = 0;
+        List<String> stackNames = acf.describeStacks().getStacks().stream()
+            .map(stack -> stack.getStackName())
+            .collect(Collectors.toList());
+
+        while (stackNames.contains(stackname) && counter<100) {
+            stackNames = acf.describeStacks().getStacks().stream()
+                .map(stack -> stack.getStackName())
+                .collect(Collectors.toList());
+            counter++;
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+
+        }
+
+    }
+
+
+    private void deleteBucket(String bucketName) {
         try {
             AmazonS3 s3 = AmazonS3ClientBuilder.defaultClient();
             emptyBucket(bucketName, s3);
 
             s3.deleteBucket(bucketName);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
 
     private void emptyBucket(String bucketName, AmazonS3 s3) {
-        VersionListing versionListing= s3.listVersions(new ListVersionsRequest().withBucketName(bucketName));
-        while(versionListing.isTruncated()){
+        VersionListing versionListing = s3
+            .listVersions(new ListVersionsRequest().withBucketName(bucketName));
+        while (versionListing.isTruncated()) {
             versionListing.getVersionSummaries().forEach(version ->
                 s3.deleteVersion(bucketName, version.getKey(), version.getVersionId()));
-            versionListing= s3.listNextBatchOfVersions(versionListing);
+            versionListing = s3.listNextBatchOfVersions(versionListing);
         }
         versionListing.getVersionSummaries().forEach(version ->
             s3.deleteVersion(bucketName, version.getKey(), version.getVersionId()));
 
         ObjectListing objectListing = s3.listObjects(bucketName);
-        while(objectListing.isTruncated()){
+        while (objectListing.isTruncated()) {
             objectListing.getObjectSummaries().stream()
                 .forEach(object -> s3.deleteObject(bucketName, object.getKey()));
-            objectListing=s3.listNextBatchOfObjects(objectListing);
+            objectListing = s3.listNextBatchOfObjects(objectListing);
         }
 
         objectListing.getObjectSummaries().stream()
             .forEach(object -> s3.deleteObject(bucketName, object.getKey()));
 
-
-        if(versionListing.isTruncated() || objectListing.isTruncated() ){
-            emptyBucket(bucketName,s3);
+        if (versionListing.isTruncated() || objectListing.isTruncated()) {
+            emptyBucket(bucketName, s3);
         }
 
     }
-
-
-
 
 
 }

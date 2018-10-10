@@ -29,10 +29,14 @@ Parameters:
     Type: String
   SourceStageOutputArtifact:
     Type: String
-  TestStackName:
+  ServiceStackName:
     Type: String
 
+Conditions:
+  CreateProdStack: !Equals [ !Ref ProjectBranch, 'master' ]
+
 Resources:
+
   S3Bucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Delete
@@ -87,7 +91,11 @@ Resources:
               - 'iam:CreateRole'
               - 'iam:PutRolePolicy'
               - 'iam:DetachRolePolicy'
-              - 'iam:DeltePolicy'
+              - 'iam:DeleteRolePolicy'
+              - 'iam:DeleteRole'
+              - 'iam:AttachRolePolicy'
+              - 'ssm:PutParameter'
+              - 'ssm:DeleteParameter'
             Resource: '*'
             Effect: Allow
       -
@@ -181,7 +189,7 @@ Resources:
             Resource:
             - !Sub
               - 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackName}/*'
-              -  { StackName: !Ref TestStackName }
+              -  { StackName: !Ref ServiceStackName }
       - PolicyName: assumeRole
         PolicyDocument:
           Version: "2012-10-17"
@@ -268,7 +276,7 @@ Resources:
             Provider: CloudFormation
           Configuration:
             ActionMode: CHANGE_SET_REPLACE
-            StackName: !Ref TestStackName
+            StackName: !Ref ServiceStackName
             ChangeSetName: TestStageChangeSet
             Capabilities: CAPABILITY_NAMED_IAM
             RoleArn: !GetAtt CreateStackRole.Arn
@@ -291,7 +299,7 @@ Resources:
           Configuration:
             ActionMode: CHANGE_SET_EXECUTE
             ChangeSetName: TestStageChangeSet
-            StackName: !Ref TestStackName
+            StackName: !Ref ServiceStackName
           InputArtifacts: []
           OutputArtifacts: []
           RunOrder: 2
@@ -313,5 +321,43 @@ Resources:
           Configuration:
             ActionMode: DELETE_ONLY
             RoleArn: !GetAtt CreateStackRole.Arn
-            StackName: !Ref TestStackName
+            StackName: !Ref ServiceStackName
           RunOrder: 4
+
+      -
+        Name: ProdStack
+        Actions:
+        - Name: CreateFinalStack
+          ActionTypeId:
+            Category: Deploy
+            Owner: AWS
+            Version: 1
+            Provider: CloudFormation
+          Configuration:
+            ActionMode: CHANGE_SET_REPLACE
+            StackName: !Ref ServiceStackName
+            ChangeSetName: TestStageChangeSet
+            Capabilities: CAPABILITY_NAMED_IAM
+            RoleArn: !GetAtt CreateStackRole.Arn
+            TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
+            ParameterOverrides:
+              !Sub
+            - '{"ProjectId":"${ProjectIdValue}", "Stage":"${StageValue}", "LambdaTrustRolename": "${PipelineLambdaTrustRoleName}"}'
+            - { ProjectIdValue: !Ref ProjectId, StageValue: !Ref ProjectStage }
+
+          InputArtifacts:
+          - Name: !Ref CodebuildOutputArtifact
+          RunOrder: 1
+        - Name: ExecuteFinalStack
+          ActionTypeId:
+            Category: Deploy
+            Owner: AWS
+            Version: '1'
+            Provider: CloudFormation
+          Configuration:
+            ActionMode: CHANGE_SET_EXECUTE
+            ChangeSetName: TestStageChangeSet
+            StackName: !Ref ServiceStackName
+          InputArtifacts: []
+          OutputArtifacts: []
+          RunOrder: 2

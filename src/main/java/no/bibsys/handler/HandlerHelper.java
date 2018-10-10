@@ -52,7 +52,7 @@ public abstract class HandlerHelper<I, O> implements RequestStreamHandler {
 
     }
 
-    protected abstract O processInput(I input) throws  IOException;
+    protected abstract O processInput(I input) throws IOException;
 
     public void writeOutput(O output) throws IOException {
         String outputString = objectMapper.writeValueAsString(output);

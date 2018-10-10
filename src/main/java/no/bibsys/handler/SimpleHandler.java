@@ -1,6 +1,7 @@
 package no.bibsys.handler;
 
 
+import java.io.IOException;
 import no.bibsys.handler.requests.BranchRequest;
 
 public class SimpleHandler extends HandlerHelper<BranchRequest,String> {
@@ -10,9 +11,11 @@ public class SimpleHandler extends HandlerHelper<BranchRequest,String> {
         super(BranchRequest.class, String.class);
     }
 
-    protected String processInput(BranchRequest request){
-        String branch=request.getBranch();
-        return branch;
+    protected String processInput(BranchRequest request) throws IOException {
+//        Application application=new Application();
+//        application.run();
+        return "Hello world";
+
     }
 
 

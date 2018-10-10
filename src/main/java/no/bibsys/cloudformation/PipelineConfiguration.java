@@ -4,8 +4,7 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
 
 
     private  final String sourceOutputArtifactName;
-    private final String systemStack;
-
+    private final String serviceStack;
     private final String pipelineName;
 
 
@@ -17,25 +16,25 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
         super(projectId,branchName);
 
         this.sourceOutputArtifactName=initSourceOutputArtifactName();
-        this.systemStack = initSystemStack();
+        this.serviceStack = initServiceStack();
         this. pipelineName = initializePipelineName();
         this.lambdaTrustRolename =initializeLambdaTrustRole();
     }
 
     private String initializeLambdaTrustRole() {
-        return format(projectId,"lambdaRole",randomId);
+        return format("LambdaTrustRole",randomId);
     }
 
     private String initializePipelineName() {
-        return format(projectId,branchName,"pipeline");
+        return format(projectId,shortBranch,"pipeline");
     }
 
-    private String initSystemStack() {
-        return format(projectId,branchName,"systemStack");
+    private String initServiceStack() {
+        return format(projectId,shortBranch,"serviceStack");
     }
 
     private String initSourceOutputArtifactName() {
-        return format(projectId,branchName,"sourceOutput");
+        return format(projectId,shortBranch,"sourceOutput");
     }
 
 
@@ -48,8 +47,8 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
         return sourceOutputArtifactName;
     }
 
-    public String getSystemStack() {
-        return systemStack;
+    public String getServiceStack() {
+        return serviceStack;
     }
 
 
