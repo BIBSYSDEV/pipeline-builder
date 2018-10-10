@@ -5,13 +5,14 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import java.io.IOException;
 import java.util.List;
 import no.bibsys.utils.EnvUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class PipelineTest implements EnvUtils {
 
 
   @Test
-//  @Ignore
+  @Ignore
   public void  testTemplate() throws IOException, InterruptedException {
 
     Application application=new Application();
@@ -22,6 +23,7 @@ public class PipelineTest implements EnvUtils {
 
 
   @Test
+  @Ignore
   public void deleteStacks(){
     Application application=new Application();
     application.deleteStacks(application.pipelineStackConfiguration());
