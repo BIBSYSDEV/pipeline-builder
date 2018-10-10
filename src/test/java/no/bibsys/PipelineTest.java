@@ -13,8 +13,7 @@ public class PipelineTest implements EnvUtils {
 
   @Test
   @Ignore
-  public void  testTemplate() throws IOException, InterruptedException {
-
+  public void  testTemplate() throws IOException {
     Application application=new Application();
     application.run();
 
