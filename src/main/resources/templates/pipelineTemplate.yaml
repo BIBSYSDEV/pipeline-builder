@@ -150,6 +150,7 @@ Resources:
                 - 'lambda:TagResource'
                 - 'lambda:UntagResource'
                 - 'apigateway:*'
+                - 'ssm:GetParameters'
               Resource: '*'
   PipelineRole:
     Type: AWS::IAM::Role
@@ -218,7 +219,15 @@ Resources:
             - 'sts:AssumeRole'
             Effect: Allow
             Resource: "*"
-
+      - PolicyName: ssmAccess
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            -
+              Effect: Allow
+              Action:
+                - 'ssm:GetParameters'
+              Resource: '*'
   CodeBuildProject:
     Type: AWS::CodeBuild::Project
     Description: CodeBuild project for using in the CodePipeline

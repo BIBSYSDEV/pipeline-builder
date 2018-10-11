@@ -4,6 +4,35 @@ Description: Lambda function for Dynamic Pipelines
 
 
 Resources:
+  LambdaTrustRole:
+    Type: 'AWS::IAM::Role'
+    Description: A trust role that will be assumed by the service
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action: 'sts:AssumeRole'
+          Effect: Allow
+          Principal:
+           Service:
+            - lambda.amazonaws.com
+            - cloudformation.amazonaws.com
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        - 'arn:aws:iam::aws:policy/service-role/AWSConfigRulesExecutionRole'
+      Path: /
+      Policies:
+        -
+          PolicyName: lambdaPolicy
+          Version: 2012-10-17
+          PolicyDocument:
+            Statement:
+                Effect: Allow
+                Resource: *
+                - Action:
+                    - "ssm:GetParameter"
+
+
+
   RestApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -14,7 +43,7 @@ Resources:
       Handler: no.bibsys.handler.SimpleHandler::handleRequest
       Runtime: java8
       CodeUri: build/libs/pipeline-fat.jar
-#      Role: !Ref TrustRoleArn
+      Role: !GetAtt LambdaTrustRole.Arn
       Timeout: 60
       Events:
         RestApiEvent:

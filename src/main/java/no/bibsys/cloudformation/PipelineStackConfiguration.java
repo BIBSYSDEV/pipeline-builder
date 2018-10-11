@@ -1,5 +1,7 @@
 package no.bibsys.cloudformation;
 
+import java.io.IOException;
+
 public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
     private final String pipelineStackName;
@@ -20,7 +22,7 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
     public PipelineStackConfiguration(String projectName,
         String branchName,
         String repoName,
-        String repoOwner) {
+        String repoOwner) throws IOException {
         super(projectName, branchName);
         this.pipelineStackName = pipelineStackName();
         this.bucketName = initBucketName();

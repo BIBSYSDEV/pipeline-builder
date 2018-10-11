@@ -24,9 +24,10 @@ public class Application {
     private IOUtils ioUtils = new IOUtils();
 
 
-    public void run(String projectName,String branch,String repoName,String repoOwner) throws IOException {
+    public void run(String projectName, String branch, String repoName, String repoOwner,boolean initAuth)
+        throws IOException {
         PipelineStackConfiguration pipelineStackConfiguration = pipelineStackConfiguration(
-            projectName, branch,repoName,repoOwner);
+            projectName, branch, repoName, repoOwner,initAuth);
         deleteStacks(pipelineStackConfiguration);
         CreateStackRequest createStackRequest = createStackRequest(pipelineStackConfiguration);
         AmazonCloudFormation acf = AmazonCloudFormationClientBuilder.defaultClient();
@@ -34,11 +35,15 @@ public class Application {
     }
 
 
-
     public PipelineStackConfiguration pipelineStackConfiguration
-        (String projectName,String branch,String repoName,String repoOwner) {
-                PipelineStackConfiguration pipelineStackConfiguration = new PipelineStackConfiguration(
-            projectName, branch,repoName,repoOwner);
+        (String projectName, String branch, String repoName, String repoOwner, boolean initAuth)
+        throws IOException {
+        PipelineStackConfiguration pipelineStackConfiguration = new PipelineStackConfiguration(
+            projectName, branch, repoName, repoOwner);
+        if(initAuth){
+            pipelineStackConfiguration.getGithubConf().setOAuth();
+        }
+
         return pipelineStackConfiguration;
 
     }
@@ -54,7 +59,7 @@ public class Application {
             newParameter("GithubOwner", pipelineStack.getGithubConf().getOwner()));
         parameters
             .add(newParameter("GithubRepo", pipelineStack.getGithubConf().getRepo()));
-        parameters.add(newParameter("GithubAuth",pipelineStack.getGithubConf().getOauth()));
+        parameters.add(newParameter("GithubAuth", pipelineStack.getGithubConf().getOauth()));
 
         parameters.add(newParameter("PipelineName",
             pipelineStack.getPipelineConfiguration().getPipelineName()));
@@ -78,7 +83,8 @@ public class Application {
             pipelineStack.getCodeBuildConfiguration().getOutputArtifact()));
         parameters.add(newParameter("CodebuildProjectname",
             pipelineStack.getCodeBuildConfiguration().getBuildProjectName()));
-        parameters.add(newParameter("CodebuildCache",pipelineStack.getCodeBuildConfiguration().getCacheFolder()));
+        parameters.add(newParameter("CodebuildCache",
+            pipelineStack.getCodeBuildConfiguration().getCacheFolder()));
 
         parameters.add(newParameter("ServiceStackName",
             pipelineStack.getPipelineConfiguration().getServiceStack()));
@@ -126,7 +132,7 @@ public class Application {
             .map(stack -> stack.getStackName())
             .collect(Collectors.toList());
 
-        while (stackNames.contains(stackname) && counter<100) {
+        while (stackNames.contains(stackname) && counter < 100) {
             stackNames = acf.describeStacks().getStacks().stream()
                 .map(stack -> stack.getStackName())
                 .collect(Collectors.toList());

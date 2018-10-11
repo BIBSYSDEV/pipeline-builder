@@ -1,8 +1,6 @@
 version: 0.2
 #aws ssm get-parameter --name testParameter --with-decryption | grep Value |cut -d : -f2 | awk -F\" '{print $2}'
-env:
-  parameter-store:
-    GITHUBAUTH: githubauth
+
 phases:
   install:
     commands:
@@ -14,7 +12,6 @@ phases:
     - sh gradlew clean test
   build:
     commands:
-
     - echo Build started on `date`
     - sh gradlew clean build shadowJar
     - aws cloudformation package --template template.yml --s3-bucket $S3_BUCKET --output-template template-export.yml
@@ -22,3 +19,10 @@ phases:
 artifacts:
   files:
   - template-export.yml
+
+
+cache:
+  paths:
+  - '/root/.gradle/caches/**/*'
+  - '.gradle/**/*'
+  - '/root/.gradle/wrapper/**/*'

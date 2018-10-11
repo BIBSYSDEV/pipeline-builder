@@ -15,4 +15,11 @@ public abstract class EnvUtils {
 
     }
 
+    protected Optional<String> readEnvOpt(String variableName){
+        return Optional.ofNullable(System.getenv().get(variableName));
+
+
+    }
+
+
 }

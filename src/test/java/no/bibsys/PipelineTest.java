@@ -22,7 +22,7 @@ public class PipelineTest extends ConfigurationTests {
   public void  testTemplate() throws IOException {
     Application application=new Application();
 
-    application.run(projectName,branchName,repoName,repoOwner);
+    application.run(projectName,branchName,repoName,repoOwner,true);
 
   }
 
@@ -30,9 +30,9 @@ public class PipelineTest extends ConfigurationTests {
 
   @Test
   @Ignore
-  public void deleteStacks(){
+  public void deleteStacks() throws IOException {
     Application application=new Application();
-    application.deleteStacks(application.pipelineStackConfiguration(projectName,branchName,repoName,repoOwner));
+    application.deleteStacks(application.pipelineStackConfiguration(projectName,branchName,repoName,repoOwner,true));
   }
 
   private void deleteDynamoTables() throws InterruptedException {
