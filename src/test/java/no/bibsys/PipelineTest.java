@@ -2,20 +2,19 @@ package no.bibsys;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import java.io.IOException;
 import java.util.List;
 import no.bibsys.cloudformation.ConfigurationTests;
-import no.bibsys.utils.EnvUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class PipelineTest extends ConfigurationTests implements EnvUtils {
+public class PipelineTest extends ConfigurationTests {
 
-  protected Config config= ConfigFactory.load().resolve();
-  protected String projectName=config.getString("project");
-  protected String branchName=config.getString("pipeline.branch");
+  protected String projectName="dynapipe";
+  protected String branchName="java-pipeline-2";
+  protected String repoName="authority-registry-infrastructure";
+  protected String repoOwner="BIBSYSDEV";
+
 
 
   @Test
@@ -23,7 +22,7 @@ public class PipelineTest extends ConfigurationTests implements EnvUtils {
   public void  testTemplate() throws IOException {
     Application application=new Application();
 
-    application.run(projectName,branchName);
+    application.run(projectName,branchName,repoName,repoOwner);
 
   }
 
@@ -33,7 +32,7 @@ public class PipelineTest extends ConfigurationTests implements EnvUtils {
   @Ignore
   public void deleteStacks(){
     Application application=new Application();
-    application.deleteStacks(application.pipelineStackConfiguration(projectName,branchName));
+    application.deleteStacks(application.pipelineStackConfiguration(projectName,branchName,repoName,repoOwner));
   }
 
   private void deleteDynamoTables() throws InterruptedException {

@@ -11,8 +11,6 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ListVersionsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.VersionListing;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -23,15 +21,12 @@ import no.bibsys.utils.IOUtils;
 
 public class Application {
 
-
-    Config config = ConfigFactory.load().resolve();
-
-
     private IOUtils ioUtils = new IOUtils();
 
 
-    public void run(String projectName,String branch) throws IOException {
-        PipelineStackConfiguration pipelineStackConfiguration = pipelineStackConfiguration(projectName,branch);
+    public void run(String projectName,String branch,String repoName,String repoOwner) throws IOException {
+        PipelineStackConfiguration pipelineStackConfiguration = pipelineStackConfiguration(
+            projectName, branch,repoName,repoOwner);
         deleteStacks(pipelineStackConfiguration);
         CreateStackRequest createStackRequest = createStackRequest(pipelineStackConfiguration);
         AmazonCloudFormation acf = AmazonCloudFormationClientBuilder.defaultClient();
@@ -40,9 +35,10 @@ public class Application {
 
 
 
-    public PipelineStackConfiguration pipelineStackConfiguration(String projectName,String branch) {
+    public PipelineStackConfiguration pipelineStackConfiguration
+        (String projectName,String branch,String repoName,String repoOwner) {
                 PipelineStackConfiguration pipelineStackConfiguration = new PipelineStackConfiguration(
-            projectName, branch);
+            projectName, branch,repoName,repoOwner);
         return pipelineStackConfiguration;
 
     }
@@ -53,12 +49,12 @@ public class Application {
         CreateStackRequest createStackRequest = new CreateStackRequest();
         createStackRequest.setStackName(pipelineStack.getPipelineStackName());
         List<Parameter> parameters = new ArrayList<>();
-        parameters
-            .add(newParameter("GithubAuth", pipelineStack.getGithubConf().getAuth()));
+
         parameters.add(
             newParameter("GithubOwner", pipelineStack.getGithubConf().getOwner()));
         parameters
             .add(newParameter("GithubRepo", pipelineStack.getGithubConf().getRepo()));
+        parameters.add(newParameter("GithubAuth",pipelineStack.getGithubConf().getOauth()));
 
         parameters.add(newParameter("PipelineName",
             pipelineStack.getPipelineConfiguration().getPipelineName()));
@@ -81,7 +77,8 @@ public class Application {
         parameters.add(newParameter("CodebuildOutputArtifact",
             pipelineStack.getCodeBuildConfiguration().getOutputArtifact()));
         parameters.add(newParameter("CodebuildProjectname",
-            pipelineStack.getCodeBuildConfiguration().getProjectName()));
+            pipelineStack.getCodeBuildConfiguration().getBuildProjectName()));
+        parameters.add(newParameter("CodebuildCache",pipelineStack.getCodeBuildConfiguration().getCacheFolder()));
 
         parameters.add(newParameter("ServiceStackName",
             pipelineStack.getPipelineConfiguration().getServiceStack()));

@@ -9,6 +9,7 @@ Parameters:
     Type: String
   GithubAuth:
     Type: String
+    NoEcho: True
   GithubOwner:
     Type: String
   GithubRepo:
@@ -27,16 +28,32 @@ Parameters:
     Type: String
   CodebuildOutputArtifact:
     Type: String
+  CodebuildCache:
+    Type: String
   SourceStageOutputArtifact:
     Type: String
   ServiceStackName:
     Type: String
+
+
 
 Conditions:
   CreateProdStack: !Equals [ !Ref ProjectBranch, 'master' ]
 
 Resources:
 
+#  CodebuildCacheBucket:
+#    Type: AWS::S3::Bucket
+#    DeletionPolicy: Retain
+#    Properties:
+#      AccessControl: Private
+#      BucketName: !Ref CodebuildCache
+#      VersioningConfiguration:
+#        Status: Enabled
+#      BucketEncryption:
+#        ServerSideEncryptionConfiguration:
+#        - ServerSideEncryptionByDefault:
+#            SSEAlgorithm: aws:kms
   S3Bucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Delete
@@ -106,12 +123,12 @@ Resources:
             -
               Effect: Allow
               Action:
-                - s3:PutObject
-                - s3:GetObject
-                - s3:GetObjectVersion
+                - "s3:*"
               Resource:
                 - !Join ["", [!GetAtt S3Bucket.Arn, "/*"]]
                 - !GetAtt S3Bucket.Arn
+                - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache, "/*"]]
+                - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache]]
       -
         PolicyName: createLambdaFunctions
         PolicyDocument:
@@ -162,12 +179,15 @@ Resources:
           Statement:
           - Effect: Allow
             Action:
-            - s3:PutObject
-            - s3:GetObject
-            - s3:GetObjectVersion
+            - "s3:*"
             Resource:
-            - !Join ["", [!GetAtt S3Bucket.Arn, "/*"]]
-            - !GetAtt S3Bucket.Arn
+              - !Join ["", [!GetAtt S3Bucket.Arn, "/*"]]
+              - !GetAtt S3Bucket.Arn
+              - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache, "/*"]]
+              - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache]]
+
+#              - !Join ["",["arn:aws:s3:::", !Ref CodebuildCache]]
+#              - !Join ["",["arn:aws:s3:::", !Ref CodebuildCache,"/*"]]
           - Effect: Allow
             Action:
             - logs:CreateLogGroup
@@ -219,7 +239,7 @@ Resources:
           Value: !Ref PipelineBucketname
       ServiceRole: !GetAtt PipelineRole.Arn
       Cache:
-        Location: !Join ['/',[!Ref PipelineBucketname, 'dependencycache']]
+        Location:  !Join ['',[!Ref CodebuildCache,'/cache']]
         Type: S3
 
   Pipeline:

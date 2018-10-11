@@ -17,14 +17,17 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
     private CodeBuildConfiguration codeBuildConfiguration;
 
 
-    public PipelineStackConfiguration(String projectName, String branchName) {
+    public PipelineStackConfiguration(String projectName,
+        String branchName,
+        String repoName,
+        String repoOwner) {
         super(projectName, branchName);
         this.pipelineStackName = pipelineStackName();
         this.bucketName = initBucketName();
         this.createStackRoleName = initCreateStackRole();
         this.pipelineRoleName = initPipelineRoleName();
 
-        this.githubConf = new GithubConf();
+        this.githubConf = new GithubConf(repoOwner,repoName);
         this.pipelineConfiguration = new PipelineConfiguration(projectName, branchName);
         this.codeBuildConfiguration = new CodeBuildConfiguration(projectName, branchName);
     }
