@@ -26,9 +26,10 @@ Resources:
           Version: 2012-10-17
           PolicyDocument:
             Statement:
-                Effect: Allow
-                Resource: *
-                - Action:
+               -
+                  Effect: Allow
+                  Resource: '*'
+                  Action:
                     - "ssm:GetParameter"
 
 
