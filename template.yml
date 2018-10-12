@@ -33,9 +33,9 @@ Resources:
       Path: /
       Policies:
         -
-          PolicyName: lambdaPolicy
-          Version: 2012-10-17
+          PolicyName: LambdaWorkerPolicy
           PolicyDocument:
+            Version: 2012-10-17
             Statement:
                -
                   Effect: Allow
