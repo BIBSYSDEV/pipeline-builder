@@ -2,6 +2,16 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Lambda function for Dynamic Pipelines
 
+Parameters:
+  ProjectId:
+    Type: String
+    Description: AWS CodeStar projectID used to associate new resources to team members
+  Stage:
+    Type: String
+    Description: Deployment stage. E.g. test, prod, etc.
+  LambdaTrustRolename:
+    Type: String
+
 
 Resources:
   LambdaTrustRole:
