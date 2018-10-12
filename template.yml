@@ -62,7 +62,7 @@ Resources:
           Type: Api
           Properties:
             Path: /lambda
-            Method: get
+            Method: post
             RestApiId: !Ref RestApi
 
   RestApiUrlParameter:
