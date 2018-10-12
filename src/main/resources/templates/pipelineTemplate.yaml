@@ -42,21 +42,23 @@ Conditions:
 
 Resources:
 
-#  CodebuildCacheBucket:
-#    Type: AWS::S3::Bucket
-#    DeletionPolicy: Retain
-#    Properties:
-#      AccessControl: Private
-#      BucketName: !Ref CodebuildCache
-#      VersioningConfiguration:
-#        Status: Enabled
-#      BucketEncryption:
-#        ServerSideEncryptionConfiguration:
-#        - ServerSideEncryptionByDefault:
-#            SSEAlgorithm: aws:kms
+  #The buckets cannot be deleted when the stack is deleted because they are not empty.
+  #We have to delete them using the API
+  CodebuildCacheBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      AccessControl: Private
+      BucketName: !Ref CodebuildCache
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: aws:kms
   S3Bucket:
     Type: AWS::S3::Bucket
-    DeletionPolicy: Delete
+    DeletionPolicy: Retain
     Properties:
       AccessControl: Private
       BucketName: !Ref PipelineBucketname

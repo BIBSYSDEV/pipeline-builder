@@ -7,14 +7,14 @@ public class CodeBuildConfiguration extends CloudFormationConfigurable {
 
 
 
-    private final String cacheFolder;
+    private final String cacheBucket;
 
 
     public CodeBuildConfiguration(String projectId, String branchName) {
         super(projectId, branchName);
         this.buildProjectName=format(projectId,branchName);
         this.outputArtifact=format(projectId,shortBranch,"codeBuildArtifact");
-        this.cacheFolder=initCacheFolder();
+        this.cacheBucket=initCacheFolder();
     }
 
     private String initCacheFolder() {
@@ -31,7 +31,7 @@ public class CodeBuildConfiguration extends CloudFormationConfigurable {
     }
 
 
-    public String getCacheFolder() {
-        return cacheFolder;
+    public String getCacheBucket() {
+        return cacheBucket;
     }
 }

@@ -29,10 +29,9 @@ public class Application {
         PipelineStackConfiguration pipelineStackConfiguration = pipelineStackConfiguration(
             projectName, branch, repoName, repoOwner,initAuth);
         deleteStacks(pipelineStackConfiguration);
-        CreateStackRequest createStackRequest = createStackRequest(pipelineStackConfiguration);
-        AmazonCloudFormation acf = AmazonCloudFormationClientBuilder.defaultClient();
-        acf.createStack(createStackRequest);
+//        createPipelineStack(pipelineStackConfiguration);
     }
+
 
 
     public PipelineStackConfiguration pipelineStackConfiguration
@@ -84,7 +83,7 @@ public class Application {
         parameters.add(newParameter("CodebuildProjectname",
             pipelineStack.getCodeBuildConfiguration().getBuildProjectName()));
         parameters.add(newParameter("CodebuildCache",
-            pipelineStack.getCodeBuildConfiguration().getCacheFolder()));
+            pipelineStack.getCodeBuildConfiguration().getCacheBucket()));
 
         parameters.add(newParameter("ServiceStackName",
             pipelineStack.getPipelineConfiguration().getServiceStack()));
@@ -119,6 +118,7 @@ public class Application {
 
         String pipelineGenerationStack = pipelineStackConfiguration.getPipelineStackName();
         deleteBucket(pipelineStackConfiguration.getBucketName());
+        deleteBucket(pipelineStackConfiguration.getCodeBuildConfiguration().getCacheBucket());
         deleteStackRequest = new DeleteStackRequest().withStackName(pipelineGenerationStack);
         acf.deleteStack(deleteStackRequest);
         awaitDeleteStack(acf,pipelineGenerationStack);
@@ -187,6 +187,14 @@ public class Application {
         }
 
     }
+
+    private void createPipelineStack(PipelineStackConfiguration pipelineStackConfiguration)
+        throws IOException {
+        CreateStackRequest createStackRequest = createStackRequest(pipelineStackConfiguration);
+        AmazonCloudFormation acf = AmazonCloudFormationClientBuilder.defaultClient();
+        acf.createStack(createStackRequest);
+    }
+
 
 
 }
