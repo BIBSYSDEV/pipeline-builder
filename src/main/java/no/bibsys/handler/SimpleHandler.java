@@ -2,16 +2,18 @@ package no.bibsys.handler;
 
 
 import java.io.IOException;
+import java.util.Map;
 
-public class SimpleHandler extends HandlerHelper<String,String> {
+public class SimpleHandler extends HandlerHelper<Map,String> {
 
 
     public SimpleHandler() {
-        super(String.class, String.class);
+        super(Map.class, String.class);
     }
 
-    protected String processInput(String request) throws IOException {
-       return request;
+    protected String processInput(Map request) throws IOException {
+        Map<String,Object> input=(Map<String,Object>) request;
+       return input.keySet().toString();
 
     }
 

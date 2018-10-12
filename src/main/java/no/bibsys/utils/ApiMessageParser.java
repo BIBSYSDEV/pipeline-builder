@@ -20,18 +20,25 @@ public class ApiMessageParser<T> {
         ObjectMapper mapper = new ObjectMapper(jsonFactory);
         Optional<JsonNode> tree = Optional.ofNullable(mapper.readTree(new StringReader(inputString)));
         JsonNode body = tree.map(node -> node.get("body")).orElse(null);
-        T request=null;
-        if(body!=null){
-            // body should always be a string for A lambda fuction connected to the API
-            if(body.isValueNode()){
-                request=parseBody(mapper, body.asText(),tClass);
+
+        if(tClass.equals(String.class)){
+            return (T)body.asText();
+        }
+        else{
+            T request=null;
+            if(body!=null){
+                // body should always be a string for A lambda fuction connected to the API
+                if(body.isValueNode()){
+                    request=parseBody(mapper, body.asText(),tClass);
+                }
+                else{
+                    request=parseBody(mapper,body,tClass);
+                }
             }
-            else{
-                request=parseBody(mapper,body,tClass);
-            }
+
+            return request;
         }
 
-        return request;
 
     }
 
