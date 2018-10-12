@@ -45,11 +45,13 @@ Resources:
 
 
 
-  RestApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      StageName: test
+#  RestApi:
+#    Type: AWS::Serverless::Api
+#    Properties:
+#      StageName: test
   EntityRegistry:
+    DependsOn:
+    - LambdaTrustRole
     Type: AWS::Serverless::Function
     Properties:
       Handler: no.bibsys.handler.SimpleHandler::handleRequest
@@ -63,6 +65,8 @@ Resources:
           Properties:
             Path: "/lambda"
             Method: get
+
+
   RestApiUrlParameter:
     Type: "AWS::SSM::Parameter"
     Properties:
