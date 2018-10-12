@@ -305,7 +305,7 @@ Resources:
             Provider: CloudFormation
           Configuration:
             ActionMode: CHANGE_SET_REPLACE
-            StackName: !Ref ServiceStackName
+            StackName: !Join ['-',[!Ref ServiceStackName, 'test']]
             ChangeSetName: TestStageChangeSet
             Capabilities: CAPABILITY_NAMED_IAM
             RoleArn: !GetAtt CreateStackRole.Arn
@@ -328,7 +328,7 @@ Resources:
           Configuration:
             ActionMode: CHANGE_SET_EXECUTE
             ChangeSetName: TestStageChangeSet
-            StackName: !Ref ServiceStackName
+            StackName: !Join ['-',[!Ref ServiceStackName, 'test']]
           InputArtifacts: []
           OutputArtifacts: []
           RunOrder: 2
@@ -350,7 +350,7 @@ Resources:
           Configuration:
             ActionMode: DELETE_ONLY
             RoleArn: !GetAtt CreateStackRole.Arn
-            StackName: !Ref ServiceStackName
+            StackName: !Join ['-',[!Ref ServiceStackName, 'test']]
           RunOrder: 4
 
       -
@@ -364,8 +364,8 @@ Resources:
             Provider: CloudFormation
           Configuration:
             ActionMode: CHANGE_SET_REPLACE
-            StackName: !Ref ServiceStackName
-            ChangeSetName: TestStageChangeSet
+            StackName: !Join ['-',[!Ref ServiceStackName, 'prod']]
+            ChangeSetName: ProdStageChangeSet
             Capabilities: CAPABILITY_NAMED_IAM
             RoleArn: !GetAtt CreateStackRole.Arn
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
@@ -385,8 +385,8 @@ Resources:
             Provider: CloudFormation
           Configuration:
             ActionMode: CHANGE_SET_EXECUTE
-            ChangeSetName: TestStageChangeSet
-            StackName: !Ref ServiceStackName
+            ChangeSetName: ProdStageChangeSet
+            StackName: !Join ['-',[!Ref ServiceStackName, 'prod']]
           InputArtifacts: []
           OutputArtifacts: []
           RunOrder: 2
