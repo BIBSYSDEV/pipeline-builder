@@ -61,8 +61,10 @@ Resources:
         RestApiEvent:
           Type: Api
           Properties:
-            Path: "/lambda"
+            Path: /lambda
             Method: get
+            RestApiId: !Ref RestApi
+
   RestApiUrlParameter:
     Type: "AWS::SSM::Parameter"
     Properties:
