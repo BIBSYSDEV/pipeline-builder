@@ -18,6 +18,7 @@ Resources:
     Type: 'AWS::IAM::Role'
     Description: A trust role that will be assumed by the service
     Properties:
+      RoleName: !Ref LambdaTrustRolename
       AssumeRolePolicyDocument:
         Statement:
         - Action: 'sts:AssumeRole'
@@ -62,3 +63,10 @@ Resources:
           Properties:
             Path: "/lambda"
             Method: get
+  RestApiUrlParameter:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Join ['-', [!Ref ProjectId,"restApiUrlParameter"]]
+      Type: "String"
+      Value: !Join ['', ['https://', !Ref 'RestApi', '.execute-api.', !Ref 'AWS::Region', '.amazonaws.com/',!Ref Stage]]
+      Description: "SSM Parameter for storing RestApi URL"
