@@ -19,7 +19,8 @@ public abstract class ConfigurationTests {
         try {
             application=new Application();
             conf=application.
-                pipelineStackConfiguration(projectName,branchName,"repoName","repoOwner");
+                pipelineStackConfiguration(projectName,branchName,"repoName",
+                    "repoOwner",false);
         } catch (IOException e) {
             conf=null;
             e.printStackTrace();
