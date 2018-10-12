@@ -29,7 +29,7 @@ public class Application {
         PipelineStackConfiguration pipelineStackConfiguration = pipelineStackConfiguration(
             projectName, branch, repoName, repoOwner,initAuth);
         deleteStacks(pipelineStackConfiguration);
-//        createPipelineStack(pipelineStackConfiguration);
+        createPipelineStack(pipelineStackConfiguration);
     }
 
 

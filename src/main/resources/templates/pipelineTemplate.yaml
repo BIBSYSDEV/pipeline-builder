@@ -211,8 +211,11 @@ Resources:
             - cloudformation:DeleteStack
             Resource:
             - !Sub
-              - 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackName}/*'
+              - 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackName}-test/*'
               -  { StackName: !Ref ServiceStackName }
+            - !Sub
+              - 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackName}-prod/*'
+              - { StackName: !Ref ServiceStackName }
       - PolicyName: assumeRole
         PolicyDocument:
           Version: "2012-10-17"
