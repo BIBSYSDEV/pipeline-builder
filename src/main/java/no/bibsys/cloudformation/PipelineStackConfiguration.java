@@ -55,7 +55,7 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
 
     private String pipelineStackName() {
-        return format(projectId, branchName, "pipelineStack");
+        return format(projectId, shortBranch, "pipelineStack");
     }
 
 
