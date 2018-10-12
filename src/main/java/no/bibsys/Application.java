@@ -121,6 +121,7 @@ public class Application {
         deleteBucket(pipelineStackConfiguration.getBucketName());
         deleteStackRequest = new DeleteStackRequest().withStackName(pipelineGenerationStack);
         acf.deleteStack(deleteStackRequest);
+        awaitDeleteStack(acf,pipelineGenerationStack);
 
     }
 
