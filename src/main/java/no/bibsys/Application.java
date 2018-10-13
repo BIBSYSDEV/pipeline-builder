@@ -6,6 +6,12 @@ import com.amazonaws.services.cloudformation.model.Capability;
 import com.amazonaws.services.cloudformation.model.CreateStackRequest;
 import com.amazonaws.services.cloudformation.model.DeleteStackRequest;
 import com.amazonaws.services.cloudformation.model.Parameter;
+import com.amazonaws.services.logs.AWSLogs;
+import com.amazonaws.services.logs.AWSLogsClientBuilder;
+import com.amazonaws.services.logs.model.DeleteLogGroupRequest;
+import com.amazonaws.services.logs.model.DescribeLogGroupsResult;
+import com.amazonaws.services.logs.model.GetLogEventsRequest;
+import com.amazonaws.services.logs.model.LogGroup;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ListVersionsRequest;
@@ -24,14 +30,20 @@ public class Application {
     private IOUtils ioUtils = new IOUtils();
 
 
-    public void run(String projectName, String branch, String repoName, String repoOwner,boolean initAuth)
+    public void run(String projectName, String branch, String repoName, String repoOwner,
+        boolean initAuth)
         throws IOException {
         PipelineStackConfiguration pipelineStackConfiguration = pipelineStackConfiguration(
-            projectName, branch, repoName, repoOwner,initAuth);
-        deleteStacks(pipelineStackConfiguration);
+            projectName, branch, repoName, repoOwner, initAuth);
+        wipeStacks(pipelineStackConfiguration);
         createPipelineStack(pipelineStackConfiguration);
     }
 
+    private void wipeStacks(PipelineStackConfiguration pipelineStackConfiguration) {
+        deleteBuckets(pipelineStackConfiguration);
+        deleteStacks(pipelineStackConfiguration);
+        deleteLogs(pipelineStackConfiguration);
+    }
 
 
     public PipelineStackConfiguration pipelineStackConfiguration
@@ -39,7 +51,7 @@ public class Application {
         throws IOException {
         PipelineStackConfiguration pipelineStackConfiguration = new PipelineStackConfiguration(
             projectName, branch, repoName, repoOwner);
-        if(initAuth){
+        if (initAuth) {
             pipelineStackConfiguration.getGithubConf().setOAuth();
         }
 
@@ -117,12 +129,38 @@ public class Application {
         awaitDeleteStack(acf, systemStack);
 
         String pipelineGenerationStack = pipelineStackConfiguration.getPipelineStackName();
-        deleteBucket(pipelineStackConfiguration.getBucketName());
-        deleteBucket(pipelineStackConfiguration.getCodeBuildConfiguration().getCacheBucket());
+
         deleteStackRequest = new DeleteStackRequest().withStackName(pipelineGenerationStack);
         acf.deleteStack(deleteStackRequest);
-        awaitDeleteStack(acf,pipelineGenerationStack);
+        awaitDeleteStack(acf, pipelineGenerationStack);
 
+    }
+
+    private void deleteBuckets(PipelineStackConfiguration pipelineStackConfiguration) {
+        deleteBucket(pipelineStackConfiguration.getBucketName());
+        deleteBucket(pipelineStackConfiguration.getCodeBuildConfiguration().getCacheBucket());
+    }
+
+
+    private void deleteLogs(PipelineStackConfiguration conf) {
+        AWSLogs logsClient = AWSLogsClientBuilder.defaultClient();
+        List<String> logGroups = logsClient
+            .describeLogGroups().getLogGroups().stream()
+            .map(group -> group.getLogGroupName())
+            .filter(name -> filterLogGroups(conf, name)
+            ).collect(Collectors.toList());
+
+        logGroups.stream()
+            .map(group -> new DeleteLogGroupRequest().withLogGroupName(group))
+            .forEach(request -> logsClient.deleteLogGroup(request));
+
+
+    }
+
+    private boolean filterLogGroups(PipelineStackConfiguration conf, String name) {
+        boolean result = name.contains(conf.getPipelineStackName()) ||
+            name.contains(conf.getPipelineConfiguration().getServiceStack());
+        return result;
     }
 
 
@@ -194,7 +232,6 @@ public class Application {
         AmazonCloudFormation acf = AmazonCloudFormationClientBuilder.defaultClient();
         acf.createStack(createStackRequest);
     }
-
 
 
 }

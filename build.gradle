@@ -30,6 +30,8 @@ dependencies {
     compile group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: '1.11.+'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-codebuild',version:'1.11.+'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-secretsmanager', version: '1.11.+'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-logs', version: '1.11.+'
+
 
     compile group: 'com.amazonaws', name: 'aws-lambda-java-core', version: '1.2.0'
 
