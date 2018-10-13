@@ -1,6 +1,7 @@
 package no.bibsys.handler;
 
 
+import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -14,12 +15,10 @@ public class SimpleHandler extends HandlerHelper<String,String> {
         super(String.class, String.class);
     }
 
-    protected String processInput(String request) throws IOException {
+    protected String processInput(String request, Context context) throws IOException {
 
 //        Map<String,Object> input=(Map<String,Object>) request;
         logger.info(request);
-
-
 
         return request;
 

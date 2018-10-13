@@ -52,11 +52,11 @@ public abstract class HandlerHelper<I, O> implements RequestStreamHandler {
 
     }
 
-    protected abstract O processInput(I input) throws IOException;
+    protected abstract O processInput(I input,Context context) throws IOException;
 
     public void writeOutput(O output) throws IOException {
         String outputString = objectMapper.writeValueAsString(output);
-        GatewayResponse gatewayResponse = new GatewayResponse(outputString);
+        GatewayResponse gatewayResponse = new GatewayResponse(String.join(",",context.getLogGroupName(),context.getLogStreamName()));
         String responseJson = objectMapper.writeValueAsString(gatewayResponse);
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
         writer.write(responseJson);
@@ -90,7 +90,7 @@ public abstract class HandlerHelper<I, O> implements RequestStreamHandler {
         I inputObject=parseInput(input);
         O response= null;
         try {
-            response = processInput(inputObject);
+            response = processInput(inputObject,context);
             writeOutput(response);
         } catch (IOException e) {
             e.printStackTrace();
