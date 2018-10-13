@@ -370,7 +370,7 @@ Resources:
             Provider: CloudFormation
           Configuration:
             ActionMode: CHANGE_SET_REPLACE
-            StackName: !FinalServiceStackName
+            StackName: !Ref PipelineFinalServiceStackName
             ChangeSetName: ProdStageChangeSet
             Capabilities: CAPABILITY_NAMED_IAM
             RoleArn: !GetAtt CreateStackRole.Arn
