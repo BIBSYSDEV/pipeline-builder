@@ -18,6 +18,7 @@ public class SimpleHandler extends HandlerHelper<String,String> {
     protected String processInput(String request, Context context) throws IOException {
 
 //        Map<String,Object> input=(Map<String,Object>) request;
+       System.out.println(request);
         logger.info(request);
 
         return request;
