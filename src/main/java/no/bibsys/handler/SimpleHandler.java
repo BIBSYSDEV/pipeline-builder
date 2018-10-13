@@ -3,14 +3,13 @@ package no.bibsys.handler;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
-import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class SimpleHandler extends HandlerHelper<String,String> {
 
 
-    Logger logger=LoggerFactory.getLogger(SimpleHandler.class);
+    static final Logger logger = LogManager.getLogger(SimpleHandler.class);
     public SimpleHandler() {
         super(String.class, String.class);
     }
@@ -19,7 +18,7 @@ public class SimpleHandler extends HandlerHelper<String,String> {
 
 //        Map<String,Object> input=(Map<String,Object>) request;
        System.out.println(request);
-        logger.info(request);
+       logger.info(request);
 
         return request;
 

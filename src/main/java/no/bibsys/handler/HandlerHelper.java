@@ -1,6 +1,7 @@
 package no.bibsys.handler;
 
 import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedWriter;
@@ -22,7 +23,7 @@ public abstract class HandlerHelper<I, O> implements RequestStreamHandler {
     private OutputStream outputStream;
     private Context context;
     private InputStream inputStream;
-
+    protected LambdaLogger logger;
 
     private ApiMessageParser<I> inputParser = new ApiMessageParser<>();
 
@@ -40,6 +41,7 @@ public abstract class HandlerHelper<I, O> implements RequestStreamHandler {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
         this.context = context;
+        this.logger=context.getLogger();
     }
 
     public I parseInput(InputStream inputStream)
