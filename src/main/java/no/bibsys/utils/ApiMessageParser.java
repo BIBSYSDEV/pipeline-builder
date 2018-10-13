@@ -8,12 +8,13 @@ import com.fasterxml.jackson.databind.node.TreeTraversingParser;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 public class ApiMessageParser<T> {
 
-    Logger logger=LoggerFactory.getLogger(ApiMessageParser.class);
+    Logger logger= LogManager.getLogger(ApiMessageParser.class);
 
     public T getBodyElementFromJson(String inputString, Class<T> tClass) throws IOException {
         JsonFactory jsonFactory = new JsonFactory();
