@@ -24,6 +24,10 @@ Parameters:
     Type: String
   PipelineLambdaTrustRoleName:
     Type: String
+  PipelineTestServiceStackName:
+    Type: String
+  PipelineFinalServiceStackName:
+      Type: String
   CodebuildProjectname:
     Type: String
   CodebuildOutputArtifact:
@@ -32,9 +36,6 @@ Parameters:
     Type: String
   SourceStageOutputArtifact:
     Type: String
-  ServiceStackName:
-    Type: String
-
 
 
 Conditions:
@@ -211,11 +212,11 @@ Resources:
             - cloudformation:DeleteStack
             Resource:
             - !Sub
-              - 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackName}-test/*'
-              -  { StackName: !Ref ServiceStackName }
+              - 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackName}/*'
+              -  { StackName: !Ref PipelineTestServiceStackName}
             - !Sub
-              - 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackName}-prod/*'
-              - { StackName: !Ref ServiceStackName }
+              - 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackName}/*'
+              - { StackName: !Ref PipelineFinalServiceStackName }
       - PolicyName: assumeRole
         PolicyDocument:
           Version: "2012-10-17"
@@ -310,7 +311,7 @@ Resources:
             Provider: CloudFormation
           Configuration:
             ActionMode: CHANGE_SET_REPLACE
-            StackName: !Join ['-',[!Ref ServiceStackName, 'test']]
+            StackName: !Ref PipelineTestServiceStackName
             ChangeSetName: TestStageChangeSet
             Capabilities: CAPABILITY_NAMED_IAM
             RoleArn: !GetAtt CreateStackRole.Arn
@@ -333,7 +334,7 @@ Resources:
           Configuration:
             ActionMode: CHANGE_SET_EXECUTE
             ChangeSetName: TestStageChangeSet
-            StackName: !Join ['-',[!Ref ServiceStackName, 'test']]
+            StackName: !Ref PipelineTestServiceStackName
           InputArtifacts: []
           OutputArtifacts: []
           RunOrder: 2
@@ -355,7 +356,7 @@ Resources:
           Configuration:
             ActionMode: DELETE_ONLY
             RoleArn: !GetAtt CreateStackRole.Arn
-            StackName: !Join ['-',[!Ref ServiceStackName, 'test']]
+            StackName: !Ref PipelineTestServiceStackName
           RunOrder: 4
 
       -
@@ -369,7 +370,7 @@ Resources:
             Provider: CloudFormation
           Configuration:
             ActionMode: CHANGE_SET_REPLACE
-            StackName: !Join ['-',[!Ref ServiceStackName, 'prod']]
+            StackName: !FinalServiceStackName
             ChangeSetName: ProdStageChangeSet
             Capabilities: CAPABILITY_NAMED_IAM
             RoleArn: !GetAtt CreateStackRole.Arn
@@ -391,7 +392,7 @@ Resources:
           Configuration:
             ActionMode: CHANGE_SET_EXECUTE
             ChangeSetName: ProdStageChangeSet
-            StackName: !Join ['-',[!Ref ServiceStackName, 'prod']]
+            StackName: !Ref PipelineFinalServiceStackName
           InputArtifacts: []
           OutputArtifacts: []
           RunOrder: 2

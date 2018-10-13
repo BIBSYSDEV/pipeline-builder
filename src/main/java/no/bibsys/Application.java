@@ -9,9 +9,6 @@ import com.amazonaws.services.cloudformation.model.Parameter;
 import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.logs.AWSLogsClientBuilder;
 import com.amazonaws.services.logs.model.DeleteLogGroupRequest;
-import com.amazonaws.services.logs.model.DescribeLogGroupsResult;
-import com.amazonaws.services.logs.model.GetLogEventsRequest;
-import com.amazonaws.services.logs.model.LogGroup;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ListVersionsRequest;
@@ -36,7 +33,7 @@ public class Application {
         PipelineStackConfiguration pipelineStackConfiguration = pipelineStackConfiguration(
             projectName, branch, repoName, repoOwner, initAuth);
         wipeStacks(pipelineStackConfiguration);
-        createPipelineStack(pipelineStackConfiguration);
+//        createPipelineStack(pipelineStackConfiguration);
     }
 
     private void wipeStacks(PipelineStackConfiguration pipelineStackConfiguration) {
@@ -97,8 +94,11 @@ public class Application {
         parameters.add(newParameter("CodebuildCache",
             pipelineStack.getCodeBuildConfiguration().getCacheBucket()));
 
-        parameters.add(newParameter("ServiceStackName",
-            pipelineStack.getPipelineConfiguration().getServiceStack()));
+        parameters.add(newParameter("PipelineTestServiceStackName",
+            pipelineStack.getPipelineConfiguration().getTestServiceStack()));
+
+        parameters.add(newParameter("PipelineFinalServiceStackName",
+            pipelineStack.getPipelineConfiguration().getFinalServiceStack()));
 
         createStackRequest.setParameters(parameters);
         createStackRequest.withCapabilities(Capability.CAPABILITY_NAMED_IAM);
@@ -116,23 +116,23 @@ public class Application {
         return new Parameter().withParameterKey(key).withParameterValue(value);
     }
 
-    public void deleteStacks(PipelineStackConfiguration pipelineStackConfiguration) {
+    public void deleteStacks(PipelineStackConfiguration conf) {
         AmazonCloudFormation acf = AmazonCloudFormationClientBuilder.defaultClient();
 
-        String systemStack = pipelineStackConfiguration.getPipelineConfiguration()
-            .getServiceStack();
+        String stack = conf.getPipelineConfiguration()
+            .getTestServiceStack();
 
-        DeleteStackRequest deleteStackRequest = new DeleteStackRequest()
-            .withStackName(systemStack);
+        acf.deleteStack(new DeleteStackRequest().withStackName(stack));
+        awaitDeleteStack(acf, stack);
 
-        acf.deleteStack(deleteStackRequest);
-        awaitDeleteStack(acf, systemStack);
+        stack =conf.getPipelineConfiguration().getFinalServiceStack();
+        acf.deleteStack(new DeleteStackRequest().withStackName(stack));
+        awaitDeleteStack(acf, stack);
 
-        String pipelineGenerationStack = pipelineStackConfiguration.getPipelineStackName();
+        stack = conf.getPipelineStackName();
 
-        deleteStackRequest = new DeleteStackRequest().withStackName(pipelineGenerationStack);
-        acf.deleteStack(deleteStackRequest);
-        awaitDeleteStack(acf, pipelineGenerationStack);
+        acf.deleteStack(new DeleteStackRequest().withStackName(stack));
+        awaitDeleteStack(acf, stack);
 
     }
 
@@ -159,7 +159,8 @@ public class Application {
 
     private boolean filterLogGroups(PipelineStackConfiguration conf, String name) {
         boolean result = name.contains(conf.getPipelineStackName()) ||
-            name.contains(conf.getPipelineConfiguration().getServiceStack());
+            name.contains(conf.getPipelineConfiguration().getTestServiceStack()) ||
+            name.contains(conf.getPipelineConfiguration().getFinalServiceStack());
         return result;
     }
 
