@@ -14,7 +14,7 @@ apply plugin: 'base'
 
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 wrapper {
