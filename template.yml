@@ -33,6 +33,16 @@ Resources:
       Path: /
       Policies:
         -
+          PolicyName: ReadSecrets
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              -
+                Effect: Allow
+                Resource: '*'
+                Action:
+                  - 'secretsmanager:GetSecretValue '
+        -
           PolicyName: LambdaWorkerPolicy
           PolicyDocument:
             Version: 2012-10-17
