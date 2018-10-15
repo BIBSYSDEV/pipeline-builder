@@ -158,9 +158,8 @@ public class Application {
     }
 
     private boolean filterLogGroups(PipelineStackConfiguration conf, String name) {
-        boolean result = name.contains(conf.getPipelineStackName()) ||
-            name.contains(conf.getPipelineConfiguration().getTestServiceStack()) ||
-            name.contains(conf.getPipelineConfiguration().getFinalServiceStack());
+        boolean result = name.contains(conf.getProjectId()) &&
+            name.contains(conf.getShortBranch());
         return result;
     }
 
