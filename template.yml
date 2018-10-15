@@ -39,7 +39,7 @@ Resources:
           - Effect: Allow
             Resource: '*'
             Action:
-            - 'secretsmanager:GetSecretValue '
+            - 'secretsmanager:GetSecretValue'
       - PolicyName: LambdaWorkerPolicy
         PolicyDocument:
           Version: 2012-10-17
