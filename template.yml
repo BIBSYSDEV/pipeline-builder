@@ -57,7 +57,7 @@ Resources:
       CodeUri: build/libs/pipeline-fat.jar
       Role: !GetAtt LambdaTrustRole.Arn
       MemorySize:  1500
-      Timeout: 1200
+      Timeout: 900
       Events:
         RestApiEvent:
           Type: Api
