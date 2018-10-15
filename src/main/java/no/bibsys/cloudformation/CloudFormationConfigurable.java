@@ -15,14 +15,14 @@ public class CloudFormationConfigurable {
 
     protected final String shortBranch;
     protected final String randomId;
-    protected final String stage;
+//    protected final String stage;
 
 
     public CloudFormationConfigurable(String projectId, String branchName) {
         this.projectId = projectId;
         this.branchName = setBranchName(branchName);
         this.shortBranch=shortBranch(branchName);
-        this.stage = testOrProd();
+//        this.stage = testOrProd();
         this.randomId = DigestUtils.sha1Hex(branchName);
     }
 
@@ -36,13 +36,13 @@ public class CloudFormationConfigurable {
     }
 
 
-    private String testOrProd() {
-        if (branchName.equalsIgnoreCase(MASTER_BRANCH)) {
-            return "prod";
-        } else {
-            return "dev2";
-        }
-    }
+//    private String testOrProd() {
+//        if (branchName.equalsIgnoreCase(MASTER_BRANCH)) {
+//            return "prod";
+//        } else {
+//            return "dev";
+//        }
+//    }
 
 
     public String format(String... args) {
@@ -58,9 +58,9 @@ public class CloudFormationConfigurable {
         return branchName;
     }
 
-    public String getStage() {
-        return stage;
-    }
+//    public String getStage() {
+//        return stage;
+//    }
 
     public String getRandomId() {
         return randomId;

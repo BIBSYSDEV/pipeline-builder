@@ -5,8 +5,6 @@ Parameters:
     Type: String
   ProjectBranch:
     Type: String
-  ProjectStage:
-    Type: String
   GithubAuth:
     Type: String
     NoEcho: True
@@ -330,8 +328,8 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
                !Sub
-                - '{"ProjectId":"${ProjectIdValue}", "Stage":"${StageValue}", "LambdaTrustRolename": "${PipelineLambdaTrustRoleName}"}'
-                - { ProjectIdValue: !Ref ProjectId, StageValue: !Ref ProjectStage }
+                - '{"ProjectId":"${ProjectIdValue}", "Stage":"test", "LambdaTrustRolename": "${PipelineLambdaTrustRoleName}"}'
+                - { ProjectIdValue: !Ref ProjectId}
 
           InputArtifacts:
           - Name: !Ref CodebuildOutputArtifact
@@ -389,8 +387,8 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
               !Sub
-            - '{"ProjectId":"${ProjectIdValue}", "Stage":"${StageValue}", "LambdaTrustRolename": "${PipelineLambdaTrustRoleName}"}'
-            - { ProjectIdValue: !Ref ProjectId, StageValue: !Ref ProjectStage }
+            - '{"ProjectId":"${ProjectIdValue}", "Stage":"final", "LambdaTrustRolename": "${PipelineLambdaTrustRoleName}"}'
+            - { ProjectIdValue: !Ref ProjectId}
 
           InputArtifacts:
           - Name: !Ref CodebuildOutputArtifact

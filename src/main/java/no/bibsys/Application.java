@@ -99,7 +99,7 @@ public class Application {
         parameters.add(newParameter("PipelineRolename", pipelineStack.getPipelineRoleName()));
         parameters.add(newParameter("PipelineLambdaTrustRoleName",
             pipelineStack.getPipelineConfiguration().getLambdaTrustRolename()));
-        parameters.add(newParameter("ProjectStage", pipelineStack.getStage()));
+//        parameters.add(newParameter("ProjectStage", pipelineStack.getStage()));
 
         parameters.add(newParameter("CreateStackRolename", pipelineStack.getCreateStackRoleName()));
 
