@@ -1,1 +1,15 @@
+<<<<<<< HEAD
+.idea
+build/
+out/
+.gradle
+.classpath
+.settings
 .project
+bin/
+.iml
+.metadata/
+application.conf
+=======
+.project
+>>>>>>> 6a7d17de42a2bc8505e8f2c9cdb9a0397bbd1586

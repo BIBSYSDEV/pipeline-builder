@@ -1,0 +1,28 @@
+version: 0.2
+#aws ssm get-parameter --name testParameter --with-decryption | grep Value |cut -d : -f2 | awk -F\" '{print $2}'
+
+phases:
+  install:
+    commands:
+    # Upgrade AWS CLI to the latest version
+    - pip install --upgrade awscli
+  pre_build:
+    commands:
+    - echo Test started on `date`
+    - sh gradlew clean test
+  build:
+    commands:
+    - echo Build started on `date`
+    - sh gradlew clean build shadowJar
+    - aws cloudformation package --template template.yml --s3-bucket $S3_BUCKET --output-template template-export.yml
+
+artifacts:
+  files:
+  - template-export.yml
+
+
+cache:
+  paths:
+  - '/root/.gradle/caches/**/*'
+  - '.gradle/**/*'
+  - '/root/.gradle/wrapper/**/*'
