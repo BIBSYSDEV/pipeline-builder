@@ -18,7 +18,7 @@ Resources:
     Type: 'AWS::IAM::Role'
     Description: A trust role that will be assumed by the service
     Properties:
-      RoleName: !Ref LambdaTrustRolename
+      RoleName: !Join ['-',[!Ref LambdaTrustRolename, !Ref Stage]]
       AssumeRolePolicyDocument:
         Statement:
         - Action: 'sts:AssumeRole'
@@ -88,6 +88,7 @@ Resources:
           -
             Effect: Allow
             Action:
+            - 'cloudformation:*'
             - 'lambda:CreateFunction'
             - 'lambda:DeleteFunction'
             - 'lambda:AddPermission'

@@ -303,18 +303,7 @@ Resources:
 
       - Name: TestStack
         Actions:
-        -
-          Name: DeleteProdStack
-          ActionTypeId:
-            Category: Deploy
-            Owner: AWS
-            Provider: CloudFormation
-            Version: '1'
-          Configuration:
-            ActionMode: DELETE_ONLY
-            RoleArn: !GetAtt CreateStackRole.Arn
-            StackName: !Ref PipelineFinalServiceStackName
-          RunOrder: 4
+
         - Name: CreateTestStack
           ActionTypeId:
             Category: Deploy
