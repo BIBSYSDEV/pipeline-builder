@@ -35,11 +35,11 @@ public class PullRequest {
     }
 
     private String initOwner() {
-        return root.get("repositoryName").get("owner").get("login").asText();
+        return root.get("repository").get("owner").get("login").asText();
     }
 
     private String initRepositoryName() {
-        return root.get("repositoryName").get("name").asText();
+        return root.get("repository").get("name").asText();
     }
 
 

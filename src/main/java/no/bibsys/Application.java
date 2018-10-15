@@ -287,7 +287,7 @@ public class Application {
         return this;
     }
 
-    public Application withRepoOwner(String owner){
+    public Application withRepoOwner(String repoOwner){
         this.repoOwner=repoOwner;
         return this;
     }

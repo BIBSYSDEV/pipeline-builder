@@ -1,10 +1,6 @@
 package no.bibsys;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
 import no.bibsys.cloudformation.ConfigurationTests;
 import no.bibsys.utils.Environment;
 import org.junit.Ignore;
@@ -37,8 +33,12 @@ public class PipelineTest extends ConfigurationTests {
     @Ignore
     public void deleteStacks() throws IOException {
         Application application = new Application(new Environment());
-        application.deleteStacks(application
-            .pipelineStackConfiguration(projectName, branchName, repoName, repoOwner));
+        application.withBranch(branchName)
+            .withProjectName(projectName)
+            .withRepoName(repoName)
+            .withRepoOwner(repoOwner)
+            .wipeStacks();
+
     }
 
 
