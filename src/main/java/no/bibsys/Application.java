@@ -213,7 +213,6 @@ public class Application {
         try {
             AmazonS3 s3 = AmazonS3ClientBuilder.defaultClient();
             emptyBucket(bucketName, s3);
-
             s3.deleteBucket(bucketName);
         } catch (Exception e) {
             e.printStackTrace();
@@ -224,28 +223,38 @@ public class Application {
     private void emptyBucket(String bucketName, AmazonS3 s3) {
         VersionListing versionListing = s3
             .listVersions(new ListVersionsRequest().withBucketName(bucketName));
+
+
         while (versionListing.isTruncated()) {
-            versionListing.getVersionSummaries().forEach(version ->
-                s3.deleteVersion(bucketName, version.getKey(), version.getVersionId()));
+            deleteVersionBatch(bucketName, s3, versionListing);
             versionListing = s3.listNextBatchOfVersions(versionListing);
         }
-        versionListing.getVersionSummaries().forEach(version ->
-            s3.deleteVersion(bucketName, version.getKey(), version.getVersionId()));
+        deleteVersionBatch(bucketName, s3, versionListing);
 
         ObjectListing objectListing = s3.listObjects(bucketName);
         while (objectListing.isTruncated()) {
-            objectListing.getObjectSummaries().stream()
-                .forEach(object -> s3.deleteObject(bucketName, object.getKey()));
+            deleteObjectBatch(bucketName, s3, objectListing);
             objectListing = s3.listNextBatchOfObjects(objectListing);
         }
 
-        objectListing.getObjectSummaries().stream()
-            .forEach(object -> s3.deleteObject(bucketName, object.getKey()));
+        deleteObjectBatch(bucketName, s3, objectListing);
 
-        if (versionListing.isTruncated() || objectListing.isTruncated()) {
-            emptyBucket(bucketName, s3);
+        // Be sure we have nothing more to delete
+        if(!versionListing.getVersionSummaries().isEmpty()||
+         !objectListing.getObjectSummaries().isEmpty()){
+               emptyBucket(bucketName,s3);
         }
 
+    }
+
+    private void deleteObjectBatch(String bucketName, AmazonS3 s3, ObjectListing objectListing) {
+        objectListing.getObjectSummaries().stream()
+            .forEach(object -> s3.deleteObject(bucketName, object.getKey()));
+    }
+
+    private void deleteVersionBatch(String bucketName, AmazonS3 s3, VersionListing versionListing) {
+        versionListing.getVersionSummaries().forEach(version ->
+            s3.deleteVersion(bucketName, version.getKey(), version.getVersionId()));
     }
 
     private void createPipelineStack(PipelineStackConfiguration pipelineStackConfiguration)
