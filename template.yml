@@ -47,24 +47,6 @@ Resources:
             Resource: '*'
             Action:
             - "ssm:GetParameter"
-      - PolicyName: "passRole"
-        PolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-          - Action:
-            - 'iam:PassRole'
-            Effect: Allow
-            Resource: "*"
-      -
-       PolicyName: cloudFormationPolicy
-       PolicyDocument:
-         Version: 2012-10-17
-         Statemennt:
-           -
-             Effect: Allow
-             Resrouce: '*'
-             Action:
-
       -
         PolicyName: cloudFormationEssentials
         PolicyDocument:
@@ -75,11 +57,13 @@ Resources:
             Resource: '*'
             Action:
             - 'codebuild:DeleteProject'
+            - 'codebuild:CreateProject'
             - 'codepipeline:DeletePipeline'
             - 'codepipeline:GetPipeline'
             - 'cloudformation:CreateStack'
             - 'iam:DetachRolePolicy'
             - 'iam:DeleteRolePolicy'
+            - 'iam:PassRole'
             - 'iam:GetRole'
             - 'iam:CreateRole'
             - 'iam:PutRolePolicy'
