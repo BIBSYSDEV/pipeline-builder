@@ -303,7 +303,18 @@ Resources:
 
       - Name: TestStack
         Actions:
-
+        -
+          Name: FristDeleteTestStack
+          ActionTypeId:
+            Category: Deploy
+            Owner: AWS
+            Provider: CloudFormation
+            Version: '1'
+          Configuration:
+            ActionMode: DELETE_ONLY
+            RoleArn: !GetAtt CreateStackRole.Arn
+            StackName: !Ref PipelineTestServiceStackName
+          RunOrder: 1
         - Name: CreateTestStack
           ActionTypeId:
             Category: Deploy
@@ -324,9 +335,9 @@ Resources:
 
           InputArtifacts:
           - Name: !Ref CodebuildOutputArtifact
-          RunOrder: 1
-        -
-          Name: ExecuteTestStack
+          RunOrder: 2
+
+        - Name: ExecuteTestStack
           ActionTypeId:
             Category: Deploy
             Owner: AWS
@@ -338,7 +349,7 @@ Resources:
             StackName: !Ref PipelineTestServiceStackName
           InputArtifacts: []
           OutputArtifacts: []
-          RunOrder: 2
+          RunOrder: 3
         -
           Name: ManualReview
           ActionTypeId:
@@ -346,9 +357,9 @@ Resources:
             Owner: AWS
             Provider: Manual
             Version: 1
-          RunOrder: 3
+          RunOrder: 4
         -
-          Name: DeleteTestStack
+          Name: SecondDeleteTestStack
           ActionTypeId:
             Category: Deploy
             Owner: AWS
@@ -358,7 +369,7 @@ Resources:
             ActionMode: DELETE_ONLY
             RoleArn: !GetAtt CreateStackRole.Arn
             StackName: !Ref PipelineTestServiceStackName
-          RunOrder: 4
+          RunOrder: 5
 
       -
         Name: ProdStack
