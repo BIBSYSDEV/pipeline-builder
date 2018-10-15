@@ -4,7 +4,7 @@
   <Appenders>
     <Lambda name="Lambda">
       <PatternLayout>
-        <pattern>%d{yyyy-MM-dd HH:mm:ss} %X{AWSRequestId} %-5p %c{1}:%L - %m%n</pattern>
+        <pattern> %d{ISO8601} %X{AWSRequestId} %-5p %c{1}:%L - %m%n</pattern>
       </PatternLayout>
     </Lambda>
   </Appenders>
