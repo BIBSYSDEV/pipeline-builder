@@ -33,7 +33,7 @@ public class Application {
         PipelineStackConfiguration pipelineStackConfiguration = pipelineStackConfiguration(
             projectName, branch, repoName, repoOwner, initAuth);
         wipeStacks(pipelineStackConfiguration);
-        createPipelineStack(pipelineStackConfiguration);
+//        createPipelineStack(pipelineStackConfiguration);
     }
 
     private void wipeStacks(PipelineStackConfiguration pipelineStackConfiguration) {
