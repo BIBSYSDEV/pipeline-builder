@@ -9,6 +9,7 @@ public class PullRequest {
     public static final String ACTION_OPEN = "opened";
     public static final String ACTION_CLOSE = "closed";
 
+
     private ObjectMapper mapper;
     private final String json;
     private final JsonNode root;
@@ -19,7 +20,8 @@ public class PullRequest {
 
 
     private final String branch;
-    private final String projectId;
+    private final String repositoryName;
+    private final String owner;
 
 
     public PullRequest(String json) throws IOException {
@@ -28,12 +30,16 @@ public class PullRequest {
         root = mapper.readTree(json);
         this.action=initAction();
         this.branch=initBranch();
-
-        projectId = initProjectId();
+        this.owner=initOwner();
+        repositoryName = initRepositoryName();
     }
 
-    private String initProjectId() {
-        return root.get("repository").get("name").asText();
+    private String initOwner() {
+        return root.get("repositoryName").get("owner").get("login").asText();
+    }
+
+    private String initRepositoryName() {
+        return root.get("repositoryName").get("name").asText();
     }
 
 
@@ -54,13 +60,16 @@ public class PullRequest {
     }
 
 
-    public String getProjectId(){
-        return this.projectId;
+    public String getRepositoryName(){
+        return this.repositoryName;
     }
 
+    public String getOwner() {
+        return owner;
+    }
 
     public String toString(){
-        return String.join(":",getProjectId(),getBranch(),getAction());
+        return String.join(":", getRepositoryName(),getBranch(),getAction());
     }
 
 }

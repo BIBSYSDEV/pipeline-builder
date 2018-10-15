@@ -3,7 +3,6 @@ package no.bibsys.cloudformation;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import no.bibsys.Application;
 import org.junit.Test;
 
 public class PipelineStackConfigurationTests extends ConfigurationTests {

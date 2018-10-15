@@ -20,23 +20,48 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
+import no.bibsys.utils.Environment;
 import no.bibsys.utils.IOUtils;
 
 public class Application {
 
     private IOUtils ioUtils = new IOUtils();
+     private String projectName;
+     private String repoName;
+     private String branch;
+     private String repoOwner;
+     private  Environment environment;
 
 
-    public void run(String projectName, String branch, String repoName, String repoOwner,
-        boolean initAuth)
+     public Application(Environment environment){
+         this.environment=environment;
+     }
+
+
+    public void createStacks()
         throws IOException {
+
+         checkNulls();
         PipelineStackConfiguration pipelineStackConfiguration = pipelineStackConfiguration(
-            projectName, branch, repoName, repoOwner, initAuth);
+            projectName, branch, repoName, repoOwner);
         wipeStacks(pipelineStackConfiguration);
         createPipelineStack(pipelineStackConfiguration);
     }
 
+
+    public void wipeStacks() throws IOException {
+        checkNulls();
+        PipelineStackConfiguration conf=new PipelineStackConfiguration(projectName,
+            branch,
+            repoName,
+            repoOwner,
+            environment);
+        wipeStacks(conf);
+
+    }
+
     private void wipeStacks(PipelineStackConfiguration pipelineStackConfiguration) {
+        checkNulls();
         deleteBuckets(pipelineStackConfiguration);
         deleteStacks(pipelineStackConfiguration);
         deleteLogs(pipelineStackConfiguration);
@@ -44,13 +69,10 @@ public class Application {
 
 
     public PipelineStackConfiguration pipelineStackConfiguration
-        (String projectName, String branch, String repoName, String repoOwner, boolean initAuth)
+        (String projectName, String branch, String repoName, String repoOwner)
         throws IOException {
         PipelineStackConfiguration pipelineStackConfiguration = new PipelineStackConfiguration(
-            projectName, branch, repoName, repoOwner);
-        if (initAuth) {
-            pipelineStackConfiguration.getGithubConf().setOAuth();
-        }
+            projectName, branch, repoName, repoOwner,environment);
 
         return pipelineStackConfiguration;
 
@@ -232,6 +254,45 @@ public class Application {
         AmazonCloudFormation acf = AmazonCloudFormationClientBuilder.defaultClient();
         acf.createStack(createStackRequest);
     }
+
+    private void checkNulls(){
+        if(projectName==null){
+            throw new NullPointerException("projectName is null");
+        }
+        if(repoName==null){
+            throw  new NullPointerException("repoName is null");
+        }
+        if(branch==null){
+            throw  new NullPointerException("branch is null");
+        }
+        if(repoOwner==null){
+            throw  new NullPointerException("repoOwner is null");
+        }
+
+    }
+
+
+    public Application withProjectName(String projectName){
+        this.projectName=projectName;
+        return this;
+    }
+
+    public Application withRepoName(String repository){
+        this.repoName=repository;
+        return this;
+    }
+
+    public Application withBranch(String branch){
+        this.branch=branch;
+        return this;
+    }
+
+    public Application withRepoOwner(String owner){
+        this.repoOwner=repoOwner;
+        return this;
+    }
+
+
 
 
 }

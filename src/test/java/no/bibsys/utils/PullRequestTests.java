@@ -33,8 +33,8 @@ public class PullRequestTests {
     }
 
     @Test
-    public void readsProjectId(){
-        assertThat(pullRequest.getProjectId(),is(equalTo("Hello-World")));
+    public void readsRepositoryName(){
+        assertThat(pullRequest.getRepositoryName(),is(equalTo("Hello-World")));
     }
 
 

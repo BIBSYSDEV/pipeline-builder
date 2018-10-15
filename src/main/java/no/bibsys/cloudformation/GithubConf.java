@@ -8,20 +8,24 @@ import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Optional;
-import no.bibsys.utils.EnvUtils;
+import no.bibsys.utils.Environment;
 
-public class GithubConf extends EnvUtils {
+public class GithubConf  {
 
     private final String owner;
     private final String repo;
 
     private  String oauth;
 
+    private final Environment env;
 
-    public GithubConf(String owner, String repo) throws IOException {
 
+    public GithubConf(String owner, String repo,Environment env) throws IOException {
+
+        this.env=env;
         this.owner = initOwner(owner);
         this.repo = initRepo(repo);
+        this.oauth=initOAuth();
     }
 
     public void setOAuth() throws IOException {
@@ -37,9 +41,9 @@ public class GithubConf extends EnvUtils {
     }
 
     private String initOAuth() throws IOException {
-        Optional<String> env = readEnvOpt("GITHUBAUTH");
-        if (env.isPresent()) {
-            return env.get();
+        Optional<String> envAuth = env.readEnvOpt("GITHUBAUTH");
+        if (envAuth.isPresent()) {
+            return envAuth.get();
         }
         AWSSecretsManager client = AWSSecretsManagerClientBuilder.standard()
             .withRegion(Region.EU_Ireland.toString())
