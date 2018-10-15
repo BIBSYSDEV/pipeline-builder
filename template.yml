@@ -60,6 +60,8 @@ Resources:
             - 'codebuild:CreateProject'
             - 'codepipeline:DeletePipeline'
             - 'codepipeline:GetPipeline'
+            - 'codepipeline:CreatePipeline'
+            - 'codepipeline:GetPipelineState'
             - 'cloudformation:CreateStack'
             - 'iam:DetachRolePolicy'
             - 'iam:DeleteRolePolicy'
