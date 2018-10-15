@@ -169,8 +169,8 @@ public class Application {
         List<String> logGroups = logsClient
             .describeLogGroups().getLogGroups().stream()
             .map(group -> group.getLogGroupName())
-            .filter(name -> filterLogGroups(conf, name)
-            ).collect(Collectors.toList());
+            .filter(name -> filterLogGroups(conf, name))
+            .collect(Collectors.toList());
 
         logGroups.stream()
             .map(group -> new DeleteLogGroupRequest().withLogGroupName(group))
