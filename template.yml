@@ -24,60 +24,52 @@ Resources:
         - Action: 'sts:AssumeRole'
           Effect: Allow
           Principal:
-           Service:
+            Service:
             - lambda.amazonaws.com
             - cloudformation.amazonaws.com
       ManagedPolicyArns:
-        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
-        - 'arn:aws:iam::aws:policy/service-role/AWSConfigRulesExecutionRole'
+      - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+      - 'arn:aws:iam::aws:policy/service-role/AWSConfigRulesExecutionRole'
       Path: /
       Policies:
-        -
-          PolicyName: ReadSecrets
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              -
-                Effect: Allow
-                Resource: '*'
-                Action:
-                  - 'secretsmanager:GetSecretValue '
-        -
-          PolicyName: LambdaWorkerPolicy
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-               -
-                  Effect: Allow
-                  Resource: '*'
-                  Action:
-                    - "ssm:GetParameter"
-        -
-          PolicyName: StackPolicies
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-            -
-              Effect: Allow
-              Resource: '*'
-              Action:
-              - "ssm:GetParameter"
-        - PolicyName: "passRole"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-            - Action:
-              - 'iam:PassRole'
-              Effect: Allow
-              Resource: "*"
-            -
-              Action:
-                - 'cloudformation:CreateChangeSet'
-              Effect: Allow
-              Resource:
-              - arn:aws:cloudformation:eu-west-1:aws:transform/Serverless-2016-10-31
-          -
+      - PolicyName: ReadSecrets
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+          - Effect: Allow
+            Resource: '*'
             Action:
+            - 'secretsmanager:GetSecretValue '
+      - PolicyName: LambdaWorkerPolicy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+          - Effect: Allow
+            Resource: '*'
+            Action:
+            - "ssm:GetParameter"
+      - PolicyName: StackPolicies
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+          - Effect: Allow
+            Resource: '*'
+            Action:
+            - "ssm:GetParameter"
+      - PolicyName: "passRole"
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+          - Action:
+            - 'iam:PassRole'
+            Effect: Allow
+            Resource: "*"
+          - Action:
+            - 'cloudformation:CreateChangeSet'
+            Effect: Allow
+            Resource:
+            - arn:aws:cloudformation:eu-west-1:aws:transform/Serverless-2016-10-31
+          - Action:
             - 'iam:GetRole'
             - 'iam:CreateRole'
             - 'iam:PutRolePolicy'
@@ -89,28 +81,27 @@ Resources:
             - 'ssm:DeleteParameter'
             Resource: '*'
             Effect: Allow
-        -
-          PolicyName: createLambdaFunctions
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-            -
-              Effect: Allow
-              Action:
-                - 'lambda:CreateFunction'
-                - 'lambda:DeleteFunction'
-                - 'lambda:AddPermission'
-                - 'lambda:UpdateFunction'
-                - 'lambda:UpdateFunctionCode'
-                - 'lambda:GetFunction'
-                - 'lambda:GetFunctionConfiguration'
-                - 'lambda:UpdateFunctionConfiguration'
-                - 'lambda:RemovePermission'
-                - 'lambda:listTags'
-                - 'lambda:TagResource'
-                - 'lambda:UntagResource'
-                - 'apigateway:*'
-                - 'ssm:GetParameters'
+      - PolicyName: createLambdaFunctions
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          -
+            Effect: Allow
+            Action:
+            - 'lambda:CreateFunction'
+            - 'lambda:DeleteFunction'
+            - 'lambda:AddPermission'
+            - 'lambda:UpdateFunction'
+            - 'lambda:UpdateFunctionCode'
+            - 'lambda:GetFunction'
+            - 'lambda:GetFunctionConfiguration'
+            - 'lambda:UpdateFunctionConfiguration'
+            - 'lambda:RemovePermission'
+            - 'lambda:listTags'
+            - 'lambda:TagResource'
+            - 'lambda:UntagResource'
+            - 'apigateway:*'
+            - 'ssm:GetParameters'
             Resource: '*'
 
   RestApi:
