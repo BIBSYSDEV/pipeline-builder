@@ -142,6 +142,7 @@ Resources:
                 Effect: Allow
                 Resource:
                   - arn:aws:cloudformation:eu-west-1:aws:transform/Serverless-2016-10-31
+                  - arn:aws:cloudformation:eu-west-1:aws:transform/Include
           PolicyName: CloudFormationRolePolicy
       RoleName: !Join
         - '-'
@@ -211,6 +212,8 @@ Resources:
         EnvironmentVariables:
           - Name: S3_BUCKET
             Value: !Ref S3Bucket
+          - Name: PROJECT_ID
+            Value: !Ref ProjectId            
         Image: 'aws/codebuild/eb-java-8-amazonlinux-64:2.4.3'
         Type: container
       Name: !Join
@@ -240,6 +243,8 @@ Resources:
         EnvironmentVariables:
           - Name: S3_BUCKET
             Value: !Ref S3Bucket
+          - Name: PROJECT_ID
+            Value: !Ref ProjectId
         Image: 'aws/codebuild/nodejs:10.1.0'
         Type: container
       Name: !Join
@@ -397,6 +402,9 @@ Resources:
                   - 'dynamodb:CreateTable'
                   - 'dynamodb:DeleteTable'
                   - 'dynamodb:DescribeTable'
+                  - 'dynamodb:PutItem'
+                  - 'dynamodb:GetItem'
+                  - 'dynamodb:DeleteItem'
                 Effect: Allow
                 Resource: '*'
             Version: 2012-10-17
@@ -488,7 +496,10 @@ Resources:
                   - - '{"ProjectId":"'
                     - !Ref ProjectId
                     - '",'
-                    - '"Stage":"Test"'
+                    - '"Stage":"Test",'
+                    - '"CodeBucket":"'
+                    - !Ref S3Bucket
+                    - '"'
                     - '}'
                 RoleArn: !GetAtt
                   - CloudFormationTrustRole
@@ -527,23 +538,23 @@ Resources:
               Name: ExecuteTestChangeSet
               OutputArtifacts: []
               RunOrder: 2
-            - ActionTypeId:
-                Category: Build
-                Owner: AWS
-                Provider: CodeBuild
-                Version: 1
-              Configuration:
-                ProjectName: !Join
-                  - '-'
-                  - - !Ref ProjectId
-                    - Test
-              InputArtifacts:
-                - Name: !Join
-                    - '-'
-                    - - !Ref ProjectId
-                      - SourceArtifact
-              Name: FeatureTest
-              RunOrder: 3
+#            - ActionTypeId:
+#                Category: Build
+#                Owner: AWS
+#                Provider: CodeBuild
+#                Version: 1
+#              Configuration:
+#                ProjectName: !Join
+#                  - '-'
+#                  - - !Ref ProjectId
+#                    - Test
+#              InputArtifacts:
+#                - Name: !Join
+#                    - '-'
+#                    - - !Ref ProjectId
+#                      - SourceArtifact
+#              Name: FeatureTest
+#              RunOrder: 3
             - ActionTypeId:
                 Category: Deploy
                 Owner: AWS
@@ -577,7 +588,10 @@ Resources:
                   - - '{"ProjectId":"'
                     - !Ref ProjectId
                     - '",'
-                    - '"Stage":"Prod"'
+                    - '"Stage":"Prod",'
+                    - '"CodeBucket":"'
+                    - !Ref S3Bucket
+                    - '"'
                     - '}'
                 RoleArn: !GetAtt
                   - CloudFormationTrustRole
