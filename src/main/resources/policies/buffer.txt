@@ -1,5 +1,0 @@
-"ManagedPolicyArns": [
-          "arn:aws:iam::aws:policy/AWSCodePipelineFullAccess",
-          "arn:aws:iam::aws:policy/AWSCodeCommitFullAccess",
-          "arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess"
-        ]
