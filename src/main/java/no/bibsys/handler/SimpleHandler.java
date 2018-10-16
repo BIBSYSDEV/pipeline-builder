@@ -29,7 +29,7 @@ public class SimpleHandler extends HandlerHelper<String, String> {
         }
 
         if(pullRequest.getAction().equals(PullRequest.ACTION_CLOSE)){
-            deleteStacks(pullRequest, env);
+            deleteStacks(pullRequest, env,projectName);
         }
 
 
@@ -41,11 +41,11 @@ public class SimpleHandler extends HandlerHelper<String, String> {
 
     }
 
-    private void deleteStacks(PullRequest pullRequest, Environment env) throws IOException {
+    private void deleteStacks(PullRequest pullRequest, Environment env,String projectName) throws IOException {
         Application application=new Application(env);
         application
             .withRepoOwner(pullRequest.getOwner())
-            .withProjectName("lambapipe")
+            .withProjectName(projectName)
             .withRepoName(pullRequest.getRepositoryName())
             .withBranch(pullRequest.getBranch())
             .wipeStacks();
