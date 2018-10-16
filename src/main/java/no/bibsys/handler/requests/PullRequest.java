@@ -1,4 +1,4 @@
-package no.bibsys.utils;
+package no.bibsys.handler.requests;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

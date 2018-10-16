@@ -1,8 +1,8 @@
-package no.bibsys;
+package no.bibsys.utils;
 
 import java.io.IOException;
+import no.bibsys.Application;
 import no.bibsys.cloudformation.ConfigurationTests;
-import no.bibsys.utils.Environment;
 import org.junit.Ignore;
 import org.junit.Test;
 

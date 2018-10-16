@@ -5,7 +5,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
 import no.bibsys.Application;
 import no.bibsys.utils.Environment;
-import no.bibsys.utils.PullRequest;
+import no.bibsys.handler.requests.PullRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
