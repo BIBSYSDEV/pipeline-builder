@@ -6,9 +6,6 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
     private  final String sourceOutputArtifactName;
     private final String testServiceStack;
     private final String finalServiceStack;
-
-
-
     private final String pipelineName;
 
 
@@ -22,7 +19,7 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
         this.sourceOutputArtifactName=initSourceOutputArtifactName();
         this.testServiceStack = initServiceStack("test");
         this.finalServiceStack= initServiceStack("prod");
-        this. pipelineName = initializePipelineName();
+        this.pipelineName = initializePipelineName();
         this.lambdaTrustRolename =initializeLambdaTrustRole();
     }
 

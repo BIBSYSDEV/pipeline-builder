@@ -14,8 +14,7 @@ public class GithubConf  {
 
     private final String owner;
     private final String repo;
-
-    private  String oauth;
+    private final String oauth;
 
     private final Environment env;
 
@@ -28,9 +27,7 @@ public class GithubConf  {
         this.oauth=initOAuth();
     }
 
-    public void setOAuth() throws IOException {
-        this.oauth = initOAuth();
-    }
+
 
     private String initRepo(String repo) {
         return repo;
@@ -45,10 +42,9 @@ public class GithubConf  {
         if (envAuth.isPresent()) {
             return envAuth.get();
         }
-        AWSSecretsManager client = AWSSecretsManagerClientBuilder.standard()
-            .withRegion(Region.EU_Ireland.toString())
-            .build();
-        return readAuthFromSecrets(client);
+        else{
+            return readAuthFromSecrets();
+        }
     }
 
 
@@ -64,7 +60,10 @@ public class GithubConf  {
         return oauth;
     }
 
-    private String readAuthFromSecrets(AWSSecretsManager client) throws IOException {
+    private String readAuthFromSecrets() throws IOException {
+        AWSSecretsManager client = AWSSecretsManagerClientBuilder.standard()
+            .withRegion(Region.EU_Ireland.toString())
+            .build();
         ObjectMapper mapper=new ObjectMapper();
 
         GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest()
