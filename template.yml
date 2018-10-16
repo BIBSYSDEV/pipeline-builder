@@ -102,9 +102,6 @@ Resources:
       Role: !GetAtt LambdaTrustRole.Arn
       MemorySize:  1500
       Timeout: 900
-      Environment:
-        Variables:
-          PROJECT_NAME: dynpipe
       Events:
         RestApiEvent:
           Type: Api

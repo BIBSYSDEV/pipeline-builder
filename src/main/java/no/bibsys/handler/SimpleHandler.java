@@ -3,6 +3,9 @@ package no.bibsys.handler;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import no.bibsys.Application;
 import no.bibsys.utils.Environment;
 import no.bibsys.handler.requests.PullRequest;
@@ -21,15 +24,13 @@ public class SimpleHandler extends HandlerHelper<String, String> {
     protected String processInput(String request, Context context) throws IOException {
         PullRequest pullRequest = new PullRequest(request);
         Environment env=new Environment();
-        String projectName=env.readEnvOpt("PROJECT_NAME").orElseThrow(()->
-            missingEnvVariable("PROJECT_NAME") );
 
         if(pullRequest.getAction().equals(PullRequest.ACTION_OPEN)){
-            createStacks(pullRequest, env, projectName);
+            createStacks(pullRequest, env, projectName(pullRequest.getBranch()));
         }
 
         if(pullRequest.getAction().equals(PullRequest.ACTION_CLOSE)){
-            deleteStacks(pullRequest, env,projectName);
+            deleteStacks(pullRequest, env,projectName(pullRequest.getBranch()));
         }
 
 
@@ -39,6 +40,20 @@ public class SimpleHandler extends HandlerHelper<String, String> {
 
         return request;
 
+    }
+
+
+
+    private String projectName(String repositoryName){
+        String[] words = repositoryName.split("-");
+        List<String> wordList = Arrays.asList(words).stream().map(w -> shorten(w))
+            .collect(Collectors.toList());
+        return String.join("-",wordList);
+    }
+
+    private String shorten(String word){
+        int maxIndex=Math.min(word.length(),3);
+        return word.substring(0,maxIndex);
     }
 
     private void deleteStacks(PullRequest pullRequest, Environment env,String projectName) throws IOException {
