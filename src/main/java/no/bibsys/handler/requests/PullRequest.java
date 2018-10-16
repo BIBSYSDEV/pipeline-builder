@@ -10,27 +10,20 @@ public class PullRequest {
     public static final String ACTION_CLOSE = "closed";
 
 
-    private ObjectMapper mapper;
-    private final String json;
-    private final JsonNode root;
+    private final transient JsonNode root;
+    private final transient String action;
+    private final transient String branch;
+    private final transient String repositoryName;
+    private final transient String owner;
 
 
-    private final String action;
+    public PullRequest(String jsonString) throws IOException {
 
-
-
-    private final String branch;
-    private final String repositoryName;
-    private final String owner;
-
-
-    public PullRequest(String json) throws IOException {
-        this.json = json;
-        mapper = new ObjectMapper();
-        root = mapper.readTree(json);
-        this.action=initAction();
-        this.branch=initBranch();
-        this.owner=initOwner();
+        ObjectMapper mapper = new ObjectMapper();
+        root = mapper.readTree(jsonString);
+        this.action = initAction();
+        this.branch = initBranch();
+        this.owner = initOwner();
         repositoryName = initRepositoryName();
     }
 
@@ -43,24 +36,26 @@ public class PullRequest {
     }
 
 
-    private String initAction(){
+    private String initAction() {
         return root.get("action").asText();
     }
 
 
-    private String initBranch(){
-        String branch=root.get("pull_request").get("head").get("ref").asText();
+    private String initBranch() {
+        String branch = root.get("pull_request").get("head").get("ref").asText();
         return branch;
     }
+
     public String getBranch() {
         return branch;
     }
+
     public String getAction() {
         return action;
     }
 
 
-    public String getRepositoryName(){
+    public String getRepositoryName() {
         return this.repositoryName;
     }
 
@@ -68,8 +63,9 @@ public class PullRequest {
         return owner;
     }
 
-    public String toString(){
-        return String.join(":", getRepositoryName(),getBranch(),getAction());
+    @Override
+    public String toString() {
+        return String.join(":", getRepositoryName(), getBranch(), getAction());
     }
 
 }

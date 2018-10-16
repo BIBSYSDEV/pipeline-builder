@@ -5,19 +5,19 @@ import no.bibsys.utils.Environment;
 
 public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
-    private final String pipelineStackName;
+    private final transient String pipelineStackName;
 
     // Role for creating the stack of the pipeline
-    private final String createStackRoleName;
+    private final transient String createStackRoleName;
 
     // Role for executing the steps of the pipeline
-    private final String pipelineRoleName;
+    private final transient String pipelineRoleName;
 
-    private String bucketName;
-    private GithubConf githubConf;
+    private final transient String bucketName;
+    private final transient GithubConf githubConf;
 
-    private PipelineConfiguration pipelineConfiguration;
-    private CodeBuildConfiguration codeBuildConfiguration;
+    private final transient PipelineConfiguration pipelineConfiguration;
+    private final transient CodeBuildConfiguration codeBuildConfiguration;
 
 
     public PipelineStackConfiguration(String projectName,
@@ -26,12 +26,12 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
         String repoOwner,
         Environment environment) throws IOException {
         super(projectName, branchName);
-        this.pipelineStackName = pipelineStackName();
+        this.pipelineStackName = initPipelineStackName();
         this.bucketName = initBucketName();
         this.createStackRoleName = initCreateStackRole();
         this.pipelineRoleName = initPipelineRoleName();
 
-        this.githubConf = new GithubConf(repoOwner,repoName,environment);
+        this.githubConf = new GithubConf(repoOwner, repoName, environment);
         this.pipelineConfiguration = new PipelineConfiguration(projectName, branchName);
         this.codeBuildConfiguration = new CodeBuildConfiguration(projectName, branchName);
     }
@@ -56,7 +56,7 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
     }
 
 
-    private String pipelineStackName() {
+    private String initPipelineStackName() {
         return format(projectId, shortBranch, "pipelineStack");
     }
 

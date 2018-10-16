@@ -7,15 +7,13 @@ import no.bibsys.utils.Environment;
 
 public abstract class ConfigurationTests {
 
-    String projectName="aVeryLongProjectName";
-    String branchName="aBranch";
+    protected final String projectId;
+    protected String randomId;
+    protected String projectName = "projectName";
+    protected String shortBranch;
+    String branchName = "aBranch";
     Application application;
     PipelineStackConfiguration conf;
-
-    protected String randomId;
-    protected String projectId;
-    protected String shortBranch;
-
     private Environment environment = new Environment() {
         @Override
         public Optional<String> readEnvOpt(String variableName) {
@@ -25,23 +23,23 @@ public abstract class ConfigurationTests {
     };
 
 
-
-
-    protected ConfigurationTests()  {
+    protected ConfigurationTests() {
         try {
 
-            application=new Application(environment);
-            conf=application.
-                pipelineStackConfiguration(projectName,branchName,"repoName",
-                    "repoOwner");
+            application = new Application(environment)
+                .withBranch(branchName)
+                .withProjectName(projectName)
+                .withRepoName("repoName")
+                .withRepoOwner("repoOwner");
+            conf = application.pipelineStackConfiguration();
         } catch (IOException e) {
-            conf=null;
+            conf = null;
             e.printStackTrace();
         }
 
-        randomId=conf.getRandomId();
-        projectId=conf.getProjectId();
-        shortBranch=conf.getShortBranch();
+        randomId = conf.getRandomId();
+        shortBranch = conf.getShortBranch();
+        projectId = conf.getProjectId();
 
 
     }

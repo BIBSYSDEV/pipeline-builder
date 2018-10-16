@@ -10,23 +10,22 @@ import java.io.IOException;
 import java.util.Optional;
 import no.bibsys.utils.Environment;
 
-public class GithubConf  {
+public class GithubConf {
 
-    private final String owner;
-    private final String repo;
-    private final String oauth;
+    private final transient String owner;
+    private final transient String repo;
+    private final transient String oauth;
 
-    private final Environment env;
+    private final transient Environment env;
 
 
-    public GithubConf(String owner, String repo,Environment env) throws IOException {
+    public GithubConf(String owner, String repo, Environment env) throws IOException {
 
-        this.env=env;
+        this.env = env;
         this.owner = initOwner(owner);
         this.repo = initRepo(repo);
-        this.oauth=initOAuth();
+        this.oauth = initOAuth();
     }
-
 
 
     private String initRepo(String repo) {
@@ -41,8 +40,7 @@ public class GithubConf  {
         Optional<String> envAuth = env.readEnvOpt("GITHUBAUTH");
         if (envAuth.isPresent()) {
             return envAuth.get();
-        }
-        else{
+        } else {
             return readAuthFromSecrets();
         }
     }
@@ -64,7 +62,7 @@ public class GithubConf  {
         AWSSecretsManager client = AWSSecretsManagerClientBuilder.standard()
             .withRegion(Region.EU_Ireland.toString())
             .build();
-        ObjectMapper mapper=new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
 
         GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest()
             .withSecretId("githubauth");
@@ -73,7 +71,7 @@ public class GithubConf  {
 
         if (getSecretValueResult.getSecretString() != null) {
             String secret = getSecretValueResult.getSecretString();
-            String value= mapper.readTree(secret)
+            String value = mapper.readTree(secret)
                 .findValuesAsText("githubauth").stream().findFirst().orElse(null);
             return value;
         }

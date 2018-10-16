@@ -9,56 +9,48 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import no.bibsys.utils.IOUtils;
 import no.bibsys.handler.responses.GatewayResponse;
 import no.bibsys.utils.ApiMessageParser;
+import no.bibsys.utils.IoUtils;
 import org.apache.http.HttpStatus;
 
 
 public abstract class HandlerHelper<I, O> implements RequestStreamHandler {
 
 
-    private final Class<I> iclass;
-    private final Class<O> oclass;
-    private OutputStream outputStream;
-    private Context context;
-    private InputStream inputStream;
-    protected LambdaLogger logger;
+    private final transient Class<I> iclass;
+    private final transient ApiMessageParser<I> inputParser = new ApiMessageParser<>();
+    private final transient IoUtils ioUtils = new IoUtils();
+    private final transient ObjectMapper objectMapper = new ObjectMapper();
+    protected transient LambdaLogger logger;
+    private transient OutputStream outputStream;
+    private transient Context context;
 
-    private ApiMessageParser<I> inputParser = new ApiMessageParser<>();
-
-    private IOUtils ioUtils = new IOUtils();
-    private ObjectMapper objectMapper = new ObjectMapper();
-
-    public HandlerHelper(Class<I> iclass, Class<O> oclass) {
+    public HandlerHelper(Class<I> iclass) {
         this.iclass = iclass;
-        this.oclass = oclass;
 
     }
 
 
-    public void init(InputStream inputStream, OutputStream outputStream, Context context) {
-        this.inputStream = inputStream;
+    private void init(OutputStream outputStream, Context context) {
         this.outputStream = outputStream;
         this.context = context;
-        this.logger=context.getLogger();
+        this.logger = context.getLogger();
     }
 
     public I parseInput(InputStream inputStream)
         throws IOException {
         String inputString = ioUtils.streamToString(inputStream);
-
         I input = inputParser.getBodyElementFromJson(inputString, iclass);
-
         return input;
 
     }
 
-    protected abstract O processInput(I input,Context context) throws IOException;
+    protected abstract O processInput(I input, Context context) throws IOException;
 
     public void writeOutput(O output) throws IOException {
         String outputString = objectMapper.writeValueAsString(output);
-        GatewayResponse gatewayResponse = new GatewayResponse(String.join(",",context.getLogGroupName(),context.getLogStreamName()));
+        GatewayResponse gatewayResponse = new GatewayResponse(outputString);
         String responseJson = objectMapper.writeValueAsString(gatewayResponse);
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
         writer.write(responseJson);
@@ -68,11 +60,11 @@ public abstract class HandlerHelper<I, O> implements RequestStreamHandler {
 
 
     public void writerFailure(Throwable error) throws IOException {
-        String outputString=error.getMessage();
+        String outputString = error.getMessage();
         GatewayResponse gatewayResponse = new GatewayResponse(outputString,
             GatewayResponse.defaultHeaders(), HttpStatus.SC_INTERNAL_SERVER_ERROR);
-        String responseJson=objectMapper.writeValueAsString(gatewayResponse);
-        BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(outputStream));
+        String responseJson = objectMapper.writeValueAsString(gatewayResponse);
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
         writer.write(responseJson);
         writer.close();
     }
@@ -83,19 +75,17 @@ public abstract class HandlerHelper<I, O> implements RequestStreamHandler {
     }
 
 
-
-
     @Override
     public void handleRequest(InputStream input, OutputStream output, Context context)
         throws IOException {
-        init(input,output,context);
-        I inputObject=parseInput(input);
-        O response= null;
+        init(output, context);
+        I inputObject = parseInput(input);
+        O response = null;
         try {
-            response = processInput(inputObject,context);
+            response = processInput(inputObject, context);
             writeOutput(response);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(e.getMessage());
             writerFailure(e);
         }
     }

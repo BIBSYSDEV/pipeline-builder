@@ -14,26 +14,25 @@ import org.apache.logging.log4j.Logger;
 
 public class ApiMessageParser<T> {
 
-    Logger logger= LogManager.getLogger(ApiMessageParser.class);
+    private static final  Logger logger = LogManager.getLogger(ApiMessageParser.class);
 
-    public T getBodyElementFromJson(String inputString, Class<T> tClass) throws IOException {
+    public T getBodyElementFromJson(String inputString, Class<T> tclass) throws IOException {
         JsonFactory jsonFactory = new JsonFactory();
         ObjectMapper mapper = new ObjectMapper(jsonFactory);
-        Optional<JsonNode> tree = Optional.ofNullable(mapper.readTree(new StringReader(inputString)));
+        Optional<JsonNode> tree = Optional
+            .ofNullable(mapper.readTree(new StringReader(inputString)));
         JsonNode body = tree.map(node -> node.get("body")).orElse(null);
 
-        if(tClass.equals(String.class)){
-            return (T)body.asText();
-        }
-        else{
-            T request=null;
-            if(body!=null){
-                // body should always be a string for A lambda fuction connected to the API
-                if(body.isValueNode()){
-                    request=parseBody(mapper, body.asText(),tClass);
-                }
-                else{
-                    request=parseBody(mapper,body,tClass);
+        if (tclass.equals(String.class)) {
+            return (T) body.asText();
+        } else {
+            T request = null;
+            if (body != null) {
+                // body should always be a string for A lambda function connected to the API
+                if (body.isValueNode()) {
+                    request = parseBody(mapper, body.asText(), tclass);
+                } else {
+                    request = parseBody(mapper, body, tclass);
                 }
             }
 
@@ -44,20 +43,8 @@ public class ApiMessageParser<T> {
     }
 
 
-
-    private T parseBody(ObjectMapper mapper,JsonNode node, Class<T> tclass) throws IOException {
-        try{
-
-            T result = mapper.readValue(new TreeTraversingParser(node), tclass);
-            return result;
-        }
-        catch(Exception e){
-            String json="null";
-            if(node!=null)
-                json=node.toString();
-            logger.error("Error parsing JsonNode:{}",json);
-            return null;
-        }
+    private T parseBody(ObjectMapper mapper, JsonNode node, Class<T> tclass) throws IOException {
+        return mapper.readValue(new TreeTraversingParser(node), tclass);
     }
 
 
@@ -66,7 +53,7 @@ public class ApiMessageParser<T> {
             T object = mapper.readValue(json, tclass);
             return object;
         } catch (IOException e) {
-            logger.error("Error parsing json string:{}",json);
+            logger.error("Error parsing json string:{}", json);
             logger.error(e.getMessage());
             return null;
         }
