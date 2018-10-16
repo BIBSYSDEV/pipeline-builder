@@ -12,10 +12,6 @@ Parameters:
   LambdaTrustRolename:
     Type: String
 
-#Conditions:
-#  LambdaTrustRoleExists:
-#    !Equals [!Join ['-',[!Ref LambdaTrustRolename, !Ref Stage]], '']
-
 Resources:
   LambdaTrustRole:
     Type: 'AWS::IAM::Role'
@@ -104,6 +100,9 @@ Resources:
       Role: !GetAtt LambdaTrustRole.Arn
       MemorySize:  1500
       Timeout: 900
+      Environment:
+        Variables:
+          PROJECT_NAME: DynPipe
       Events:
         RestApiEvent:
           Type: Api

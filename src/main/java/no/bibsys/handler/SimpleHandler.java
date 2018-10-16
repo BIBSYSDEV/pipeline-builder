@@ -3,7 +3,6 @@ package no.bibsys.handler;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
-import java.util.Optional;
 import no.bibsys.Application;
 import no.bibsys.utils.Environment;
 import no.bibsys.utils.PullRequest;
@@ -22,11 +21,13 @@ public class SimpleHandler extends HandlerHelper<String, String> {
     protected String processInput(String request, Context context) throws IOException {
         PullRequest pullRequest = new PullRequest(request);
         Environment env=new Environment();
+        String projectName=env.readEnvOpt("PROJECT_NAME").orElseThrow(()->
+            missingEnvVariable("PROJECT_NAME") );
         Application application=new Application(env);
         if(pullRequest.getAction().equals(PullRequest.ACTION_OPEN)){
             application
                 .withRepoOwner(pullRequest.getOwner())
-                .withProjectName("lambapipe")
+                .withProjectName(projectName)
                 .withRepoName(pullRequest.getRepositoryName())
                 .withBranch(pullRequest.getBranch())
                 .createStacks();
@@ -50,6 +51,13 @@ public class SimpleHandler extends HandlerHelper<String, String> {
 
         return request;
 
+    }
+
+
+    private IllegalArgumentException missingEnvVariable(String variableName){
+        String message=String.format("Missing %s environment variable.%n"
+            + "Add the variable in your cloud-formation template.",variableName);
+        return new IllegalArgumentException(message);
     }
 
 
