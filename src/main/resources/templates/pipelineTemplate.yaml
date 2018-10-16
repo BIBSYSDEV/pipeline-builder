@@ -372,6 +372,18 @@ Resources:
       -
         Name: ProdStack
         Actions:
+        - Name: DeleteFinalStack
+          ActionTypeId:
+            Category: Deploy
+            Owner: AWS
+            Provider: CloudFormation
+            Version: '1'
+          Configuration:
+            ActionMode: DELETE_ONLY
+            RoleArn: !GetAtt CreateStackRole.Arn
+            StackName: !Ref PipelineFinalServiceStackName
+          RunOrder: 1
+
         - Name: CreateFinalStack
           ActionTypeId:
             Category: Deploy
@@ -392,7 +404,7 @@ Resources:
 
           InputArtifacts:
           - Name: !Ref CodebuildOutputArtifact
-          RunOrder: 1
+          RunOrder: 2
         - Name: ExecuteFinalStack
           ActionTypeId:
             Category: Deploy
@@ -405,4 +417,4 @@ Resources:
             StackName: !Ref PipelineFinalServiceStackName
           InputArtifacts: []
           OutputArtifacts: []
-          RunOrder: 2
+          RunOrder: 3
