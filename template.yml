@@ -92,7 +92,7 @@ Resources:
   RestApi:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: test
+      StageName: !Ref Stage
   EntityRegistry:
     Type: AWS::Serverless::Function
     Properties:
