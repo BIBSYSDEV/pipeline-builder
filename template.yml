@@ -104,7 +104,7 @@ Resources:
       Timeout: 900
       Environment:
         Variables:
-          PROJECT_NAME: DynPipe
+          PROJECT_NAME: dynpipe
       Events:
         RestApiEvent:
           Type: Api

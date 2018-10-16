@@ -187,9 +187,6 @@ Resources:
               - !GetAtt S3Bucket.Arn
               - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache, "/*"]]
               - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache]]
-
-#              - !Join ["",["arn:aws:s3:::", !Ref CodebuildCache]]
-#              - !Join ["",["arn:aws:s3:::", !Ref CodebuildCache,"/*"]]
           - Effect: Allow
             Action:
             - logs:CreateLogGroup
