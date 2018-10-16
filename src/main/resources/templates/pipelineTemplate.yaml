@@ -328,8 +328,7 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
                !Sub
-                - '{"ProjectId":"${ProjectIdValue}", "Stage":"test", "LambdaTrustRolename": "${PipelineLambdaTrustRoleName}", "CodeBucket":"${S3Bucket}"}'
-                - { ProjectIdValue: !Ref ProjectId}
+                - '{"ProjectId":"${ProjectId}", "Stage":"test", "LambdaTrustRolename": "${PipelineLambdaTrustRoleName}", "CodeBucket":"${S3Bucket}"}'
 
           InputArtifacts:
           - Name: !Ref CodebuildOutputArtifact
