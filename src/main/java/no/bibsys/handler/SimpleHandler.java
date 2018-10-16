@@ -23,25 +23,13 @@ public class SimpleHandler extends HandlerHelper<String, String> {
         Environment env=new Environment();
         String projectName=env.readEnvOpt("PROJECT_NAME").orElseThrow(()->
             missingEnvVariable("PROJECT_NAME") );
-        Application application=new Application(env);
-        if(pullRequest.getAction().equals(PullRequest.ACTION_OPEN)){
-            application
-                .withRepoOwner(pullRequest.getOwner())
-                .withProjectName(projectName)
-                .withRepoName(pullRequest.getRepositoryName())
-                .withBranch(pullRequest.getBranch())
-                .createStacks();
 
+        if(pullRequest.getAction().equals(PullRequest.ACTION_OPEN)){
+            createStacks(pullRequest, env, projectName);
         }
 
         if(pullRequest.getAction().equals(PullRequest.ACTION_CLOSE)){
-            application
-                .withRepoOwner(pullRequest.getOwner())
-                .withProjectName("lambapipe")
-                .withRepoName(pullRequest.getRepositoryName())
-                .withBranch(pullRequest.getBranch())
-                .wipeStacks();
-
+            deleteStacks(pullRequest, env);
         }
 
 
@@ -51,6 +39,27 @@ public class SimpleHandler extends HandlerHelper<String, String> {
 
         return request;
 
+    }
+
+    private void deleteStacks(PullRequest pullRequest, Environment env) throws IOException {
+        Application application=new Application(env);
+        application
+            .withRepoOwner(pullRequest.getOwner())
+            .withProjectName("lambapipe")
+            .withRepoName(pullRequest.getRepositoryName())
+            .withBranch(pullRequest.getBranch())
+            .wipeStacks();
+    }
+
+    private void createStacks(PullRequest pullRequest, Environment env, String projectName)
+        throws IOException {
+        Application application=new Application(env);
+        application
+            .withRepoOwner(pullRequest.getOwner())
+            .withProjectName(projectName)
+            .withRepoName(pullRequest.getRepositoryName())
+            .withBranch(pullRequest.getBranch())
+            .createStacks();
     }
 
 
