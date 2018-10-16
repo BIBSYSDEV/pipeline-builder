@@ -26,13 +26,12 @@ public class SimpleHandler extends HandlerHelper<String, String> {
         Environment env=new Environment();
 
         if(pullRequest.getAction().equals(PullRequest.ACTION_OPEN)){
-            createStacks(pullRequest, env, projectName(pullRequest.getBranch()));
+            createStacks(pullRequest, env, projectName(pullRequest.getRepositoryName()));
         }
 
         if(pullRequest.getAction().equals(PullRequest.ACTION_CLOSE)){
-            deleteStacks(pullRequest, env,projectName(pullRequest.getBranch()));
+            deleteStacks(pullRequest, env,projectName(pullRequest.getRepositoryName()));
         }
-
 
 
         System.out.println(pullRequest.toString());
