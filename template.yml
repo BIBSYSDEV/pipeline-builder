@@ -11,6 +11,8 @@ Parameters:
     Description: Deployment stage. E.g. test, prod, etc.
   LambdaTrustRolename:
     Type: String
+  CodeBucket:
+    Type: String
 
 Resources:
   LambdaTrustRole:
