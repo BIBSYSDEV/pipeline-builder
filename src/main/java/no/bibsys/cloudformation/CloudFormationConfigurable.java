@@ -5,6 +5,7 @@ import no.bibsys.utils.StringUtils;
 
 public class CloudFormationConfigurable {
 
+
     private final transient StringUtils stringUtils=new StringUtils();
 
     protected final transient String projectId;
