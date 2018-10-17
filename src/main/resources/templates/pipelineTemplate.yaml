@@ -103,6 +103,7 @@ Resources:
             Effect: Allow
             Resource:
             - arn:aws:cloudformation:eu-west-1:aws:transform/Serverless-2016-10-31
+            - arn:aws:cloudformation:eu-west-1:aws:transform/Include
           - Action:
             - 'iam:GetRole'
             - 'iam:CreateRole'
