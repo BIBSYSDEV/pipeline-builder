@@ -12,9 +12,10 @@ public class StringUtils {
 
     public String normalizeString(String input){
         String res= input
-            .toLowerCase(Locale.getDefault()).
-             replaceAll("[^-a-z0-9]","")
-            .replaceAll("_","-");
+            .toLowerCase(Locale.getDefault())
+            .replaceAll("_","-")
+            .replaceAll("[^-a-z0-9]","");
+
         return res;
     }
 
