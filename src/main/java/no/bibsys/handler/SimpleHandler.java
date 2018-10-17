@@ -44,9 +44,13 @@ public class SimpleHandler extends HandlerHelper<String, String> {
 
     private String createProjectName(String repositoryName) {
         String[] words = repositoryName.replaceAll("_","-").split("-");
-        List<String> wordList = Arrays.asList(words).stream().map(this::shorten)
-            .collect(Collectors.toList()).subList(0,3);
-        return String.join("-", wordList);
+        int maxnumberOfWords = Math.min(3, words.length);
+        List<String> wordList = Arrays.stream(words).map(this::shorten)
+            .collect(Collectors.toList()).subList(0,maxnumberOfWords);
+
+        String projectName=String.join("-", wordList);
+        System.out.println("PROJECT NAME IS:"+projectName);
+        return projectName;
     }
 
     private String shorten(String word) {
