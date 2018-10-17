@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 public class StringUtils {
 
 
-    private final static  transient int maxLength=3;
+    private final static  transient int maxLength=6;
 
     public String normalizeString(String input){
         String res= input

@@ -7,8 +7,8 @@ import org.junit.Test;
 
 public class PipelineTest {
 
-    private String branchName = "java-pipeline-2";
-    private String repoName = "authority-registry-infrastructure";
+    private String branchName = "master";
+    private String repoName = "authority-registry";
     private String repoOwner = "BIBSYSDEV";
 
 
