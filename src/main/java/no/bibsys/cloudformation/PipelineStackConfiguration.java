@@ -38,7 +38,7 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
 
     private String initCreateStackRole() {
-        return format("CreateStack", randomId);
+        return format("CreateStack", shortBranch);
     }
 
     private String initBucketName() {
@@ -62,7 +62,7 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
 
     private String initPipelineRoleName() {
-        return format("PipelineRole", getRandomId());
+        return format("PipelineRole", shortBranch);
     }
 
 
