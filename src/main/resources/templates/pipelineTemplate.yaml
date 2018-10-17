@@ -25,7 +25,7 @@ Parameters:
   PipelineTestServiceStackName:
     Type: String
   PipelineFinalServiceStackName:
-      Type: String
+    Type: String
   CodebuildProjectname:
     Type: String
   CodebuildOutputArtifact:
@@ -103,56 +103,51 @@ Resources:
             Effect: Allow
             Resource:
             - arn:aws:cloudformation:eu-west-1:aws:transform/Serverless-2016-10-31
-          -
-            Action:
-              - 'iam:GetRole'
-              - 'iam:CreateRole'
-              - 'iam:PutRolePolicy'
-              - 'iam:DetachRolePolicy'
-              - 'iam:DeleteRolePolicy'
-              - 'iam:DeleteRole'
-              - 'iam:AttachRolePolicy'
-              - 'ssm:PutParameter'
-              - 'ssm:DeleteParameter'
+          - Action:
+            - 'iam:GetRole'
+            - 'iam:CreateRole'
+            - 'iam:PutRolePolicy'
+            - 'iam:DetachRolePolicy'
+            - 'iam:DeleteRolePolicy'
+            - 'iam:DeleteRole'
+            - 'iam:AttachRolePolicy'
+            - 'ssm:PutParameter'
+            - 'ssm:DeleteParameter'
             Resource: '*'
             Effect: Allow
-      -
-        PolicyName: s3Access
+      - PolicyName: s3Access
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
-            -
-              Effect: Allow
-              Action:
-                - "s3:*"
-              Resource:
-                - !Join ["", [!GetAtt S3Bucket.Arn, "/*"]]
-                - !GetAtt S3Bucket.Arn
-                - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache, "/*"]]
-                - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache]]
-      -
-        PolicyName: createLambdaFunctions
+          - Effect: Allow
+            Action:
+            - "s3:*"
+            Resource:
+            - !Join ["", [!GetAtt S3Bucket.Arn, "/*"]]
+            - !GetAtt S3Bucket.Arn
+            - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache, "/*"]]
+            - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache]]
+      - PolicyName: createLambdaFunctions
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
-            -
-              Effect: Allow
-              Action:
-                - 'lambda:CreateFunction'
-                - 'lambda:DeleteFunction'
-                - 'lambda:AddPermission'
-                - 'lambda:UpdateFunction'
-                - 'lambda:UpdateFunctionCode'
-                - 'lambda:GetFunction'
-                - 'lambda:GetFunctionConfiguration'
-                - 'lambda:UpdateFunctionConfiguration'
-                - 'lambda:RemovePermission'
-                - 'lambda:listTags'
-                - 'lambda:TagResource'
-                - 'lambda:UntagResource'
-                - 'apigateway:*'
-                - 'ssm:GetParameters'
-              Resource: '*'
+          - Effect: Allow
+            Action:
+            - 'lambda:CreateFunction'
+            - 'lambda:DeleteFunction'
+            - 'lambda:AddPermission'
+            - 'lambda:UpdateFunction'
+            - 'lambda:UpdateFunctionCode'
+            - 'lambda:GetFunction'
+            - 'lambda:GetFunctionConfiguration'
+            - 'lambda:UpdateFunctionConfiguration'
+            - 'lambda:RemovePermission'
+            - 'lambda:listTags'
+            - 'lambda:TagResource'
+            - 'lambda:UntagResource'
+            - 'apigateway:*'
+            - 'ssm:GetParameters'
+            Resource: '*'
   PipelineRole:
     Type: AWS::IAM::Role
     Properties:
@@ -183,10 +178,10 @@ Resources:
             Action:
             - "s3:*"
             Resource:
-              - !Join ["", [!GetAtt S3Bucket.Arn, "/*"]]
-              - !GetAtt S3Bucket.Arn
-              - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache, "/*"]]
-              - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache]]
+            - !Join ["", [!GetAtt S3Bucket.Arn, "/*"]]
+            - !GetAtt S3Bucket.Arn
+            - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache, "/*"]]
+            - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache]]
           - Effect: Allow
             Action:
             - logs:CreateLogGroup
@@ -208,7 +203,7 @@ Resources:
             Resource:
             - !Sub
               - 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackName}/*'
-              -  { StackName: !Ref PipelineTestServiceStackName}
+              - { StackName: !Ref PipelineTestServiceStackName}
             - !Sub
               - 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackName}/*'
               - { StackName: !Ref PipelineFinalServiceStackName }
@@ -224,11 +219,10 @@ Resources:
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
-            -
-              Effect: Allow
-              Action:
-                - 'ssm:GetParameters'
-              Resource: '*'
+          - Effect: Allow
+            Action:
+            - 'ssm:GetParameters'
+            Resource: '*'
   CodeBuildProject:
     Type: AWS::CodeBuild::Project
     Description: CodeBuild project for using in the CodePipeline
@@ -282,8 +276,7 @@ Resources:
           - Name: !Ref SourceStageOutputArtifact
       - Name: CodeBuild
         Actions:
-        -
-          Name: CodeBuildAction
+        - Name: CodeBuildAction
           ActionTypeId:
             Category: Build
             Owner: AWS
@@ -298,20 +291,21 @@ Resources:
 
       - Name: TestStack
         Actions:
-        - Name: DeleteFinalStack
+        -
+          Name: DeleteFinalStack
           ActionTypeId:
             Category: Deploy
             Owner: AWS
             Provider: CloudFormation
             Version: '1'
-           Configuration:
+          Configuration:
             ActionMode: DELETE_ONLY
             RoleArn: !GetAtt CreateStackRole.Arn
             StackName: !Ref PipelineFinalServiceStackName
-            RunOrder: 1
+          RunOrder: 1
 
-        -  Name: FristDeleteTestStack
-           ActionTypeId:
+        - Name: FirstDeleteTestStack
+          ActionTypeId:
             Category: Deploy
             Owner: AWS
             Provider: CloudFormation
@@ -320,7 +314,7 @@ Resources:
             ActionMode: DELETE_ONLY
             RoleArn: !GetAtt CreateStackRole.Arn
             StackName: !Ref PipelineTestServiceStackName
-          RunOrder: 1
+          RunOrder: 2
         - Name: CreateTestStack
           ActionTypeId:
             Category: Deploy
@@ -335,13 +329,13 @@ Resources:
             RoleArn: !GetAtt CreateStackRole.Arn
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
-               !Sub
-                - '{"ProjectId":"${ProjectIdValue}", "Stage":"test", "LambdaTrustRolename": "${PipelineLambdaTrustRoleName}", "CodeBucket":"${S3Bucket}"}'
-                - { ProjectIdValue: !Ref ProjectId}
+              !Sub
+            - '{"ProjectId":"${ProjectIdValue}", "Stage":"test", "LambdaTrustRolename": "${PipelineLambdaTrustRoleName}", "CodeBucket":"${S3Bucket}"}'
+            - { ProjectIdValue: !Ref ProjectId}
 
           InputArtifacts:
           - Name: !Ref CodebuildOutputArtifact
-          RunOrder: 2
+          RunOrder: 3
 
         - Name: ExecuteTestStack
           ActionTypeId:
@@ -355,17 +349,15 @@ Resources:
             StackName: !Ref PipelineTestServiceStackName
           InputArtifacts: []
           OutputArtifacts: []
-          RunOrder: 3
-        -
-          Name: ManualReview
+          RunOrder: 4
+        - Name: ManualReview
           ActionTypeId:
             Category: Approval # TODO: automated function tests
             Owner: AWS
             Provider: Manual
             Version: 1
-          RunOrder: 4
-        -
-          Name: SecondDeleteTestStack
+          RunOrder: 5
+        - Name: SecondDeleteTestStack
           ActionTypeId:
             Category: Deploy
             Owner: AWS
@@ -375,10 +367,9 @@ Resources:
             ActionMode: DELETE_ONLY
             RoleArn: !GetAtt CreateStackRole.Arn
             StackName: !Ref PipelineTestServiceStackName
-          RunOrder: 5
+          RunOrder: 6
 
-      -
-        Name: ProdStack
+      - Name: ProdStack
         Actions:
         - Name: CreateFinalStack
           ActionTypeId:
