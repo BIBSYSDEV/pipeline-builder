@@ -358,6 +358,13 @@ Resources:
             Provider: Manual
             Version: 1
           RunOrder: 5
+        - Name: ManualReview2
+          ActionTypeId:
+            Category: Approval # TODO: automated function tests
+            Owner: AWS
+            Provider: Manual
+            Version: 1
+          RunOrder: 6          
         - Name: SecondDeleteTestStack
           ActionTypeId:
             Category: Deploy
@@ -368,7 +375,7 @@ Resources:
             ActionMode: DELETE_ONLY
             RoleArn: !GetAtt CreateStackRole.Arn
             StackName: !Ref PipelineTestServiceStackName
-          RunOrder: 6
+          RunOrder: 7
 
       - Name: ProdStack
         Actions:
