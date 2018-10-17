@@ -27,11 +27,11 @@ public class SimpleHandler extends HandlerHelper<String, String> {
         Environment env = new Environment();
 
         if (pullRequest.getAction().equals(PullRequest.ACTION_OPEN)) {
-            createStacks(pullRequest, env, projectName(pullRequest.getRepositoryName()));
+            createStacks(pullRequest, env, createProjectName(pullRequest.getRepositoryName()));
         }
 
         if (pullRequest.getAction().equals(PullRequest.ACTION_CLOSE)) {
-            deleteStacks(pullRequest, env, projectName(pullRequest.getRepositoryName()));
+            deleteStacks(pullRequest, env, createProjectName(pullRequest.getRepositoryName()));
         }
 
         System.out.println(pullRequest.toString());
@@ -42,8 +42,8 @@ public class SimpleHandler extends HandlerHelper<String, String> {
     }
 
 
-    private String projectName(String repositoryName) {
-        String[] words = repositoryName.split("-");
+    private String createProjectName(String repositoryName) {
+        String[] words = repositoryName.replaceAll("_","-").split("-");
         List<String> wordList = Arrays.asList(words).stream().map(this::shorten)
             .collect(Collectors.toList());
         return String.join("-", wordList);
