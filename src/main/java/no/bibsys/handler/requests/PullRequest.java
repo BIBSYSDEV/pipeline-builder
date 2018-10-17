@@ -7,6 +7,7 @@ import java.io.IOException;
 public class PullRequest {
 
     public static final String ACTION_OPEN = "opened";
+    public static final String ACTION_REOPEN = "reopened";
     public static final String ACTION_CLOSE = "closed";
 
 

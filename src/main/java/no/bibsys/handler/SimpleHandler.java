@@ -26,7 +26,8 @@ public class SimpleHandler extends HandlerHelper<String, String> {
         PullRequest pullRequest = new PullRequest(request);
         Environment env = new Environment();
 
-        if (pullRequest.getAction().equals(PullRequest.ACTION_OPEN)) {
+        if (pullRequest.getAction().equals(PullRequest.ACTION_OPEN)
+            || pullRequest.getAction().equals(PullRequest.ACTION_REOPEN)) {
             createStacks(pullRequest, env, createProjectName(pullRequest.getRepositoryName()));
         }
 
@@ -43,7 +44,9 @@ public class SimpleHandler extends HandlerHelper<String, String> {
 
 
     private String createProjectName(String repositoryName) {
-        String[] words = repositoryName.replaceAll("_","-").split("-");
+        String[] words = repositoryName.
+            toLowerCase().
+            replaceAll("_","-").split("-");
         int maxnumberOfWords = Math.min(3, words.length);
         List<String> wordList = Arrays.stream(words).map(this::shorten)
             .collect(Collectors.toList()).subList(0,maxnumberOfWords);
