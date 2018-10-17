@@ -1,12 +1,14 @@
 package no.bibsys.cloudformation;
 
 
+import no.bibsys.utils.StringUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 
 public class CloudFormationConfigurable {
 
     public static final String MASTER_BRANCH = "master";
     private static final int maxBranchNameLength = 12;
+    private final transient StringUtils stringUtils=new StringUtils();
 
     protected final transient String projectId;
     protected final transient String branchName;
@@ -26,8 +28,9 @@ public class CloudFormationConfigurable {
     }
 
     private String initShortBranch(String branchName) {
-        int cutIndex = Math.min(branchName.length(), maxBranchNameLength);
-        return branchName.substring(0, cutIndex);
+        String normalized=stringUtils.shortNormalizedString(branchName);
+        int cutIndex = Math.min(normalized.length(), maxBranchNameLength);
+        return normalized.substring(0, cutIndex);
     }
 
 

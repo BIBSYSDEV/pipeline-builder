@@ -21,7 +21,6 @@ public class PipelineTest extends ConfigurationTests {
         Application application = new Application(new Environment());
 
         application.withBranch(branchName)
-            .withProjectName(projectName)
             .withRepoName(repoName)
             .withRepoOwner(repoOwner)
             .createStacks();
@@ -34,7 +33,7 @@ public class PipelineTest extends ConfigurationTests {
     public void deleteStacks() throws IOException {
         Application application = new Application(new Environment());
         application.withBranch(branchName)
-            .withProjectName(projectName)
+
             .withRepoName(repoName)
             .withRepoOwner(repoOwner)
             .wipeStacks();

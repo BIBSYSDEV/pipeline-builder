@@ -13,13 +13,14 @@ import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.utils.Environment;
 import no.bibsys.utils.IoUtils;
 import no.bibsys.utils.StackWiper;
+import no.bibsys.utils.StringUtils;
 
 public class Application {
 
     private final transient IoUtils ioUtils = new IoUtils();
     private final transient Environment environment;
     private final transient StackWiper wiper;
-
+    private final transient StringUtils stringUtils;
 
     private transient String projectName;
     private transient String repoName;
@@ -30,6 +31,7 @@ public class Application {
     public Application(Environment environment) {
         this.environment = environment;
         wiper = new StackWiper();
+        stringUtils=new StringUtils();
     }
 
 
@@ -146,13 +148,15 @@ public class Application {
     }
 
 
-    public Application withProjectName(String projectName) {
-        this.projectName = projectName;
-        return this;
+    private String initProjectName(String repository){
+        String projectName=stringUtils.shortNormalizedString(repository);
+        System.out.println("PROJECT NAME IS:"+projectName);
+        return projectName;
     }
 
     public Application withRepoName(String repository) {
         this.repoName = repository;
+        this.projectName=initProjectName(repository);
         return this;
     }
 
