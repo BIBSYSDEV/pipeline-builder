@@ -109,6 +109,7 @@ Resources:
                   - 'lambda:listTags'
                   - 'lambda:TagResource'
                   - 'lambda:UntagResource'
+                  - 'lambda:InvokeFunction'
                   - 'apigateway:*'
                   - 'dynamodb:CreateTable'
                   - 'dynamodb:DeleteTable'
@@ -121,8 +122,7 @@ Resources:
                   - 'sns:ListTopics'
                   - 'sns:GetTopicAttributes'
                   - 'sns:SetTopicAttributes'
-                  - 's3:CreateBucket'
-                  - 's3:DeleteBucket'
+                  - 's3:*'
                   - 'config:DescribeConfigRules'
                   - 'config:PutConfigRule'
                   - 'config:DeleteConfigRule'
@@ -405,6 +405,7 @@ Resources:
                   - 'dynamodb:PutItem'
                   - 'dynamodb:GetItem'
                   - 'dynamodb:DeleteItem'
+                  - 's3:PutObject'
                 Effect: Allow
                 Resource: '*'
             Version: 2012-10-17
@@ -528,6 +529,9 @@ Resources:
                 Version: 1
               Configuration:
                 ActionMode: CHANGE_SET_EXECUTE
+                RoleArn: !GetAtt
+                  - CloudFormationTrustRole
+                  - Arn
                 ChangeSetName: pipeline-test-changeset
                 StackName: !Join
                   - '-'
@@ -564,7 +568,6 @@ Resources:
                 ActionMode: DELETE_ONLY
                 RoleArn: !GetAtt
                   - CloudFormationTrustRole
-
                   - Arn
                 StackName: !Join
                   - '-'
