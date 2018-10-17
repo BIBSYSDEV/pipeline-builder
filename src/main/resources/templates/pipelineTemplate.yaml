@@ -298,9 +298,20 @@ Resources:
 
       - Name: TestStack
         Actions:
-        -
-          Name: FristDeleteTestStack
+        - Name: DeleteFinalStack
           ActionTypeId:
+            Category: Deploy
+            Owner: AWS
+            Provider: CloudFormation
+            Version: '1'
+           Configuration:
+            ActionMode: DELETE_ONLY
+            RoleArn: !GetAtt CreateStackRole.Arn
+            StackName: !Ref PipelineFinalServiceStackName
+            RunOrder: 1
+
+        -  Name: FristDeleteTestStack
+           ActionTypeId:
             Category: Deploy
             Owner: AWS
             Provider: CloudFormation
@@ -369,18 +380,6 @@ Resources:
       -
         Name: ProdStack
         Actions:
-        - Name: DeleteFinalStack
-          ActionTypeId:
-            Category: Deploy
-            Owner: AWS
-            Provider: CloudFormation
-            Version: '1'
-          Configuration:
-            ActionMode: DELETE_ONLY
-            RoleArn: !GetAtt CreateStackRole.Arn
-            StackName: !Ref PipelineFinalServiceStackName
-          RunOrder: 1
-
         - Name: CreateFinalStack
           ActionTypeId:
             Category: Deploy
