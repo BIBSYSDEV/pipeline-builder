@@ -5,6 +5,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import no.bibsys.Application;
 import no.bibsys.handler.requests.PullRequest;
@@ -45,7 +46,7 @@ public class SimpleHandler extends HandlerHelper<String, String> {
 
     private String createProjectName(String repositoryName) {
         String[] words = repositoryName.
-            toLowerCase().
+            toLowerCase(Locale.getDefault()).
             replaceAll("_","-").split("-");
         int maxnumberOfWords = Math.min(3, words.length);
         List<String> wordList = Arrays.stream(words).map(this::shorten)
