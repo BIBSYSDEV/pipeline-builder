@@ -23,7 +23,7 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
     }
 
     private String initializeLambdaTrustRole() {
-        return format("LambdaTrustRole", randomId);
+        return format("LambdaTrustRole", shortBranch);
     }
 
     private String initializePipelineName() {

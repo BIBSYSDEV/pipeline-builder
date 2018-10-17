@@ -9,7 +9,6 @@ import no.bibsys.utils.Environment;
 public abstract class ConfigurationTests extends AmazonRestrictions {
 
     protected final String projectId;
-    protected String randomId;
     protected String shortBranch;
     String branchName = "AUTREG-49_Delete_tables_from_DynamoDB_after_testing";
     Application application;
@@ -36,7 +35,7 @@ public abstract class ConfigurationTests extends AmazonRestrictions {
             e.printStackTrace();
         }
 
-        randomId = conf.getRandomId();
+
         shortBranch = conf.getShortBranch();
         projectId = conf.getProjectId();
 

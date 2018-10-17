@@ -22,13 +22,13 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
     }
 
     @Test
-    public void createStackRoleSHouldHaveARandomId() {
-        assertThat(conf.getCreateStackRoleName(), containsString(randomId));
+    public void createStackRoleShouldContainShortBranch() {
+        assertThat(conf.getCreateStackRoleName(), containsString(shortBranch));
     }
 
     @Test
-    public void pipelineRoleShouldHaveARandomId() {
-        assertThat(conf.getPipelineRoleName(), containsString(randomId));
+    public void pipelineRoleContainShortBranch() {
+        assertThat(conf.getPipelineRoleName(), containsString(shortBranch));
     }
 
     @Test
