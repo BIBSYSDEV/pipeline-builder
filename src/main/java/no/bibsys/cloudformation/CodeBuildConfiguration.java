@@ -15,7 +15,7 @@ public class CodeBuildConfiguration extends CloudFormationConfigurable {
     }
 
     private String initCacheBucket() {
-        String bucketName = format(projectId, "buildcache");
+        String bucketName = format(projectId,shortBranch, "buildcache");
         return bucketName;
     }
 
