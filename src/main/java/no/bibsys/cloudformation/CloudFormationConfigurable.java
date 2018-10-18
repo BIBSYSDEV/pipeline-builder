@@ -13,10 +13,17 @@ public class CloudFormationConfigurable {
     protected final transient String shortBranch;
 
 
-    public CloudFormationConfigurable(String projectId, String branchName) {
-        this.projectId = projectId;
+    public CloudFormationConfigurable(String repositoryName, String branchName) {
+        this.projectId = initProjectId(repositoryName);
         this.branchName = initBranchName(branchName);
         this.shortBranch = initShortBranch(branchName);
+    }
+
+    private String initProjectId(String repositoryName) {
+
+        String projectName=stringUtils.shortNormalizedString(repositoryName);
+        System.out.println("PROJECT NAME IS:"+projectName);
+        return projectName;
     }
 
     private String initBranchName(String branchName) {
@@ -41,9 +48,6 @@ public class CloudFormationConfigurable {
     public final String getBranchName() {
         return branchName;
     }
-
-
-
 
 
     public String getShortBranch() {

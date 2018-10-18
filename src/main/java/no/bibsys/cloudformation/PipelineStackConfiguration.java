@@ -20,29 +20,28 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
     private final transient CodeBuildConfiguration codeBuildConfiguration;
 
 
-    public PipelineStackConfiguration(String projectName,
-        String branchName,
+    public PipelineStackConfiguration(String branchName,
         String repoName,
         String repoOwner,
         Environment environment) throws IOException {
-        super(projectName, branchName);
+        super(repoName, branchName);
         this.pipelineStackName = initPipelineStackName();
         this.bucketName = initBucketName();
         this.createStackRoleName = initCreateStackRole();
         this.pipelineRoleName = initPipelineRoleName();
 
         this.githubConf = new GithubConf(repoOwner, repoName, environment);
-        this.pipelineConfiguration = new PipelineConfiguration(projectName, branchName);
-        this.codeBuildConfiguration = new CodeBuildConfiguration(projectName, branchName);
+        this.pipelineConfiguration = new PipelineConfiguration(repoName, branchName);
+        this.codeBuildConfiguration = new CodeBuildConfiguration(repoName, branchName);
     }
 
 
     private String initCreateStackRole() {
-        return format("CreateStack", shortBranch);
+        return format("CreateStack", projectId,shortBranch);
     }
 
     private String initBucketName() {
-        return format(projectId, shortBranch);
+        return format(projectId,shortBranch);
     }
 
 
@@ -62,7 +61,7 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
 
     private String initPipelineRoleName() {
-        return format("PipelineRole", shortBranch);
+        return format("PipelineRole", projectId,shortBranch);
     }
 
 

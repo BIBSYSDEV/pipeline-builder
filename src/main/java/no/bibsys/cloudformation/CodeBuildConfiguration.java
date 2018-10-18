@@ -7,8 +7,8 @@ public class CodeBuildConfiguration extends CloudFormationConfigurable {
     private final String cacheBucket;
 
 
-    public CodeBuildConfiguration(String projectId, String branchName) {
-        super(projectId, branchName);
+    public CodeBuildConfiguration(String repositoryName, String branchName) {
+        super(repositoryName, branchName);
         this.buildProjectName = format(projectId, branchName);
         this.outputArtifact = format(projectId, shortBranch, "codeBuildArtifact");
         this.cacheBucket = initCacheBucket();

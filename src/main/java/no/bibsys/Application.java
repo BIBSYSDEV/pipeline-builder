@@ -13,16 +13,14 @@ import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.utils.Environment;
 import no.bibsys.utils.IoUtils;
 import no.bibsys.utils.StackWiper;
-import no.bibsys.utils.StringUtils;
 
 public class Application {
 
     private final transient IoUtils ioUtils = new IoUtils();
     private final transient Environment environment;
     private final transient StackWiper wiper;
-    private final transient StringUtils stringUtils;
 
-    private transient String projectName;
+
     private transient String repoName;
     private transient String branch;
     private transient String repoOwner;
@@ -31,7 +29,7 @@ public class Application {
     public Application(Environment environment) {
         this.environment = environment;
         wiper = new StackWiper();
-        stringUtils=new StringUtils();
+
     }
 
 
@@ -46,7 +44,7 @@ public class Application {
 
     public void wipeStacks() throws IOException {
         checkNulls();
-        PipelineStackConfiguration conf = new PipelineStackConfiguration(projectName,
+        PipelineStackConfiguration conf = new PipelineStackConfiguration(
             branch,
             repoName,
             repoOwner,
@@ -59,8 +57,7 @@ public class Application {
     public PipelineStackConfiguration pipelineStackConfiguration()
         throws IOException {
         checkNulls();
-        return new PipelineStackConfiguration(
-            projectName, branch, repoName, repoOwner, environment);
+        return new PipelineStackConfiguration(branch, repoName, repoOwner, environment);
 
     }
 
@@ -132,9 +129,7 @@ public class Application {
     }
 
     private void checkNulls() {
-        if (projectName == null) {
-            throw new IllegalArgumentException("projectName is null");
-        }
+
         if (repoName == null) {
             throw new IllegalArgumentException("repoName is null");
         }
@@ -148,15 +143,12 @@ public class Application {
     }
 
 
-    private String initProjectName(String repository){
-        String projectName=stringUtils.shortNormalizedString(repository);
-        System.out.println("PROJECT NAME IS:"+projectName);
-        return projectName;
-    }
+
 
     public Application withRepoName(String repository) {
         this.repoName = repository;
-        this.projectName=initProjectName(repository);
+
+
         return this;
     }
 
@@ -169,6 +161,8 @@ public class Application {
         this.repoOwner = repoOwner;
         return this;
     }
+
+
 
 
 }

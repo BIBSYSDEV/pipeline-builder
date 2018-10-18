@@ -26,6 +26,31 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
         assertThat(conf.getCreateStackRoleName(), containsString(shortBranch));
     }
 
+
+    @Test
+    public void createStackRoleShouldContainProjectId() {
+        assertThat(conf.getCreateStackRoleName(), containsString(projectId));
+    }
+
+
+    @Test
+    public void pipelineRoleShouldContainProjectId() {
+        assertThat(conf.getPipelineRoleName(), containsString(projectId));
+    }
+
+
+    @Test
+    public void lambdaTrustRoeleShouldContainProjectId() {
+        assertThat(conf.getPipelineConfiguration().getLambdaTrustRolename(), containsString(projectId));
+    }
+
+
+    @Test
+    public void lambdaTrustRoeleShouldContainShortBranch() {
+        assertThat(conf.getPipelineConfiguration().getLambdaTrustRolename(), containsString(shortBranch));
+    }
+
+
     @Test
     public void pipelineRoleContainShortBranch() {
         assertThat(conf.getPipelineRoleName(), containsString(shortBranch));

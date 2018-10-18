@@ -12,8 +12,8 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
     private final String lambdaTrustRolename;
 
 
-    public PipelineConfiguration(String projectId, String branchName) {
-        super(projectId, branchName);
+    public PipelineConfiguration(String repositoryName, String branchName) {
+        super(repositoryName, branchName);
 
         this.sourceOutputArtifactName = initSourceOutputArtifactName();
         this.testServiceStack = initServiceStack("test");
@@ -23,7 +23,7 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
     }
 
     private String initializeLambdaTrustRole() {
-        return format("LambdaTrustRole", shortBranch);
+        return format("LambdaTrustRole", projectId,shortBranch);
     }
 
     private String initializePipelineName() {

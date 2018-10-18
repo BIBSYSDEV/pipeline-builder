@@ -101,6 +101,7 @@ public abstract class HandlerHelper<I, O> implements RequestStreamHandler {
             .withRepoOwner(repoOwner)
             .withRepoName(repo)
             .withBranch(branch)
+
             .wipeStacks();
     }
 
