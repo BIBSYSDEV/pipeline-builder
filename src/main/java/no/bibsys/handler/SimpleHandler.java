@@ -26,11 +26,11 @@ public class SimpleHandler extends HandlerHelper<String, String> {
 
         if (pullRequest.getAction().equals(PullRequest.ACTION_OPEN)
             || pullRequest.getAction().equals(PullRequest.ACTION_REOPEN)) {
-            createStacks(pullRequest, env);
+            createStacks(pullRequest.getOwner(),pullRequest.getRepositoryName(),pullRequest.getBranch(), env);
         }
 
         if (pullRequest.getAction().equals(PullRequest.ACTION_CLOSE)) {
-            deleteStacks(pullRequest, env);
+            deleteStacks(pullRequest.getOwner(),pullRequest.getRepositoryName(),pullRequest.getBranch(), env);
         }
 
         System.out.println(pullRequest.toString());
@@ -38,28 +38,6 @@ public class SimpleHandler extends HandlerHelper<String, String> {
 
         return request;
 
-    }
-
-
-    private void deleteStacks(PullRequest pullRequest, Environment env)
-        throws IOException {
-        Application application = new Application(env);
-        application
-            .withRepoOwner(pullRequest.getOwner())
-
-            .withRepoName(pullRequest.getRepositoryName())
-            .withBranch(pullRequest.getBranch())
-            .wipeStacks();
-    }
-
-    private void createStacks(PullRequest pullRequest, Environment env)
-        throws IOException {
-        Application application = new Application(env);
-        application
-            .withRepoOwner(pullRequest.getOwner())
-            .withRepoName(pullRequest.getRepositoryName())
-            .withBranch(pullRequest.getBranch())
-            .createStacks();
     }
 
 

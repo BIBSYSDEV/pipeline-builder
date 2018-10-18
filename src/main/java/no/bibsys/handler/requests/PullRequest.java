@@ -13,7 +13,7 @@ public class PullRequest {
 
     private final transient JsonNode root;
     private final transient String action;
-    private final transient String branch;
+    private  transient String branch;
     private final transient String repositoryName;
     private final transient String owner;
 
@@ -67,6 +67,11 @@ public class PullRequest {
     @Override
     public String toString() {
         return String.join(":", getRepositoryName(), getBranch(), getAction());
+    }
+
+
+    public void setBranch(String branch){
+        this.branch=branch;
     }
 
 }

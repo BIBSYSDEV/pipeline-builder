@@ -93,7 +93,7 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: !Ref Stage
-  EntityRegistry:
+  GithubHook:
     Type: AWS::Serverless::Function
     Properties:
       Handler: no.bibsys.handler.SimpleHandler::handleRequest
@@ -106,7 +106,23 @@ Resources:
         RestApiEvent:
           Type: Api
           Properties:
-            Path: /lambda
+            Path: /github
+            Method: post
+            RestApiId: !Ref RestApi
+  BuildBranch:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: no.bibsys.handler.CustomBranchBuilder::handleRequest
+      Runtime: java8
+      CodeUri: build/libs/pipeline-fat.jar
+      Role: !GetAtt LambdaTrustRole.Arn
+      MemorySize:  1500
+      Timeout: 900
+      Events:
+        RestApiEvent:
+          Type: Api
+          Properties:
+            Path: /buildbranch
             Method: post
             RestApiId: !Ref RestApi
 
