@@ -77,6 +77,7 @@ public class Application {
         parameters.add(newParameter("PipelineName",
             pipelineStack.getPipelineConfiguration().getPipelineName()));
 
+
         parameters.add(newParameter("PipelineBucketname", pipelineStack.getBucketName()));
 
         parameters.add(newParameter("PipelineRolename", pipelineStack.getPipelineRoleName()));
@@ -90,6 +91,7 @@ public class Application {
 
         parameters.add(newParameter("ProjectId", pipelineStack.getProjectId()));
         parameters.add(newParameter("ProjectBranch", pipelineStack.getBranchName()));
+        parameters.add(newParameter("NormalizedBranchName", pipelineStack.getNormalizedBranchName()));
 
         parameters.add(newParameter("CodebuildOutputArtifact",
             pipelineStack.getCodeBuildConfiguration().getOutputArtifact()));
