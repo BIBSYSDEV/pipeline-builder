@@ -36,7 +36,7 @@ public abstract class ConfigurationTests extends AmazonRestrictions {
         }
 
 
-        shortBranch = conf.getShortBranch();
+        shortBranch = conf.getNormalizedBranchName();
         projectId = conf.getProjectId();
 
 

@@ -10,13 +10,13 @@ public class CloudFormationConfigurable {
 
     protected final transient String projectId;
     protected final transient String branchName;
-    protected final transient String shortBranch;
+    protected final transient String normalizedBranchName;
 
 
     public CloudFormationConfigurable(String repositoryName, String branchName) {
         this.projectId = initProjectId(repositoryName);
         this.branchName = initBranchName(branchName);
-        this.shortBranch = initShortBranch(branchName);
+        this.normalizedBranchName = initShortBranch(branchName);
     }
 
     private String initProjectId(String repositoryName) {
@@ -50,7 +50,7 @@ public class CloudFormationConfigurable {
     }
 
 
-    public String getShortBranch() {
-        return shortBranch;
+    public String getNormalizedBranchName() {
+        return normalizedBranchName;
     }
 }
