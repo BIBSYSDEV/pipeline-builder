@@ -564,7 +564,6 @@ Resources:
                 ActionMode: DELETE_ONLY
                 RoleArn: !GetAtt
                   - CloudFormationTrustRole
-
                   - Arn
                 StackName: !Join
                   - '-'

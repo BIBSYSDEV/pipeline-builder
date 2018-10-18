@@ -1,1 +1,13 @@
+.idea
+build/
+out/
+.gradle
+.classpath
+.settings
 .project
+bin/
+.iml
+.metadata/
+application.conf
+.project
+
