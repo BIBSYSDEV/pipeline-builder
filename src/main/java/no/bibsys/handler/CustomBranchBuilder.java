@@ -5,7 +5,6 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import no.bibsys.handler.requests.CustomBuildRequest;
-import no.bibsys.handler.requests.PullRequest;
 import no.bibsys.utils.Environment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +28,7 @@ public class CustomBranchBuilder extends HandlerHelper<CustomBuildRequest, Strin
             createStacks(request.getOwner(),request.getRepositoryName(),request.getBranch(), env);
         }
 
-        if (request.getAction().equals(PullRequest.ACTION_CLOSE)) {
+        if (request.getAction().equals(CustomBuildRequest.DELETE)) {
             deleteStacks(request.getOwner(),request.getRepositoryName(),request.getBranch(), env);
         }
 

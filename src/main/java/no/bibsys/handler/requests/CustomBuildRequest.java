@@ -1,16 +1,14 @@
 package no.bibsys.handler.requests;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 public class CustomBuildRequest {
 
-    public static final String CREATE="create";
-    public static final String DELETE="delete";
+    public static final String CREATE = "create";
+    public static final String DELETE = "delete";
 
     private String repositoryName;
     private String branch;
     private String owner;
+    private String action;
 
     public String getAction() {
         return action;
@@ -20,7 +18,6 @@ public class CustomBuildRequest {
         this.action = action;
     }
 
-    private String action;
 
     public String getOwner() {
         return owner;
@@ -45,9 +42,6 @@ public class CustomBuildRequest {
     public void setBranch(String branch) {
         this.branch = branch;
     }
-
-
-
 
 
 }

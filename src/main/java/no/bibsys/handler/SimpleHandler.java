@@ -3,7 +3,6 @@ package no.bibsys.handler;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
-import no.bibsys.Application;
 import no.bibsys.handler.requests.PullRequest;
 import no.bibsys.utils.Environment;
 import org.apache.logging.log4j.LogManager;
