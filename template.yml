@@ -9,6 +9,8 @@ Parameters:
   Stage:
     Type: String
     Description: Deployment stage. E.g. test, prod, etc.
+  Branch:
+    Type: String
   LambdaTrustRolename:
     Type: String
   CodeBucket:
@@ -129,7 +131,7 @@ Resources:
   RestApiUrlParameter:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: !Join ['-', [!Ref ProjectId,"restApiUrlParameter"]]
+      Name: !Join ['-', [!Ref ProjectId, !Ref Branch, "restApiUrlParameter"]]
       Type: "String"
       Value: !Join ['', ['https://', !Ref 'RestApi', '.execute-api.', !Ref 'AWS::Region', '.amazonaws.com/',!Ref Stage]]
       Description: "SSM Parameter for storing RestApi URL"

@@ -65,7 +65,7 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
 
     @Test
     public void shortBrancNameShouldComplyToAmazonRestrctricions(){
-        Matcher matcher=amazonPattern.matcher(conf.getShortBranch());
+        Matcher matcher=amazonPattern.matcher(conf.getNormalizedBranchName());
         assertThat(matcher.matches(),is(equalTo(true)));
 
     }

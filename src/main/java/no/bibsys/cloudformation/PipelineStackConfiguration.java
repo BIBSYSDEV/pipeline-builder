@@ -37,11 +37,11 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
 
     private String initCreateStackRole() {
-        return format("CreateStack", projectId,shortBranch);
+        return format("CreateStack", projectId, normalizedBranchName);
     }
 
     private String initBucketName() {
-        return format(projectId,shortBranch);
+        return format(projectId, normalizedBranchName);
     }
 
 
@@ -56,12 +56,12 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
 
     private String initPipelineStackName() {
-        return format(projectId, shortBranch, "pipelineStack");
+        return format(projectId, normalizedBranchName, "pipelineStack");
     }
 
 
     private String initPipelineRoleName() {
-        return format("PipelineRole", projectId,shortBranch);
+        return format("PipelineRole", projectId, normalizedBranchName);
     }
 
 

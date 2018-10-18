@@ -23,19 +23,19 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
     }
 
     private String initializeLambdaTrustRole() {
-        return format("LambdaTrustRole", projectId,shortBranch);
+        return format("LambdaTrustRole", projectId, normalizedBranchName);
     }
 
     private String initializePipelineName() {
-        return format(projectId, shortBranch, "pipeline");
+        return format(projectId, normalizedBranchName, "pipeline");
     }
 
     private String initServiceStack(String postifx) {
-        return format(projectId, shortBranch, "serviceStack", postifx);
+        return format(projectId, normalizedBranchName, "serviceStack", postifx);
     }
 
     private String initSourceOutputArtifactName() {
-        return format(projectId, shortBranch, "sourceOutput");
+        return format(projectId, normalizedBranchName, "sourceOutput");
     }
 
 
