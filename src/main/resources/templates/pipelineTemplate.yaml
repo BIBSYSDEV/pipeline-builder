@@ -128,6 +128,15 @@ Resources:
             - !GetAtt S3Bucket.Arn
             - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache, "/*"]]
             - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache]]
+      - PolicyName: customResourceSupport
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - 'lambda:InvokeFunction'
+            - "s3:*"
+            Resource: '*'
       - PolicyName: createLambdaFunctions
         PolicyDocument:
           Version: '2012-10-17'
@@ -357,14 +366,7 @@ Resources:
             Owner: AWS
             Provider: Manual
             Version: 1
-          RunOrder: 5
-        - Name: ManualReview2
-          ActionTypeId:
-            Category: Approval # TODO: automated function tests
-            Owner: AWS
-            Provider: Manual
-            Version: 1
-          RunOrder: 6          
+          RunOrder: 5       
         - Name: SecondDeleteTestStack
           ActionTypeId:
             Category: Deploy
@@ -375,7 +377,7 @@ Resources:
             ActionMode: DELETE_ONLY
             RoleArn: !GetAtt CreateStackRole.Arn
             StackName: !Ref PipelineTestServiceStackName
-          RunOrder: 7
+          RunOrder: 6
 
       - Name: ProdStack
         Actions:
