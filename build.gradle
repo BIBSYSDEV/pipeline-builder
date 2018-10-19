@@ -17,6 +17,7 @@ apply plugin: 'checkstyle'
 
 repositories {
     mavenCentral()
+    maven { url "https://jitpack.io" }
 }
 
 wrapper {
@@ -56,6 +57,7 @@ dependencies {
     compile group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: '1.11.+'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-codebuild',version:'1.11.+'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-secretsmanager', version: '1.11.+'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-iam', version: '1.11.+'
 
     //For reading and deleting logs
     compile group: 'com.amazonaws', name: 'aws-java-sdk-logs', version: '1.11.+'
@@ -82,6 +84,10 @@ dependencies {
 
     compile 'org.apache.commons:commons-lang3:3.8.1'
 
+
+    // read git repository
+    compile 'com.github.scm4j:scm4j-vcs-git:+'
+    compile group: 'org.eclipse.mylyn.github', name: 'org.eclipse.egit.github.core', version: '2.1.5'
 }
 
 

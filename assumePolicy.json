@@ -1,0 +1,16 @@
+//This is the trust policy for the LambdaTrustRole
+{
+  "Version": "2008-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "lambda.amazonaws.com",
+          "cloudformation.amazonaws.com"
+          ]
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}

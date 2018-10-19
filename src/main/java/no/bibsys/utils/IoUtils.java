@@ -1,6 +1,8 @@
 package no.bibsys.utils;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -25,8 +27,14 @@ public class IoUtils {
             lines.add(line);
             line = reader.readLine();
         }
-        String output = String.join("", lines);
+        String output = String.join("\n", lines);
         return output;
+    }
+
+
+    public String fileAsString(Path path) throws IOException {
+        FileInputStream fileInputStream=new FileInputStream(path.toFile());
+        return streamToString(fileInputStream);
     }
 
 
