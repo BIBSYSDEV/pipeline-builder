@@ -1,4 +1,4 @@
-package no.bibsys.cloudformation;
+package no.bibsys.git.github;
 
 import com.amazonaws.services.s3.model.Region;
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;

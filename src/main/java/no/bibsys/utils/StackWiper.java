@@ -70,7 +70,7 @@ public class StackWiper {
 
     private boolean filterLogGroups(PipelineStackConfiguration conf, String name) {
         boolean result = name.contains(conf.getProjectId())
-            &&  name.contains(conf.getNormalizedBranchName());
+            && name.contains(conf.getNormalizedBranchName());
         return result;
     }
 

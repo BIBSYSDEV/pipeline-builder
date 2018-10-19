@@ -3,6 +3,7 @@ package no.bibsys.utils;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClientBuilder;
 import com.amazonaws.services.identitymanagement.model.CreateRoleRequest;
+import com.amazonaws.services.identitymanagement.model.DeleteRoleRequest;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -38,10 +39,9 @@ public class PipelineTest {
 
     };
 
-    public static final String WORKSPACE_DIR = System.getProperty("java.io.tmpdir") + "git-workspaces";
     @Test
     @Ignore
-    public void testTemplate() throws IOException {
+    public void createStacks() throws IOException {
         Application application = new Application(new Environment());
 
         application.withBranch(branchName)
@@ -70,20 +70,30 @@ public class PipelineTest {
     @Test
     @Ignore
     public void createRole() throws IOException {
+        AmazonIdentityManagement iam= AmazonIdentityManagementClientBuilder.defaultClient();
         PipelineStackConfiguration pipelineStackConfiguration=new PipelineStackConfiguration(branchName,
             repoName,
             repoOwner,
             environment);
-        AmazonIdentityManagement iam= AmazonIdentityManagementClientBuilder.defaultClient();
-        CreateRoleRequest createRoleRequest=new CreateRoleRequest();
+
         String assumePolicy = ioUtils.fileAsString(Paths.get("assumePolicy.json"));
-        createRoleRequest.withAssumeRolePolicyDocument(assumePolicy)
-            .setRoleName(pipelineStackConfiguration.getPipelineConfiguration().getLambdaTrustRolename()+);
-
-
 
         JsonFactory jsonFactory=new JsonFactory().configure(Feature.ALLOW_COMMENTS,true);
         ObjectMapper objectMapper=new ObjectMapper(jsonFactory);
+        JsonNode jsonNode = objectMapper.readTree(assumePolicy);
+        String validJson=objectMapper.writeValueAsString(jsonNode);
+
+
+        CreateRoleRequest createRoleRequest=new CreateRoleRequest();
+        createRoleRequest.withAssumeRolePolicyDocument(validJson)
+            .withRoleName(pipelineStackConfiguration.getPipelineConfiguration().getLambdaTrustRolename())
+            .withPath("/");
+        iam.createRole(createRoleRequest);
+
+        iam.listRoles().getRoles().stream().map(role->
+            new DeleteRoleRequest().withRoleName(role.getRoleName()))
+            .forEach(req->iam.deleteRole(req));
+
 
 
 
@@ -102,7 +112,6 @@ public class PipelineTest {
         HttpGet get=new HttpGet(url);
         get.setHeader(new BasicHeader("Authentication", auth));
         get.setHeader(new BasicHeader("Accept","application/vnd.github.v3+json"));
-        get.setHeader(new BasicHeader("ref",branchName));
         CloseableHttpResponse response = client.execute(get);
 
 

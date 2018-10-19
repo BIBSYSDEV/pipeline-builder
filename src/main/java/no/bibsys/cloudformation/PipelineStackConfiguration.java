@@ -1,6 +1,7 @@
 package no.bibsys.cloudformation;
 
 import java.io.IOException;
+import no.bibsys.git.github.GithubConf;
 import no.bibsys.utils.Environment;
 
 public class PipelineStackConfiguration extends CloudFormationConfigurable {
