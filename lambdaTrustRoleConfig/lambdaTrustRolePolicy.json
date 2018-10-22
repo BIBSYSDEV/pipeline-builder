@@ -1,4 +1,6 @@
-//This file should be parsed by a parser that allows comments
+//Parse this file with a parser that allows Comments
+//https://github.com/FasterXML/jackson-core/wiki/JsonParser-Features
+
 {
   "Version"  : "2012-10-17",
   "Statement": [

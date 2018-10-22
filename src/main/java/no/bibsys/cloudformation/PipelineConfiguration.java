@@ -1,5 +1,8 @@
 package no.bibsys.cloudformation;
 
+import no.bibsys.git.github.GithubConf;
+import no.bibsys.git.github.GithubReader;
+
 public class PipelineConfiguration extends CloudFormationConfigurable {
 
 
@@ -9,10 +12,15 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
     private final String pipelineName;
 
 
+
+
     private final String lambdaTrustRolename;
+    private final String lambdaTrustRoleAssumePolicy;
+    private final String lambdaTrustRoleAccessPolicy;
 
 
-    public PipelineConfiguration(String repositoryName, String branchName) {
+    public PipelineConfiguration(String repositoryName, String branchName,
+        String assumePolicy, String accessPolicy) {
         super(repositoryName, branchName);
 
         this.sourceOutputArtifactName = initSourceOutputArtifactName();
@@ -20,7 +28,13 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
         this.finalServiceStack = initServiceStack("prod");
         this.pipelineName = initializePipelineName();
         this.lambdaTrustRolename = initializeLambdaTrustRole();
+        this.lambdaTrustRoleAssumePolicy=assumePolicy;
+        this.lambdaTrustRoleAccessPolicy=accessPolicy;
     }
+
+
+
+
 
     private String initializeLambdaTrustRole() {
         return format("LambdaTrustRole", projectId, normalizedBranchName);

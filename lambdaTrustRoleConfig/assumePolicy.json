@@ -1,4 +1,6 @@
+
 //This is the trust policy for the LambdaTrustRole
+
 {
   "Version": "2008-10-17",
   "Statement": [

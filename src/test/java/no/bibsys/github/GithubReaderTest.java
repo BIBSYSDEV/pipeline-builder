@@ -11,7 +11,7 @@ public class GithubReaderTest {
 
 
     private final static String owner="BIBSYSDEV";
-    private final static String repository="authority-registry";
+    private final static String repository="authority-registry-infrastructure";
 
 
     private final transient GithubConf githubConf;
@@ -26,8 +26,9 @@ public class GithubReaderTest {
 
     @Test
     public void testConnection() throws IOException {
-        String  result = githubReader.readFile(Paths.get("template.yml"));
-        System.out.println(result);
+        String  result = githubReader.readFile(Paths.get("lambdaTrustRoleConfig","lambdaTrustRolePolicy.json"));
+
+
     }
 
 }

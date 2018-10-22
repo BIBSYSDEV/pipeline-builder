@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
+import no.bibsys.roles.RoleManager;
 import no.bibsys.utils.Environment;
 import no.bibsys.utils.IoUtils;
 import no.bibsys.utils.StackWiper;
@@ -34,10 +35,12 @@ public class Application {
 
 
     public void createStacks()
-        throws IOException {
+        throws IOException, InterruptedException {
         checkNulls();
         PipelineStackConfiguration pipelineStackConfiguration = pipelineStackConfiguration();
+
         wiper.wipeStacks(pipelineStackConfiguration);
+
         createPipelineStack(pipelineStackConfiguration);
     }
 
@@ -124,7 +127,10 @@ public class Application {
 
 
     private void createPipelineStack(PipelineStackConfiguration pipelineStackConfiguration)
-        throws IOException {
+        throws IOException, InterruptedException {
+
+        RoleManager roleManager=new RoleManager(pipelineStackConfiguration.getPipelineConfiguration());
+        roleManager.createRole();
         CreateStackRequest createStackRequest = createStackRequest(pipelineStackConfiguration);
         AmazonCloudFormation acf = AmazonCloudFormationClientBuilder.defaultClient();
         acf.createStack(createStackRequest);

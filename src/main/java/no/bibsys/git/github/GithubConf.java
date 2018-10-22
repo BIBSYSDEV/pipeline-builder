@@ -28,6 +28,19 @@ public class GithubConf {
     }
 
 
+    public String getOwner() {
+        return owner;
+    }
+
+    public String getRepo() {
+        return repo;
+    }
+
+    public String getOauth() {
+        return oauth;
+    }
+
+
     private String initRepo(String repo) {
         return repo;
     }
@@ -46,17 +59,7 @@ public class GithubConf {
     }
 
 
-    public String getOwner() {
-        return owner;
-    }
 
-    public String getRepo() {
-        return repo;
-    }
-
-    public String getOauth() {
-        return oauth;
-    }
 
     private String readAuthFromSecrets() throws IOException {
         AWSSecretsManager client = AWSSecretsManagerClientBuilder.standard()

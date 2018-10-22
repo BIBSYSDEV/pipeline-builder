@@ -16,7 +16,7 @@ import org.apache.http.message.BasicHeader;
 public class GithubReader {
 
     private final transient static String urlTemplate = "https://api.github.com/"
-        + "repos/%1$s/%2$s/contents/template.yml?ref=%3$s&path=%4$s";
+        + "repos/%1$s/%2$s/contents/%4$s?ref=%3$s";
     private final transient IoUtils ioUtils = new IoUtils();
     private final transient GithubConf githubConf;
     private final transient String branch;
@@ -40,11 +40,17 @@ public class GithubReader {
 
 
     public String readFile(Path path) throws IOException {
+        String downloadField="download_url";
         String fileDescription = readRest(createUrl(path));
         ObjectMapper parser = JsonUtils.newJsonParser();
         JsonNode rootNode = parser.readTree(fileDescription);
-        String downloadUrl = rootNode.get("download_url").asText();
-        return readRest(downloadUrl);
+        if(rootNode.has(downloadField)){
+            String downloadUrl = rootNode.get(downloadField).asText();
+            return readRest(downloadUrl);
+        }
+        else{
+            throw new IllegalStateException("Could not file "+path.toString());
+        }
 
 
     }

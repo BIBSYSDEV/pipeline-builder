@@ -1,10 +1,18 @@
 package no.bibsys.cloudformation;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import no.bibsys.git.github.GithubConf;
+import no.bibsys.git.github.GithubReader;
 import no.bibsys.utils.Environment;
 
 public class PipelineStackConfiguration extends CloudFormationConfigurable {
+
+
+    Config config= ConfigFactory.load().resolve();
 
     private final transient String pipelineStackName;
 
@@ -32,8 +40,23 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
         this.pipelineRoleName = initPipelineRoleName();
 
         this.githubConf = new GithubConf(repoOwner, repoName, environment);
-        this.pipelineConfiguration = new PipelineConfiguration(repoName, branchName);
+        this.pipelineConfiguration = initPipelineConfiguration(branchName, repoName);
         this.codeBuildConfiguration = new CodeBuildConfiguration(repoName, branchName);
+    }
+
+    private PipelineConfiguration initPipelineConfiguration(String branchName, String repoName)
+        throws IOException {
+        GithubReader githubReader=new GithubReader(githubConf,branchName);
+        String folder=config.getString("policies.parentFolder");
+        String assumePolicy=config.getString("policies.assumePolicyFile");
+        String accessPolicy=config.getString("policies.accessPolicyFile");
+        Path assumePolicyPath=Paths.get(folder,assumePolicy);
+        Path accessPolicyPath=Paths.get(folder,accessPolicy);
+
+        String assumePolicyDocument=githubReader.readFile(assumePolicyPath);
+        String accessPolicyDocument =githubReader.readFile(accessPolicyPath);
+
+        return new PipelineConfiguration(repoName, branchName,assumePolicyDocument,accessPolicyDocument);
     }
 
 

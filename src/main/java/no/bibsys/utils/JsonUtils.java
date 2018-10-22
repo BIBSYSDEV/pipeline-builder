@@ -9,9 +9,11 @@ import java.io.IOException;
 public class JsonUtils {
 
     public static ObjectMapper newJsonParser(){
-        JsonFactory jsonFactory=new JsonFactory().configure(Feature.ALLOW_COMMENTS,true);
+        JsonFactory jsonFactory=new JsonFactory()
+            .configure(Feature.ALLOW_COMMENTS,true)
+            .configure(Feature.ALLOW_YAML_COMMENTS,true);
         return new ObjectMapper(jsonFactory);
-    };
+    }
 
 
     public static String removeComments(String jsonWithComments) throws IOException {
