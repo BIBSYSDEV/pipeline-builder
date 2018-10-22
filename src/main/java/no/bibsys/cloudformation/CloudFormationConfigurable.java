@@ -9,7 +9,7 @@ public class CloudFormationConfigurable {
     private final transient StringUtils stringUtils=new StringUtils();
 
     protected final transient String projectId;
-    protected final transient String branchName;
+    private  final transient String branchName;
     protected final transient String normalizedBranchName;
 
 
