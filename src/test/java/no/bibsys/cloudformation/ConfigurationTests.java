@@ -5,6 +5,7 @@ import java.util.Optional;
 import no.bibsys.Application;
 import no.bibsys.utils.AmazonRestrictions;
 import no.bibsys.utils.Environment;
+import no.bibsys.utils.MockEnvironment;
 
 public abstract class ConfigurationTests extends AmazonRestrictions {
 
@@ -13,19 +14,13 @@ public abstract class ConfigurationTests extends AmazonRestrictions {
     String branchName = "AUTREG-49_Delete_tables_from_DynamoDB_after_testing";
     Application application;
     PipelineStackConfiguration conf;
-    private Environment environment = new Environment() {
-        @Override
-        public Optional<String> readEnvOpt(String variableName) {
-            return Optional.of("env-variable");
-        }
 
-    };
 
 
     protected ConfigurationTests() {
         try {
 
-            application = new Application(environment)
+            application = new Application(new MockEnvironment())
                 .withBranch(branchName)
                 .withRepoName("AUTHORITY-REGISTRY")
                 .withRepoOwner("BIBSYSDEV");
