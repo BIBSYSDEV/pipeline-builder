@@ -4,8 +4,6 @@ import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClientBuilder;
 import com.amazonaws.services.identitymanagement.model.CreateRoleRequest;
 import com.amazonaws.services.identitymanagement.model.DeleteRoleRequest;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -77,13 +75,7 @@ public class PipelineTest {
             environment);
 
         String assumePolicy = ioUtils.fileAsString(Paths.get("assumePolicy.json"));
-
-        JsonFactory jsonFactory=new JsonFactory().configure(Feature.ALLOW_COMMENTS,true);
-        ObjectMapper objectMapper=new ObjectMapper(jsonFactory);
-        JsonNode jsonNode = objectMapper.readTree(assumePolicy);
-        String validJson=objectMapper.writeValueAsString(jsonNode);
-
-
+        String validJson=JsonUtils.removeComments(assumePolicy);
         CreateRoleRequest createRoleRequest=new CreateRoleRequest();
         createRoleRequest.withAssumeRolePolicyDocument(validJson)
             .withRoleName(pipelineStackConfiguration.getPipelineConfiguration().getLambdaTrustRolename())
