@@ -4,42 +4,46 @@ package no.bibsys.handler;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import no.bibsys.git.github.GithubConf;
+import no.bibsys.git.github.GithubReader;
+import no.bibsys.git.github.RestReader;
 import no.bibsys.handler.requests.CustomBuildRequest;
 import no.bibsys.utils.Environment;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import no.bibsys.utils.JsonUtils;
 
-public class CustomBranchBuilder extends HandlerHelper<CustomBuildRequest, String> {
-
-
-    private static final Logger logger = LogManager.getLogger(CustomBranchBuilder.class);
+public class CustomBranchBuilder extends SimpleHandler{
 
 
-    public CustomBranchBuilder() {
-        super(CustomBuildRequest.class);
-    }
+
+
+
 
     @Override
-    protected String processInput(CustomBuildRequest request, Context context) throws IOException {
+    protected String processInput(String string, Context context) throws IOException {
 
-        Environment env = new Environment();
+        ObjectMapper mapper = JsonUtils.newJsonParser();
+        CustomBuildRequest request = mapper.readValue(string,CustomBuildRequest.class);
 
         if (request.getAction().equals(CustomBuildRequest.CREATE)) {
-            createStacks(request.getOwner(),request.getRepositoryName(),request.getBranch(), env);
+            createStacks(initGithubReader(request));
         }
 
         if (request.getAction().equals(CustomBuildRequest.DELETE)) {
-            deleteStacks(request.getOwner(),request.getRepositoryName(),request.getBranch(), env);
+            deleteStacks(initGithubReader(request));
         }
 
         System.out.println(request.toString());
-        logger.info(request.toString());
+
         ObjectMapper objectMapper=new ObjectMapper();
         String requestJson=objectMapper.writeValueAsString(request);
-
-
         return requestJson;
 
+    }
+
+
+    private GithubReader initGithubReader(CustomBuildRequest request) throws IOException {
+        GithubConf githubConf=new GithubConf(request.getOwner(),request.getRepositoryName(),new Environment());
+        return new GithubReader(new RestReader(githubConf),request.getBranch());
     }
 
 

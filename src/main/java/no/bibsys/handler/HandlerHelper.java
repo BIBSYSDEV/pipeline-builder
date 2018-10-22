@@ -10,6 +10,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import no.bibsys.Application;
+import no.bibsys.git.github.GithubConf;
+import no.bibsys.git.github.GithubReader;
+import no.bibsys.handler.requests.PullRequest;
 import no.bibsys.handler.responses.GatewayResponse;
 import no.bibsys.utils.ApiMessageParser;
 import no.bibsys.utils.Environment;
@@ -94,27 +97,7 @@ public abstract class HandlerHelper<I, O> implements RequestStreamHandler {
 
 
 
-    protected void deleteStacks(String repoOwner,String repo,String branch, Environment env)
-        throws IOException {
-        Application application = new Application(env);
-        application
-            .withRepoOwner(repoOwner)
-            .withRepoName(repo)
-            .withBranch(branch)
 
-            .wipeStacks();
-    }
-
-    protected void createStacks(String repoOwner,String repo,String branch, Environment env)
-        throws IOException {
-
-        Application application = new Application(env);
-        application
-            .withRepoOwner(repoOwner)
-            .withRepoName(repo)
-            .withBranch(branch)
-            .createStacks();
-    }
 
 
 

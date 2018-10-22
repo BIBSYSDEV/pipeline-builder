@@ -5,6 +5,7 @@ import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
+import com.amazonaws.services.secretsmanager.model.InvalidRequestException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Optional;
@@ -59,26 +60,35 @@ public class GithubConf {
     }
 
 
-
-
     private String readAuthFromSecrets() throws IOException {
         AWSSecretsManager client = AWSSecretsManagerClientBuilder.standard()
             .withRegion(Region.EU_Ireland.toString())
             .build();
         ObjectMapper mapper = new ObjectMapper();
 
-        GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest()
-            .withSecretId("githubauth");
-        GetSecretValueResult getSecretValueResult = client
-            .getSecretValue(getSecretValueRequest);
+        Optional<GetSecretValueResult> getSecretValueResult = readAuthKey(client);
 
-        if (getSecretValueResult.getSecretString() != null) {
-            String secret = getSecretValueResult.getSecretString();
+        if (getSecretValueResult.map(result->result.getSecretString()).isPresent()) {
+            String secret = getSecretValueResult.get().getSecretString();
             String value = mapper.readTree(secret)
                 .findValuesAsText("githubauth").stream().findFirst().orElse(null);
             return value;
         }
         return null;
+    }
+
+    private Optional<GetSecretValueResult> readAuthKey(AWSSecretsManager client) {
+        GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest()
+            .withSecretId("githubauth");
+        Optional<GetSecretValueResult> getSecretValueResult=Optional.empty();
+        try {
+            getSecretValueResult = Optional.ofNullable(client
+                .getSecretValue(getSecretValueRequest));
+        }
+        catch(InvalidRequestException e){
+            getSecretValueResult=Optional.empty();
+        }
+        return getSecretValueResult;
     }
 
 

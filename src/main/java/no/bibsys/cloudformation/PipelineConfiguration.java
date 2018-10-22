@@ -77,4 +77,12 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
     }
 
 
+    public String getLambdaTrustRoleAssumePolicy() {
+        return this.lambdaTrustRoleAssumePolicy;
+    }
+
+    public String getLambdaTrustRoleAccessPolicy(){
+        return this.lambdaTrustRoleAccessPolicy;
+    }
+
 }

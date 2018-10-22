@@ -2,14 +2,18 @@ package no.bibsys.cloudformation;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 
+import java.io.IOException;
 import java.util.regex.Matcher;
 import org.junit.Test;
 
 public class PipelineStackConfigurationTests extends ConfigurationTests {
 
+
+    public PipelineStackConfigurationTests() throws IOException {
+    }
 
     @Test
     public void pipelineStacknameShouldContainProjectName() {

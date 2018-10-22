@@ -3,28 +3,41 @@ package no.bibsys.roles;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClientBuilder;
 import com.amazonaws.services.identitymanagement.model.CreateRoleRequest;
+import com.amazonaws.services.identitymanagement.model.DeleteRolePolicyRequest;
 import com.amazonaws.services.identitymanagement.model.DeleteRoleRequest;
 import com.amazonaws.services.identitymanagement.model.GetRoleRequest;
+import com.amazonaws.services.identitymanagement.model.ListRolePoliciesRequest;
+import com.amazonaws.services.identitymanagement.model.NoSuchEntityException;
 import com.amazonaws.services.identitymanagement.model.PutRolePolicyRequest;
 import com.amazonaws.services.identitymanagement.model.PutRolePolicyResult;
 import com.amazonaws.services.identitymanagement.model.Role;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import no.bibsys.cloudformation.PipelineConfiguration;
 
 public class RoleManager {
 
 
-    private transient String assumePolicy;
-    private transient String policy;
-    private String roleName;
+    private final transient String assumePolicy;
+    private final transient String policy;
+    private final transient AmazonIdentityManagement iam;
+    private final transient String roleName;
 
 
     public RoleManager(PipelineConfiguration configuration) {
         this.roleName = configuration.getLambdaTrustRolename();
+        this.assumePolicy = configuration.getLambdaTrustRoleAssumePolicy();
+        this.policy = configuration.getLambdaTrustRoleAccessPolicy();
+        this.iam = AmazonIdentityManagementClientBuilder.defaultClient();
     }
 
 
-    public void createRole() throws InterruptedException {
-        AmazonIdentityManagement iam = AmazonIdentityManagementClientBuilder.defaultClient();
+    public Role createRole() {
+        if (getRole().isPresent()) {
+            deleteRole();
+        }
+
         CreateRoleRequest createRoleRequest = new CreateRoleRequest();
         createRoleRequest
             .withPath("/")
@@ -38,58 +51,66 @@ public class RoleManager {
 
         Role role = iam
             .createRole(createRoleRequest).getRole();
-        waitForRole(iam);
+        waitForRole();
 
         PutRolePolicyResult result = iam
             .putRolePolicy(putRolePolicyRequest);
 
+        return role;
+
     }
 
 
-    public void deleteRole(){
-        AmazonIdentityManagement iam= AmazonIdentityManagementClientBuilder.defaultClient();
+    public void deleteRole() {
+        List<DeleteRolePolicyRequest> inlinePolicies = iam
+            .listRolePolicies(new ListRolePoliciesRequest().withRoleName(roleName))
+            .getPolicyNames()
+            .stream()
+            .map(policyName -> new DeleteRolePolicyRequest().withRoleName(roleName)
+                .withPolicyName(policyName)).collect(Collectors.toList());
+
+        inlinePolicies.forEach(iam::deleteRolePolicy);
         iam.deleteRole(new DeleteRoleRequest().withRoleName(roleName));
 
+    }
+
+    public Optional<Role> getRole() {
+        try {
+            Role role = iam.getRole(new GetRoleRequest().withRoleName(roleName)).getRole();
+            return Optional.of(role);
+        } catch (NoSuchEntityException e) {
+            return Optional.empty();
+        }
 
     }
 
 
-    private void waitForRole(AmazonIdentityManagement iam) throws InterruptedException {
+    private void waitForRole() {
 
         Role role = iam
             .getRole(new GetRoleRequest().withRoleName(roleName)).getRole();
-        while(role==null){
-            Thread.sleep(1000);
-            waitForRole(iam);
+        while (role == null) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                waitForRole();
+            }
+            waitForRole();
 
         }
 
 
     }
 
-    public RoleManager withAssumePolicy(String assumePolicy) {
-        this.assumePolicy = assumePolicy;
-        return this;
-    }
-
-    public RoleManager withPolicy(String policy) {
-        this.policy = policy;
-        return this;
-    }
 
     public String getAssumePolicy() {
         return assumePolicy;
     }
 
-    public void setAssumePolicy(String assumePolicy) {
-        this.assumePolicy = assumePolicy;
-    }
 
     public String getPolicy() {
         return policy;
     }
 
-    public void setPolicy(String policy) {
-        this.policy = policy;
-    }
+
 }
