@@ -6,11 +6,15 @@ import no.bibsys.utils.StringUtils;
 public class CloudFormationConfigurable {
 
 
+    private final static int AMAZON_ROLENAME_MAX_LENGTH=64;
+    private final static  int ROLENAMES_PREFIX_LENGTH=20;
+
     private final transient StringUtils stringUtils=new StringUtils();
 
     protected final transient String projectId;
     private  final transient String branchName;
     protected final transient String normalizedBranchName;
+
 
 
     public CloudFormationConfigurable(String repositoryName, String branchName) {
@@ -32,7 +36,8 @@ public class CloudFormationConfigurable {
 
     private String initShortBranch(String branchName) {
         String normalized=stringUtils.shortNormalizedString(branchName);
-       return normalized;
+        return normalized.substring(0,(AMAZON_ROLENAME_MAX_LENGTH-ROLENAMES_PREFIX_LENGTH));
+
     }
 
 

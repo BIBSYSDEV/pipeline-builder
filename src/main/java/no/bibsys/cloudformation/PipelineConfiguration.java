@@ -1,8 +1,5 @@
 package no.bibsys.cloudformation;
 
-import no.bibsys.git.github.GithubConf;
-import no.bibsys.git.github.GithubReader;
-
 public class PipelineConfiguration extends CloudFormationConfigurable {
 
 

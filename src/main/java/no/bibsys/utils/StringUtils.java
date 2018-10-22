@@ -25,8 +25,8 @@ public class StringUtils {
         int maxnumberOfWords = Math.min(maxLength, words.length);
         List<String> wordList = Arrays.stream(words).map(this::shorten)
             .collect(Collectors.toList()).subList(0,maxnumberOfWords);
-        return String.join("-", wordList);
 
+        return String.join("-", wordList);
     }
 
 
@@ -34,5 +34,9 @@ public class StringUtils {
         int maxIndex = Math.min(word.length(), maxLength);
         return word.substring(0, maxIndex);
     }
+
+
+
+
 
 }

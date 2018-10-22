@@ -2,8 +2,10 @@ package no.bibsys.cloudformation;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNot.not;
 
 import java.io.IOException;
 import java.util.regex.Matcher;
@@ -58,6 +60,29 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
     @Test
     public void pipelineRoleContainShortBranch() {
         assertThat(conf.getPipelineRoleName(), containsString(shortBranch));
+
+    }
+
+
+    @Test
+    public void pipelineRoleNameIsLessThan64chars() {
+        assertThat(conf.getPipelineRoleName().length(), is(not(greaterThan(maxLengthForRoles))));
+
+    }
+
+
+    @Test
+    public void createStackRoleNameIsLessThan64chars() {
+        assertThat(conf.getCreateStackRoleName().length(), is(not(greaterThan(maxLengthForRoles))));
+
+    }
+
+
+    @Test
+    public void lambdaTrustRoleNameIsLessThan64chars() {
+        assertThat(conf.getPipelineConfiguration().getLambdaTrustRolename().length(),
+            is(not(greaterThan(maxLengthForRoles))));
+
     }
 
     @Test

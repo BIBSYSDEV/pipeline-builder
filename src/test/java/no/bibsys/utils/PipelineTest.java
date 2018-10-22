@@ -10,8 +10,8 @@ import org.junit.Test;
 
 public class PipelineTest {
 
-    private String branchName = "master";
-    private String repoName = "authority-registry";
+    private String branchName = "autreg-54-do-not-delete-prod-stack";
+    private String repoName = "authority-registry-infrastructure";
     private String repoOwner = "BIBSYSDEV";
 
 
