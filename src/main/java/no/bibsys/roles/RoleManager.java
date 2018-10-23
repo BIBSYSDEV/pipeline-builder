@@ -9,7 +9,6 @@ import com.amazonaws.services.identitymanagement.model.GetRoleRequest;
 import com.amazonaws.services.identitymanagement.model.ListRolePoliciesRequest;
 import com.amazonaws.services.identitymanagement.model.NoSuchEntityException;
 import com.amazonaws.services.identitymanagement.model.PutRolePolicyRequest;
-import com.amazonaws.services.identitymanagement.model.PutRolePolicyResult;
 import com.amazonaws.services.identitymanagement.model.Role;
 import java.util.List;
 import java.util.Optional;
@@ -53,8 +52,7 @@ public class RoleManager {
             .createRole(createRoleRequest).getRole();
         waitForRole();
 
-        PutRolePolicyResult result = iam
-            .putRolePolicy(putRolePolicyRequest);
+         iam.putRolePolicy(putRolePolicyRequest);
 
         return role;
 

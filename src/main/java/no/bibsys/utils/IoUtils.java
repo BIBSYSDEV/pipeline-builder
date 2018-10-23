@@ -1,11 +1,10 @@
 package no.bibsys.utils;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,7 @@ public class IoUtils {
 
 
     public String fileAsString(Path path) throws IOException {
-        FileInputStream fileInputStream=new FileInputStream(path.toFile());
+        InputStream fileInputStream= Files.newInputStream(path);
         return streamToString(fileInputStream);
     }
 

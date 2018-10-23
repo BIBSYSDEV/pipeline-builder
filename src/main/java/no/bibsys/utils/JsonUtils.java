@@ -6,7 +6,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 
-public class JsonUtils {
+public final class JsonUtils {
+
+
+    private JsonUtils() {
+        throw new UnsupportedOperationException();
+    }
 
     public static ObjectMapper newJsonParser(){
         JsonFactory jsonFactory=new JsonFactory()
@@ -20,9 +25,11 @@ public class JsonUtils {
         ObjectMapper mapper= newJsonParser();
         JsonNode jsonNode = mapper.readTree(jsonWithComments);
         String  validJson=mapper.writeValueAsString(jsonNode);
+
         return  validJson;
 
     }
+
 
 
 }

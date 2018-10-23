@@ -4,13 +4,11 @@ import java.io.IOException;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.git.github.GithubConf;
 import no.bibsys.git.github.GithubReader;
-import no.bibsys.utils.IoUtils;
 import no.bibsys.utils.StackBuilder;
 import no.bibsys.utils.StackWiper;
 
 public class Application {
 
-    private final transient IoUtils ioUtils = new IoUtils();
     private final transient StackWiper wiper;
 
 
@@ -18,12 +16,12 @@ public class Application {
     private final transient String branch;
     private final transient String repoOwner;
     private final transient GithubReader githubReader;
-    private final transient GithubConf githubConf;
+
 
 
     public Application(GithubReader githubReader) {
 
-        this.githubConf = githubReader.getGithubConf();
+        GithubConf githubConf = githubReader.getGithubConf();
         this.githubReader = githubReader;
         this.repoOwner = githubConf.getOwner();
         this.repoName = githubConf.getOwner();

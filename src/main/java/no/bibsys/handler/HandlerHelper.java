@@ -9,13 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import no.bibsys.Application;
-import no.bibsys.git.github.GithubConf;
-import no.bibsys.git.github.GithubReader;
-import no.bibsys.handler.requests.PullRequest;
 import no.bibsys.handler.responses.GatewayResponse;
 import no.bibsys.utils.ApiMessageParser;
-import no.bibsys.utils.Environment;
 import no.bibsys.utils.IoUtils;
 import org.apache.http.HttpStatus;
 
@@ -94,11 +89,6 @@ public abstract class HandlerHelper<I, O> implements RequestStreamHandler {
             writerFailure(e);
         }
     }
-
-
-
-
-
 
 
 }

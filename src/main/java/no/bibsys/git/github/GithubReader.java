@@ -14,7 +14,7 @@ public class GithubReader {
 
 
     private final transient GithubConf githubConf;
-    private final RestReader restReader;
+    private final  transient RestReader restReader;
 
 
     private final transient String branch;

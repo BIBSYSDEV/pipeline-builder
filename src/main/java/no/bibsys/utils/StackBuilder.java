@@ -20,15 +20,12 @@ public class StackBuilder {
 
     private final transient StackWiper stackWiper;
     private final transient GithubReader githubReader;
-    private final transient  String branch;
 
 
     public StackBuilder(StackWiper wiper,GithubReader githubReader){
         this.stackWiper=wiper;
         this.githubReader = githubReader;
 
-
-        this.branch=githubReader.getBranch();
     }
 
 
