@@ -24,12 +24,12 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
 
     @Test
     public void pipelineStackNameShouldContainShortBranchName() {
-        assertThat(conf.getPipelineStackName(), containsString(shortBranch));
+        assertThat(conf.getPipelineStackName(), containsString(normalizedBranch));
     }
 
     @Test
     public void createStackRoleShouldContainShortBranch() {
-        assertThat(conf.getCreateStackRoleName(), containsString(shortBranch));
+        assertThat(conf.getCreateStackRoleName(), containsString(normalizedBranch));
     }
 
 
@@ -53,13 +53,13 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
 
     @Test
     public void lambdaTrustRoeleShouldContainShortBranch() {
-        assertThat(conf.getPipelineConfiguration().getLambdaTrustRolename(), containsString(shortBranch));
+        assertThat(conf.getPipelineConfiguration().getLambdaTrustRolename(), containsString(normalizedBranch));
     }
 
 
     @Test
     public void pipelineRoleContainShortBranch() {
-        assertThat(conf.getPipelineRoleName(), containsString(shortBranch));
+        assertThat(conf.getPipelineRoleName(), containsString(normalizedBranch));
 
     }
 
@@ -88,7 +88,7 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
     @Test
     public void bucketNameShouldContainProjectIdAndBranch() {
         assertThat(conf.getBucketName(), containsString(projectId));
-        assertThat(conf.getBucketName(), containsString(shortBranch));
+        assertThat(conf.getBucketName(), containsString(normalizedBranch));
 
     }
 
