@@ -33,9 +33,6 @@ public class RoleManager {
 
 
     public Role createRole() {
-        if (getRole().isPresent()) {
-            deleteRole();
-        }
 
         CreateRoleRequest createRoleRequest = new CreateRoleRequest();
         createRoleRequest
@@ -60,16 +57,17 @@ public class RoleManager {
 
 
     public void deleteRole() {
-        List<DeleteRolePolicyRequest> inlinePolicies = iam
-            .listRolePolicies(new ListRolePoliciesRequest().withRoleName(roleName))
-            .getPolicyNames()
-            .stream()
-            .map(policyName -> new DeleteRolePolicyRequest().withRoleName(roleName)
-                .withPolicyName(policyName)).collect(Collectors.toList());
+        if (getRole().isPresent()) {
+            List<DeleteRolePolicyRequest> inlinePolicies = iam
+                .listRolePolicies(new ListRolePoliciesRequest().withRoleName(roleName))
+                .getPolicyNames()
+                .stream()
+                .map(policyName -> new DeleteRolePolicyRequest().withRoleName(roleName)
+                    .withPolicyName(policyName)).collect(Collectors.toList());
 
-        inlinePolicies.forEach(iam::deleteRolePolicy);
-        iam.deleteRole(new DeleteRoleRequest().withRoleName(roleName));
-
+            inlinePolicies.forEach(iam::deleteRolePolicy);
+            iam.deleteRole(new DeleteRoleRequest().withRoleName(roleName));
+        }
     }
 
     public Optional<Role> getRole() {
