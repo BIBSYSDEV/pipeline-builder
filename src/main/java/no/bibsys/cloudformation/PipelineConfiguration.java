@@ -9,8 +9,6 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
     private final String pipelineName;
 
 
-
-
     private final String lambdaTrustRolename;
     private final String lambdaTrustRoleAssumePolicy;
     private final String lambdaTrustRoleAccessPolicy;
@@ -25,12 +23,9 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
         this.finalServiceStack = initServiceStack("prod");
         this.pipelineName = initializePipelineName();
         this.lambdaTrustRolename = initializeLambdaTrustRole();
-        this.lambdaTrustRoleAssumePolicy=assumePolicy;
-        this.lambdaTrustRoleAccessPolicy=accessPolicy;
+        this.lambdaTrustRoleAssumePolicy = assumePolicy;
+        this.lambdaTrustRoleAccessPolicy = accessPolicy;
     }
-
-
-
 
 
     private String initializeLambdaTrustRole() {
@@ -78,7 +73,7 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
         return this.lambdaTrustRoleAssumePolicy;
     }
 
-    public String getLambdaTrustRoleAccessPolicy(){
+    public String getLambdaTrustRoleAccessPolicy() {
         return this.lambdaTrustRoleAccessPolicy;
     }
 

@@ -19,7 +19,6 @@ public class Application {
     private final transient GithubReader githubReader;
 
 
-
     public Application(GithubReader githubReader) {
 
         GithubConf githubConf = githubReader.getGithubConf();

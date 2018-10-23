@@ -49,7 +49,7 @@
       "Resource": "*",
       "Effect"  : "Allow"
     },
- //The rest of the policies are for all lambda functions
+    //The rest of the policies are for all lambda functions
     {
       "Action"  : [
         "logs:CreateLogGroup",

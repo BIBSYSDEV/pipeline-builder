@@ -8,12 +8,10 @@ public class CloudFormationConfigurable {
     public final static int NORMALIZED_BRANCH_MAX_LENGTH = 40;
     public final static transient int MAX_BRANCH_WORD_LENGTH = 10;
     public final static transient int MAX_PROJECT_WORD_LENGTH = 3;
-
-    private final transient StringUtils stringUtils = new StringUtils();
-
     protected final transient String projectId;
-    private final transient String branchName;
     protected final transient String normalizedBranchName;
+    private final transient StringUtils stringUtils = new StringUtils();
+    private final transient String branchName;
 
 
     public CloudFormationConfigurable(String repositoryName, String branchName) {
@@ -35,7 +33,7 @@ public class CloudFormationConfigurable {
 
     private String initShortBranch(String branchName) {
         String normalized = stringUtils.shortNormalizedString(branchName, MAX_BRANCH_WORD_LENGTH);
-        int cutIndex=Math.min(normalized.length(),NORMALIZED_BRANCH_MAX_LENGTH);
+        int cutIndex = Math.min(normalized.length(), NORMALIZED_BRANCH_MAX_LENGTH);
         return normalized.substring(0, cutIndex);
 
     }

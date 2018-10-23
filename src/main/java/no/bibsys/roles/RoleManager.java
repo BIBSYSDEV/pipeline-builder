@@ -49,7 +49,7 @@ public class RoleManager {
             .createRole(createRoleRequest).getRole();
         waitForRole();
 
-         iam.putRolePolicy(putRolePolicyRequest);
+        iam.putRolePolicy(putRolePolicyRequest);
 
         return role;
 

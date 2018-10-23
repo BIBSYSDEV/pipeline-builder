@@ -18,11 +18,9 @@ public class PipelineTest {
     @Test
     @Ignore
     public void createStacks() throws IOException {
-
         Application application = initApplication();
         application.createStacks();
     }
-
 
     @Test
     @Ignore
@@ -37,14 +35,6 @@ public class PipelineTest {
         GithubReader githubReader = new GithubReader(new RestReader(githubConf), branchName);
         return new Application(githubReader);
     }
-
-
-
-
-
-
-
-
 
 
 }

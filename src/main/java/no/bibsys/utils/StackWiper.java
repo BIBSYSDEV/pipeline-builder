@@ -71,7 +71,7 @@ public class StackWiper {
     }
 
     private void deleteRoles(PipelineConfiguration config) {
-        RoleManager roleManager=new RoleManager(config);
+        RoleManager roleManager = new RoleManager(config);
         roleManager.deleteRole();
 
     }

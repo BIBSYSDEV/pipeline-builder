@@ -3,13 +3,13 @@
   <Appenders>
     <Lambda name="Lambda">
       <PatternLayout>
-        <pattern> %m</pattern>
+        <pattern>%m</pattern>
       </PatternLayout>
     </Lambda>
   </Appenders>
   <Loggers>
     <Root level="info">
-      <AppenderRef ref="Lambda" />
+      <AppenderRef ref="Lambda"/>
     </Root>
   </Loggers>
 </Configuration>

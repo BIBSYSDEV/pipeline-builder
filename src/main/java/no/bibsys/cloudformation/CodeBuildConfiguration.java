@@ -9,7 +9,7 @@ public class CodeBuildConfiguration extends CloudFormationConfigurable {
 
     public CodeBuildConfiguration(String repositoryName, String branchName) {
         super(repositoryName, branchName);
-        this.buildProjectName = format(projectId, normalizedBranchName );
+        this.buildProjectName = format(projectId, normalizedBranchName);
         this.outputArtifact = format(projectId, normalizedBranchName, "codeBuildArtifact");
         this.cacheBucket = initCacheBucket();
     }

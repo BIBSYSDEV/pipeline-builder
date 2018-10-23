@@ -15,15 +15,15 @@ public class RestReader {
     private final transient GithubConf githubConf;
     private final transient IoUtils ioUtils;
 
-    public RestReader(GithubConf githubConf){
-        this.githubConf=githubConf;
-        this.ioUtils=new IoUtils();
+    public RestReader(GithubConf githubConf) {
+        this.githubConf = githubConf;
+        this.ioUtils = new IoUtils();
     }
 
-    public  String readRest(String url) throws IOException {
+    public String readRest(String url) throws IOException {
         CloseableHttpClient httpClient = HttpClients.createMinimal();
         HttpGet get = new HttpGet(url);
-        get.setHeader(new BasicHeader("Authentication", "token "+githubConf.getOauth()));
+        get.setHeader(new BasicHeader("Authentication", "token " + githubConf.getOauth()));
         get.setHeader(new BasicHeader("Accept", "application/vnd.github.v3+json"));
         CloseableHttpResponse response = httpClient.execute(get);
         HttpEntity responseEntity = response.getEntity();

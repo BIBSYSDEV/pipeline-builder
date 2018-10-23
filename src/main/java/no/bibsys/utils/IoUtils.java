@@ -32,7 +32,7 @@ public class IoUtils {
 
 
     public String fileAsString(Path path) throws IOException {
-        InputStream fileInputStream= Files.newInputStream(path);
+        InputStream fileInputStream = Files.newInputStream(path);
         return streamToString(fileInputStream);
     }
 

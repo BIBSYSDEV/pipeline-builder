@@ -47,13 +47,15 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
 
     @Test
     public void lambdaTrustRoeleShouldContainProjectId() {
-        assertThat(conf.getPipelineConfiguration().getLambdaTrustRolename(), containsString(projectId));
+        assertThat(conf.getPipelineConfiguration().getLambdaTrustRolename(),
+            containsString(projectId));
     }
 
 
     @Test
     public void lambdaTrustRoeleShouldContainShortBranch() {
-        assertThat(conf.getPipelineConfiguration().getLambdaTrustRolename(), containsString(normalizedBranch));
+        assertThat(conf.getPipelineConfiguration().getLambdaTrustRolename(),
+            containsString(normalizedBranch));
     }
 
 
@@ -93,25 +95,24 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
     }
 
     @Test
-    public void shortBrancNameShouldComplyToAmazonRestrctricions(){
-        Matcher matcher=amazonPattern.matcher(conf.getNormalizedBranchName());
-        assertThat(matcher.matches(),is(equalTo(true)));
+    public void shortBrancNameShouldComplyToAmazonRestrctricions() {
+        Matcher matcher = amazonPattern.matcher(conf.getNormalizedBranchName());
+        assertThat(matcher.matches(), is(equalTo(true)));
 
     }
 
 
     @Test
-    public void stackNamesShouldComplyToAmazonRestrctricions(){
+    public void stackNamesShouldComplyToAmazonRestrctricions() {
 
-        Matcher matcher=amazonPattern.matcher(conf.getPipelineStackName());
-        assertThat(matcher.matches(),is(equalTo(true)));
-        matcher=amazonPattern.matcher(conf.getPipelineConfiguration().getTestServiceStack());
-        assertThat(matcher.matches(),is(equalTo(true)));
-        matcher=amazonPattern.matcher(conf.getPipelineConfiguration().getFinalServiceStack());
-        assertThat(matcher.matches(),is(equalTo(true)));
+        Matcher matcher = amazonPattern.matcher(conf.getPipelineStackName());
+        assertThat(matcher.matches(), is(equalTo(true)));
+        matcher = amazonPattern.matcher(conf.getPipelineConfiguration().getTestServiceStack());
+        assertThat(matcher.matches(), is(equalTo(true)));
+        matcher = amazonPattern.matcher(conf.getPipelineConfiguration().getFinalServiceStack());
+        assertThat(matcher.matches(), is(equalTo(true)));
 
     }
-
 
 
 }

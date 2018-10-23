@@ -44,9 +44,10 @@ public class SimpleHandler extends HandlerHelper<String, String> {
 
 
     private GithubReader initGithubReader(PullRequest pullRequest) throws IOException {
-        GithubConf githubConf=new GithubConf(pullRequest.getOwner(),pullRequest.getRepositoryName(),new Environment());
-        RestReader restReader=new RestReader(githubConf);
-        return new GithubReader(restReader,pullRequest.getBranch());
+        GithubConf githubConf = new GithubConf(pullRequest.getOwner(),
+            pullRequest.getRepositoryName(), new Environment());
+        RestReader restReader = new RestReader(githubConf);
+        return new GithubReader(restReader, pullRequest.getBranch());
     }
 
 
@@ -57,13 +58,12 @@ public class SimpleHandler extends HandlerHelper<String, String> {
     }
 
     protected void createStacks(GithubReader reader)
-        throws IOException{
+        throws IOException {
 
         Application application = new Application(reader);
         application.createStacks();
 
     }
-
 
 
 }

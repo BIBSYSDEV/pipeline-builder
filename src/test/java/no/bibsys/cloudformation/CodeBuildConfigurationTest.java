@@ -2,12 +2,12 @@ package no.bibsys.cloudformation;
 
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import org.junit.Test;
 
-public class CodeBuildConfigurationTest extends  ConfigurationTests{
+public class CodeBuildConfigurationTest extends ConfigurationTests {
 
     public CodeBuildConfigurationTest() throws IOException {
         super();
@@ -15,15 +15,14 @@ public class CodeBuildConfigurationTest extends  ConfigurationTests{
 
     @Test
     public void codeBuildProjectNameShouldNotIncludeTheBranchString() {
-        String buildProjecName=conf.getCodeBuildConfiguration().getBuildProjectName();
+        String buildProjecName = conf.getCodeBuildConfiguration().getBuildProjectName();
         namingConventions(buildProjecName);
     }
 
 
-
     @Test
     public void getOutputArtifact() {
-        String outputArtifact=conf.getCodeBuildConfiguration().getOutputArtifact();
+        String outputArtifact = conf.getCodeBuildConfiguration().getOutputArtifact();
         namingConventions(outputArtifact);
 
 
@@ -31,7 +30,7 @@ public class CodeBuildConfigurationTest extends  ConfigurationTests{
 
     @Test
     public void getCacheBucket() {
-        String bucketName=conf.getCodeBuildConfiguration().getCacheBucket();
+        String bucketName = conf.getCodeBuildConfiguration().getCacheBucket();
         namingConventions(bucketName);
     }
 

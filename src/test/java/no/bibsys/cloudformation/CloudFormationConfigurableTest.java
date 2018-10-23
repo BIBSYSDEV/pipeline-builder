@@ -14,31 +14,31 @@ import org.junit.Test;
 public class CloudFormationConfigurableTest extends ConfigurationTests {
 
 
-
     public CloudFormationConfigurableTest() throws IOException {
         super();
     }
 
 
     @Test
-    public void normalizedBranchShouldNotExceedPredefinedLength(){
+    public void normalizedBranchShouldNotExceedPredefinedLength() {
         assertThat(conf.getNormalizedBranchName().length(),
             is(not(greaterThan(CloudFormationConfigurable.NORMALIZED_BRANCH_MAX_LENGTH))));
     }
 
 
     @Test
-    public void projectIdShoulNotContainedUnderscores(){
-        assertThat(repoName,containsString("_"));
-        assertThat(repoName,is(equalTo("REPOSITORY_NAME")));
-        assertThat(projectId,not(containsString("_")));
+    public void projectIdShoulNotContainedUnderscores() {
+        assertThat(repoName, containsString("_"));
+        assertThat(repoName, is(equalTo("REPOSITORY_NAME")));
+        assertThat(projectId, not(containsString("_")));
 
         String[] tokens = projectId.split("-");
-        Arrays.stream(tokens).forEach(token->{
-                assertThat(token.length(),is(not(greaterThan(CloudFormationConfigurable.MAX_PROJECT_WORD_LENGTH))));
-            });
+        Arrays.stream(tokens).forEach(token -> {
+            assertThat(token.length(),
+                is(not(greaterThan(CloudFormationConfigurable.MAX_PROJECT_WORD_LENGTH))));
+        });
 
-        assertThat(projectId,is(equalTo("rep-nam")));
+        assertThat(projectId, is(equalTo("rep-nam")));
 
     }
 }

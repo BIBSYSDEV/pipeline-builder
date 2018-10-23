@@ -13,23 +13,22 @@ public final class JsonUtils {
         throw new UnsupportedOperationException();
     }
 
-    public static ObjectMapper newJsonParser(){
-        JsonFactory jsonFactory=new JsonFactory()
-            .configure(Feature.ALLOW_COMMENTS,true)
-            .configure(Feature.ALLOW_YAML_COMMENTS,true);
+    public static ObjectMapper newJsonParser() {
+        JsonFactory jsonFactory = new JsonFactory()
+            .configure(Feature.ALLOW_COMMENTS, true)
+            .configure(Feature.ALLOW_YAML_COMMENTS, true);
         return new ObjectMapper(jsonFactory);
     }
 
 
     public static String removeComments(String jsonWithComments) throws IOException {
-        ObjectMapper mapper= newJsonParser();
+        ObjectMapper mapper = newJsonParser();
         JsonNode jsonNode = mapper.readTree(jsonWithComments);
-        String  validJson=mapper.writeValueAsString(jsonNode);
+        String validJson = mapper.writeValueAsString(jsonNode);
 
-        return  validJson;
+        return validJson;
 
     }
-
 
 
 }

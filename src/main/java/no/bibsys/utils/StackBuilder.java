@@ -17,15 +17,15 @@ import no.bibsys.roles.RoleManager;
 public class StackBuilder {
 
 
-    private final transient IoUtils ioUtils=new IoUtils();
+    private final transient IoUtils ioUtils = new IoUtils();
 
     private final transient StackWiper stackWiper;
     private final transient GithubReader githubReader;
-    private  transient RoleManager roleManager;
+    private transient RoleManager roleManager;
 
 
-    public StackBuilder(StackWiper wiper,GithubReader githubReader){
-        this.stackWiper=wiper;
+    public StackBuilder(StackWiper wiper, GithubReader githubReader) {
+        this.stackWiper = wiper;
         this.githubReader = githubReader;
 
 
@@ -48,11 +48,11 @@ public class StackBuilder {
     }
 
 
-
     private void createPipelineStack(PipelineStackConfiguration pipelineStackConfiguration)
         throws IOException {
-        String lambdaTrustRoleArn=createLambdaTrustRole(pipelineStackConfiguration);
-        CreateStackRequest createStackRequest = createStackRequest(pipelineStackConfiguration,lambdaTrustRoleArn);
+        String lambdaTrustRoleArn = createLambdaTrustRole(pipelineStackConfiguration);
+        CreateStackRequest createStackRequest = createStackRequest(pipelineStackConfiguration,
+            lambdaTrustRoleArn);
         AmazonCloudFormation acf = AmazonCloudFormationClientBuilder.defaultClient();
         acf.createStack(createStackRequest);
     }
@@ -60,13 +60,11 @@ public class StackBuilder {
 
     /**
      * Creates the role that the final application will use to access Amazon resources when running.
-     * The assume policy and the access policy should be available in the git repository as separate json files.
-     *
-     *
-     * @param pipelineStackConfiguration
+     * The assume policy and the access policy should be available in the git repository as separate
+     * json files.
      */
     private String createLambdaTrustRole(PipelineStackConfiguration pipelineStackConfiguration) {
-        roleManager=new RoleManager(pipelineStackConfiguration.getPipelineConfiguration());
+        roleManager = new RoleManager(pipelineStackConfiguration.getPipelineConfiguration());
         return roleManager.createRole().getArn();
 
     }
@@ -91,11 +89,9 @@ public class StackBuilder {
         parameters.add(newParameter("PipelineName",
             pipelineStack.getPipelineConfiguration().getPipelineName()));
 
-
         parameters.add(newParameter("PipelineBucketname", pipelineStack.getBucketName()));
 
         parameters.add(newParameter("PipelineRolename", pipelineStack.getPipelineRoleName()));
-
 
         parameters.add(newParameter("LambdaTrustRoleArn",
             lambdaTrustRoleArn));
@@ -107,7 +103,8 @@ public class StackBuilder {
 
         parameters.add(newParameter("ProjectId", pipelineStack.getProjectId()));
         parameters.add(newParameter("ProjectBranch", pipelineStack.getBranchName()));
-        parameters.add(newParameter("NormalizedBranchName", pipelineStack.getNormalizedBranchName()));
+        parameters
+            .add(newParameter("NormalizedBranchName", pipelineStack.getNormalizedBranchName()));
 
         parameters.add(newParameter("CodebuildOutputArtifact",
             pipelineStack.getCodeBuildConfiguration().getOutputArtifact()));
