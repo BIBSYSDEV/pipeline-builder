@@ -71,7 +71,7 @@ dependencies {
     compile group: 'com.amazonaws', name: 'aws-lambda-java-core', version: '+'
 
     //libraries for more expressive testing
-    testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
+    testCompile group: 'org.hamcrest', name: 'hamcrest-junit', version: '2.0.0.0'
 
     //JUnit should be the same version as spring
     testCompile group: 'junit', name: 'junit', version: '4.12'
