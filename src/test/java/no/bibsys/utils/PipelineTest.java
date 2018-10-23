@@ -10,10 +10,10 @@ import org.junit.Test;
 
 public class PipelineTest {
 
-    private String branchName = "autreg-54-do-not-delete-prod-stack";
-    private String repoName = "authority-registry-infrastructure";
+    private String branchName = "autreg-54-dont-delete-prod";
+    private String repoName = "authority-registry";
     private String repoOwner = "BIBSYSDEV";
-    /*lalalalalaa*/
+
 
 
     @Test
