@@ -344,8 +344,8 @@ Resources:
             Owner: AWS
             Provider: Manual
             Version: 1
-          RunOrder: 4
-        - Name: SecondDeleteTestStack
+          RunOrder: 3
+        - Name: DeleteTestStack
           ActionTypeId:
             Category: Deploy
             Owner: AWS
@@ -355,7 +355,7 @@ Resources:
             ActionMode: DELETE_ONLY
             RoleArn: !GetAtt CreateStackRole.Arn
             StackName: !Ref PipelineTestServiceStackName
-          RunOrder: 3
+          RunOrder: 4
 
       - Name: ProdStack
         Actions:
