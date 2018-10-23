@@ -22,7 +22,7 @@ Parameters:
     Type: String
   PipelineName:
     Type: String
-  PipelineLambdaTrustRoleName:
+  PipelineLambdaTrustArn:
     Type: String
   PipelineTestServiceStackName:
     Type: String

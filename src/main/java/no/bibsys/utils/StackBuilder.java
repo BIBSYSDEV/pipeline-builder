@@ -5,6 +5,7 @@ import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
 import com.amazonaws.services.cloudformation.model.Capability;
 import com.amazonaws.services.cloudformation.model.CreateStackRequest;
 import com.amazonaws.services.cloudformation.model.Parameter;
+import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -20,11 +21,13 @@ public class StackBuilder {
 
     private final transient StackWiper stackWiper;
     private final transient GithubReader githubReader;
+    private  transient RoleManager roleManager;
 
 
     public StackBuilder(StackWiper wiper,GithubReader githubReader){
         this.stackWiper=wiper;
         this.githubReader = githubReader;
+
 
     }
 
@@ -40,7 +43,7 @@ public class StackBuilder {
 
     public PipelineStackConfiguration pipelineStackConfiguration()
         throws IOException {
-        return new PipelineStackConfiguration( githubReader);
+        return new PipelineStackConfiguration(githubReader);
 
     }
 
@@ -48,8 +51,8 @@ public class StackBuilder {
 
     private void createPipelineStack(PipelineStackConfiguration pipelineStackConfiguration)
         throws IOException {
-        createLambdaTrustRole(pipelineStackConfiguration);
-        CreateStackRequest createStackRequest = createStackRequest(pipelineStackConfiguration);
+        String lambdaTrustRoleArn=createLambdaTrustRole(pipelineStackConfiguration);
+        CreateStackRequest createStackRequest = createStackRequest(pipelineStackConfiguration,lambdaTrustRoleArn);
         AmazonCloudFormation acf = AmazonCloudFormationClientBuilder.defaultClient();
         acf.createStack(createStackRequest);
     }
@@ -62,14 +65,19 @@ public class StackBuilder {
      *
      * @param pipelineStackConfiguration
      */
-    private void createLambdaTrustRole(PipelineStackConfiguration pipelineStackConfiguration) {
-        RoleManager roleManager=new RoleManager(pipelineStackConfiguration.getPipelineConfiguration());
-        roleManager.createRole();
+    private String createLambdaTrustRole(PipelineStackConfiguration pipelineStackConfiguration) {
+        roleManager=new RoleManager(pipelineStackConfiguration.getPipelineConfiguration());
+        return roleManager.createRole().getArn();
+
     }
 
 
     private CreateStackRequest createStackRequest(
-        PipelineStackConfiguration pipelineStack) throws IOException {
+        PipelineStackConfiguration pipelineStack,
+        String lambdaTrustRoleArn) throws IOException {
+
+        Preconditions.checkNotNull(roleManager);
+
         CreateStackRequest createStackRequest = new CreateStackRequest();
         createStackRequest.setStackName(pipelineStack.getPipelineStackName());
         List<Parameter> parameters = new ArrayList<>();
@@ -87,8 +95,10 @@ public class StackBuilder {
         parameters.add(newParameter("PipelineBucketname", pipelineStack.getBucketName()));
 
         parameters.add(newParameter("PipelineRolename", pipelineStack.getPipelineRoleName()));
-        parameters.add(newParameter("PipelineLambdaTrustRoleName",
-            pipelineStack.getPipelineConfiguration().getLambdaTrustRolename()));
+
+
+        parameters.add(newParameter("PipelineLambdaTrustRoleArn",
+            lambdaTrustRoleArn));
 
         parameters.add(newParameter("CreateStackRolename", pipelineStack.getCreateStackRoleName()));
 

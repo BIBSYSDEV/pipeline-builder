@@ -1,5 +1,6 @@
 package no.bibsys;
 
+import com.google.common.base.Preconditions;
 import java.io.IOException;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.git.github.GithubConf;
@@ -47,16 +48,10 @@ public class Application {
 
 
     private void checkNulls() {
+        Preconditions.checkNotNull(repoName);
+        Preconditions.checkNotNull(branch);
+        Preconditions.checkNotNull(repoOwner);
 
-        if (repoName == null) {
-            throw new IllegalArgumentException("repoName is null");
-        }
-        if (branch == null) {
-            throw new IllegalArgumentException("branch is null");
-        }
-        if (repoOwner == null) {
-            throw new IllegalArgumentException("repoOwner is null");
-        }
 
     }
 
