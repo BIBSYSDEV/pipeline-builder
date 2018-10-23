@@ -16,6 +16,7 @@ public class CloudFormationConfigurableTest extends ConfigurationTests {
 
 
     public CloudFormationConfigurableTest() throws IOException {
+        super();
     }
 
 
