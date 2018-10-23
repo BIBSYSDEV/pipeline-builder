@@ -97,7 +97,7 @@ public class StackBuilder {
         parameters.add(newParameter("PipelineRolename", pipelineStack.getPipelineRoleName()));
 
 
-        parameters.add(newParameter("PipelineLambdaTrustRoleArn",
+        parameters.add(newParameter("LambdaTrustRoleArn",
             lambdaTrustRoleArn));
 
         parameters.add(newParameter("CreateStackRolename", pipelineStack.getCreateStackRoleName()));
