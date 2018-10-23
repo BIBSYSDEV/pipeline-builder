@@ -8,16 +8,15 @@ import com.fasterxml.jackson.databind.node.TreeTraversingParser;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Optional;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 
 public class ApiMessageParser<T> {
 
-    private static final  Logger logger = LogManager.getLogger(ApiMessageParser.class);
+//    private static final Logger logger = LogManager.getLogger(ApiMessageParser.class);
 
     public T getBodyElementFromJson(String inputString, Class<T> tclass) throws IOException {
         JsonFactory jsonFactory = new JsonFactory();
+
         ObjectMapper mapper = new ObjectMapper(jsonFactory);
         Optional<JsonNode> tree = Optional
             .ofNullable(mapper.readTree(new StringReader(inputString)));
@@ -48,14 +47,10 @@ public class ApiMessageParser<T> {
     }
 
 
-    private T parseBody(ObjectMapper mapper, String json, Class<T> tclass) {
-        try {
-            T object = mapper.readValue(json, tclass);
-            return object;
-        } catch (IOException e) {
-            logger.error("Error parsing json string:{}", json);
-            logger.error(e.getMessage());
-            return null;
-        }
+    private T parseBody(ObjectMapper mapper, String json, Class<T> tclass) throws IOException {
+
+        T object = mapper.readValue(json, tclass);
+        return object;
+
     }
 }

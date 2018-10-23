@@ -71,7 +71,7 @@ public class GithubConf {
         if (getSecretValueResult.map(result->result.getSecretString()).isPresent()) {
             String secret = getSecretValueResult.get().getSecretString();
             String value = mapper.readTree(secret)
-                .findValuesAsText("githubauth").stream().findFirst().orElse(null);
+                .findValuesAsText("githubapikey").stream().findFirst().orElse(null);
             return value;
         }
         return null;
@@ -79,7 +79,7 @@ public class GithubConf {
 
     private Optional<GetSecretValueResult> readAuthKey(AWSSecretsManager client) {
         GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest()
-            .withSecretId("githubauth");
+            .withSecretId("githubapikey");
         Optional<GetSecretValueResult> getSecretValueResult=Optional.empty();
         try {
             getSecretValueResult = Optional.ofNullable(client
