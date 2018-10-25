@@ -6,6 +6,7 @@ import no.bibsys.git.github.GithubConf;
 import no.bibsys.git.github.GithubReader;
 import no.bibsys.git.github.RestReader;
 import no.bibsys.utils.MockEnvironment;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class GithubReaderTest {
@@ -27,6 +28,7 @@ public class GithubReaderTest {
 
 
     @Test
+    @Ignore()
     public void testConnection() throws IOException {
         String result = githubReader
             .readFile(Paths.get("lambdaTrustRoleConfig", "lambdaTrustRolePolicy.json"));
