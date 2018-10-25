@@ -31,13 +31,7 @@ Resources:
         paths:
           /final/buildbranch:
             post:
-              responses:
-                default:
-                  description: A simple string response
-                  content:
-                    text/plain:
-                      schema:
-                        type: string
+              responses: {}
               requestBody:
                 content:
                   'application/json':
@@ -62,7 +56,6 @@ Resources:
                       action: create
               x-amazon-apigateway-integration:
                 uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GithubHook.Arn}/invocations"
-                responses: {}
                 httpMethod: "POST"
                 type: aws_proxy
                 passthroughBehavior: WHEN_NO_TEMPLATES
