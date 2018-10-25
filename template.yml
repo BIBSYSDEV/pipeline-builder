@@ -27,7 +27,7 @@ Resources:
       DefinitionBody:
         openapi: 3.0.0
         info:
-          title: A titleless API
+          title: CreateStacks
           description: Small api to build a branch
           version: "0.1"
         paths:
@@ -40,10 +40,10 @@ Resources:
                     text/plain:
                       schema:
                         type: string
-            x-amazon-apigateway-integration:
-              uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GithubHook.Arn}/invocations"
-              httpMethod: "POST"
-              type: aws_proxy
+              x-amazon-apigateway-integration:
+                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GithubHook.Arn}/invocations"
+                httpMethod: "POST"
+                type: aws_proxy
               passthroughBehavior: when_no_match
           /buildbranch:
             post:
