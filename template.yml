@@ -45,7 +45,7 @@ Resources:
                 uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GithubHook.Arn}/invocations"
                 httpMethod: "POST"
                 type: aws_proxy
-              passthroughBehavior: when_no_match
+                passthroughBehavior: when_no_match
           /buildbranch:
             post:
               operationId: insertEntry
