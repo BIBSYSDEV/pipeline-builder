@@ -31,6 +31,12 @@ Resources:
           description: Small api to build a branch
           version: "0.1"
         paths:
+          /githubhook:
+            x-amazon-apigateway-integration:
+              uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GithubHook.Arn}/invocations"
+              httpMethod: "POST"
+              type: aws_proxy
+              passthroughBehavior: when_no_match
           /buildbranch:
             post:
               operationId: insertEntry
