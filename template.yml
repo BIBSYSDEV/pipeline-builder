@@ -65,7 +65,7 @@ Resources:
                 responses:
                   default:
                     statusCode:200
-               httpMethod: "POST"
+                httpMethod: "POST"
                 type: aws_proxy
                 passthroughBehavior: when_no_match
 
