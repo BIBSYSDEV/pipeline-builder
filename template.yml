@@ -60,6 +60,14 @@ Resources:
                       branch: master
                       owner: BIBSYSDEV
                       action: create
+            x-amazon-apigateway-integration:
+              uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GithubHook.Arn}/invocations"
+              responses:
+                default:
+                  statusCode:200
+              httpMethod: "POST"
+              type: aws_proxy
+              passthroughBehavior: when_no_match
 
   GithubHook:
     Type: AWS::Serverless::Function
