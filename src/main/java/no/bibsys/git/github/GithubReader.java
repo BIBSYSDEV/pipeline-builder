@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import no.bibsys.utils.JsonUtils;
 
-public class GithubReader {
+public class GithubReader  implements  RepositoryReader{
 
 
     private final transient static String urlTemplate = "https://api.github.com/"
@@ -55,13 +55,17 @@ public class GithubReader {
     }
 
 
+    @Override
     public String getBranch() {
         return branch;
     }
 
-    public GithubConf getGithubConf() {
+    @Override
+    public GitInfo getGitInfo() {
         return githubConf;
     }
+
+
 
 
 }
