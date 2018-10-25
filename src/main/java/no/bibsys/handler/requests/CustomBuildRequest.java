@@ -9,7 +9,7 @@ public class CustomBuildRequest {
     public static final String CREATE = "create";
     public static final String DELETE = "delete";
 
-    private String repositoryName;
+    private String repository;
     private String branch;
     private String owner;
     private String action;
@@ -31,12 +31,12 @@ public class CustomBuildRequest {
         this.owner = owner;
     }
 
-    public String getRepositoryName() {
-        return repositoryName;
+    public String getRepository() {
+        return repository;
     }
 
-    public void setRepositoryName(String repositoryName) {
-        this.repositoryName = repositoryName;
+    public void setRepository(String repository) {
+        this.repository = repository;
     }
 
     public String getBranch() {

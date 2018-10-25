@@ -38,7 +38,7 @@ public class CustomBranchBuilder extends SimpleHandler {
 
 
     private GithubReader initGithubReader(CustomBuildRequest request) throws IOException {
-        GithubConf githubConf = new GithubConf(request.getOwner(), request.getRepositoryName(),
+        GithubConf githubConf = new GithubConf(request.getOwner(), request.getRepository(),
             new Environment());
         return new GithubReader(new RestReader(githubConf), request.getBranch());
     }
