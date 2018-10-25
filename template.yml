@@ -34,7 +34,13 @@ Resources:
           /buildbranch:
             post:
               operationId: insertEntry
-              responses: {}
+              responses:
+                default:
+                  description: A simple string response
+                  content:
+                    text/plain:
+                      schema:
+                        type: string
               requestBody:
                 content:
                   application/json :
@@ -59,7 +65,7 @@ Resources:
                       action: create
               x-amazon-apigateway-integration:
 #                uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-1:933878624978:function:aut-reg-inf-master-serviceStack-prod-BuildBranch-Q0C8OEDSI0N5/invocations"
-                uri: 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${BuildBranch.Arn}/invocations'
+                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${BuildBranch.Arn}/invocations"
                 httpMethod: "POST"
                 type: aws_proxy
                 passthroughBehavior: when_no_match
