@@ -34,7 +34,7 @@ Resources:
               responses: {}
               requestBody:
                 content:
-                  'application/json':
+                  application/json :
                     schema:
                       properties:
                         repositoryName:
