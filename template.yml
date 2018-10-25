@@ -19,6 +19,8 @@ Parameters:
 Resources:
 
   RestApi:
+    DependsOn:
+      - BuildBranch
     Type: AWS::Serverless::Api
     Properties:
       StageName: !Ref Stage
