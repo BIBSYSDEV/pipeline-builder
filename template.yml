@@ -22,6 +22,45 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: !Ref Stage
+      DefinitionBody:
+        openapi: 3.0.0
+        info:
+          title: A titleless API
+          description: Small api to build a branch
+          version: "0.1"
+        paths:
+          /final/buildbranch:
+            post:
+              responses:
+                default:
+                  description: A simple string response
+                  content:
+                    text/plain:
+                      schema:
+                        type: string
+              requestBody:
+                content:
+                  'application/json':
+                    schema:
+                      properties:
+                        repositoryName:
+                          description: The name of the repository
+                          type: string
+                        branch:
+                          description: The name of the branch
+                          type: string
+                        owner:
+                          description: The owner
+                          type: string
+                        action:
+                          description: create or update
+                          type: string
+                    example:
+                      repositoryName: 'authority-registry'
+                      branch: master
+                      owner: BIBSYSDEV
+                      action: create
+
   GithubHook:
     Type: AWS::Serverless::Function
     Properties:
