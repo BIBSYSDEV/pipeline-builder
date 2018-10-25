@@ -32,6 +32,14 @@ Resources:
           version: "0.1"
         paths:
           /githubhook:
+            post:
+              responses:
+                default:
+                  description: A simple string response
+                  content:
+                    text/plain:
+                      schema:
+                        type: string
             x-amazon-apigateway-integration:
               uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GithubHook.Arn}/invocations"
               httpMethod: "POST"
