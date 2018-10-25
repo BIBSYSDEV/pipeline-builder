@@ -1,0 +1,83 @@
+//This file should be parsed by a parser that allows comments
+{
+  "Version"  : "2012-10-17",
+  "Statement": [
+    {
+      "Action"  : [
+        "cloudformation:CreateStack",
+        "cloudformation:DescribeStacks",
+        "cloudformation:DeleteStack",
+        "codebuild:CreateProject",
+        "codebuild:DeleteProject",
+        "codepipeline:CreatePipeline",
+        "codepipeline:DeletePipeline",
+        "codepipeline:GetPipeline",
+        "codepipeline:GetPipelineState",
+        "iam:AttachRolePolicy",
+        "iam:CreateRole",
+        "iam:CreateRolePolicy",
+        "iam:DeleteRole",
+        "iam:DeleteRolePolicy",
+        "iam:DetachRolePolicy",
+        "iam:GetRole",
+        "iam:PassRole",
+        "iam:PutRolePolicy",
+        "logs:DeleteLogGroup",
+        "logs:DescribeLogGroups",
+        "s3:CreateBucket",
+        "s3:DeleteBucket",
+        "s3:DeleteObject",
+        "s3:DeleteObjectVersion",
+        "s3:GetEncryptionConfiguration",
+        "s3:ListBucket",
+        "s3:ListBucketVersions",
+        "s3:PutObject",
+        "s3:PutBucketVersioning",
+        "s3:PutEncryptionConfiguration",
+        "s3:PutObject"
+      ],
+      "Resource": "*",
+      "Effect"  : "Allow"
+    },
+    {
+      "Action"  : [
+        "secretsmanager:GetSecretValue",
+        "ssm:GetParameter"
+      ],
+      "Resource": "*",
+      "Effect"  : "Allow"
+    },
+    //The rest of the policies are for all lambda functions
+    {
+      "Action"  : [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "*",
+      "Effect"  : "Allow"
+    },
+    {
+      "Effect"  : "Allow",
+      "Action"  : [
+        "s3:GetObject"
+      ],
+      "Resource": "arn:aws:s3:::*/AWSLogs/*/Config/*"
+    },
+    {
+      "Effect"  : "Allow",
+      "Action"  : [
+        "config:Put*",
+        "config:Get*",
+        "config:List*",
+        "config:Describe*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+
+
+
+
+

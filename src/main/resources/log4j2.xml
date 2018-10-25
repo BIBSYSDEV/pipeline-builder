@@ -3,13 +3,13 @@
   <Appenders>
     <Lambda name="Lambda">
       <PatternLayout>
-        <pattern> %d{ISO8601} %X{AWSRequestId} %-5p %c{1}:%L - %m%n</pattern>
+        <pattern>%m</pattern>
       </PatternLayout>
     </Lambda>
   </Appenders>
   <Loggers>
     <Root level="info">
-      <AppenderRef ref="Lambda" />
+      <AppenderRef ref="Lambda"/>
     </Root>
   </Loggers>
 </Configuration>

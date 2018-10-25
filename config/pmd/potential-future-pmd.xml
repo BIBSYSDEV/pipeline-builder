@@ -23,7 +23,7 @@
 
 
     <!-- TODO re-evaluate the exclusion of this rule -->
-    <exclude name="AvoidPrintStackTrace" />
+    <exclude name="AvoidPrintStackTrace"/>
 
   </rule>
 
@@ -70,7 +70,7 @@
     <exclude name="LoosePackageCoupling"/>
     <exclude name="LawOfDemeter"/>
     <exclude name="DataClass"/>
-    <exclude name="AvoidCatchingGenericException" />
+    <exclude name="AvoidCatchingGenericException"/>
 
 
     <!-- This rule does not allow the Lambda Handler to cast  the ContainerInitializationException

@@ -13,9 +13,9 @@ public class PullRequest {
 
     private final transient JsonNode root;
     private final transient String action;
-    private  transient String branch;
     private final transient String repositoryName;
     private final transient String owner;
+    private transient String branch;
 
 
     public PullRequest(String jsonString) throws IOException {
@@ -51,10 +51,13 @@ public class PullRequest {
         return branch;
     }
 
+    public void setBranch(String branch) {
+        this.branch = branch;
+    }
+
     public String getAction() {
         return action;
     }
-
 
     public String getRepositoryName() {
         return this.repositoryName;
@@ -67,11 +70,6 @@ public class PullRequest {
     @Override
     public String toString() {
         return String.join(":", getRepositoryName(), getBranch(), getAction());
-    }
-
-
-    public void setBranch(String branch){
-        this.branch=branch;
     }
 
 }

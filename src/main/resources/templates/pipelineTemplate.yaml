@@ -22,7 +22,7 @@ Parameters:
     Type: String
   PipelineName:
     Type: String
-  PipelineLambdaTrustRoleName:
+  LambdaTrustRoleArn:
     Type: String
   PipelineTestServiceStackName:
     Type: String
@@ -303,30 +303,6 @@ Resources:
 
       - Name: TestStack
         Actions:
-        -
-          Name: DeleteFinalStack
-          ActionTypeId:
-            Category: Deploy
-            Owner: AWS
-            Provider: CloudFormation
-            Version: '1'
-          Configuration:
-            ActionMode: DELETE_ONLY
-            RoleArn: !GetAtt CreateStackRole.Arn
-            StackName: !Ref PipelineFinalServiceStackName
-          RunOrder: 1
-
-        - Name: FirstDeleteTestStack
-          ActionTypeId:
-            Category: Deploy
-            Owner: AWS
-            Provider: CloudFormation
-            Version: '1'
-          Configuration:
-            ActionMode: DELETE_ONLY
-            RoleArn: !GetAtt CreateStackRole.Arn
-            StackName: !Ref PipelineTestServiceStackName
-          RunOrder: 2
         - Name: CreateTestStack
           ActionTypeId:
             Category: Deploy
@@ -342,12 +318,12 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
               !Sub
-            - '{"ProjectId":"${ProjectIdValue}", "Stage":"test", "Branch":"${NormalizedBranchName}", "LambdaTrustRolename": "${PipelineLambdaTrustRoleName}", "CodeBucket":"${S3Bucket}"}'
+            - '{"ProjectId":"${ProjectIdValue}", "Stage":"test", "Branch":"${NormalizedBranchName}", "LambdaTrustRoleArn": "${LambdaTrustRoleArn}", "CodeBucket":"${S3Bucket}"}'
             - { ProjectIdValue: !Ref ProjectId}
 
           InputArtifacts:
           - Name: !Ref CodebuildOutputArtifact
-          RunOrder: 3
+          RunOrder: 1
 
         - Name: ExecuteTestStack
           ActionTypeId:
@@ -361,15 +337,15 @@ Resources:
             StackName: !Ref PipelineTestServiceStackName
           InputArtifacts: []
           OutputArtifacts: []
-          RunOrder: 4
+          RunOrder: 2
         - Name: ManualReview
           ActionTypeId:
             Category: Approval # TODO: automated function tests
             Owner: AWS
             Provider: Manual
             Version: 1
-          RunOrder: 5       
-        - Name: SecondDeleteTestStack
+          RunOrder: 3
+        - Name: DeleteTestStack
           ActionTypeId:
             Category: Deploy
             Owner: AWS
@@ -379,7 +355,7 @@ Resources:
             ActionMode: DELETE_ONLY
             RoleArn: !GetAtt CreateStackRole.Arn
             StackName: !Ref PipelineTestServiceStackName
-          RunOrder: 6
+          RunOrder: 4
 
       - Name: ProdStack
         Actions:
@@ -398,12 +374,12 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
               !Sub
-            - '{"ProjectId":"${ProjectIdValue}", "Stage":"final", "Branch":"${NormalizedBranchName}" ,"LambdaTrustRolename": "${PipelineLambdaTrustRoleName}", "CodeBucket":"${S3Bucket}"}'
+            - '{"ProjectId":"${ProjectIdValue}", "Stage":"final", "Branch":"${NormalizedBranchName}" ,"LambdaTrustRoleArn": "${LambdaTrustRoleArn}", "CodeBucket":"${S3Bucket}"}'
             - { ProjectIdValue: !Ref ProjectId}
 
           InputArtifacts:
           - Name: !Ref CodebuildOutputArtifact
-          RunOrder: 2
+          RunOrder: 1
         - Name: ExecuteFinalStack
           ActionTypeId:
             Category: Deploy
@@ -416,4 +392,4 @@ Resources:
             StackName: !Ref PipelineFinalServiceStackName
           InputArtifacts: []
           OutputArtifacts: []
-          RunOrder: 3
+          RunOrder: 2

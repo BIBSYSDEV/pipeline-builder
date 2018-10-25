@@ -1,5 +1,9 @@
 package no.bibsys.handler.requests;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
+@JsonInclude(Include.NON_NULL)
 public class CustomBuildRequest {
 
     public static final String CREATE = "create";

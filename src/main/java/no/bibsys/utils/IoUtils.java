@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +26,14 @@ public class IoUtils {
             lines.add(line);
             line = reader.readLine();
         }
-        String output = String.join("", lines);
+        String output = String.join("\n", lines);
         return output;
+    }
+
+
+    public String fileAsString(Path path) throws IOException {
+        InputStream fileInputStream = Files.newInputStream(path);
+        return streamToString(fileInputStream);
     }
 
 

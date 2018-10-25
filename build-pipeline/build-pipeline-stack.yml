@@ -3,18 +3,18 @@ Description: A Java Spring web service deployed to AWS Lambda.
 Metadata:
   'AWS::CloudFormation::Interface':
     ParameterGroups:
-      - Label:
-          default: Application
-        Parameters:
-          - ProjectId
-          - AppName
-      - Label:
-          default: Source
-        Parameters:
-          - GitHubOwner
-          - GitHubRepo
-          - GitHubBranch
-          - GitHubOAuthToken
+    - Label:
+        default: Application
+      Parameters:
+      - ProjectId
+      - AppName
+    - Label:
+        default: Source
+      Parameters:
+      - GitHubOwner
+      - GitHubRepo
+      - GitHubBranch
+      - GitHubOAuthToken
   CodeBuildImage: 'aws/codebuild/eb-java-8-amazonlinux-64:2.4.3'
   CodeBuildImageOverride: 'aws/codebuild/eb-java-8-amazonlinux-64:2.4.3'
 Outputs:
@@ -22,13 +22,13 @@ Outputs:
     Description: AWS  role for AWS Lambda used for passRole to Lambda functions.
     Export:
       Name: !Join
-        - '-'
-        - - !Ref ProjectId
-          - !Ref 'AWS::Region'
-          - LambdaTrustRole
+      - '-'
+      - - !Ref ProjectId
+        - !Ref 'AWS::Region'
+        - LambdaTrustRole
     Value: !GetAtt
-      - LambdaTrustRole
-      - Arn
+    - LambdaTrustRole
+    - Arn
 Parameters:
   AppName:
     Description: Name of the application.
@@ -72,154 +72,154 @@ Resources:
     Properties:
       AssumeRolePolicyDocument:
         Statement:
-          - Action: 'sts:AssumeRole'
-            Effect: Allow
-            Principal:
-              Service:
-                - cloudformation.amazonaws.com
+        - Action: 'sts:AssumeRole'
+          Effect: Allow
+          Principal:
+            Service:
+            - cloudformation.amazonaws.com
       Path: /
       Policies:
-        - PolicyDocument:
-            Statement:
-              - Action:
-                  - 's3:PutObject'
-                  - 's3:GetObject'
-                  - 's3:GetObjectVersion'
-                Effect: Allow
-                Resource:
-                  - !Join
-                    - ''
-                    - - 'arn:aws:s3:::'
-                      - !Ref S3Bucket
-                  - !Join
-                    - ''
-                    - - 'arn:aws:s3:::'
-                      - !Ref S3Bucket
-                      - /*
-              - Action:
-                  - 'lambda:CreateFunction'
-                  - 'lambda:DeleteFunction'
-                  - 'lambda:AddPermission'
-                  - 'lambda:UpdateFunction'
-                  - 'lambda:UpdateFunctionCode'
-                  - 'lambda:GetFunction'
-                  - 'lambda:GetFunctionConfiguration'
-                  - 'lambda:UpdateFunctionConfiguration'
-                  - 'lambda:RemovePermission'
-                  - 'lambda:listTags'
-                  - 'lambda:TagResource'
-                  - 'lambda:UntagResource'
-                  - 'apigateway:*'
-                  - 'dynamodb:CreateTable'
-                  - 'dynamodb:DeleteTable'
-                  - 'dynamodb:DescribeTable'
-                  - 'kinesis:CreateStream'
-                  - 'kinesis:DeleteStream'
-                  - 'kinesis:DescribeStream'
-                  - 'sns:CreateTopic'
-                  - 'sns:DeleteTopic'
-                  - 'sns:ListTopics'
-                  - 'sns:GetTopicAttributes'
-                  - 'sns:SetTopicAttributes'
-                  - 's3:CreateBucket'
-                  - 's3:DeleteBucket'
-                  - 'config:DescribeConfigRules'
-                  - 'config:PutConfigRule'
-                  - 'config:DeleteConfigRule'
-                  - 'ssm:PutParameter'
-                  - 'ssm:DeleteParameter'
-                Effect: Allow
-                Resource: '*'
-              - Action:
-                  - 'iam:PassRole'
-                Effect: Allow
-                Resource:
-                  - !GetAtt
-                    - LambdaTrustRole
-                    - Arn
-              - Action:
-                  - 'cloudformation:CreateChangeSet'
-                Effect: Allow
-                Resource:
-                  - arn:aws:cloudformation:eu-west-1:aws:transform/Serverless-2016-10-31
-                  - arn:aws:cloudformation:eu-west-1:aws:transform/Include
-          PolicyName: CloudFormationRolePolicy
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - 's3:PutObject'
+            - 's3:GetObject'
+            - 's3:GetObjectVersion'
+            Effect: Allow
+            Resource:
+            - !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref S3Bucket
+            - !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref S3Bucket
+                - /*
+          - Action:
+            - 'lambda:CreateFunction'
+            - 'lambda:DeleteFunction'
+            - 'lambda:AddPermission'
+            - 'lambda:UpdateFunction'
+            - 'lambda:UpdateFunctionCode'
+            - 'lambda:GetFunction'
+            - 'lambda:GetFunctionConfiguration'
+            - 'lambda:UpdateFunctionConfiguration'
+            - 'lambda:RemovePermission'
+            - 'lambda:listTags'
+            - 'lambda:TagResource'
+            - 'lambda:UntagResource'
+            - 'apigateway:*'
+            - 'dynamodb:CreateTable'
+            - 'dynamodb:DeleteTable'
+            - 'dynamodb:DescribeTable'
+            - 'kinesis:CreateStream'
+            - 'kinesis:DeleteStream'
+            - 'kinesis:DescribeStream'
+            - 'sns:CreateTopic'
+            - 'sns:DeleteTopic'
+            - 'sns:ListTopics'
+            - 'sns:GetTopicAttributes'
+            - 'sns:SetTopicAttributes'
+            - 's3:CreateBucket'
+            - 's3:DeleteBucket'
+            - 'config:DescribeConfigRules'
+            - 'config:PutConfigRule'
+            - 'config:DeleteConfigRule'
+            - 'ssm:PutParameter'
+            - 'ssm:DeleteParameter'
+            Effect: Allow
+            Resource: '*'
+          - Action:
+            - 'iam:PassRole'
+            Effect: Allow
+            Resource:
+            - !GetAtt
+              - LambdaTrustRole
+              - Arn
+          - Action:
+            - 'cloudformation:CreateChangeSet'
+            Effect: Allow
+            Resource:
+            - arn:aws:cloudformation:eu-west-1:aws:transform/Serverless-2016-10-31
+            - arn:aws:cloudformation:eu-west-1:aws:transform/Include
+        PolicyName: CloudFormationRolePolicy
       RoleName: !Join
-        - '-'
-        - - !Ref ProjectId
-          - CloudFormation
+      - '-'
+      - - !Ref ProjectId
+        - CloudFormation
     Type: 'AWS::IAM::Role'
   CodeBuildPolicy:
     Description: Setting IAM policy for service role for Amazon EC2 instances
     Properties:
       PolicyDocument:
         Statement:
-          - Action:
-              - 'logs:CreateLogGroup'
-              - 'logs:CreateLogStream'
-              - 'logs:PutLogEvents'
-              - 'ssm:GetParameter'
-              - 'ssm:GetParameters'
-            Effect: Allow
-            Resource: '*'
-          - Action:
-              - 's3:PutObject'
-              - 's3:GetObject'
-              - 's3:GetObjectVersion'
-            Effect: Allow
-            Resource:
+        - Action:
+          - 'logs:CreateLogGroup'
+          - 'logs:CreateLogStream'
+          - 'logs:PutLogEvents'
+          - 'ssm:GetParameter'
+          - 'ssm:GetParameters'
+          Effect: Allow
+          Resource: '*'
+        - Action:
+          - 's3:PutObject'
+          - 's3:GetObject'
+          - 's3:GetObjectVersion'
+          Effect: Allow
+          Resource:
+          - !Join
+            - ''
+            - - 'arn:aws:s3:::'
+              - !Ref S3Bucket
+          - !Join
+            - ''
+            - - 'arn:aws:s3:::'
+              - !Ref S3Bucket
+              - /*
+        - Action:
+          - 'kms:GenerateDataKey*'
+          - 'kms:Encrypt'
+          - 'kms:Decrypt'
+          Effect: Allow
+          Resource:
+          - !Join
+            - ':'
+            - - 'arn:aws:kms'
+              - !Ref 'AWS::Region'
+              - !Ref 'AWS::AccountId'
               - !Join
-                - ''
-                - - 'arn:aws:s3:::'
-                  - !Ref S3Bucket
-              - !Join
-                - ''
-                - - 'arn:aws:s3:::'
-                  - !Ref S3Bucket
-                  - /*
-          - Action:
-              - 'kms:GenerateDataKey*'
-              - 'kms:Encrypt'
-              - 'kms:Decrypt'
-            Effect: Allow
-            Resource:
-              - !Join
-                - ':'
-                - - 'arn:aws:kms'
-                  - !Ref 'AWS::Region'
-                  - !Ref 'AWS::AccountId'
-                  - !Join
-                    - /
-                    - - alias
-                      - aws/s3
+                - /
+                - - alias
+                  - aws/s3
       PolicyName: CodeBuildPolicy
       Roles:
-        - !Ref CodeBuildRole
+      - !Ref CodeBuildRole
     Type: 'AWS::IAM::Policy'
   CodeBuildProject:
     DependsOn:
-      - CodeBuildPolicy
+    - CodeBuildPolicy
     Properties:
       Artifacts:
         Packaging: zip
         Type: codepipeline
       Description: !Join
-        - ''
-        - - 'CodeBuild Project for '
-          - !Ref AppName
+      - ''
+      - - 'CodeBuild Project for '
+        - !Ref AppName
       Environment:
         ComputeType: small
         EnvironmentVariables:
-          - Name: S3_BUCKET
-            Value: !Ref S3Bucket
-          - Name: PROJECT_ID
-            Value: !Ref ProjectId            
+        - Name: S3_BUCKET
+          Value: !Ref S3Bucket
+        - Name: PROJECT_ID
+          Value: !Ref ProjectId
         Image: 'aws/codebuild/eb-java-8-amazonlinux-64:2.4.3'
         Type: container
       Name: !Join
-        - '-'
-        - - !Ref ProjectId
-          - Build
+      - '-'
+      - - !Ref ProjectId
+        - Build
       ServiceRole: !Ref CodeBuildRole
       Source:
         Type: codepipeline
@@ -229,28 +229,28 @@ Resources:
     Type: 'AWS::CodeBuild::Project'
   CodeBuildTestProject:
     DependsOn:
-      - CodeBuildPolicy
+    - CodeBuildPolicy
     Properties:
       Artifacts:
         Packaging: zip
         Type: codepipeline
       Description: !Join
-        - ''
-        - - 'CodeBuild Test Project for '
-          - !Ref AppName
+      - ''
+      - - 'CodeBuild Test Project for '
+        - !Ref AppName
       Environment:
         ComputeType: small
         EnvironmentVariables:
-          - Name: S3_BUCKET
-            Value: !Ref S3Bucket
-          - Name: PROJECT_ID
-            Value: !Ref ProjectId
+        - Name: S3_BUCKET
+          Value: !Ref S3Bucket
+        - Name: PROJECT_ID
+          Value: !Ref ProjectId
         Image: 'aws/codebuild/nodejs:10.1.0'
         Type: container
       Name: !Join
-        - '-'
-        - - !Ref ProjectId
-          - Test
+      - '-'
+      - - !Ref ProjectId
+        - Test
       ServiceRole: !Ref CodeBuildRole
       Source:
         Type: codepipeline
@@ -264,372 +264,372 @@ Resources:
     Properties:
       AssumeRolePolicyDocument:
         Statement:
-          - Action: 'sts:AssumeRole'
-            Effect: Allow
-            Principal:
-              Service: codebuild.amazonaws.com
+        - Action: 'sts:AssumeRole'
+          Effect: Allow
+          Principal:
+            Service: codebuild.amazonaws.com
       Path: /
       RoleName: !Join
-        - '-'
-        - - !Ref ProjectId
-          - CodeBuild
+      - '-'
+      - - !Ref ProjectId
+        - CodeBuild
     Type: 'AWS::IAM::Role'
   CodePipelineTrustRole:
     Description: Creating service role in IAM for AWS CodePipeline
     Properties:
       AssumeRolePolicyDocument:
         Statement:
-          - Action: 'sts:AssumeRole'
-            Effect: Allow
-            Principal:
-              Service:
-                - codepipeline.amazonaws.com
-            Sid: 1
+        - Action: 'sts:AssumeRole'
+          Effect: Allow
+          Principal:
+            Service:
+            - codepipeline.amazonaws.com
+          Sid: 1
       Path: /
       Policies:
-        - PolicyDocument:
-            Statement:
-              - Action:
-                  - 's3:GetObject'
-                  - 's3:GetObjectVersion'
-                  - 's3:GetBucketVersioning'
-                  - 's3:PutObject'
-                Effect: Allow
-                Resource:
-                  - !Join
-                    - ''
-                    - - 'arn:aws:s3:::'
-                      - !Ref S3Bucket
-                  - !Join
-                    - ''
-                    - - 'arn:aws:s3:::'
-                      - !Ref S3Bucket
-                      - /*
-              - Action:
-                  - 'codebuild:StartBuild'
-                  - 'codebuild:BatchGetBuilds'
-                  - 'codebuild:StopBuild'
-                Effect: Allow
-                Resource:
-                  - !GetAtt
-                    - CodeBuildProject
-                    - Arn
-                  - !GetAtt
-                    - CodeBuildTestProject
-                    - Arn
-              - Action:
-                  - 'cloudformation:DescribeStacks'
-                  - 'cloudformation:DescribeChangeSet'
-                  - 'cloudformation:CreateChangeSet'
-                  - 'cloudformation:DeleteChangeSet'
-                  - 'cloudformation:ExecuteChangeSet'
-                Effect: Allow
-                Resource:
-                  - !Join
-                    - ':'
-                    - - arn
-                      - aws
-                      - cloudformation
-                      - !Ref 'AWS::Region'
-                      - !Ref 'AWS::AccountId'
-                      - !Join
-                        - /
-                        - - stack
-                          - !Join
-                            - '-'
-                            - - !Ref ProjectId
-                              - lambda
-                          - '*'
-              - Action:
-                  - 'cloudformation:DescribeStacks'
-                  - 'cloudformation:DescribeChangeSet'
-                  - 'cloudformation:CreateChangeSet'
-                  - 'cloudformation:DeleteChangeSet'
-                  - 'cloudformation:ExecuteChangeSet'
-                  - 'cloudformation:DeleteStack'
-                Effect: Allow
-                Resource:
-                  - !Join
-                    - ':'
-                    - - arn
-                      - aws
-                      - cloudformation
-                      - !Ref 'AWS::Region'
-                      - !Ref 'AWS::AccountId'
-                      - !Join
-                        - /
-                        - - stack
-                          - !Join
-                            - '-'
-                            - - !Ref ProjectId
-                              - lambda
-                              - test
-                          - '*'
-              - Action:
-                  - 'iam:PassRole'
-                Effect: Allow
-                Resource:
-                  - !GetAtt
-                    - CloudFormationTrustRole
-                    - Arn
-          PolicyName: CodePipelineRolePolicy
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - 's3:GetObject'
+            - 's3:GetObjectVersion'
+            - 's3:GetBucketVersioning'
+            - 's3:PutObject'
+            Effect: Allow
+            Resource:
+            - !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref S3Bucket
+            - !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref S3Bucket
+                - /*
+          - Action:
+            - 'codebuild:StartBuild'
+            - 'codebuild:BatchGetBuilds'
+            - 'codebuild:StopBuild'
+            Effect: Allow
+            Resource:
+            - !GetAtt
+              - CodeBuildProject
+              - Arn
+            - !GetAtt
+              - CodeBuildTestProject
+              - Arn
+          - Action:
+            - 'cloudformation:DescribeStacks'
+            - 'cloudformation:DescribeChangeSet'
+            - 'cloudformation:CreateChangeSet'
+            - 'cloudformation:DeleteChangeSet'
+            - 'cloudformation:ExecuteChangeSet'
+            Effect: Allow
+            Resource:
+            - !Join
+              - ':'
+              - - arn
+                - aws
+                - cloudformation
+                - !Ref 'AWS::Region'
+                - !Ref 'AWS::AccountId'
+                - !Join
+                  - /
+                  - - stack
+                    - !Join
+                      - '-'
+                      - - !Ref ProjectId
+                        - lambda
+                    - '*'
+          - Action:
+            - 'cloudformation:DescribeStacks'
+            - 'cloudformation:DescribeChangeSet'
+            - 'cloudformation:CreateChangeSet'
+            - 'cloudformation:DeleteChangeSet'
+            - 'cloudformation:ExecuteChangeSet'
+            - 'cloudformation:DeleteStack'
+            Effect: Allow
+            Resource:
+            - !Join
+              - ':'
+              - - arn
+                - aws
+                - cloudformation
+                - !Ref 'AWS::Region'
+                - !Ref 'AWS::AccountId'
+                - !Join
+                  - /
+                  - - stack
+                    - !Join
+                      - '-'
+                      - - !Ref ProjectId
+                        - lambda
+                        - test
+                    - '*'
+          - Action:
+            - 'iam:PassRole'
+            Effect: Allow
+            Resource:
+            - !GetAtt
+              - CloudFormationTrustRole
+              - Arn
+        PolicyName: CodePipelineRolePolicy
       RoleName: !Join
-        - '-'
-        - - !Ref ProjectId
-          - CodePipeline
+      - '-'
+      - - !Ref ProjectId
+        - CodePipeline
     Type: 'AWS::IAM::Role'
   LambdaTrustRole:
     Description: Creating service role in IAM for AWS Lambda
     Properties:
       AssumeRolePolicyDocument:
         Statement:
-          - Action: 'sts:AssumeRole'
-            Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
+        - Action: 'sts:AssumeRole'
+          Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
       ManagedPolicyArns:
-        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
-        - 'arn:aws:iam::aws:policy/service-role/AWSConfigRulesExecutionRole'
+      - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+      - 'arn:aws:iam::aws:policy/service-role/AWSConfigRulesExecutionRole'
       Path: /
       Policies:
-        - PolicyDocument:
-            Statement:
-              - Action:
-                  - 'logs:CreateLogGroup'
-                  - 'logs:CreateLogStream'
-                  - 'logs:PutLogEvents'
-                  - 'dynamodb:CreateTable'
-                  - 'dynamodb:DeleteTable'
-                  - 'dynamodb:DescribeTable'
-                  - 'dynamodb:PutItem'
-                  - 'dynamodb:GetItem'
-                  - 'dynamodb:DeleteItem'
-                Effect: Allow
-                Resource: '*'
-            Version: 2012-10-17
-          PolicyName: LambdaWorkerPolicy
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - 'logs:CreateLogGroup'
+            - 'logs:CreateLogStream'
+            - 'logs:PutLogEvents'
+            - 'dynamodb:CreateTable'
+            - 'dynamodb:DeleteTable'
+            - 'dynamodb:DescribeTable'
+            - 'dynamodb:PutItem'
+            - 'dynamodb:GetItem'
+            - 'dynamodb:DeleteItem'
+            Effect: Allow
+            Resource: '*'
+          Version: 2012-10-17
+        PolicyName: LambdaWorkerPolicy
       RoleName: !Join
-        - '-'
-        - - !Ref ProjectId
-          - Lambda
+      - '-'
+      - - !Ref ProjectId
+        - Lambda
     Type: 'AWS::IAM::Role'
   ProjectPipeline:
     DependsOn:
-      - LambdaTrustRole
-      - CodePipelineTrustRole
-      - S3Bucket
-      - CodeBuildProject
-      - CodeBuildTestProject
-      - CloudFormationTrustRole
+    - LambdaTrustRole
+    - CodePipelineTrustRole
+    - S3Bucket
+    - CodeBuildProject
+    - CodeBuildTestProject
+    - CloudFormationTrustRole
     Description: Creating a deployment pipeline for your project in AWS CodePipeline
     Properties:
       ArtifactStore:
         Location: !Ref S3Bucket
         Type: S3
       Name: !Join
-        - '-'
-        - - !Ref ProjectId
-          - Pipeline
+      - '-'
+      - - !Ref ProjectId
+        - Pipeline
       RoleArn: !GetAtt
-        - CodePipelineTrustRole
-        - Arn
+      - CodePipelineTrustRole
+      - Arn
       Stages:
-        - Name: Source
-          Actions:
-            - ActionTypeId:
-                Category: Source
-                Owner: ThirdParty
-                Provider: GitHub
-                Version: 1
-              Configuration:
-                  Owner: !Ref GitHubOwner
-                  Repo:  !Ref GitHubRepo
-                  Branch:  !Ref GitHubBranch
-                  OAuthToken: !Ref GitHubOAuthToken
-              InputArtifacts: []
-              Name: ApplicationSource
-              OutputArtifacts:
-                - Name: !Join
-                    - '-'
-                    - - !Ref ProjectId
-                      - SourceArtifact
-              RunOrder: 1
+      - Name: Source
+        Actions:
+        - ActionTypeId:
+            Category: Source
+            Owner: ThirdParty
+            Provider: GitHub
+            Version: 1
+          Configuration:
+            Owner: !Ref GitHubOwner
+            Repo:  !Ref GitHubRepo
+            Branch:  !Ref GitHubBranch
+            OAuthToken: !Ref GitHubOAuthToken
+          InputArtifacts: []
+          Name: ApplicationSource
+          OutputArtifacts:
+          - Name: !Join
+            - '-'
+            - - !Ref ProjectId
+              - SourceArtifact
+          RunOrder: 1
 
-        - Name: Build
-          Actions:
-            - ActionTypeId:
-                Category: Build
-                Owner: AWS
-                Provider: CodeBuild
-                Version: 1
-              Configuration:
-                ProjectName: !Join
-                  - '-'
-                  - - !Ref ProjectId
-                    - Build
-              InputArtifacts:
-                - Name: !Join
-                    - '-'
-                    - - !Ref ProjectId
-                      - SourceArtifact
-              Name: PackageExport
-              OutputArtifacts:
-                - Name: !Join
-                    - '-'
-                    - - !Ref ProjectId
-                      - BuildArtifact
-              RunOrder: 1
-        - Name: Test
-          Actions:
-            - ActionTypeId:
-                Category: Deploy
-                Owner: AWS
-                Provider: CloudFormation
-                Version: 1
-              Configuration:
-                ActionMode: CHANGE_SET_REPLACE
-                Capabilities: CAPABILITY_IAM
-                ChangeSetName: pipeline-test-changeset
-                ParameterOverrides: !Join
-                  - ''
-                  - - '{"ProjectId":"'
-                    - !Ref ProjectId
-                    - '",'
-                    - '"Stage":"Test",'
-                    - '"CodeBucket":"'
-                    - !Ref S3Bucket
-                    - '"'
-                    - '}'
-                RoleArn: !GetAtt
-                  - CloudFormationTrustRole
-                  - Arn
-                StackName: !Join
-                  - '-'
-                  - - !Ref ProjectId
-                    - lambda
-                    - test
-                TemplatePath: !Join
-                  - ''
-                  - - !Ref ProjectId
-                    - '-BuildArtifact'
-                    - '::template-export.yml'
-              InputArtifacts:
-                - Name: !Join
-                    - '-'
-                    - - !Ref ProjectId
-                      - BuildArtifact
-              Name: GenerateTestChangeSet
-              OutputArtifacts: []
-            - ActionTypeId:
-                Category: Deploy
-                Owner: AWS
-                Provider: CloudFormation
-                Version: 1
-              Configuration:
-                ActionMode: CHANGE_SET_EXECUTE
-                ChangeSetName: pipeline-test-changeset
-                StackName: !Join
-                  - '-'
-                  - - !Ref ProjectId
-                    - lambda
-                    - test
-              InputArtifacts: []
-              Name: ExecuteTestChangeSet
-              OutputArtifacts: []
-              RunOrder: 2
-#            - ActionTypeId:
-#                Category: Build
-#                Owner: AWS
-#                Provider: CodeBuild
-#                Version: 1
-#              Configuration:
-#                ProjectName: !Join
-#                  - '-'
-#                  - - !Ref ProjectId
-#                    - Test
-#              InputArtifacts:
-#                - Name: !Join
-#                    - '-'
-#                    - - !Ref ProjectId
-#                      - SourceArtifact
-#              Name: FeatureTest
-#              RunOrder: 3
-            - ActionTypeId:
-                Category: Deploy
-                Owner: AWS
-                Provider: CloudFormation
-                Version: '1'
-              Configuration:
-                ActionMode: DELETE_ONLY
-                RoleArn: !GetAtt
-                  - CloudFormationTrustRole
-                  - Arn
-                StackName: !Join
-                  - '-'
-                  - - !Ref ProjectId
-                    - lambda
-                    - test
-              Name: DeleteTestStack
-              RunOrder: 4
-        - Actions:
-            - ActionTypeId:
-                Category: Deploy
-                Owner: AWS
-                Provider: CloudFormation
-                Version: 1
-              Configuration:
-                ActionMode: CHANGE_SET_REPLACE
-                Capabilities: CAPABILITY_IAM
-                ChangeSetName: pipeline-changeset
-                ParameterOverrides: !Join
-                  - ''
-                  - - '{"ProjectId":"'
-                    - !Ref ProjectId
-                    - '",'
-                    - '"Stage":"Prod",'
-                    - '"CodeBucket":"'
-                    - !Ref S3Bucket
-                    - '"'
-                    - '}'
-                RoleArn: !GetAtt
-                  - CloudFormationTrustRole
-                  - Arn
-                StackName: !Join
-                  - '-'
-                  - - !Ref ProjectId
-                    - lambda
-                TemplatePath: !Join
-                  - ''
-                  - - !Ref ProjectId
-                    - '-BuildArtifact'
-                    - '::template-export.yml'
-              InputArtifacts:
-                - Name: !Join
-                    - '-'
-                    - - !Ref ProjectId
-                      - BuildArtifact
-              Name: GenerateChangeSet
-              OutputArtifacts: []
-              RunOrder: 1
-            - ActionTypeId:
-                Category: Deploy
-                Owner: AWS
-                Provider: CloudFormation
-                Version: 1
-              Configuration:
-                ActionMode: CHANGE_SET_EXECUTE
-                ChangeSetName: pipeline-changeset
-                StackName: !Join
-                  - '-'
-                  - - !Ref ProjectId
-                    - lambda
-              InputArtifacts: []
-              Name: ExecuteChangeSet
-              OutputArtifacts: []
-              RunOrder: 2
-          Name: Deploy
-#          Condition: !Equals [ !Ref GitHubBranch, master ]
+      - Name: Build
+        Actions:
+        - ActionTypeId:
+            Category: Build
+            Owner: AWS
+            Provider: CodeBuild
+            Version: 1
+          Configuration:
+            ProjectName: !Join
+            - '-'
+            - - !Ref ProjectId
+              - Build
+          InputArtifacts:
+          - Name: !Join
+            - '-'
+            - - !Ref ProjectId
+              - SourceArtifact
+          Name: PackageExport
+          OutputArtifacts:
+          - Name: !Join
+            - '-'
+            - - !Ref ProjectId
+              - BuildArtifact
+          RunOrder: 1
+      - Name: Test
+        Actions:
+        - ActionTypeId:
+            Category: Deploy
+            Owner: AWS
+            Provider: CloudFormation
+            Version: 1
+          Configuration:
+            ActionMode: CHANGE_SET_REPLACE
+            Capabilities: CAPABILITY_IAM
+            ChangeSetName: pipeline-test-changeset
+            ParameterOverrides: !Join
+            - ''
+            - - '{"ProjectId":"'
+              - !Ref ProjectId
+              - '",'
+              - '"Stage":"Test",'
+              - '"CodeBucket":"'
+              - !Ref S3Bucket
+              - '"'
+              - '}'
+            RoleArn: !GetAtt
+            - CloudFormationTrustRole
+            - Arn
+            StackName: !Join
+            - '-'
+            - - !Ref ProjectId
+              - lambda
+              - test
+            TemplatePath: !Join
+            - ''
+            - - !Ref ProjectId
+              - '-BuildArtifact'
+              - '::template-export.yml'
+          InputArtifacts:
+          - Name: !Join
+            - '-'
+            - - !Ref ProjectId
+              - BuildArtifact
+          Name: GenerateTestChangeSet
+          OutputArtifacts: []
+        - ActionTypeId:
+            Category: Deploy
+            Owner: AWS
+            Provider: CloudFormation
+            Version: 1
+          Configuration:
+            ActionMode: CHANGE_SET_EXECUTE
+            ChangeSetName: pipeline-test-changeset
+            StackName: !Join
+            - '-'
+            - - !Ref ProjectId
+              - lambda
+              - test
+          InputArtifacts: []
+          Name: ExecuteTestChangeSet
+          OutputArtifacts: []
+          RunOrder: 2
+        #            - ActionTypeId:
+        #                Category: Build
+        #                Owner: AWS
+        #                Provider: CodeBuild
+        #                Version: 1
+        #              Configuration:
+        #                ProjectName: !Join
+        #                  - '-'
+        #                  - - !Ref ProjectId
+        #                    - Test
+        #              InputArtifacts:
+        #                - Name: !Join
+        #                    - '-'
+        #                    - - !Ref ProjectId
+        #                      - SourceArtifact
+        #              Name: FeatureTest
+        #              RunOrder: 3
+        - ActionTypeId:
+            Category: Deploy
+            Owner: AWS
+            Provider: CloudFormation
+            Version: '1'
+          Configuration:
+            ActionMode: DELETE_ONLY
+            RoleArn: !GetAtt
+            - CloudFormationTrustRole
+            - Arn
+            StackName: !Join
+            - '-'
+            - - !Ref ProjectId
+              - lambda
+              - test
+          Name: DeleteTestStack
+          RunOrder: 4
+      - Actions:
+        - ActionTypeId:
+            Category: Deploy
+            Owner: AWS
+            Provider: CloudFormation
+            Version: 1
+          Configuration:
+            ActionMode: CHANGE_SET_REPLACE
+            Capabilities: CAPABILITY_IAM
+            ChangeSetName: pipeline-changeset
+            ParameterOverrides: !Join
+            - ''
+            - - '{"ProjectId":"'
+              - !Ref ProjectId
+              - '",'
+              - '"Stage":"Prod",'
+              - '"CodeBucket":"'
+              - !Ref S3Bucket
+              - '"'
+              - '}'
+            RoleArn: !GetAtt
+            - CloudFormationTrustRole
+            - Arn
+            StackName: !Join
+            - '-'
+            - - !Ref ProjectId
+              - lambda
+            TemplatePath: !Join
+            - ''
+            - - !Ref ProjectId
+              - '-BuildArtifact'
+              - '::template-export.yml'
+          InputArtifacts:
+          - Name: !Join
+            - '-'
+            - - !Ref ProjectId
+              - BuildArtifact
+          Name: GenerateChangeSet
+          OutputArtifacts: []
+          RunOrder: 1
+        - ActionTypeId:
+            Category: Deploy
+            Owner: AWS
+            Provider: CloudFormation
+            Version: 1
+          Configuration:
+            ActionMode: CHANGE_SET_EXECUTE
+            ChangeSetName: pipeline-changeset
+            StackName: !Join
+            - '-'
+            - - !Ref ProjectId
+              - lambda
+          InputArtifacts: []
+          Name: ExecuteChangeSet
+          OutputArtifacts: []
+          RunOrder: 2
+        Name: Deploy
+    #          Condition: !Equals [ !Ref GitHubBranch, master ]
     Type: 'AWS::CodePipeline::Pipeline'
   S3ArtifactBucketPolicy:
     Description: Setting Amazon S3 bucket policy for AWS CodePipeline access
@@ -638,59 +638,59 @@ Resources:
       PolicyDocument:
         Id: SSEAndSSLPolicy
         Statement:
-          - Action:
-              - 's3:GetObject'
-              - 's3:GetObjectVersion'
-              - 's3:GetBucketVersioning'
-            Condition:
-              Bool:
-                'aws:SecureTransport': false
-            Effect: Allow
-            Principal:
-              AWS:
-                - !GetAtt
-                  - CodePipelineTrustRole
-                  - Arn
+        - Action:
+          - 's3:GetObject'
+          - 's3:GetObjectVersion'
+          - 's3:GetBucketVersioning'
+          Condition:
+            Bool:
+              'aws:SecureTransport': false
+          Effect: Allow
+          Principal:
+            AWS:
+            - !GetAtt
+              - CodePipelineTrustRole
+              - Arn
 
-                - !GetAtt
-                  - CodeBuildRole
-                  - Arn
-                - !GetAtt
-                  - CloudFormationTrustRole
-                  - Arn
-            Resource:
-              - !Join
-                - ''
-                - - 'arn:aws:s3:::'
-                  - !Ref S3Bucket
-              - !Join
-                - ''
-                - - 'arn:aws:s3:::'
-                  - !Ref S3Bucket
-                  - /*
-            Sid: WhitelistedGet
-          - Action:
-              - 's3:PutObject'
-            Effect: Allow
-            Principal:
-              AWS:
-                - !GetAtt
-                  - CodePipelineTrustRole
-                  - Arn
-                - !GetAtt
-                  - CodeBuildRole
-                  - Arn
-            Resource:
-              - !Join
-                - ''
-                - - 'arn:aws:s3:::'
-                  - !Ref S3Bucket
-              - !Join
-                - ''
-                - - 'arn:aws:s3:::'
-                  - !Ref S3Bucket
-                  - /*
-            Sid: WhitelistedPut
+            - !GetAtt
+              - CodeBuildRole
+              - Arn
+            - !GetAtt
+              - CloudFormationTrustRole
+              - Arn
+          Resource:
+          - !Join
+            - ''
+            - - 'arn:aws:s3:::'
+              - !Ref S3Bucket
+          - !Join
+            - ''
+            - - 'arn:aws:s3:::'
+              - !Ref S3Bucket
+              - /*
+          Sid: WhitelistedGet
+        - Action:
+          - 's3:PutObject'
+          Effect: Allow
+          Principal:
+            AWS:
+            - !GetAtt
+              - CodePipelineTrustRole
+              - Arn
+            - !GetAtt
+              - CodeBuildRole
+              - Arn
+          Resource:
+          - !Join
+            - ''
+            - - 'arn:aws:s3:::'
+              - !Ref S3Bucket
+          - !Join
+            - ''
+            - - 'arn:aws:s3:::'
+              - !Ref S3Bucket
+              - /*
+          Sid: WhitelistedPut
         Version: 2012-10-17
     Type: 'AWS::S3::BucketPolicy'
   S3Bucket:
@@ -698,17 +698,17 @@ Resources:
     Description: Creating Amazon S3 bucket for AWS CodePipeline artifacts
     Properties:
       BucketName: !Join
-        - '-'
-        - - !Ref 'AWS::Region'
-          - !Ref 'AWS::AccountId'
-          - !Ref ProjectId
-          - pipe
+      - '-'
+      - - !Ref 'AWS::Region'
+        - !Ref 'AWS::AccountId'
+        - !Ref ProjectId
+        - pipe
       Tags:
-        - Key: Name
-          Value: !Join
-            - '-'
-            - - !Ref ProjectId
-              - S3Bucket
+      - Key: Name
+        Value: !Join
+        - '-'
+        - - !Ref ProjectId
+          - S3Bucket
       VersioningConfiguration:
         Status: Enabled
     Type: 'AWS::S3::Bucket'
@@ -719,33 +719,33 @@ Resources:
     Properties:
       AssumeRolePolicyDocument:
         Statement:
-          - Action: 'sts:AssumeRole'
-            Effect: Allow
-            Principal:
-              Service:
-                - events.amazonaws.com
-            Sid: 1
+        - Action: 'sts:AssumeRole'
+          Effect: Allow
+          Principal:
+            Service:
+            - events.amazonaws.com
+          Sid: 1
       Policies:
-        - PolicyDocument:
-            Statement:
-              - Action:
-                  - 'codepipeline:StartPipelineExecution'
-                Effect: Allow
-                Resource:
-                  - !Join
-                    - ':'
-                    - - arn
-                      - aws
-                      - codepipeline
-                      - !Ref 'AWS::Region'
-                      - !Ref 'AWS::AccountId'
-                      - !Join
-                        - '-'
-                        - - !Ref ProjectId
-                          - Pipeline
-          PolicyName: CloudWatchEventPolicy
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - 'codepipeline:StartPipelineExecution'
+            Effect: Allow
+            Resource:
+            - !Join
+              - ':'
+              - - arn
+                - aws
+                - codepipeline
+                - !Ref 'AWS::Region'
+                - !Ref 'AWS::AccountId'
+                - !Join
+                  - '-'
+                  - - !Ref ProjectId
+                    - Pipeline
+        PolicyName: CloudWatchEventPolicy
       RoleName: !Join
-        - '-'
-        - - !Ref ProjectId
-          - CloudWatchEventRule
+      - '-'
+      - - !Ref ProjectId
+        - CloudWatchEventRule
     Type: 'AWS::IAM::Role'
