@@ -17,7 +17,6 @@ public class PipelineTest {
 
 
     @Test
-    @Ignore
     public void createStacks() throws IOException {
         Application application = initApplication();
         application.createStacks();
