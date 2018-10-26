@@ -16,7 +16,6 @@ import no.bibsys.roles.RoleManager;
 public class StackBuilder {
 
 
-    private final transient IoUtils ioUtils = new IoUtils();
 
 
 
@@ -122,7 +121,7 @@ public class StackBuilder {
         createStackRequest.setParameters(parameters);
         createStackRequest.withCapabilities(Capability.CAPABILITY_NAMED_IAM);
 
-        String templateBody = ioUtils
+        String templateBody = IoUtils
             .resourceAsString(Paths.get("templates", "pipelineTemplate.yaml"));
         createStackRequest.setTemplateBody(templateBody);
 

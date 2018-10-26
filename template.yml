@@ -17,7 +17,6 @@ Parameters:
     Type: String
 
 Resources:
-
   RestApi:
     DependsOn:
       - BuildBranch
@@ -79,7 +78,6 @@ Resources:
                       owner: BIBSYSDEV
                       action: create
               x-amazon-apigateway-integration:
-#                uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-1:933878624978:function:aut-reg-inf-master-serviceStack-prod-BuildBranch-Q0C8OEDSI0N5/invocations"
                 uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${BuildBranch.Arn}/invocations"
                 httpMethod: "POST"
                 type: aws_proxy
