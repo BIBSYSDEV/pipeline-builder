@@ -116,6 +116,8 @@ Resources:
             - 'iam:AttachRolePolicy'
             - 'ssm:PutParameter'
             - 'ssm:DeleteParameter'
+            - 'cloudwatch:*' #DescibeAlarms
+            - 'route53:*' #CreateHealthCheck
             Resource: '*'
             Effect: Allow
       - PolicyName: s3Access

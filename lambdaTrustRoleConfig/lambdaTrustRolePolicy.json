@@ -76,13 +76,6 @@
         "config:Describe*"
       ],
       "Resource": "*"
-    },
-    {
-      "Effect"  : "Allow",
-      "Action"  : [
-        "cloudwatch:*"
-      ],
-      "Resource": "*"
     }
   ]
 }
