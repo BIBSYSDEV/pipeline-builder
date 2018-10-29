@@ -12,12 +12,12 @@ import org.junit.Test;
 public class PullRequestTests {
 
 
-    IoUtils ioUtils = new IoUtils();
+
     String pullRequestString;
     PullRequest pullRequest;
 
     public PullRequestTests() throws IOException {
-        pullRequestString = ioUtils.resourceAsString(Paths.get("github", "pullrequest.json"));
+        pullRequestString = IoUtils.resourceAsString(Paths.get("github", "pullrequest.json"));
         pullRequest = new PullRequest(pullRequestString);
     }
 
