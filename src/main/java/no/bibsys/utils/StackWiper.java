@@ -19,39 +19,45 @@ import no.bibsys.roles.RoleManager;
 
 public class StackWiper {
 
+    private final transient PipelineStackConfiguration pipelineStackConfiguration;
 
-    public void deleteStacks(PipelineStackConfiguration conf) {
+    public StackWiper(PipelineStackConfiguration pipelineStackConfiguration){
+        this.pipelineStackConfiguration=pipelineStackConfiguration;
+    }
+
+
+    public void deleteStacks() {
         AmazonCloudFormation acf = AmazonCloudFormationClientBuilder.defaultClient();
 
-        String stack = conf.getPipelineConfiguration()
+        String stack = pipelineStackConfiguration.getPipelineConfiguration()
             .getTestServiceStack();
 
         acf.deleteStack(new DeleteStackRequest().withStackName(stack));
         awaitDeleteStack(acf, stack);
 
-        stack = conf.getPipelineConfiguration().getFinalServiceStack();
+        stack = pipelineStackConfiguration.getPipelineConfiguration().getFinalServiceStack();
         acf.deleteStack(new DeleteStackRequest().withStackName(stack));
         awaitDeleteStack(acf, stack);
 
-        stack = conf.getPipelineStackName();
+        stack = pipelineStackConfiguration.getPipelineStackName();
 
         acf.deleteStack(new DeleteStackRequest().withStackName(stack));
         awaitDeleteStack(acf, stack);
 
     }
 
-    private void deleteBuckets(PipelineStackConfiguration pipelineStackConfiguration) {
+    private void deleteBuckets() {
         deleteBucket(pipelineStackConfiguration.getBucketName());
         deleteBucket(pipelineStackConfiguration.getCodeBuildConfiguration().getCacheBucket());
     }
 
 
-    private void deleteLogs(PipelineStackConfiguration conf) {
+    private void deleteLogs() {
         AWSLogs logsClient = AWSLogsClientBuilder.defaultClient();
         List<String> logGroups = logsClient
             .describeLogGroups().getLogGroups().stream()
             .map(group -> group.getLogGroupName())
-            .filter(name -> filterLogGroups(conf, name))
+            .filter(name -> filterLogGroups(pipelineStackConfiguration, name))
             .collect(Collectors.toList());
 
         logGroups.stream()
@@ -62,16 +68,16 @@ public class StackWiper {
     }
 
 
-    public void wipeStacks(PipelineStackConfiguration pipelineStackConfiguration) {
+    public void wipeStacks() {
 
-        deleteBuckets(pipelineStackConfiguration);
-        deleteStacks(pipelineStackConfiguration);
-        deleteLogs(pipelineStackConfiguration);
-        deleteRoles(pipelineStackConfiguration.getPipelineConfiguration());
+        deleteBuckets();
+        deleteStacks();
+        deleteLogs();
+        deleteRoles();
     }
 
-    private void deleteRoles(PipelineConfiguration config) {
-        RoleManager roleManager = new RoleManager(config);
+    private void deleteRoles() {
+        RoleManager roleManager = new RoleManager(pipelineStackConfiguration.getPipelineConfiguration());
         roleManager.deleteRole();
 
     }
