@@ -3,6 +3,7 @@ package no.bibsys.handler.requests;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import no.bibsys.utils.JsonUtils;
 
 public class PullRequest {
 
@@ -20,7 +21,7 @@ public class PullRequest {
 
     public PullRequest(String jsonString) throws IOException {
 
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = JsonUtils.newJsonParser();
         root = mapper.readTree(jsonString);
         this.action = initAction();
         this.branch = initBranch();
