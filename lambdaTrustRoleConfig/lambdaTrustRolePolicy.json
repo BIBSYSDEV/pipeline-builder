@@ -4,9 +4,9 @@
 {
   "Version"  : "2012-10-17",
   "Statement": [
-//    {
-//      "Action"  : [
-//        "cloudformation:CreateStack",
+    {
+      "Action"  : [
+        "cloudformation:CreateStack"
 //        "cloudformation:DescribeStacks",
 //        "cloudformation:DeleteStack",
 //        "codebuild:CreateProject",
@@ -39,10 +39,10 @@
 //        "s3:PutBucketVersioning",
 //        "s3:PutEncryptionConfiguration",
 //        "s3:PutObject"
-//      ],
-//      "Resource": "*",
-//      "Effect"  : "Allow"
-//    },
+      ],
+      "Resource": "*",
+      "Effect"  : "Allow"
+    },
     {
       "Action"  : [
         "secretsmanager:GetSecretValue",
