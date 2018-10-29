@@ -1,0 +1,12 @@
+{
+  "ref"         : "refs/heads/master",
+  "repository"  :{
+    "owner":{
+      "name":"BIBSYSDEV"
+    },
+    "name": "authority-registry-infrastructure"
+  },
+  "pusher": "pusher"
+
+
+}

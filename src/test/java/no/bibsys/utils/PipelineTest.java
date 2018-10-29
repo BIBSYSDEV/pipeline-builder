@@ -10,22 +10,21 @@ import org.junit.experimental.categories.Category;
 
 public class PipelineTest {
 
-    private String branchName = "master";
+    private String branchName = "autreg-61-bugfix-lambdatrustrole";
     private String repoName = "authority-registry-infrastructure";
     private String repoOwner = "BIBSYSDEV";
 
 
 
     @Test
-
-    @Category(AmazonDependentTests.class)
+    @Category(DoNotRunTest.class)
     public void createStacks() throws IOException {
         Application application = initApplication();
         application.createStacks();
     }
 
     @Test
-    @Category(AmazonDependentTests.class)
+    @Category(DoNotRunTest.class)
     public void deleteStacks() throws IOException {
         Application application = initApplication();
         application.wipeStacks();
