@@ -68,9 +68,6 @@ public class RoleManager {
             deleteInlineRolePolicies();
             putRolePolicy();
         }
-        else {
-            createRole();
-        }
 
     }
 
