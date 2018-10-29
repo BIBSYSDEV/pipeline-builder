@@ -12,13 +12,18 @@ import java.util.List;
 public class IoUtils {
 
 
-    public InputStream inputStreamFromResources(Path path) {
+
+    private IoUtils(){
+        throw new IllegalStateException("IoUtils should not be initialized");
+    }
+
+    public static InputStream inputStreamFromResources(Path path) {
         String pathString = path.toString();
         return Thread.currentThread().getContextClassLoader().getResourceAsStream(pathString);
     }
 
 
-    public String streamToString(InputStream stream) throws IOException {
+    public static  String streamToString(InputStream stream) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         List<String> lines = new ArrayList<>();
         String line = reader.readLine();
@@ -31,13 +36,13 @@ public class IoUtils {
     }
 
 
-    public String fileAsString(Path path) throws IOException {
+    public static String fileAsString(Path path) throws IOException {
         InputStream fileInputStream = Files.newInputStream(path);
         return streamToString(fileInputStream);
     }
 
 
-    public List<String> linesfromResource(Path path) throws IOException {
+    public static List<String> linesfromResource(Path path) throws IOException {
         BufferedReader reader = new BufferedReader(
             new InputStreamReader(inputStreamFromResources(path)));
         List<String> lines = new ArrayList<>();
@@ -49,14 +54,14 @@ public class IoUtils {
         return lines;
     }
 
-    public String resourceAsString(Path path) throws IOException {
+    public static  String resourceAsString(Path path) throws IOException {
         List<String> lines = linesfromResource(path);
         String result = String.join("\n", lines);
         return result;
     }
 
 
-    public String removeMultipleWhiteSpaces(String input) {
+    public static String removeMultipleWhiteSpaces(String input) {
         String buffer = input.trim();
         String result = buffer.replaceAll("\\s\\s", " ");
         while (!result.equals(buffer)) {
