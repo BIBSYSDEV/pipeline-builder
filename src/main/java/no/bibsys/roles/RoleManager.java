@@ -40,34 +40,47 @@ public class RoleManager {
             .withRoleName(roleName)
             .withAssumeRolePolicyDocument(assumePolicy);
 
+
+        Role role = iam
+            .createRole(createRoleRequest).getRole();
+        waitForRole();
+        putRolePolicy();
+
+        return role;
+    }
+
+    private void putRolePolicy() {
         //add inline policy
         PutRolePolicyRequest putRolePolicyRequest = new PutRolePolicyRequest()
             .withPolicyDocument(policy).withPolicyName("accessRights")
             .withRoleName(roleName);
 
-        Role role = iam
-            .createRole(createRoleRequest).getRole();
-        waitForRole();
-
         iam.putRolePolicy(putRolePolicyRequest);
+    }
 
-        return role;
 
+    public void updateRole(){
+        deleteInlineRolePolicies();
+        putRolePolicy();
     }
 
 
     public void deleteRole() {
         if (getRole().isPresent()) {
-            List<DeleteRolePolicyRequest> inlinePolicies = iam
-                .listRolePolicies(new ListRolePoliciesRequest().withRoleName(roleName))
-                .getPolicyNames()
-                .stream()
-                .map(policyName -> new DeleteRolePolicyRequest().withRoleName(roleName)
-                    .withPolicyName(policyName)).collect(Collectors.toList());
-
-            inlinePolicies.forEach(iam::deleteRolePolicy);
+            deleteInlineRolePolicies();
             iam.deleteRole(new DeleteRoleRequest().withRoleName(roleName));
         }
+    }
+
+    private void deleteInlineRolePolicies() {
+        List<DeleteRolePolicyRequest> inlinePolicies = iam
+            .listRolePolicies(new ListRolePoliciesRequest().withRoleName(roleName))
+            .getPolicyNames()
+            .stream()
+            .map(policyName -> new DeleteRolePolicyRequest().withRoleName(roleName)
+                .withPolicyName(policyName)).collect(Collectors.toList());
+
+        inlinePolicies.forEach(iam::deleteRolePolicy);
     }
 
     public Optional<Role> getRole() {

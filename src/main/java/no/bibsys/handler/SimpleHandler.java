@@ -39,9 +39,6 @@ public class SimpleHandler extends HandlerHelper<String, String> {
                }
         }
 
-
-
-
         return request;
 
     }
@@ -49,7 +46,7 @@ public class SimpleHandler extends HandlerHelper<String, String> {
     private void processPushEvent(PushEvent pushEvent) throws IOException {
         GithubReader githubReader=initGithubReader(pushEvent);
         Application application=new Application(githubReader);
-        application.createStacks();
+        application.updateLambdaTrustRole();
     }
 
 

@@ -5,6 +5,7 @@ import java.io.IOException;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.git.github.GithubConf;
 import no.bibsys.git.github.GithubReader;
+import no.bibsys.roles.RoleManager;
 import no.bibsys.utils.StackBuilder;
 import no.bibsys.utils.StackWiper;
 
@@ -17,31 +18,40 @@ public class Application {
     private final transient String branch;
     private final transient String repoOwner;
     private final transient GithubReader githubReader;
+    private final transient PipelineStackConfiguration pipelineStackConfiguration;
 
 
-    public Application(GithubReader githubReader) {
+    public Application(GithubReader githubReader) throws IOException {
 
         GithubConf githubConf = githubReader.getGithubConf();
+        this.pipelineStackConfiguration=new PipelineStackConfiguration(githubReader);
         this.githubReader = githubReader;
         this.repoOwner = githubConf.getOwner();
         this.repoName = githubConf.getOwner();
         this.branch = githubReader.getBranch();
-        wiper = new StackWiper();
+        wiper = new StackWiper(pipelineStackConfiguration);
         checkNulls();
 
     }
 
 
     public void createStacks() throws IOException {
-        StackBuilder stackBuilder = new StackBuilder(wiper, githubReader);
+        StackBuilder stackBuilder = new StackBuilder(wiper, pipelineStackConfiguration);
         stackBuilder.createStacks();
+    }
+
+
+    public void updateLambdaTrustRole(){
+
+        RoleManager roleManager=new RoleManager(pipelineStackConfiguration.getPipelineConfiguration());
+        roleManager.updateRole();
+
     }
 
 
     public void wipeStacks() throws IOException {
         checkNulls();
-        PipelineStackConfiguration conf = new PipelineStackConfiguration(githubReader);
-        wiper.wipeStacks(conf);
+        wiper.wipeStacks();
 
     }
 
