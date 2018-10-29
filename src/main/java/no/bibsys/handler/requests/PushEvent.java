@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 import java.util.Optional;
 import no.bibsys.utils.JsonUtils;
 
-public class PushEvent implements GitEvent {
+public final class PushEvent implements GitEvent {
 
 
     private final transient JsonNode root;
@@ -34,19 +34,20 @@ public class PushEvent implements GitEvent {
     }
 
 
+    @Override
     public String getBranch() {
         Path ref = Paths.get(root.get("ref").asText());
         String branch = ref.getFileName().toString();
         return branch;
     }
 
-
+    @Override
     public String getOwner() {
         JsonNode repository = getRepositoryDetails();
         return repository.get("owner").get("name").asText();
     }
 
-
+    @Override
     public String getRepository() {
         JsonNode repository = getRepositoryDetails();
         return repository.get("name").asText();

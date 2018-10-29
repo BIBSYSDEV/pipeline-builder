@@ -68,8 +68,9 @@ public class SimpleHandler extends HandlerHelper<String, String> {
 
     private Optional<GitEvent> parseEvent(String json) throws IOException {
         Optional<GitEvent> event= PullRequest.create(json);
-        if(!event.isPresent())
-            event= PushEvent.create(json);
+        if(!event.isPresent()) {
+            event = PushEvent.create(json);
+        }
         return event;
     }
 

@@ -17,7 +17,6 @@ public class Application {
     private final transient String repoName;
     private final transient String branch;
     private final transient String repoOwner;
-    private final transient GithubReader githubReader;
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
 
 
@@ -25,7 +24,6 @@ public class Application {
 
         GithubConf githubConf = githubReader.getGithubConf();
         this.pipelineStackConfiguration=new PipelineStackConfiguration(githubReader);
-        this.githubReader = githubReader;
         this.repoOwner = githubConf.getOwner();
         this.repoName = githubConf.getOwner();
         this.branch = githubReader.getBranch();
@@ -49,7 +47,7 @@ public class Application {
     }
 
 
-    public void wipeStacks() throws IOException {
+    public void wipeStacks()  {
         checkNulls();
         wiper.wipeStacks();
 
