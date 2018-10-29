@@ -3,20 +3,67 @@ package no.bibsys.handler.requests;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Optional;
 import no.bibsys.utils.JsonUtils;
 
-public class PushEvent {
+public class PushEvent implements GitEvent {
+
+
+    private final transient JsonNode root;
 
 
 
-    public PushEvent(String jsonString) throws IOException {
-
-        ObjectMapper mapper= JsonUtils.newJsonParser();
-        JsonNode root=mapper.readValue(jsonString,JsonNode.class);
-        String ref=root.get("ref")
+    private PushEvent(JsonNode root) throws IOException {
+        this.root = root;
 
     }
 
 
+    public static Optional<GitEvent> create(String json) throws IOException {
+        ObjectMapper mapper=JsonUtils.newJsonParser();
+        JsonNode root=mapper.readValue(json,JsonNode.class);
+        if(root.has("pusher")){
+            return Optional.of(new PushEvent(root));
+        }
+        else {
+            return Optional.empty();
+        }
 
+    }
+
+    private boolean initIsPush() {
+        return root.has("pusher");
+
+    }
+
+
+    public String getBranch() {
+        Path ref = Paths.get(root.get("ref").asText());
+        String branch = ref.getFileName().toString();
+        return branch;
+    }
+
+
+    public String getOwner() {
+        JsonNode repository = getRepositoryDetails();
+        return repository.get("owner").get("name").asText();
+    }
+
+
+    public String getRepository() {
+        JsonNode repository = getRepositoryDetails();
+        return repository.get("name").asText();
+    }
+
+    private JsonNode getRepositoryDetails() {
+        return root.get("repository");
+    }
+
+
+    @Override
+    public String toString() {
+        return String.join(":", getRepository(), getBranch());
+    }
 }

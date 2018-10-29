@@ -3,11 +3,14 @@ package no.bibsys.handler;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
+import java.util.Optional;
 import no.bibsys.Application;
 import no.bibsys.git.github.GithubConf;
 import no.bibsys.git.github.GithubReader;
 import no.bibsys.git.github.RestReader;
+import no.bibsys.handler.requests.GitEvent;
 import no.bibsys.handler.requests.PullRequest;
+import no.bibsys.handler.requests.PushEvent;
 import no.bibsys.utils.Environment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,8 +27,33 @@ public class SimpleHandler extends HandlerHelper<String, String> {
 
     @Override
     protected String processInput(String request, Context context) throws IOException {
-        PullRequest pullRequest = new PullRequest(request);
 
+        Optional<GitEvent> gitEventOpt=parseEvent(request);
+        if(gitEventOpt.isPresent()){
+            GitEvent gitEvent=gitEventOpt.get();
+               if(gitEvent instanceof PullRequest){
+                   processPullRequest((PullRequest)gitEvent);
+               }
+               else if(gitEvent instanceof PushEvent){
+                   processPushEvent((PushEvent) gitEvent);
+               }
+        }
+
+
+
+
+        return request;
+
+    }
+
+    private void processPushEvent(PushEvent pushEvent) throws IOException {
+        GithubReader githubReader=initGithubReader(pushEvent);
+        Application application=new Application(githubReader);
+        application.createStacks();
+    }
+
+
+    private void processPullRequest(PullRequest pullRequest) throws IOException {
         if (pullRequest.getAction().equals(PullRequest.ACTION_OPEN)
             || pullRequest.getAction().equals(PullRequest.ACTION_REOPEN)) {
             createStacks(initGithubReader(pullRequest));
@@ -38,16 +66,22 @@ public class SimpleHandler extends HandlerHelper<String, String> {
         System.out.println(pullRequest.toString());
         logger.info(pullRequest.toString());
 
-        return request;
-
     }
 
 
-    private GithubReader initGithubReader(PullRequest pullRequest) throws IOException {
-        GithubConf githubConf = new GithubConf(pullRequest.getOwner(),
-            pullRequest.getRepositoryName(), new Environment());
+    private Optional<GitEvent> parseEvent(String json) throws IOException {
+        Optional<GitEvent> event= PullRequest.create(json);
+        if(!event.isPresent())
+            event= PushEvent.create(json);
+        return event;
+    }
+
+
+    private GithubReader initGithubReader(GitEvent gitEvent) throws IOException {
+        GithubConf githubConf = new GithubConf(gitEvent.getOwner(),
+            gitEvent.getRepository(), new Environment());
         RestReader restReader = new RestReader(githubConf);
-        return new GithubReader(restReader, pullRequest.getBranch());
+        return new GithubReader(restReader, gitEvent.getBranch());
     }
 
 
