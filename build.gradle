@@ -95,4 +95,12 @@ shadowJar {
 }
 
 
+test {
+    useJUnit {
+        excludeCategories 'no.bibsys.utils.AmazonDependentTests'
+    }
+}
+
+
+
 
