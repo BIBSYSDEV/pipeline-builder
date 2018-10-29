@@ -7,7 +7,9 @@
       "Principal": {
         "Service": [
           "lambda.amazonaws.com",
-          "cloudformation.amazonaws.com"
+          "cloudformation.amazonaws.com",
+          "iam.amazonaws.com",
+          "dynamodb.amazonaws.com"
         ]
       },
       "Action"   : "sts:AssumeRole"
