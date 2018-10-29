@@ -5,11 +5,17 @@ import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClientB
 import com.amazonaws.services.identitymanagement.model.CreateRoleRequest;
 import com.amazonaws.services.identitymanagement.model.DeleteRolePolicyRequest;
 import com.amazonaws.services.identitymanagement.model.DeleteRoleRequest;
+import com.amazonaws.services.identitymanagement.model.GetRolePolicyRequest;
+import com.amazonaws.services.identitymanagement.model.GetRolePolicyResult;
 import com.amazonaws.services.identitymanagement.model.GetRoleRequest;
 import com.amazonaws.services.identitymanagement.model.ListRolePoliciesRequest;
 import com.amazonaws.services.identitymanagement.model.NoSuchEntityException;
 import com.amazonaws.services.identitymanagement.model.PutRolePolicyRequest;
 import com.amazonaws.services.identitymanagement.model.Role;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,9 +46,7 @@ public class RoleManager {
             .withRoleName(roleName)
             .withAssumeRolePolicyDocument(assumePolicy);
 
-
-        Role role = iam
-            .createRole(createRoleRequest).getRole();
+        Role role = iam.createRole(createRoleRequest).getRole();
         waitForRole();
         putRolePolicy();
 
@@ -52,7 +56,7 @@ public class RoleManager {
     private void putRolePolicy() {
         //add inline policy
         PutRolePolicyRequest putRolePolicyRequest = new PutRolePolicyRequest()
-            .withPolicyDocument(policy).withPolicyName("accessRights")
+            .withPolicyDocument(policy).withPolicyName("accessPolicy")
             .withRoleName(roleName);
 
         iam.putRolePolicy(putRolePolicyRequest);
@@ -60,8 +64,14 @@ public class RoleManager {
 
 
     public void updateRole(){
-        deleteInlineRolePolicies();
-        putRolePolicy();
+        if(getRole().isPresent()) {
+            deleteInlineRolePolicies();
+            putRolePolicy();
+        }
+        else {
+            createRole();
+        }
+
     }
 
 
@@ -71,6 +81,29 @@ public class RoleManager {
             iam.deleteRole(new DeleteRoleRequest().withRoleName(roleName));
         }
     }
+
+
+    public List<String> listInlinePolicies() throws UnsupportedEncodingException {
+        List<String> policyNames = iam
+            .listRolePolicies(new ListRolePoliciesRequest().withRoleName(roleName))
+            .getPolicyNames();
+        List<String> urlEncodedPolicyDocuments = policyNames.stream()
+            .map(this::getInlinePolicy)
+            .map(GetRolePolicyResult::getPolicyDocument)
+            .collect(Collectors.toList());
+        List<String> policyDocuments=new ArrayList<>();
+        for(String encodedString:urlEncodedPolicyDocuments){
+            policyDocuments.add(URLDecoder.decode(encodedString,StandardCharsets.UTF_8.toString()));
+        }
+
+        return policyDocuments;
+
+    }
+
+    private GetRolePolicyResult getInlinePolicy(String policyName) {
+        return iam.getRolePolicy(new GetRolePolicyRequest().withPolicyName(policyName).withRoleName(roleName));
+    }
+
 
     private void deleteInlineRolePolicies() {
         List<DeleteRolePolicyRequest> inlinePolicies = iam
