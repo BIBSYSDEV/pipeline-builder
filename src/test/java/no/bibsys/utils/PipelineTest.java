@@ -5,8 +5,8 @@ import no.bibsys.Application;
 import no.bibsys.git.github.GithubConf;
 import no.bibsys.git.github.GithubReader;
 import no.bibsys.git.github.RestReader;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 public class PipelineTest {
 
@@ -17,14 +17,15 @@ public class PipelineTest {
 
 
     @Test
-    @Ignore
+
+    @Category(AmazonDependentTests.class)
     public void createStacks() throws IOException {
         Application application = initApplication();
         application.createStacks();
     }
 
     @Test
-    @Ignore
+    @Category(AmazonDependentTests.class)
     public void deleteStacks() throws IOException {
         Application application = initApplication();
         application.wipeStacks();
