@@ -27,30 +27,35 @@ public class SimpleHandler extends HandlerHelper<String, String> {
 
     @Override
     protected String processInput(String request, Context context) throws IOException {
-
         Optional<GitEvent> gitEventOpt=parseEvent(request);
+        String response="No action";
         if(gitEventOpt.isPresent()){
             GitEvent gitEvent=gitEventOpt.get();
                if(gitEvent instanceof PullRequest){
-                   processPullRequest((PullRequest)gitEvent);
+                   response=processPullRequest((PullRequest)gitEvent);
                }
                else if(gitEvent instanceof PushEvent){
-                   processPushEvent((PushEvent) gitEvent);
+                   response=processPushEvent((PushEvent) gitEvent);
                }
         }
 
-        return request;
+        return response;
 
     }
 
-    private void processPushEvent(PushEvent pushEvent) throws IOException {
+
+
+
+    private String processPushEvent(PushEvent pushEvent) throws IOException {
         GithubReader githubReader=initGithubReader(pushEvent);
         Application application=new Application(githubReader);
         application.updateLambdaTrustRole();
+        return pushEvent.toString();
+
     }
 
 
-    private void processPullRequest(PullRequest pullRequest) throws IOException {
+    private String processPullRequest(PullRequest pullRequest) throws IOException {
         if (pullRequest.getAction().equals(PullRequest.ACTION_OPEN)
             || pullRequest.getAction().equals(PullRequest.ACTION_REOPEN)) {
             createStacks(initGithubReader(pullRequest));
@@ -62,6 +67,10 @@ public class SimpleHandler extends HandlerHelper<String, String> {
 
         System.out.println(pullRequest.toString());
         logger.info(pullRequest.toString());
+
+        return  pullRequest.toString();
+
+
 
     }
 
@@ -94,7 +103,6 @@ public class SimpleHandler extends HandlerHelper<String, String> {
 
         Application application = new Application(reader);
         application.createStacks();
-
     }
 
 
