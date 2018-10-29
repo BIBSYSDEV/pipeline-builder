@@ -15,7 +15,7 @@ public class PushEvent implements GitEvent {
 
 
 
-    private PushEvent(JsonNode root) throws IOException {
+    private PushEvent(JsonNode root)  {
         this.root = root;
 
     }
@@ -30,11 +30,6 @@ public class PushEvent implements GitEvent {
         else {
             return Optional.empty();
         }
-
-    }
-
-    private boolean initIsPush() {
-        return root.has("pusher");
 
     }
 
