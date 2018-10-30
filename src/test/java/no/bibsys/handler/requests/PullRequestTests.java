@@ -17,7 +17,7 @@ public class PullRequestTests {
 
     public PullRequestTests() throws IOException {
         pullRequestString = IoUtils.resourceAsString(Paths.get("github", "pullrequest.json"));
-        pullRequest = new PullRequest(pullRequestString);
+        pullRequest =  (PullRequest) PullRequest.create(pullRequestString).get();
     }
 
     //Assert that PullRequest ...
@@ -34,7 +34,7 @@ public class PullRequestTests {
 
     @Test
     public void readsRepositoryName() {
-        assertThat(pullRequest.getRepositoryName(), is(equalTo("Hello-World")));
+        assertThat(pullRequest.getRepository(), is(equalTo("Hello-World")));
     }
 
 

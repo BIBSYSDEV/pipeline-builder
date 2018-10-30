@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.Optional;
 import no.bibsys.handler.responses.GatewayResponse;
 import no.bibsys.utils.ApiMessageParser;
 import no.bibsys.utils.IoUtils;
@@ -59,12 +60,16 @@ public abstract class HandlerHelper<I, O> implements RequestStreamHandler {
 
 
     public void writerFailure(Throwable error) throws IOException {
-        String outputString = error.getMessage();
+        String outputString = Optional.ofNullable(error.getMessage())
+            .orElse("Unknown error. Check stacktrace.");
+
         GatewayResponse gatewayResponse = new GatewayResponse(outputString,
             GatewayResponse.defaultHeaders(), HttpStatus.SC_INTERNAL_SERVER_ERROR);
-        String responseJson = objectMapper.writeValueAsString(gatewayResponse);
+        gatewayResponse.setBody(outputString);
+        String gateWayResponseJson = objectMapper.writeValueAsString(gatewayResponse);
+
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-        writer.write(responseJson);
+        writer.write(gateWayResponseJson);
         writer.close();
     }
 
@@ -83,7 +88,7 @@ public abstract class HandlerHelper<I, O> implements RequestStreamHandler {
         try {
             response = processInput(inputObject, context);
             writeOutput(response);
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.log(e.getMessage());
             writerFailure(e);
         }

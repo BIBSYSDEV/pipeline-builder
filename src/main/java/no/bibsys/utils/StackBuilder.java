@@ -11,21 +11,20 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
+import no.bibsys.git.github.GithubReader;
 import no.bibsys.roles.RoleManager;
 
 public class StackBuilder {
 
-
-
-
+    private final transient StackWiper stackWiper;
 
     private transient RoleManager roleManager;
-    private  final PipelineStackConfiguration pipelineStackConfiguration;
+    private final transient PipelineStackConfiguration pipelineStackConfiguration;
 
 
-    public StackBuilder(PipelineStackConfiguration pipelineStackConfiguration) {
+    public StackBuilder(StackWiper wiper, PipelineStackConfiguration pipelineStackConfiguration) {
+        this.stackWiper = wiper;
         this.pipelineStackConfiguration=pipelineStackConfiguration;
-
 
 
     }
@@ -33,18 +32,12 @@ public class StackBuilder {
 
     public void createStacks()
         throws IOException {
-
-        PipelineStackConfiguration configuration = getPipelineStackConfiguration();
-        StackWiper wiper=new StackWiper();
-        wiper.wipeStacks(configuration);
-        createPipelineStack(configuration);
+        stackWiper.wipeStacks();
+        createPipelineStack(pipelineStackConfiguration);
     }
 
 
-    public PipelineStackConfiguration getPipelineStackConfiguration() {
-        return pipelineStackConfiguration;
 
-    }
 
 
     private void createPipelineStack(PipelineStackConfiguration pipelineStackConfiguration)

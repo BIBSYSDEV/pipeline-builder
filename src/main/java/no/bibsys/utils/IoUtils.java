@@ -12,12 +12,12 @@ import java.util.List;
 public final class IoUtils {
 
 
+
     private IoUtils(){
-        throw new IllegalStateException("Not supposed to be instantiated");
+        throw new IllegalStateException("IoUtils should not be initialized");
     }
 
-
-    public static  InputStream inputStreamFromResources(Path path) {
+    public static InputStream inputStreamFromResources(Path path) {
         String pathString = path.toString();
         return Thread.currentThread().getContextClassLoader().getResourceAsStream(pathString);
     }
@@ -36,7 +36,7 @@ public final class IoUtils {
     }
 
 
-    public static  String fileAsString(Path path) throws IOException {
+    public static String fileAsString(Path path) throws IOException {
         InputStream fileInputStream = Files.newInputStream(path);
         return streamToString(fileInputStream);
     }
@@ -61,7 +61,7 @@ public final class IoUtils {
     }
 
 
-    public static  String removeMultipleWhiteSpaces(String input) {
+    public static String removeMultipleWhiteSpaces(String input) {
         String buffer = input.trim();
         String result = buffer.replaceAll("\\s\\s", " ");
         while (!result.equals(buffer)) {

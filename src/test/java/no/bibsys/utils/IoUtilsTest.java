@@ -18,7 +18,6 @@ import org.junit.Test;
 public class IoUtilsTest {
 
 
-
     private Path path = Paths.get("github", "pullrequest.json");
 
 

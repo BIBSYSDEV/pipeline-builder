@@ -23,6 +23,7 @@
         "iam:DetachRolePolicy",
         "iam:ListRolePolicies",
         "iam:GetRole",
+        "iam:GetRolePolicy",
         "iam:PassRole",
         "iam:PutRolePolicy",
         "logs:DeleteLogGroup",

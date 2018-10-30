@@ -31,6 +31,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 public class PipelineTest {
 
@@ -95,14 +96,14 @@ public class PipelineTest {
 //    }
 
     @Test
-    @Ignore
+    @Category(DoNotRunTest.class)
     public void createStacks() throws IOException {
         Application application = initApplication();
         application.createStacks();
     }
 
     @Test
-    @Ignore
+    @Category(DoNotRunTest.class)
     public void deleteStacks() throws IOException {
         Application application = initApplication();
         application.wipeStacks();
