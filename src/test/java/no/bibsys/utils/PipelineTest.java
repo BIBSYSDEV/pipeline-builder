@@ -6,10 +6,6 @@ import com.amazonaws.services.apigateway.model.GetExportRequest;
 import com.amazonaws.services.apigateway.model.GetExportResult;
 import com.amazonaws.services.apigateway.model.GetRestApisRequest;
 import com.amazonaws.services.apigateway.model.RestApi;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.SetBucketPolicyRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -19,8 +15,10 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import no.bibsys.Application;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.git.github.GithubConf;
@@ -29,18 +27,16 @@ import no.bibsys.git.github.RestReader;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class PipelineTest {
 
-    private String branchName = "master";
+    private String branchName = "autreg-58-openapi-lambda";
     private String repoName = "authority-registry-infrastructure";
     private String repoOwner = "BIBSYSDEV";
 
     //   curl -X POST "https://api.swaggerhub.com/apis/owner/apiId?isPrivate=true&version=1.0&force=true" -H  "accept: application/json" -H  "Authorization: 8d86ee95-f903-4207-9477-d8f297f3d5a1" -H  "Content-Type: application/json" -d "{\"some\":\"json\"}"
-
 
 
     @Test
@@ -75,25 +71,7 @@ public class PipelineTest {
         return template.get("Resources").get("RestApi").get("Properties").get("Name").asText();
     }
 
-    @Test
-    @Ignore
-    public void createSwaggerUIBacket()
-        throws IOException {
-        Application application = initApplication();
-        PipelineStackConfiguration config = application.getPipelineStackConfiguration();
-        String serviceStackName = config.getPipelineConfiguration().getFinalServiceStack();
 
-        String bucketName = cutString(String.format("swagger-%s", serviceStackName));
-        AmazonS3 s3 = AmazonS3ClientBuilder.defaultClient();
-        s3.deleteBucket(bucketName);
-        Bucket bucket = s3.createBucket(bucketName);
-        String bucketPolicy = IoUtils
-            .resourceAsString(Paths.get("policies", "publicAccessBucket.json"));
-        bucketPolicy = bucketPolicy.replaceAll("BUCKETNAME", bucketName);
-        s3.setBucketPolicy(new SetBucketPolicyRequest(bucketName, bucketPolicy));
-
-
-    }
 
 
     private String cutString(String inputString) {
@@ -101,24 +79,27 @@ public class PipelineTest {
         return inputString.substring(0, maxLenght);
     }
 
+
     @Test
-    @Ignore
+    @Category(DoNotRunTest.class)
     public void generateOpenApi() throws IOException {
         Application application = initApplication();
         PipelineStackConfiguration config = application.getPipelineStackConfiguration();
 
-        String apiName = apiName(readYaml());
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
-        Optional<RestApi> apiOpt = apiGateway
-            .getRestApis(new GetRestApisRequest().withLimit(100)).getItems()
-            .stream().filter(item -> item.getName().equals(apiName))
+        List<RestApi> apiList= apiGateway
+            .getRestApis(new GetRestApisRequest().withLimit(100)).getItems();
+
+        Optional<RestApi> apiOpt = apiList.stream()
+            .filter(api -> api.getName().contains(config.getProjectId()))
+            .filter(api -> api.getName().contains(config.getNormalizedBranchName()))
             .findFirst();
 
         if (apiOpt.isPresent()) {
             RestApi api = apiOpt.get();
 
             Map<String, String> requestParameters = new HashMap<>();
-            requestParameters.put("extensions", "apigateway");
+//            requestParameters.put("extensions", "apigateway");
             requestParameters.put("accepts", "application/json");
             GetExportRequest request = new GetExportRequest().withRestApiId(api.getId())
                 .withStageName("test").withExportType("oas30").withParameters(requestParameters);
@@ -127,8 +108,9 @@ public class PipelineTest {
             String swaggerFile = new String(result.getBody().array());
             System.out.println(swaggerFile);
 
-
         }
+
+//        return null;
 
 
     }
@@ -150,8 +132,8 @@ public class PipelineTest {
         post.addHeader("accept", "application/json");
         post.addHeader("Content-Type", "application/json");
         post.addHeader("Authorization", "8d86ee95-f903-4207-9477-d8f297f3d5a1");
-//        StringEntity stringEntity = new StringEntity();
 
+//        StringEntity stringEntity = new StringEntity();
 
     }
 
