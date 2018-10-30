@@ -9,11 +9,11 @@ phases:
   pre_build:
     commands:
     - echo Test started on `date`
-    - sh gradlew clean test
+    - sh gradlew  test
   build:
     commands:
     - echo Build started on `date`
-    - sh gradlew clean build shadowJar
+    - sh gradlew  build shadowJar
     - aws cloudformation package --template template.yml --s3-bucket $S3_BUCKET --output-template template-export.yml
 
 artifacts:

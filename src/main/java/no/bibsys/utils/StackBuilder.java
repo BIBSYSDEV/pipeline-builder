@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
-import no.bibsys.git.github.GithubReader;
 import no.bibsys.roles.RoleManager;
 
 public class StackBuilder {
