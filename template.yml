@@ -27,7 +27,6 @@ Resources:
       DefinitionBody:
         openapi: 3.0.0
         info:
-          title: CreateStacks
           description: Small api to build a branch
           version: "0.1"
         paths:
@@ -59,6 +58,7 @@ Resources:
                 content:
                   application/json :
                     schema:
+                      type: "object"
                       properties:
                         repository:
                           description: The name of the repository
@@ -72,11 +72,11 @@ Resources:
                         action:
                           description: create or update
                           type: string
-                    example:
-                      repositoryName: 'authority-registry'
-                      branch: master
-                      owner: BIBSYSDEV
-                      action: create
+#                    example:
+#                      repositoryName: 'authority-registry'
+#                      branch: master
+#                      owner: BIBSYSDEV
+#                      action: create
               x-amazon-apigateway-integration:
                 uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${BuildBranch.Arn}/invocations"
                 httpMethod: "POST"
