@@ -18,7 +18,6 @@ import org.junit.Test;
 public class IoUtilsTest {
 
 
-    private IoUtils ioUtils = new IoUtils();
     private Path path = Paths.get("github", "pullrequest.json");
 
 
@@ -26,7 +25,7 @@ public class IoUtilsTest {
     @Test
     public void readAResourceFileAsInputStream() throws IOException {
 
-        InputStream inputSteam = ioUtils.inputStreamFromResources(path);
+        InputStream inputSteam = IoUtils.inputStreamFromResources(path);
         int x = inputSteam.read();
         assertThat(x, is(not(equalTo(0))));
 
@@ -34,15 +33,15 @@ public class IoUtilsTest {
 
     @Test
     public void readResourceAsListOfStrings() throws IOException {
-        List<String> list = ioUtils.linesfromResource(path);
+        List<String> list = IoUtils.linesfromResource(path);
         assertThat(list.size(), is(not(equalTo(0))));
     }
 
 
     @Test
     public void readResourceAsString() throws IOException {
-        String content = ioUtils.resourceAsString(path);
-        String trimmed = ioUtils.removeMultipleWhiteSpaces(content);
+        String content = IoUtils.resourceAsString(path);
+        String trimmed = IoUtils.removeMultipleWhiteSpaces(content);
 
         assertThat(trimmed.length(), is(not(equalTo(0))));
         assertThat(trimmed,not(matchesPattern("\\s\\s")));

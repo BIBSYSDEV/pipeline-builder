@@ -13,11 +13,11 @@ public class RestReader {
 
 
     private final transient GithubConf githubConf;
-    private final transient IoUtils ioUtils;
+
 
     public RestReader(GithubConf githubConf) {
         this.githubConf = githubConf;
-        this.ioUtils = new IoUtils();
+
     }
 
     public String readRest(String url) throws IOException {
@@ -28,7 +28,7 @@ public class RestReader {
         CloseableHttpResponse response = httpClient.execute(get);
         HttpEntity responseEntity = response.getEntity();
         if (responseEntity != null) {
-            String responseString = ioUtils.streamToString(responseEntity.getContent());
+            String responseString = IoUtils.streamToString(responseEntity.getContent());
             response.close();
             return responseString;
 

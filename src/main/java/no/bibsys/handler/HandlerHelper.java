@@ -20,7 +20,6 @@ public abstract class HandlerHelper<I, O> implements RequestStreamHandler {
 
     private final transient Class<I> iclass;
     private final transient ApiMessageParser<I> inputParser = new ApiMessageParser<>();
-    private final transient IoUtils ioUtils = new IoUtils();
     private final transient ObjectMapper objectMapper = new ObjectMapper();
     protected transient LambdaLogger logger;
     private transient OutputStream outputStream;
@@ -40,7 +39,7 @@ public abstract class HandlerHelper<I, O> implements RequestStreamHandler {
 
     public I parseInput(InputStream inputStream)
         throws IOException {
-        String inputString = ioUtils.streamToString(inputStream);
+        String inputString = IoUtils.streamToString(inputStream);
         I input = inputParser.getBodyElementFromJson(inputString, iclass);
         return input;
 

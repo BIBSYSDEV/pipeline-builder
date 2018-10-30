@@ -5,26 +5,26 @@ import no.bibsys.Application;
 import no.bibsys.git.github.GithubConf;
 import no.bibsys.git.github.GithubReader;
 import no.bibsys.git.github.RestReader;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 public class PipelineTest {
 
-    private String branchName = "master";
+    private String branchName = "autreg-61-bugfix-lambdatrustrole";
     private String repoName = "authority-registry-infrastructure";
     private String repoOwner = "BIBSYSDEV";
 
 
 
     @Test
-    @Ignore
+    @Category(DoNotRunTest.class)
     public void createStacks() throws IOException {
         Application application = initApplication();
         application.createStacks();
     }
 
     @Test
-    @Ignore
+    @Category(DoNotRunTest.class)
     public void deleteStacks() throws IOException {
         Application application = initApplication();
         application.wipeStacks();

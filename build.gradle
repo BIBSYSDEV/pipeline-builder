@@ -95,4 +95,19 @@ shadowJar {
 }
 
 
+test {
+    useJUnit {
+        excludeCategories 'no.bibsys.utils.AmazonDependentTest'
+        excludeCategories 'no.bibsys.utils.DoNotRunTest'
+    }
+}
+
+task amazonTest(type: Test){
+    useJUnit{
+        includeCategories 'no.bibsys.utils.AmazonDependentTests' 
+    }
+}
+
+
+
 

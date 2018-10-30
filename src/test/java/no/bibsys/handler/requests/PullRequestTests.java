@@ -12,13 +12,13 @@ import org.junit.Test;
 public class PullRequestTests {
 
 
-    IoUtils ioUtils = new IoUtils();
+
     String pullRequestString;
     PullRequest pullRequest;
 
     public PullRequestTests() throws IOException {
-        pullRequestString = ioUtils.resourceAsString(Paths.get("github", "pullrequest.json"));
-        pullRequest = new PullRequest(pullRequestString);
+        pullRequestString = IoUtils.resourceAsString(Paths.get("github", "pullrequest.json"));
+        pullRequest =  (PullRequest) PullRequest.create(pullRequestString).get();
     }
 
     //Assert that PullRequest ...
@@ -35,7 +35,7 @@ public class PullRequestTests {
 
     @Test
     public void readsRepositoryName() {
-        assertThat(pullRequest.getRepositoryName(), is(equalTo("Hello-World")));
+        assertThat(pullRequest.getRepository(), is(equalTo("Hello-World")));
     }
 
 
