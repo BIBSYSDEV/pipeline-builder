@@ -2,6 +2,7 @@ package no.bibsys.handler.requests;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.google.common.base.Preconditions;
 
 @JsonInclude(Include.NON_NULL)
 public class CustomBuildRequest {
@@ -15,7 +16,15 @@ public class CustomBuildRequest {
     private String action;
 
     public String getAction() {
+        Preconditions.checkNotNull(action,"\"action\" field is empty. Valid values \"create\" or \"update\"");
+        Preconditions.checkArgument(validActionValue(), "Valid values: \"create\", \"update\"");
         return action;
+    }
+
+
+    private boolean validActionValue(){
+        return action.trim().toLowerCase().equals(CREATE) ||
+            action.trim().toLowerCase().equals(DELETE);
     }
 
     public void setAction(String action) {
@@ -24,6 +33,7 @@ public class CustomBuildRequest {
 
 
     public String getOwner() {
+        Preconditions.checkNotNull(owner,"\"owner\" field is empty");
         return owner;
     }
 
@@ -32,6 +42,7 @@ public class CustomBuildRequest {
     }
 
     public String getRepositoryName() {
+        Preconditions.checkNotNull(repositoryName,"\"repositoryName\" field is empty");
         return repositoryName;
     }
 
@@ -40,6 +51,7 @@ public class CustomBuildRequest {
     }
 
     public String getBranch() {
+        Preconditions.checkNotNull(branch,"\"branch\" field is empty");
         return branch;
     }
 
