@@ -22,6 +22,7 @@ Resources:
       - BuildBranch
     Type: AWS::Serverless::Api
     Properties:
+      Name: !Join ['-',[!Ref ProjectId, !Ref Branch, !Ref Stage]]
       StageName: !Ref Stage
       DefinitionBody:
         openapi: 3.0.0
