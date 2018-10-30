@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -25,8 +26,8 @@ import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.git.github.GithubConf;
 import no.bibsys.git.github.GithubReader;
 import no.bibsys.git.github.RestReader;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.junit.Ignore;
@@ -39,61 +40,9 @@ public class PipelineTest {
     private String repoName = "authority-registry-infrastructure";
     private String repoOwner = "BIBSYSDEV";
 
-/* response = api_gateway_client.get_export(restApiId=os.environ.get('REST_API_ID'),
-                              stageName=os.environ.get('STAGE_NAME'),
-                              exportType='oas30',
-                              parameters={'extensions':'apigateway'},
-                              accepts='application/json')*/
-
-/*Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Join ['-', [!Ref 'ProjectId', !Ref Branch, !Ref 'Stage', "swagger-ui"]]
-      AccessControl: PublicRead
-      WebsiteConfiguration:
-        IndexDocument: 'index.html'
-      CorsConfiguration:
-        CorsRules:
-        - AllowedHeaders:
-          - '*'
-          AllowedMethods:
-          - GET
-          - PUT
-          - HEAD
-          - POST
-          - DELETE
-          AllowedOrigins:
-          - '*'*/
+    //   curl -X POST "https://api.swaggerhub.com/apis/owner/apiId?isPrivate=true&version=1.0&force=true" -H  "accept: application/json" -H  "Authorization: 8d86ee95-f903-4207-9477-d8f297f3d5a1" -H  "Content-Type: application/json" -d "{\"some\":\"json\"}"
 
 
-//    @Test
-//    public void postApi() throws IOException {
-//        String jsonApi="lalala";
-//        CloseableHttpClient client = HttpClients.createMinimal();
-//
-//        HttpPost post = new HttpPost();
-//        URI uri=URI.create("https://api.swaggerhub.com/apis/Unit3/testingAPI");
-//        MultipartEntityBuilder.create();
-//        post.setURI());
-//
-//
-//        ArrayList<NameValuePair> parameters = new ArrayList<>();
-//        parameters.add(new BasicNameValuePair("isPrivate", "false"));
-//        parameters.add(new BasicNameValuePair("force", "true"));
-//        parameters.add(new BasicNameValuePair("version", "1.0"));
-//        UrlEncodedFormEntity entity = new UrlEncodedFormEntity(parameters);
-//
-//        post.setParams();
-//
-//
-//
-//        post.addHeader("accept", "application/json");
-//        post.addHeader("Content-Type", "application/json");
-//
-//        String content=IoUtils.streamToString(entity.getContent());
-//
-//        System.out.print(content);
-//
-//    }
 
     @Test
     @Category(DoNotRunTest.class)
@@ -147,19 +96,6 @@ public class PipelineTest {
 
     }
 
-    private void downloadFile() {
-        String version = "3.19.3";
-        String url = "https://github.com/swagger-api/swagger-ui/archive/v" + version + ".tar.gz";
-
-    }
-
-    private void getFile(String url) throws IOException {
-        CloseableHttpClient httpClient = HttpClients.createMinimal();
-        HttpGet get = new HttpGet(url);
-        CloseableHttpResponse response = httpClient.execute(get);
-        InputStream inputStream = response.getEntity().getContent();
-
-    }
 
     private String cutString(String inputString) {
         int maxLenght = Math.min(inputString.length(), 63);
@@ -197,6 +133,43 @@ public class PipelineTest {
 
 
     }
-    /*curl -X POST "https://api.swaggerhub.com/apis/OWNER/theAPI?isPrivate=false&version=1.0&force=true" -H  "accept: application/json" -H  "Content-Type: application/json" -d "BBOOODYYYY"*/
+
+
+    @Test
+    @Category(DoNotRunTest.class)
+    public void postApi() throws IOException {
+        String jsonApi = "lalala";
+        CloseableHttpClient client = HttpClients.createMinimal();
+
+        HttpPost post = new HttpPost();
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("isPrivate", "true");
+        parameters.put("force", "true");
+        parameters.put("version", "1.0");
+        URI uri = urlFormater("Unit3", "small-api", parameters).get();
+        post.setURI(uri);
+        post.addHeader("accept", "application/json");
+        post.addHeader("Content-Type", "application/json");
+        post.addHeader("Authorization", "8d86ee95-f903-4207-9477-d8f297f3d5a1");
+//        StringEntity stringEntity = new StringEntity();
+
+
+    }
+
+
+    private Optional<URI> urlFormater(String organization, String apiId,
+        Map<String, String> parameters) {
+        String host = String.format("https://api.swaggerhub.com/apis/%s/%s", organization, apiId);
+        StringBuffer builder = new StringBuffer();
+        builder.append(host);
+        return parameters.entrySet()
+            .stream()
+            .map(entry -> String.format("%s=%s", entry.getKey(), entry.getValue()))
+            .reduce((str1, str2) -> String.join("&", str1, str2))
+            .map(par -> par.replaceFirst("&", "?"))
+            .map(URI::create);
+
+    }
+
 
 }
