@@ -23,8 +23,8 @@ public class CustomBuildRequest {
 
 
     private boolean validActionValue(){
-        return action.trim().toLowerCase().equals(CREATE) ||
-            action.trim().toLowerCase().equals(DELETE);
+        return action.equalsIgnoreCase(CREATE) ||
+            action.equalsIgnoreCase(DELETE);
     }
 
     public void setAction(String action) {
