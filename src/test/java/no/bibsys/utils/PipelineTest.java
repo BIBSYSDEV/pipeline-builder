@@ -10,7 +10,7 @@ import org.junit.Test;
 
 public class PipelineTest {
 
-    private String branchName = "autreg-25-healthcheck";
+    private String branchName = "master";
     private String repoName = "authority-registry-infrastructure";
     private String repoOwner = "BIBSYSDEV";
 
