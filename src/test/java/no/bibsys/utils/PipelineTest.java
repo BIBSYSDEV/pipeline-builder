@@ -27,7 +27,6 @@ import no.bibsys.git.github.GithubConf;
 import no.bibsys.git.github.GithubReader;
 import no.bibsys.git.github.RestReader;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.junit.Ignore;
@@ -36,7 +35,7 @@ import org.junit.experimental.categories.Category;
 
 public class PipelineTest {
 
-    private String branchName = "autreg-58-openapi-lambda";
+    private String branchName = "master";
     private String repoName = "authority-registry-infrastructure";
     private String repoOwner = "BIBSYSDEV";
 
