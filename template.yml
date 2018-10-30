@@ -22,7 +22,6 @@ Resources:
       - BuildBranch
     Type: AWS::Serverless::Api
     Properties:
-      Name: createStacksApi
       StageName: !Ref Stage
       DefinitionBody:
         openapi: 3.0.0
