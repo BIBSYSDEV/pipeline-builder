@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import no.bibsys.git.github.GitInfo;
-import no.bibsys.git.github.GithubReader;
+import no.bibsys.git.github.ResourceFileReader;
 import no.bibsys.utils.JsonUtils;
 
 public class PipelineStackConfiguration extends CloudFormationConfigurable {
@@ -30,7 +30,7 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
     private final transient CodeBuildConfiguration codeBuildConfiguration;
 
 
-    public PipelineStackConfiguration(GithubReader githubreader) throws IOException {
+    public PipelineStackConfiguration(ResourceFileReader githubreader) throws IOException {
         super(githubreader.getGitInfo().getRepo(), githubreader.getBranch());
         this.githubConf = githubreader.getGitInfo();
         this.pipelineStackName = initPipelineStackName();
@@ -45,7 +45,7 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
     }
 
     private PipelineConfiguration initPipelineConfiguration(String branchName, String repoName,
-        GithubReader githubReader)
+        ResourceFileReader githubReader)
         throws IOException {
         PolicyReader policyReader = new PolicyReader(githubReader).invoke();
         String assumePolicyDocument = policyReader.getAssumePolicyDocument();
@@ -112,11 +112,11 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
 
         private final transient Config config = ConfigFactory.load().resolve();
-        private final transient GithubReader githubReader;
+        private final transient ResourceFileReader githubReader;
         private transient String assumePolicyDocument;
         private transient String accessPolicyDocument;
 
-        public PolicyReader(GithubReader githubReader) {
+        public PolicyReader(ResourceFileReader githubReader) {
             this.githubReader = githubReader;
         }
 

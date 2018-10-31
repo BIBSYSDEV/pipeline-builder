@@ -38,7 +38,7 @@ public abstract class ConfigurationTests extends AmazonRestrictions {
     @Before
     public void init() throws IOException {
         when(restReader.readRest(anyString())).thenReturn("{\"download_url\":\"some_url\"}");
-        when(restReader.getGithubConf()).thenReturn(this.githubConf);
+        when(restReader.getGitInfo()).thenReturn(this.githubConf);
     }
 
 

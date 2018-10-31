@@ -1,3 +1,8 @@
 # Building Pipelines
 
-Hello
+##Build
+ ` ./build.sh ` 
+ 
+## Run 
+
+` ./runlocal.sh <repository-owner> <reposiro>` 
