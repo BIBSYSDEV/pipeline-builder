@@ -46,8 +46,6 @@ class Script:
             - repository:\t Github repository
             - branch:\t\t Github branch
             - action:\t\t "create", "delete", or "update-role"
-
-
         """
 
 

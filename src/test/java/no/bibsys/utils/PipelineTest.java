@@ -12,19 +12,20 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import no.bibsys.Application;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.git.github.GithubConf;
 import no.bibsys.git.github.GithubReader;
 import no.bibsys.git.github.RestReader;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.junit.Test;
@@ -72,22 +73,20 @@ public class PipelineTest {
     }
 
 
-
-
     private String cutString(String inputString) {
         int maxLenght = Math.min(inputString.length(), 63);
         return inputString.substring(0, maxLenght);
     }
 
 
-    @Test
-    @Category(DoNotRunTest.class)
-    public void generateOpenApi() throws IOException {
+//    @Test
+//    @Category(DoNotRunTest.class)
+    public String generateOpenApi() throws IOException {
         Application application = initApplication();
         PipelineStackConfiguration config = application.getPipelineStackConfiguration();
 
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
-        List<RestApi> apiList= apiGateway
+        List<RestApi> apiList = apiGateway
             .getRestApis(new GetRestApisRequest().withLimit(100)).getItems();
 
         Optional<RestApi> apiOpt = apiList.stream()
@@ -106,11 +105,11 @@ public class PipelineTest {
             GetExportResult result = apiGateway
                 .getExport(request);
             String swaggerFile = new String(result.getBody().array());
-            System.out.println(swaggerFile);
+            return swaggerFile;
 
         }
 
-//        return null;
+        return null;
 
 
     }
@@ -119,7 +118,7 @@ public class PipelineTest {
     @Test
     @Category(DoNotRunTest.class)
     public void postApi() throws IOException {
-        String jsonApi = "lalala";
+        String jsonApi = generateOpenApi();
         CloseableHttpClient client = HttpClients.createMinimal();
 
         HttpPost post = new HttpPost();
@@ -131,7 +130,9 @@ public class PipelineTest {
         post.setURI(uri);
         post.addHeader("accept", "application/json");
         post.addHeader("Content-Type", "application/json");
-        post.addHeader("Authorization", "8d86ee95-f903-4207-9477-d8f297f3d5a1");
+        post.addHeader("Authorization", "a9fb");
+        StringEntity stringEntity=new StringEntity(jsonApi, StandardCharsets.UTF_8);
+        post.setEntity(stringEntity);
 
 //        StringEntity stringEntity = new StringEntity();
 
