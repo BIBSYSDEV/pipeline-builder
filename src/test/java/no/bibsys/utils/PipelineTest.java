@@ -24,6 +24,7 @@ import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.git.github.GithubConf;
 import no.bibsys.git.github.GithubReader;
 import no.bibsys.git.github.RestReader;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -37,7 +38,8 @@ public class PipelineTest {
     private String repoName = "authority-registry-infrastructure";
     private String repoOwner = "BIBSYSDEV";
 
-    //   curl -X POST "https://api.swaggerhub.com/apis/owner/apiId?isPrivate=true&version=1.0&force=true" -H  "accept: application/json" -H  "Authorization: 8d86ee95-f903-4207-9477-d8f297f3d5a1" -H  "Content-Type: application/json" -d "{\"some\":\"json\"}"
+    //   curl -X POST "https://api.swaggerhub.com/apis/owner/apiId?isPrivate=true&version=1.0&force=true"
+    // -H  "accept: application/json" -H  "Authorization: 8-9477-d8f297f3d5a1" -H  "Content-Type: application/json" -d "{\"some\":\"json\"}"
 
 
     @Test
@@ -98,10 +100,10 @@ public class PipelineTest {
             RestApi api = apiOpt.get();
 
             Map<String, String> requestParameters = new HashMap<>();
-//            requestParameters.put("extensions", "apigateway");
+            requestParameters.put("extensions", "apigateway");
             requestParameters.put("accepts", "application/json");
             GetExportRequest request = new GetExportRequest().withRestApiId(api.getId())
-                .withStageName("test").withExportType("oas30").withParameters(requestParameters);
+                .withStageName("final").withExportType("oas30").withParameters(requestParameters);
             GetExportResult result = apiGateway
                 .getExport(request);
             String swaggerFile = new String(result.getBody().array());
@@ -130,9 +132,12 @@ public class PipelineTest {
         post.setURI(uri);
         post.addHeader("accept", "application/json");
         post.addHeader("Content-Type", "application/json");
-        post.addHeader("Authorization", "a9fb");
+        post.addHeader("Authorization", "");
         StringEntity stringEntity=new StringEntity(jsonApi, StandardCharsets.UTF_8);
         post.setEntity(stringEntity);
+
+        CloseableHttpResponse response = client.execute(post);
+        System.out.print(response);
 
 //        StringEntity stringEntity = new StringEntity();
 
@@ -144,12 +149,13 @@ public class PipelineTest {
         String host = String.format("https://api.swaggerhub.com/apis/%s/%s", organization, apiId);
         StringBuffer builder = new StringBuffer();
         builder.append(host);
-        return parameters.entrySet()
+        Optional<String> paramteterOpt = parameters.entrySet()
             .stream()
             .map(entry -> String.format("%s=%s", entry.getKey(), entry.getValue()))
-            .reduce((str1, str2) -> String.join("&", str1, str2))
-            .map(par -> par.replaceFirst("&", "?"))
+            .reduce((str1, str2) -> String.join("&", str1, str2));
+        Optional<URI> uri = paramteterOpt.map(p -> String.join("?", host, p))
             .map(URI::create);
+        return uri;
 
     }
 
