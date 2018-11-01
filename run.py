@@ -24,8 +24,8 @@ class Script:
         return system_properties
 
     def _executeCommand(self, systemProperties):
-        command=["java","-classpath", "build/libs/pipeline-fat.jar"]
-        command= command+systemProperties+ ["no.bibsys.Application"]
+        command = ["java", "-classpath", "build/libs/pipeline-fat.jar"]
+        command = command + systemProperties + ["no.bibsys.Application"]
 
         subprocess.check_call(command)
 
@@ -39,15 +39,29 @@ class Script:
         system_properties = self._formSystemProperties()
         self._executeCommand(system_properties)
 
+    def help(self):
+        return \
+            """ python ryn.py <owner> <repository> <branch> <action>
+            - owner:\t\t Github owner
+            - repository:\t Github repository
+            - branch:\t\t Github branch
+            - action:\t\t "create", "delete", or "update-role"
+
+
+        """
+
 
 def main():
-    owner = sys.argv[1]
-    repository = sys.argv[2]
-    branch = sys.argv[3]
-    action = sys.argv[4]
-    script = Script(owner, repository, branch, action)
-    script.run()
-
+    if len(sys.argv) < 5:
+        script = Script(None, None, None, None)
+        print(script.help())
+    else:
+        owner = sys.argv[1]
+        repository = sys.argv[2]
+        branch = sys.argv[3]
+        action = sys.argv[4]
+        script = Script(owner, repository, branch, action)
+        script.run()
 
 
 if __name__ == "__main__":
