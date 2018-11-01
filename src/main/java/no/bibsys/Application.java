@@ -7,7 +7,7 @@ import no.bibsys.git.github.GitInfo;
 import no.bibsys.git.github.GithubConf;
 import no.bibsys.git.github.LocalResourceFileReader;
 import no.bibsys.git.github.ResourceFileReader;
-import no.bibsys.handler.requests.CustomBuildRequest;
+import no.bibsys.handler.requests.Action;
 import no.bibsys.roles.RoleManager;
 import no.bibsys.utils.Environment;
 import no.bibsys.utils.StackBuilder;
@@ -41,12 +41,12 @@ public class Application {
         GitInfo gitInfo = new GithubConf(repoOwner, repository, new Environment());
         ResourceFileReader githubReader = new LocalResourceFileReader(gitInfo, branch);
         Application application = new Application(githubReader);
-        if (action.equals(CustomBuildRequest.CREATE)) {
+        if (action.equals(Action.CREATE)) {
             application.createStacks();
-        } else if (action.equals(CustomBuildRequest.DELETE)) {
+        } else if (action.equals(Action.DELETE)) {
             application.wipeStacks();
         }
-        else{
+        else if(action.equals(Action.UPDATE_ROLE)){
             application.updateLambdaTrustRole();
         }
 

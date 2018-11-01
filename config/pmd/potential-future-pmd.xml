@@ -34,6 +34,7 @@
     <exclude name="OnlyOneReturn"/>
     <exclude name="LocalVariableCouldBeFinal"/>
     <exclude name="MethodArgumentCouldBeFinal"/>
+    <exclude name="ClassNamingConventions"/>
 
     <!--<exclude name="BeanMembersShouldSerialize"/>-->
 

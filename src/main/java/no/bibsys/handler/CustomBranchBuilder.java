@@ -7,6 +7,7 @@ import java.io.IOException;
 import no.bibsys.git.github.GithubConf;
 import no.bibsys.git.github.GithubReader;
 import no.bibsys.git.github.RestReader;
+import no.bibsys.handler.requests.Action;
 import no.bibsys.handler.requests.CustomBuildRequest;
 import no.bibsys.utils.Environment;
 import no.bibsys.utils.JsonUtils;
@@ -20,11 +21,11 @@ public class CustomBranchBuilder extends SimpleHandler {
         ObjectMapper mapper = JsonUtils.newJsonParser();
         CustomBuildRequest request = mapper.readValue(string, CustomBuildRequest.class);
 
-        if (request.getAction().equals(CustomBuildRequest.CREATE)) {
+        if (request.getAction().equals(Action.CREATE)) {
             createStacks(initGithubReader(request));
         }
 
-        if (request.getAction().equals(CustomBuildRequest.DELETE)) {
+        if (request.getAction().equals(Action.DELETE)) {
             deleteStacks(initGithubReader(request));
         }
 

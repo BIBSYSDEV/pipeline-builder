@@ -1,5 +1,8 @@
 package no.bibsys.handler.requests;
 
+import static no.bibsys.handler.requests.Action.CREATE;
+import static no.bibsys.handler.requests.Action.DELETE;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.common.base.Preconditions;
@@ -7,8 +10,8 @@ import com.google.common.base.Preconditions;
 @JsonInclude(Include.NON_NULL)
 public class CustomBuildRequest {
 
-    public static final String CREATE = "create";
-    public static final String DELETE = "delete";
+
+
 
     private String repository;
     private String branch;
