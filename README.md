@@ -1,11 +1,13 @@
 # Building Pipelines
 
 ##Build
- ` ./build.sh ` 
+ ` sh build.sh ` 
  
 ## Run 
 
  `python run.py <owner> <repository> <branch> <action>` 
+ 
+ Python 2.7 or new is required
  
  where 
  
@@ -26,3 +28,10 @@
   To update the Role that is executing the code we will run the command:
   
   `python run.py BIBSYSDEV authority-registry master update-role`
+  
+  Alternatively you can run:
+  
+  `java -cp build/libs/pipeline-fat.jar -Downer=<owner> -Drepository=<repository> -Dbranch=<branch>
+   -Daction=<action>`
+   
+   
