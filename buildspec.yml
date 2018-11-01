@@ -13,7 +13,7 @@ phases:
   build:
     commands:
     - echo Build started on `date`
-    - sh gradlew  build shadowJar
+    - sh gradlew -x test build shadowJar
     - aws cloudformation package --template template.yml --s3-bucket $S3_BUCKET --output-template template-export.yml
 
 artifacts:
