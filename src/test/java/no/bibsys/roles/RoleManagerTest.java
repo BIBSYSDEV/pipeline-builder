@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 import no.bibsys.cloudformation.PipelineConfiguration;
-import no.bibsys.utils.AmazonDependentTest;
+import no.bibsys.utils.IntegrationTest;
 import no.bibsys.utils.IoUtils;
 import no.bibsys.utils.JsonUtils;
 import org.junit.Before;
@@ -44,7 +44,7 @@ public class RoleManagerTest {
 
 
     @Test
-    @Category(AmazonDependentTest.class)
+    @Category(IntegrationTest.class)
     public void roleManagerShouldUpdateARole() throws IOException {
 
         if(roleManager.getRole().isPresent()){
