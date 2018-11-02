@@ -25,7 +25,7 @@ Resources:
       Name: !Join ['-',[!Ref ProjectId, !Ref Branch, !Ref Stage]]
       StageName: !Ref Stage
       DefinitionBody:
-        openapi: 3.0.0
+        openapi: 3.0.1
         info:
           description: Small api to build a branch
           version: "0.1"
@@ -39,21 +39,12 @@ Resources:
                     text/plain:
                       schema:
                         type: string
-              x-amazon-apigateway-integration:
-                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GithubHook.Arn}/invocations"
-                httpMethod: "POST"
-                type: aws_proxy
-                passthroughBehavior: when_no_match
           /buildbranch:
             post:
               operationId: insertEntry
               responses:
                 default:
-                  description: A simple string response
-                  content:
-                    text/plain:
-                      schema:
-                        type: string
+                  description: A simple  response
               requestBody:
                 content:
                   application/json :
@@ -77,11 +68,11 @@ Resources:
                       branch: master
                       owner: BIBSYSDEV
                       action: create
-              x-amazon-apigateway-integration:
-                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${BuildBranch.Arn}/invocations"
-                httpMethod: "POST"
-                type: aws_proxy
-                passthroughBehavior: when_no_match
+#              x-amazon-apigateway-integration:
+#                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${BuildBranch.Arn}/invocations"
+#                httpMethod: "POST"
+#                type: aws_proxy
+#                passthroughBehavior: when_no_match
 
   GithubHook:
     Type: AWS::Serverless::Function
