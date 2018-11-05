@@ -35,9 +35,9 @@ Resources:
                 default:
                   description: default response
                   content:
-                    application/json:
+                    stromg:
                       schema:
-                        ref: '#/components/schemas/SimpleResponse'
+                        ref: '#/definitions/StringResponse'
               x-amazon-apigateway-integration:
                 uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GithubHook.Arn}/invocations"
                 httpMethod: "POST"
@@ -50,9 +50,9 @@ Resources:
                 default:
                   description: default response
                   content:
-                    application/json:
+                    string:
                       schema:
-                        ref: '#/components/schemas/SimpleResponse'
+                        ref: '#/definitions/StringResponse'
               requestBody:
                 content:
                   application/json:
@@ -81,10 +81,9 @@ Resources:
                 httpMethod: "POST"
                 type: aws_proxy
                 passthroughBehavior: when_no_match
-        components:
-          schemas:
-            SimpleResponse:
-              type: object
+        definitions:
+            StringResponse:
+              type: string
 
   GithubHook:
     Type: AWS::Serverless::Function
@@ -124,6 +123,7 @@ Resources:
           - iam:GetRole
           - iam:GetRolePolicy
           - iam:PassRole
+          - lambda:InvokeFunction
           - iam:PutRolePolicy
           - logs:DeleteLogGroup
           - logs:DescribeLogGroups
@@ -205,6 +205,7 @@ Resources:
           - iam:GetRolePolicy
           - iam:PassRole
           - iam:PutRolePolicy
+          - lambda:InvokeFunction
           - logs:DeleteLogGroup
           - logs:DescribeLogGroups
           - s3:CreateBucket
@@ -257,7 +258,8 @@ Resources:
         Version: '2012-10-17'
         Statement:
         - Action:
-          - apigateway:GET
+          - lambda:InvokeFunction
+          - apigateway:*
           Effect: Allow
           Resource: "*"
       MemorySize: 1500
