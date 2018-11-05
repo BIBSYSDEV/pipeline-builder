@@ -12,7 +12,7 @@ public class CustomBranchBuilder extends SimpleHandler {
 
 
     @Override
-    protected String processInput(String string, Context context) throws IOException {
+    public String processInput(String string, Context context) throws IOException {
 
         ObjectMapper mapper = JsonUtils.newJsonParser();
         CustomBuildRequest request = mapper.readValue(string, CustomBuildRequest.class);

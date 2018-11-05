@@ -17,12 +17,12 @@ public class InitHandler extends  HandlerHelper<PublishApi,String> {
     }
 
     @Override
-    protected String processInput(final PublishApi input, Context context)
+    public String processInput(final PublishApi input, Context context)
         throws IOException, URISyntaxException {
 
         CloudFormationConfigurable config=new CloudFormationConfigurable(input.getRepository(),input.getBranch());
         String json=generateApiSpec(input, config);
-
+//
         SwaggerDriver swaggerDriver=new SwaggerDriver(input.getSwaggetHubApiKey(),
             input.getSwaggerOrganization(),input.getApiId());
         HttpPost request = swaggerDriver

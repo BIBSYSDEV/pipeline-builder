@@ -25,7 +25,7 @@ public class SimpleHandler extends HandlerHelper<String, String> {
     }
 
     @Override
-    protected String processInput(String request, Context context) throws IOException {
+    public String processInput(String request, Context context) throws IOException {
         Optional<RepositoryInfo> gitEventOpt=parseEvent(request);
         String response="No action";
         if(gitEventOpt.isPresent()){

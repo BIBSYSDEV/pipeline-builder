@@ -47,7 +47,7 @@ public abstract class HandlerHelper<I, O> implements RequestStreamHandler {
 
     }
 
-    protected abstract O processInput(I input, Context context)
+    public abstract O processInput(I input, Context context)
         throws IOException, URISyntaxException;
 
     public void writeOutput(O output) throws IOException {
