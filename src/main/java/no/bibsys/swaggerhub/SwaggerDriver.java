@@ -8,9 +8,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.apache.http.HttpRequest;
+import no.bibsys.utils.IoUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
@@ -32,11 +33,18 @@ public class SwaggerDriver {
     }
 
 
-
     public int executeUpdate(HttpUriRequest request) throws IOException {
         CloseableHttpClient client = newRestClient();
         CloseableHttpResponse response = client.execute(request);
         return response.getStatusLine().getStatusCode();
+    }
+
+
+    public String executeGet(HttpGet get) throws IOException {
+        CloseableHttpClient client=newRestClient();
+        CloseableHttpResponse response=client.execute(get);
+        String output=IoUtils.streamToString(response.getEntity().getContent());
+        return output;
     }
 
 
@@ -49,61 +57,68 @@ public class SwaggerDriver {
     }
 
 
-    public HttpPost createUpdateSpecificationPostRequest(String jsonSpec, String apiVersion)
+    public HttpPost updateSpecificationPostRequest(String jsonSpec, String apiVersion)
         throws URISyntaxException {
         Optional<URI> uriOpt = urlFormater(
             apiUri(null),
             setupRequestParametersForUpdate(apiVersion));
         Optional<HttpPost> postOpt = uriOpt.map(uri -> createPostRequest(uri, jsonSpec));
-        if(postOpt.isPresent())
-            return  postOpt.get();
-        else
-            throw new IllegalStateException("Failed to create UpdatePost request.");
+        return  postOpt.orElseThrow(()->new IllegalStateException("Failed to create UpdatePost request."));
+
     }
 
 
-
-
-    public HttpDelete createDeleteSpecificationVesionRequest(String apiVersion )
+    public HttpDelete deleteSpecificationVesionRequest(String apiVersion)
         throws URISyntaxException {
 
         Optional<URI> uriOpt = urlFormater(apiUri(apiVersion), Collections.emptyMap());
         Optional<HttpDelete> delete = uriOpt.map(uri -> new HttpDelete(uri));
-        if(delete.isPresent())
+        if (delete.isPresent()) {
             return delete.get();
-        else{
-            throw  new IllegalStateException("Failed to create DeletePost request");
+        } else {
+            throw new IllegalStateException("Failed to create DeletePost request");
         }
 
     }
 
 
+    public HttpGet getSpecificationVesionRequest(String apiVersion)
+        throws URISyntaxException {
+
+        Optional<URI> uriOpt = urlFormater(apiUri(apiVersion), Collections.emptyMap());
+        Optional<HttpGet> httpGet = uriOpt.map(uri -> new HttpGet(uri));
+        return httpGet
+            .orElseThrow(() -> new IllegalStateException("Failed to create DeletePost request"));
+
+    }
 
 
-    private Optional<URI> urlFormater(URI apiAddress,Map<String,String> requestParameters) {
+    private Optional<URI> urlFormater(URI apiAddress, Map<String, String> requestParameters) {
 
         Optional<String> parameterOpt = joinParametersToString(requestParameters);
-        String host = apiAddress.toString().replaceAll("/$", "");
-        if(parameterOpt.isPresent()) {
 
+        //remove the last slash if there is any
+        String host = apiAddress.toString().replaceAll("/$", "");
+
+        if (parameterOpt.isPresent()) {
             Optional<URI> uri = parameterOpt
                 .map(parameterString -> String.join("?", host, parameterString))
                 .map(URI::create);
             return uri;
-        }
-        else{
+        } else {
             return Optional.of(URI.create(host));
         }
 
 
     }
 
-    private URI apiUri(String version) throws  URISyntaxException {
-        if(version!=null && version.length()>0){
-            return new URI(String.format("https://api.swaggerhub.com/apis/%s/%s/%s", organization, apiId,version));
-        }
-        else{
-            return new URI(String.format("https://api.swaggerhub.com/apis/%s/%s", organization, apiId));
+    private URI apiUri(String version) throws URISyntaxException {
+        if (version != null && version.length() > 0) {
+            return new URI(String
+                .format("https://api.swaggerhub.com/apis/%s/%s/%s", organization, apiId, version));
+        } else {
+            return new URI(
+                String.format("https://api.swaggerhub.com/apis/%s/%s", organization, apiId));
         }
 
     }
@@ -122,7 +137,6 @@ public class SwaggerDriver {
         parameters.put("version", version);
         return parameters;
     }
-
 
 
     private HttpPost createPostRequest(URI uri, String jsonSpec) {

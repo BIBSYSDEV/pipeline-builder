@@ -8,11 +8,9 @@ import static org.hamcrest.junit.MatcherAssert.assertThat;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import no.bibsys.utils.IntegrationTest;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 public class SwaggerDriverTest {
 
@@ -89,17 +87,14 @@ public class SwaggerDriverTest {
 
 
 
-    @Test
-    @Category(IntegrationTest.class)
-
     private HttpDelete deleteRequest() throws URISyntaxException {
-        return driver.createDeleteSpecificationVesionRequest(apiVersion);
+        return driver.deleteSpecificationVesionRequest(apiVersion);
     }
 
 
     private HttpPost postRequest() throws URISyntaxException {
         return driver
-            .createUpdateSpecificationPostRequest("jsonString", apiVersion);
+            .updateSpecificationPostRequest("jsonString", apiVersion);
     }
 
 
