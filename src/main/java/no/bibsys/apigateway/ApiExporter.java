@@ -17,11 +17,12 @@ public class ApiExporter {
 
 
     private final transient CloudFormationConfigurable config;
+    private final transient String stage;
 
-    public ApiExporter(CloudFormationConfigurable config) {
+    public ApiExporter(CloudFormationConfigurable config, String stage) {
         this.config = config;
+        this.stage = stage;
     }
-
 
 
     public String generateOpenApiNoExtensions() throws IOException {
@@ -30,7 +31,8 @@ public class ApiExporter {
         return generateOpenApi(requestParameters);
     }
 
-    private  String generateOpenApi(Map<String,String> requestParameters) throws IOException {
+    private String generateOpenApi(Map<String, String> requestParameters)
+        throws IOException {
 
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
         List<RestApi> apiList = apiGateway
@@ -39,11 +41,11 @@ public class ApiExporter {
         Optional<RestApi> apiOpt = apiList.stream()
             .filter(api -> api.getName().contains(config.getProjectId()))
             .filter(api -> api.getName().contains(config.getNormalizedBranchName()))
+            .filter(api -> api.getName().contains(stage))
             .findFirst();
 
         if (apiOpt.isPresent()) {
             RestApi api = apiOpt.get();
-
 
             GetExportRequest request = new GetExportRequest().withRestApiId(api.getId())
                 .withStageName("final").withExportType("oas30").withParameters(requestParameters);
@@ -58,9 +60,6 @@ public class ApiExporter {
 
 
     }
-
-
-
 
 
 }
