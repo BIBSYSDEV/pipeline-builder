@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.URISyntaxException;
 import java.util.Optional;
 import no.bibsys.handler.responses.GatewayResponse;
 import no.bibsys.utils.ApiMessageParser;
@@ -46,7 +47,8 @@ public abstract class HandlerHelper<I, O> implements RequestStreamHandler {
 
     }
 
-    protected abstract O processInput(I input, Context context) throws IOException;
+    protected abstract O processInput(I input, Context context)
+        throws IOException, URISyntaxException;
 
     public void writeOutput(O output) throws IOException {
         String outputString = objectMapper.writeValueAsString(output);
