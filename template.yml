@@ -37,10 +37,7 @@ Resources:
                   content:
                     application/json:
                       schema:
-                        type: object
-                        properties:
-                          message:
-                            type: string
+                        ref: '#/components/schemas/SimpleResponse'
               x-amazon-apigateway-integration:
                 uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GithubHook.Arn}/invocations"
                 httpMethod: "POST"
@@ -55,10 +52,7 @@ Resources:
                   content:
                     application/json:
                       schema:
-                        type: object
-                        properties:
-                          message:
-                            type: string
+                        ref: '#/components/schemas/SimpleResponse'
               requestBody:
                 content:
                   application/json:
@@ -87,6 +81,10 @@ Resources:
                 httpMethod: "POST"
                 type: aws_proxy
                 passthroughBehavior: when_no_match
+        components:
+          schemas:
+            SimpleResponse:
+              type: object
 
   GithubHook:
     Type: AWS::Serverless::Function
