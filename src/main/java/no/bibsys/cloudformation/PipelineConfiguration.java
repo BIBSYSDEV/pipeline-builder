@@ -19,8 +19,8 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
         super(repositoryName, branchName);
 
         this.sourceOutputArtifactName = initSourceOutputArtifactName();
-        this.testServiceStack = initServiceStack("test");
-        this.finalServiceStack = initServiceStack("prod");
+        this.testServiceStack = initServiceStack(Stage.TEST);
+        this.finalServiceStack = initServiceStack(Stage.PROD);
         this.pipelineName = initializePipelineName();
         this.lambdaTrustRolename = initializeLambdaTrustRole();
         this.lambdaTrustRoleAssumePolicy = assumePolicy;
