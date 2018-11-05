@@ -18,6 +18,7 @@ Resources:
   RestApi:
     DependsOn:
       - BuildBranch
+      - GithubHook
     Type: AWS::Serverless::Api
     Properties:
       Name: !Join ['-',[!Ref ProjectId, !Ref Branch, !Ref Stage]]
@@ -37,6 +38,11 @@ Resources:
                     text/plain:
                       schema:
                         type: string
+              x-amazon-apigateway-integration:
+                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GithubHook.Arn}/invocations"
+                httpMethod: "POST"
+                type: aws_proxy
+                passthroughBehavior: when_no_match
           /buildbranch:
             post:
               operationId: insertEntry
