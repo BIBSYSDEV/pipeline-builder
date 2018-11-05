@@ -17,7 +17,7 @@ public class StackBuilder {
 
     private final transient StackWiper stackWiper;
 
-    private transient RoleManager roleManager;
+
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
 
 
