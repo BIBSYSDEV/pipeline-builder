@@ -66,11 +66,11 @@ Resources:
                       branch: master
                       owner: BIBSYSDEV
                       action: create
-#              x-amazon-apigateway-integration:
-#                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${BuildBranch.Arn}/invocations"
-#                httpMethod: "POST"
-#                type: aws_proxy
-#                passthroughBehavior: when_no_match
+              x-amazon-apigateway-integration:
+                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${BuildBranch.Arn}/invocations"
+                httpMethod: "POST"
+                type: aws_proxy
+                passthroughBehavior: when_no_match
 
   GithubHook:
     Type: AWS::Serverless::Function
