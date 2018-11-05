@@ -5,7 +5,7 @@ public final class Stage {
 
 
     public final static String TEST = "test";
-    public final static String PROD = "prod";
+    public final static String FINAL = "final";
 
 
     private Stage() {
