@@ -6,23 +6,29 @@ import java.io.IOException;
 import java.util.Optional;
 import no.bibsys.utils.JsonUtils;
 
-public final class PullRequest implements  GitEvent{
+public final class PullRequest extends RepositoryInfo {
 
     public static final String ACTION_OPEN = "opened";
     public static final String ACTION_REOPEN = "reopened";
     public static final String ACTION_CLOSE = "closed";
 
 
-    private final transient JsonNode root;
+
+    private  String action;
 
 
     private PullRequest(JsonNode root) throws IOException {
-        this.root = root;
+        this.setOwner(root.get("repository").get("owner").get("login").asText());
+        this.setRepository(root.get("repository").get("name").asText());
+        this.setBranch(root.get("pull_request").get("head").get("ref").asText());
+        this.action=root.get("action").asText();
+
     }
 
-    public static Optional<GitEvent> create(String jsonString) throws IOException {
+    public static Optional<RepositoryInfo> create(String jsonString) throws IOException {
         ObjectMapper mapper = JsonUtils.newJsonParser();
         JsonNode root = mapper.readTree(jsonString);
+
         if (root.has("pull_request")) {
             return Optional.of(new PullRequest(root));
         } else {
@@ -31,32 +37,21 @@ public final class PullRequest implements  GitEvent{
     }
 
 
-    @Override
-    public String getOwner() {
-        return root.get("repository").get("owner").get("login").asText();
-    }
 
-    @Override
-    public String getRepository() {
-        return root.get("repository").get("name").asText();
-    }
 
 
     public String getAction() {
-        return root.get("action").asText();
+        return action;
+    }
+
+    public void setAction(String action){
+        this.action=action;
     }
 
 
-    @Override
-    public String getBranch() {
-        String branch = root.get("pull_request").get("head").get("ref").asText();
-        return branch;
-    }
 
 
-    @Override
-    public String toString() {
-        return String.join(":", getRepository(), getBranch(), getAction());
-    }
+
+
 
 }

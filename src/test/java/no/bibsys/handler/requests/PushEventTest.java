@@ -48,7 +48,7 @@ public class PushEventTest {
     @Test
     public void PushEventShouldAcceptOnlyPushEvents() throws IOException {
         String json=IoUtils.resourceAsString(Paths.get("requests","pullrequest.json"));
-        Optional<GitEvent> event = PushEvent.create(json);
+        Optional<RepositoryInfo> event = PushEvent.create(json);
         assertThat(event.isPresent(),is(equalTo(false)));
     }
 

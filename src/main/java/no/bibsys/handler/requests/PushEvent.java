@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 import java.util.Optional;
 import no.bibsys.utils.JsonUtils;
 
-public final class PushEvent implements GitEvent {
+public final class PushEvent implements RepositoryInfo {
 
 
     private final transient JsonNode root;
@@ -21,7 +21,7 @@ public final class PushEvent implements GitEvent {
     }
 
 
-    public static Optional<GitEvent> create(String json) throws IOException {
+    public static Optional<RepositoryInfo> create(String json) throws IOException {
         ObjectMapper mapper=JsonUtils.newJsonParser();
         JsonNode root=mapper.readValue(json,JsonNode.class);
         if(root.has("pusher")){
