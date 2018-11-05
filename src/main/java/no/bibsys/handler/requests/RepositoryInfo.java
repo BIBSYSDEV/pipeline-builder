@@ -2,7 +2,7 @@ package no.bibsys.handler.requests;
 
 import com.google.common.base.Preconditions;
 
-public class RepositoryInfo {
+public class RepositoryInfo  {
 
 
      private  String owner;
