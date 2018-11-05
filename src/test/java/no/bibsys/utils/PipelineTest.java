@@ -3,8 +3,6 @@ package no.bibsys.utils;
 import java.io.IOException;
 import no.bibsys.Application;
 import no.bibsys.git.github.GithubConf;
-import no.bibsys.git.github.GithubReader;
-import no.bibsys.git.github.RestReader;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 

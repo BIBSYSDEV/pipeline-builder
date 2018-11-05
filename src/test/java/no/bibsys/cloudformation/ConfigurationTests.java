@@ -1,17 +1,9 @@
 package no.bibsys.cloudformation;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-
 import java.io.IOException;
-import no.bibsys.git.github.GitInfo;
 import no.bibsys.git.github.GithubConf;
-import no.bibsys.git.github.GithubReader;
-import no.bibsys.git.github.RestReader;
 import no.bibsys.utils.AmazonRestrictions;
 import no.bibsys.utils.MockEnvironment;
-import org.junit.Before;
-import org.mockito.Mockito;
 
 public abstract class ConfigurationTests extends AmazonRestrictions {
 
