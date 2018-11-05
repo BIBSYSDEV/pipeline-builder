@@ -5,10 +5,7 @@ import java.io.IOException;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.git.github.GitInfo;
 import no.bibsys.git.github.GithubConf;
-import no.bibsys.git.github.LocalResourceFileReader;
-import no.bibsys.git.github.ResourceFileReader;
 import no.bibsys.handler.requests.Action;
-import no.bibsys.roles.RoleManager;
 import no.bibsys.utils.Environment;
 import no.bibsys.utils.StackBuilder;
 import no.bibsys.utils.StackWiper;
@@ -24,13 +21,13 @@ public class Application {
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
 
 
-    public Application(ResourceFileReader repositoryReader) throws IOException {
+    public Application(GitInfo gitInfo,String branch) throws IOException {
 
-        GitInfo githubConf = repositoryReader.getGitInfo();
-        this.pipelineStackConfiguration = new PipelineStackConfiguration(repositoryReader);
+        GitInfo githubConf = gitInfo;
+        this.pipelineStackConfiguration = new PipelineStackConfiguration(githubConf,branch);
         this.repoOwner = githubConf.getOwner();
         this.repoName = githubConf.getOwner();
-        this.branch = repositoryReader.getBranch();
+        this.branch =branch;
         wiper = new StackWiper(pipelineStackConfiguration);
         checkNulls();
 
@@ -39,16 +36,14 @@ public class Application {
     public static void run(String repoOwner, String repository, String branch, String action)
         throws IOException {
         GitInfo gitInfo = new GithubConf(repoOwner, repository, new Environment());
-        ResourceFileReader githubReader = new LocalResourceFileReader(gitInfo, branch);
-        Application application = new Application(githubReader);
+
+        Application application = new Application(gitInfo,branch);
         if (action.equals(Action.CREATE)) {
             application.createStacks();
         } else if (action.equals(Action.DELETE)) {
             application.wipeStacks();
         }
-        else if(action.equals(Action.UPDATE_ROLE)){
-            application.updateLambdaTrustRole();
-        }
+
 
     }
 
@@ -78,13 +73,7 @@ public class Application {
         stackBuilder.createStacks();
     }
 
-    public void updateLambdaTrustRole() {
 
-        RoleManager roleManager = new RoleManager(
-            pipelineStackConfiguration.getPipelineConfiguration());
-        roleManager.updateRole();
-
-    }
 
     public void wipeStacks() {
         checkNulls();

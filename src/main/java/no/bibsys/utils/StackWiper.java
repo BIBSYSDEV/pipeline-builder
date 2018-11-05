@@ -14,7 +14,6 @@ import com.amazonaws.services.s3.model.VersionListing;
 import java.util.List;
 import java.util.stream.Collectors;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
-import no.bibsys.roles.RoleManager;
 
 public class StackWiper {
 
@@ -72,14 +71,9 @@ public class StackWiper {
         deleteBuckets();
         deleteStacks();
         deleteLogs();
-        deleteRoles();
     }
 
-    private void deleteRoles() {
-        RoleManager roleManager = new RoleManager(pipelineStackConfiguration.getPipelineConfiguration());
-        roleManager.deleteRole();
 
-    }
 
 
     private boolean filterLogGroups(PipelineStackConfiguration conf, String name) {

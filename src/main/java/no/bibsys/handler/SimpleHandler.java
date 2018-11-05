@@ -5,12 +5,11 @@ import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
 import java.util.Optional;
 import no.bibsys.Application;
+import no.bibsys.git.github.GitInfo;
 import no.bibsys.git.github.GithubConf;
-import no.bibsys.git.github.GithubReader;
-import no.bibsys.git.github.RestReader;
-import no.bibsys.handler.requests.RepositoryInfo;
 import no.bibsys.handler.requests.PullRequest;
 import no.bibsys.handler.requests.PushEvent;
+import no.bibsys.handler.requests.RepositoryInfo;
 import no.bibsys.utils.Environment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,9 +46,6 @@ public class SimpleHandler extends HandlerHelper<String, String> {
 
 
     private String processPushEvent(PushEvent pushEvent) throws IOException {
-        GithubReader githubReader=initGithubReader(pushEvent);
-        Application application=new Application(githubReader);
-        application.updateLambdaTrustRole();
         return pushEvent.toString();
 
     }
@@ -58,11 +54,11 @@ public class SimpleHandler extends HandlerHelper<String, String> {
     private String processPullRequest(PullRequest pullRequest) throws IOException {
         if (pullRequest.getAction().equals(PullRequest.ACTION_OPEN)
             || pullRequest.getAction().equals(PullRequest.ACTION_REOPEN)) {
-            createStacks(initGithubReader(pullRequest));
+            createStacks(pullRequest);
         }
 
         if (pullRequest.getAction().equals(PullRequest.ACTION_CLOSE)) {
-            deleteStacks(initGithubReader(pullRequest));
+            deleteStacks(pullRequest);
         }
 
         System.out.println(pullRequest.toString());
@@ -84,24 +80,18 @@ public class SimpleHandler extends HandlerHelper<String, String> {
     }
 
 
-    private GithubReader initGithubReader(RepositoryInfo repositoryInfo) throws IOException {
-        GithubConf githubConf = new GithubConf(repositoryInfo.getOwner(),
-            repositoryInfo.getRepository(), new Environment());
-        RestReader restReader = new RestReader(githubConf);
-        return new GithubReader(restReader, repositoryInfo.getBranch());
-    }
 
-
-    protected void deleteStacks(GithubReader reader)
+    protected void deleteStacks(RepositoryInfo repositoryInfo)
         throws IOException {
-        Application application = new Application(reader);
+        GitInfo gitInfo=new GithubConf(repositoryInfo.getOwner(),repositoryInfo.getRepository(),new Environment());
+        Application application = new Application(gitInfo,repositoryInfo.getBranch());
         application.wipeStacks();
     }
 
-    protected void createStacks(GithubReader reader)
+    protected void createStacks(RepositoryInfo repositoryInfo)
         throws IOException {
-
-        Application application = new Application(reader);
+        GitInfo gitInfo=new GithubConf(repositoryInfo.getOwner(),repositoryInfo.getRepository(),new Environment());
+        Application application = new Application(gitInfo,repositoryInfo.getBranch());
         application.createStacks();
     }
 

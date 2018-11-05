@@ -34,8 +34,7 @@ public class PipelineTest {
 
     private Application initApplication() throws IOException {
         GithubConf githubConf = new GithubConf(repoOwner, repoName, new Environment());
-        GithubReader githubReader = new GithubReader(new RestReader(githubConf), branchName);
-        return new Application(githubReader);
+        return new Application(githubConf,branchName);
     }
 
 

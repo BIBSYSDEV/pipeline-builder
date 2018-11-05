@@ -4,12 +4,8 @@ package no.bibsys.handler;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import no.bibsys.git.github.GithubConf;
-import no.bibsys.git.github.GithubReader;
-import no.bibsys.git.github.RestReader;
 import no.bibsys.handler.requests.Action;
 import no.bibsys.handler.requests.CustomBuildRequest;
-import no.bibsys.utils.Environment;
 import no.bibsys.utils.JsonUtils;
 
 public class CustomBranchBuilder extends SimpleHandler {
@@ -22,11 +18,11 @@ public class CustomBranchBuilder extends SimpleHandler {
         CustomBuildRequest request = mapper.readValue(string, CustomBuildRequest.class);
 
         if (request.getAction().equals(Action.CREATE)) {
-            createStacks(initGithubReader(request));
+            createStacks(request);
         }
 
         if (request.getAction().equals(Action.DELETE)) {
-            deleteStacks(initGithubReader(request));
+            deleteStacks(request);
         }
 
         System.out.println(request.toString());
@@ -37,12 +33,6 @@ public class CustomBranchBuilder extends SimpleHandler {
 
     }
 
-
-    private GithubReader initGithubReader(CustomBuildRequest request) throws IOException {
-        GithubConf githubConf = new GithubConf(request.getOwner(), request.getRepository(),
-            new Environment());
-        return new GithubReader(new RestReader(githubConf), request.getBranch());
-    }
 
 
 }

@@ -1,13 +1,6 @@
 package no.bibsys.cloudformation;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import no.bibsys.git.github.GitInfo;
-import no.bibsys.git.github.ResourceFileReader;
-import no.bibsys.utils.JsonUtils;
 
 public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
@@ -30,29 +23,20 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
     private final transient CodeBuildConfiguration codeBuildConfiguration;
 
 
-    public PipelineStackConfiguration(ResourceFileReader githubreader) throws IOException {
-        super(githubreader.getGitInfo().getRepo(), githubreader.getBranch());
-        this.githubConf = githubreader.getGitInfo();
+    public PipelineStackConfiguration(GitInfo gitInfo, String branch)  {
+        super(gitInfo.getRepo(), branch);
+        this.githubConf = gitInfo;
         this.pipelineStackName = initPipelineStackName();
         this.bucketName = initBucketName();
         this.createStackRoleName = initCreateStackRole();
         this.pipelineRoleName = initPipelineRoleName();
 
-        this.pipelineConfiguration = initPipelineConfiguration(githubreader.getBranch(),
-            githubConf.getRepo(), githubreader);
-        this.codeBuildConfiguration = new CodeBuildConfiguration(githubConf.getRepo(),
-            githubreader.getBranch());
+        this.pipelineConfiguration = initPipelineConfiguration(gitInfo.getRepo(),branch);
+        this.codeBuildConfiguration = new CodeBuildConfiguration(gitInfo.getRepo(), branch);
     }
 
-    private PipelineConfiguration initPipelineConfiguration(String branchName, String repoName,
-        ResourceFileReader githubReader)
-        throws IOException {
-        PolicyReader policyReader = new PolicyReader(githubReader).invoke();
-        String assumePolicyDocument = policyReader.getAssumePolicyDocument();
-        String accessPolicyDocument = policyReader.getAccessPolicyDocument();
-
-        return new PipelineConfiguration(repoName, branchName, assumePolicyDocument,
-            accessPolicyDocument);
+    private PipelineConfiguration initPipelineConfiguration(String repository, String branch) {
+        return new PipelineConfiguration(repository, branch);
     }
 
 
@@ -108,39 +92,5 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
     }
 
 
-    private class PolicyReader {
 
-
-        private final transient Config config = ConfigFactory.load().resolve();
-        private final transient ResourceFileReader githubReader;
-        private transient String assumePolicyDocument;
-        private transient String accessPolicyDocument;
-
-        public PolicyReader(ResourceFileReader githubReader) {
-            this.githubReader = githubReader;
-        }
-
-        public String getAssumePolicyDocument() {
-            return assumePolicyDocument;
-        }
-
-        public String getAccessPolicyDocument() {
-            return accessPolicyDocument;
-        }
-
-        public PolicyReader invoke() throws IOException {
-
-            String folder = config.getString("policies.parentFolder");
-            String assumePolicy = config.getString("policies.assumePolicyFile");
-            String accessPolicy = config.getString("policies.accessPolicyFile");
-            Path assumePolicyPath = Paths.get(folder, assumePolicy);
-            Path accessPolicyPath = Paths.get(folder, accessPolicy);
-
-            assumePolicyDocument = JsonUtils
-                .removeComments(githubReader.readFile(assumePolicyPath));
-            accessPolicyDocument = JsonUtils
-                .removeComments(githubReader.readFile(accessPolicyPath));
-            return this;
-        }
-    }
 }

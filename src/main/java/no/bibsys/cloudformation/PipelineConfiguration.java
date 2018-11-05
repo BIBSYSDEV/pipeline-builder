@@ -9,28 +9,17 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
     private final String pipelineName;
 
 
-    private final String lambdaTrustRolename;
-    private final String lambdaTrustRoleAssumePolicy;
-    private final String lambdaTrustRoleAccessPolicy;
-
-
-    public PipelineConfiguration(String repositoryName, String branchName,
-        String assumePolicy, String accessPolicy) {
+    public PipelineConfiguration(String repositoryName, String branchName) {
         super(repositoryName, branchName);
 
         this.sourceOutputArtifactName = initSourceOutputArtifactName();
         this.testServiceStack = initServiceStack(Stage.TEST);
         this.finalServiceStack = initServiceStack(Stage.PROD);
         this.pipelineName = initializePipelineName();
-        this.lambdaTrustRolename = initializeLambdaTrustRole();
-        this.lambdaTrustRoleAssumePolicy = assumePolicy;
-        this.lambdaTrustRoleAccessPolicy = accessPolicy;
-    }
 
 
-    private String initializeLambdaTrustRole() {
-        return format("LambdaTrustRole", projectId, normalizedBranchName);
     }
+
 
     private String initializePipelineName() {
         return format(projectId, normalizedBranchName, "pipeline");
@@ -64,17 +53,6 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
     }
 
 
-    public String getLambdaTrustRolename() {
-        return lambdaTrustRolename;
-    }
 
-
-    public String getLambdaTrustRoleAssumePolicy() {
-        return this.lambdaTrustRoleAssumePolicy;
-    }
-
-    public String getLambdaTrustRoleAccessPolicy() {
-        return this.lambdaTrustRoleAccessPolicy;
-    }
 
 }

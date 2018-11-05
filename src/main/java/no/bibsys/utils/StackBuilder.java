@@ -5,13 +5,11 @@ import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
 import com.amazonaws.services.cloudformation.model.Capability;
 import com.amazonaws.services.cloudformation.model.CreateStackRequest;
 import com.amazonaws.services.cloudformation.model.Parameter;
-import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
-import no.bibsys.roles.RoleManager;
 
 public class StackBuilder {
 
@@ -41,29 +39,16 @@ public class StackBuilder {
 
     private void createPipelineStack(PipelineStackConfiguration pipelineStackConfiguration)
         throws IOException {
-//        String lambdaTrustRoleArn = createLambdaTrustRole(pipelineStackConfiguration);
         CreateStackRequest createStackRequest = createStackRequest(pipelineStackConfiguration);
         AmazonCloudFormation acf = AmazonCloudFormationClientBuilder.defaultClient();
         acf.createStack(createStackRequest);
     }
 
 
-//    /**
-//     * Creates the role that the final application will use to access Amazon resources when running.
-//     * The assume policy and the access policy should be available in the git repository as separate
-//     * json files.
-//     */
-//    private String createLambdaTrustRole(PipelineStackConfiguration pipelineStackConfiguration) {
-//        roleManager = new RoleManager(pipelineStackConfiguration.getPipelineConfiguration());
-//        return roleManager.createRole().getArn();
-//
-//    }
 
 
     private CreateStackRequest createStackRequest(
         PipelineStackConfiguration pipelineStack) throws IOException {
-
-        Preconditions.checkNotNull(roleManager);
 
         CreateStackRequest createStackRequest = new CreateStackRequest();
         createStackRequest.setStackName(pipelineStack.getPipelineStackName());

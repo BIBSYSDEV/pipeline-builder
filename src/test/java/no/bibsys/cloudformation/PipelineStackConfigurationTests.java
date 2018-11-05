@@ -45,18 +45,9 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
     }
 
 
-    @Test
-    public void lambdaTrustRoeleShouldContainProjectId() {
-        assertThat(conf.getPipelineConfiguration().getLambdaTrustRolename(),
-            containsString(projectId));
-    }
 
 
-    @Test
-    public void lambdaTrustRoeleShouldContainShortBranch() {
-        assertThat(conf.getPipelineConfiguration().getLambdaTrustRolename(),
-            containsString(normalizedBranch));
-    }
+
 
 
     @Test
@@ -80,12 +71,7 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
     }
 
 
-    @Test
-    public void lambdaTrustRoleNameIsLessThan64chars() {
-        assertThat(conf.getPipelineConfiguration().getLambdaTrustRolename().length(),
-            is(not(greaterThan(maxLengthForRoles))));
 
-    }
 
     @Test
     public void bucketNameShouldContainProjectIdAndBranch() {
