@@ -17,8 +17,8 @@ Parameters:
 Resources:
   RestApi:
     DependsOn:
-      - BuildBranch
-      - GithubHook
+    - BuildBranch
+    - GithubHook
     Type: AWS::Serverless::Api
     Properties:
       Name: !Join ['-',[!Ref ProjectId, !Ref Branch, !Ref Stage]]
@@ -33,11 +33,14 @@ Resources:
             post:
               responses:
                 default:
-                  description: A simple string response
+                  description: default response
                   content:
-                    text/plain:
+                    application/json:
                       schema:
-                        type: string
+                        type: object
+                        properties:
+                          message:
+                            type: string
               x-amazon-apigateway-integration:
                 uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GithubHook.Arn}/invocations"
                 httpMethod: "POST"
@@ -48,10 +51,17 @@ Resources:
               operationId: insertEntry
               responses:
                 default:
-                  description: A simple  response
+                  description: default response
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        properties:
+                          message:
+                            type: string
               requestBody:
                 content:
-                  application/json :
+                  application/json:
                     schema:
                       type: "object"
                       properties:
@@ -239,19 +249,18 @@ Resources:
           - config:Describe*
           Resource: "*"
 
-#  Init:
-#    Type: AWS::Serverless::Function
-#    Properties:
-#      Handler: no.bibsys.handler.InitHandler::handleRequest
-#      Runtime: java8
-#      CodeUri: build/libs/pipeline-fat.jar
-#      Policies:
-#        Version: '2012-10-17'
-#        Statement:
-#          -
-#            Action:
-#              - apigateway:GET
-#            Effect: Allow
-#            Resource: "*"
-#      MemorySize: 1500
-#      Timeout: 900
+  Init:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: no.bibsys.handler.InitHandler::handleRequest
+      Runtime: java8
+      CodeUri: build/libs/pipeline-fat.jar
+      Policies:
+        Version: '2012-10-17'
+        Statement:
+        - Action:
+          - apigateway:GET
+          Effect: Allow
+          Resource: "*"
+      MemorySize: 1500
+      Timeout: 900
