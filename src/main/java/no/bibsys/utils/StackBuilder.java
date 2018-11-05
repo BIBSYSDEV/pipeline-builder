@@ -41,29 +41,27 @@ public class StackBuilder {
 
     private void createPipelineStack(PipelineStackConfiguration pipelineStackConfiguration)
         throws IOException {
-        String lambdaTrustRoleArn = createLambdaTrustRole(pipelineStackConfiguration);
-        CreateStackRequest createStackRequest = createStackRequest(pipelineStackConfiguration,
-            lambdaTrustRoleArn);
+//        String lambdaTrustRoleArn = createLambdaTrustRole(pipelineStackConfiguration);
+        CreateStackRequest createStackRequest = createStackRequest(pipelineStackConfiguration);
         AmazonCloudFormation acf = AmazonCloudFormationClientBuilder.defaultClient();
         acf.createStack(createStackRequest);
     }
 
 
-    /**
-     * Creates the role that the final application will use to access Amazon resources when running.
-     * The assume policy and the access policy should be available in the git repository as separate
-     * json files.
-     */
-    private String createLambdaTrustRole(PipelineStackConfiguration pipelineStackConfiguration) {
-        roleManager = new RoleManager(pipelineStackConfiguration.getPipelineConfiguration());
-        return roleManager.createRole().getArn();
-
-    }
+//    /**
+//     * Creates the role that the final application will use to access Amazon resources when running.
+//     * The assume policy and the access policy should be available in the git repository as separate
+//     * json files.
+//     */
+//    private String createLambdaTrustRole(PipelineStackConfiguration pipelineStackConfiguration) {
+//        roleManager = new RoleManager(pipelineStackConfiguration.getPipelineConfiguration());
+//        return roleManager.createRole().getArn();
+//
+//    }
 
 
     private CreateStackRequest createStackRequest(
-        PipelineStackConfiguration pipelineStack,
-        String lambdaTrustRoleArn) throws IOException {
+        PipelineStackConfiguration pipelineStack) throws IOException {
 
         Preconditions.checkNotNull(roleManager);
 
@@ -83,9 +81,6 @@ public class StackBuilder {
         parameters.add(newParameter("PipelineBucketname", pipelineStack.getBucketName()));
 
         parameters.add(newParameter("PipelineRolename", pipelineStack.getPipelineRoleName()));
-
-        parameters.add(newParameter("LambdaTrustRoleArn",
-            lambdaTrustRoleArn));
 
         parameters.add(newParameter("CreateStackRolename", pipelineStack.getCreateStackRoleName()));
 

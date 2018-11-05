@@ -22,8 +22,6 @@ Parameters:
     Type: String
   PipelineName:
     Type: String
-  LambdaTrustRoleArn:
-    Type: String
   PipelineTestServiceStackName:
     Type: String
   PipelineFinalServiceStackName:
@@ -318,7 +316,7 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
               !Sub
-            - '{"ProjectId":"${ProjectIdValue}", "Stage":"test", "Branch":"${NormalizedBranchName}", "LambdaTrustRoleArn": "${LambdaTrustRoleArn}", "CodeBucket":"${S3Bucket}"}'
+            - '{"ProjectId":"${ProjectIdValue}", "Stage":"test", "Branch":"${NormalizedBranchName}", "CodeBucket":"${S3Bucket}"}'
             - { ProjectIdValue: !Ref ProjectId}
 
           InputArtifacts:
@@ -374,7 +372,7 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
               !Sub
-            - '{"ProjectId":"${ProjectIdValue}", "Stage":"final", "Branch":"${NormalizedBranchName}" ,"LambdaTrustRoleArn": "${LambdaTrustRoleArn}", "CodeBucket":"${S3Bucket}"}'
+            - '{"ProjectId":"${ProjectIdValue}", "Stage":"final", "Branch":"${NormalizedBranchName}" , "CodeBucket":"${S3Bucket}"}'
             - { ProjectIdValue: !Ref ProjectId}
 
           InputArtifacts:
