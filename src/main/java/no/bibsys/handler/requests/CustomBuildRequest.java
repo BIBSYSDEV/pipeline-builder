@@ -13,7 +13,9 @@ public class CustomBuildRequest extends RepositoryInfo {
 
     private String action;
 
-    public CustomBuildRequest(){}
+    public CustomBuildRequest(){
+        super();
+    }
 
     public CustomBuildRequest(String owner, String repository, String branch,String action) {
         super(owner, repository, branch);

@@ -13,11 +13,15 @@ public final class PullRequest extends RepositoryInfo {
     public static final String ACTION_CLOSE = "closed";
 
 
-
     private  String action;
 
 
+    public PullRequest(){
+        super();
+    }
+
     private PullRequest(JsonNode root) throws IOException {
+        super();
         this.setOwner(root.get("repository").get("owner").get("login").asText());
         this.setRepository(root.get("repository").get("name").asText());
         this.setBranch(root.get("pull_request").get("head").get("ref").asText());
