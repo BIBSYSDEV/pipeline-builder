@@ -8,7 +8,7 @@ import no.bibsys.Application;
 import no.bibsys.git.github.GithubConf;
 import no.bibsys.git.github.GithubReader;
 import no.bibsys.git.github.RestReader;
-import no.bibsys.handler.requests.GitEvent;
+import no.bibsys.handler.requests.RepositoryInfo;
 import no.bibsys.handler.requests.PullRequest;
 import no.bibsys.handler.requests.PushEvent;
 import no.bibsys.utils.Environment;
@@ -27,15 +27,15 @@ public class SimpleHandler extends HandlerHelper<String, String> {
 
     @Override
     protected String processInput(String request, Context context) throws IOException {
-        Optional<GitEvent> gitEventOpt=parseEvent(request);
+        Optional<RepositoryInfo> gitEventOpt=parseEvent(request);
         String response="No action";
         if(gitEventOpt.isPresent()){
-            GitEvent gitEvent=gitEventOpt.get();
-               if(gitEvent instanceof PullRequest){
-                   response=processPullRequest((PullRequest)gitEvent);
+            RepositoryInfo repositoryInfo =gitEventOpt.get();
+               if(repositoryInfo instanceof PullRequest){
+                   response=processPullRequest((PullRequest) repositoryInfo);
                }
-               else if(gitEvent instanceof PushEvent){
-                   response=processPushEvent((PushEvent) gitEvent);
+               else if(repositoryInfo instanceof PushEvent){
+                   response=processPushEvent((PushEvent) repositoryInfo);
                }
         }
 
@@ -75,8 +75,8 @@ public class SimpleHandler extends HandlerHelper<String, String> {
     }
 
 
-    private Optional<GitEvent> parseEvent(String json) throws IOException {
-        Optional<GitEvent> event= PullRequest.create(json);
+    private Optional<RepositoryInfo> parseEvent(String json) throws IOException {
+        Optional<RepositoryInfo> event= PullRequest.create(json);
         if(!event.isPresent()) {
             event = PushEvent.create(json);
         }
@@ -84,11 +84,11 @@ public class SimpleHandler extends HandlerHelper<String, String> {
     }
 
 
-    private GithubReader initGithubReader(GitEvent gitEvent) throws IOException {
-        GithubConf githubConf = new GithubConf(gitEvent.getOwner(),
-            gitEvent.getRepository(), new Environment());
+    private GithubReader initGithubReader(RepositoryInfo repositoryInfo) throws IOException {
+        GithubConf githubConf = new GithubConf(repositoryInfo.getOwner(),
+            repositoryInfo.getRepository(), new Environment());
         RestReader restReader = new RestReader(githubConf);
-        return new GithubReader(restReader, gitEvent.getBranch());
+        return new GithubReader(restReader, repositoryInfo.getBranch());
     }
 
 
