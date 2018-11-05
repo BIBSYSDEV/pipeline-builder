@@ -68,11 +68,33 @@ public class SwaggerDriver {
     }
 
 
+    private HttpPost createPostRequest(URI uri, String jsonSpec) {
+        HttpPost post = new HttpPost();
+        post.setURI(uri);
+        addHeaders(post);
+        addBody(post, jsonSpec);
+        return post;
+
+    }
+
+    private HttpDelete createDeleteRequest(URI uri){
+        HttpDelete delete=new HttpDelete(uri);
+        addHeaders(delete);
+        return delete;
+    }
+    private HttpGet createGetRequest(URI uri){
+        HttpGet  get=new HttpGet(uri);
+        addHeaders(get);
+        return get;
+    }
+
+
+
     public HttpDelete deleteSpecificationVesionRequest(String apiVersion)
         throws URISyntaxException {
 
         Optional<URI> uriOpt = urlFormater(apiUri(apiVersion), Collections.emptyMap());
-        Optional<HttpDelete> delete = uriOpt.map(uri -> new HttpDelete(uri));
+        Optional<HttpDelete> delete = uriOpt.map(this::createDeleteRequest);
         if (delete.isPresent()) {
             return delete.get();
         } else {
@@ -86,7 +108,7 @@ public class SwaggerDriver {
         throws URISyntaxException {
 
         Optional<URI> uriOpt = urlFormater(apiUri(apiVersion), Collections.emptyMap());
-        Optional<HttpGet> httpGet = uriOpt.map(uri -> new HttpGet(uri));
+        Optional<HttpGet> httpGet = uriOpt.map(this::createGetRequest);
         return httpGet
             .orElseThrow(() -> new IllegalStateException("Failed to create DeletePost request"));
 
@@ -139,19 +161,12 @@ public class SwaggerDriver {
     }
 
 
-    private HttpPost createPostRequest(URI uri, String jsonSpec) {
-        HttpPost post = new HttpPost();
-        post.setURI(uri);
-        addHeaders(post);
-        addBody(post, jsonSpec);
-        return post;
 
-    }
-
-    private void addHeaders(HttpPost post) {
+    private void addHeaders(HttpUriRequest post) {
         post.addHeader("accept", "application/json");
         post.addHeader("Content-Type", "application/json");
         post.addHeader("Authorization", apiKey);
+
     }
 
     private void addBody(HttpPost post, String jsonSpec) {
