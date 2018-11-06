@@ -1,3 +1,3 @@
 #!/bin/sh
 
-./gradlew  build shadowJar
+./gradlew  clean build shadowJar
