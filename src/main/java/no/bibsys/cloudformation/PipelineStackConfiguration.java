@@ -1,6 +1,5 @@
 package no.bibsys.cloudformation;
 
-import java.util.Random;
 import no.bibsys.git.github.GitInfo;
 
 public class PipelineStackConfiguration extends CloudFormationConfigurable {
