@@ -45,12 +45,12 @@ class Script:
             - owner:\t\t Github owner
             - repository:\t Github repository
             - branch:\t\t Github branch
-            - action:\t\t "create", "delete", or "update-role"
+            - action:\t\t "create" or "delete"
         """
 
 
 def main():
-    if len(sys.argv) < 5:
+    if len(sys.argv) != 5:
         script = Script(None, None, None, None)
         print(script.help())
     else:
