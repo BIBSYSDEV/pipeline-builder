@@ -234,6 +234,8 @@ Resources:
             - 'ssm:GetParameters'
             Resource: '*'
   CodeBuildProject:
+    DependsOn:
+      - CodebuildCacheBucket
     Type: AWS::CodeBuild::Project
     Description: CodeBuild project for using in the CodePipeline
     Properties:
