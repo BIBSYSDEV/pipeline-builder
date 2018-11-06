@@ -248,19 +248,19 @@ Resources:
           - config:Describe*
           Resource: "*"
 
-  Init:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: no.bibsys.handler.InitHandler::handleRequest
-      Runtime: java8
-      CodeUri: build/libs/pipeline-fat.jar
-      Policies:
-        Version: '2012-10-17'
-        Statement:
-        - Action:
-          - lambda:InvokeFunction
-          - apigateway:*
-          Effect: Allow
-          Resource: "*"
-      MemorySize: 1500
-      Timeout: 900
+#  Init:
+#    Type: AWS::Serverless::Function
+#    Properties:
+#      Handler: no.bibsys.handler.InitHandler::handleRequest
+#      Runtime: java8
+#      CodeUri: build/libs/pipeline-fat.jar
+#      Policies:
+#        Version: '2012-10-17'
+#        Statement:
+#        - Action:
+#          - lambda:InvokeFunction
+#          - apigateway:*
+#          Effect: Allow
+#          Resource: "*"
+#      MemorySize: 1500
+#      Timeout: 900
