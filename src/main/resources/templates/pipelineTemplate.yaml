@@ -304,7 +304,7 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
               !Sub
-            - '{"ProjectId":"${ProjectIdValue}", "Stage":"test", "Branch":"${NormalizedBranchName}", "CodeBucket":"${S3Bucket}"}'
+            - '{"ProjectId":"${ProjectIdValue}", "Stage":"test", "Branch":"${NormalizedBranchName}", "CodeBucket":"${S3Bucket}", "InitFunctionName": "${InitFunctionName}"}'
             - { ProjectIdValue: !Ref ProjectId}
 
           InputArtifacts:
@@ -371,7 +371,7 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
               !Sub
-            - '{"ProjectId":"${ProjectIdValue}", "Stage":"final", "Branch":"${NormalizedBranchName}" , "CodeBucket":"${S3Bucket}"}'
+            - '{"ProjectId":"${ProjectIdValue}", "Stage":"final", "Branch":"${NormalizedBranchName}" , "CodeBucket":"${S3Bucket}, "InitFunctionName": "${InitFunctionName}"}'
             - { ProjectIdValue: !Ref ProjectId}
 
           InputArtifacts:
