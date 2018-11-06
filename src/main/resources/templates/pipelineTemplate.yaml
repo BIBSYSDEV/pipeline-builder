@@ -331,9 +331,9 @@ Resources:
             Provider: Lambda
           Configuration:
             FunctionName: Init
-            InputArtifacts: []
-            OutputArtifacts: []
-            RunOrder: 3
+          InputArtifacts: []
+          OutputArtifacts: []
+          RunOrder: 3
         - Name: ManualReview
           ActionTypeId:
             Category: Approval # TODO: automated function tests
