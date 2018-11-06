@@ -42,7 +42,7 @@ Resources:
 
   S3Bucket:
     Type: AWS::S3::Bucket
-    DeletionPolicy: Delete
+    DeletionPolicy: Retain
     Properties:
       AccessControl: Private
       BucketName: !Ref PipelineBucketname
@@ -53,353 +53,353 @@ Resources:
         - ServerSideEncryptionByDefault:
             SSEAlgorithm: aws:kms
 
-  CreateStackRole:
-    DependsOn:
-    - PipelineRole
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Ref CreateStackRolename
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-        - Sid: 1
-          Effect: Allow
-          Action:
-          - sts:AssumeRole
-          Principal:
-            Service:
-            - cloudformation.amazonaws.com
-            - codepipeline.amazonaws.com
-            - codebuild.amazonaws.com
-            - iam.amazonaws.com
-            AWS: !GetAtt PipelineRole.Arn
-
-      Policies:
-      - PolicyName: "passRole"
-        PolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-          - Action:
-            - 'iam:PassRole'
-            Effect: Allow
-            Resource: "*"
-          - Action:
-            - 'cloudformation:CreateChangeSet'
-            Effect: Allow
-            Resource:
-            - arn:aws:cloudformation:eu-west-1:aws:transform/Serverless-2016-10-31
-            - arn:aws:cloudformation:eu-west-1:aws:transform/Include
-          - Action:
-            - 'iam:GetRole'
-            - 'iam:CreateRole'
-            - 'iam:PutRolePolicy'
-            - 'iam:DetachRolePolicy'
-            - 'iam:DeleteRolePolicy'
-            - 'iam:DeleteRole'
-            - 'iam:AttachRolePolicy'
-            - 'ssm:PutParameter'
-            - 'ssm:DeleteParameter'
-            Resource: '*'
-            Effect: Allow
-      - PolicyName: s3Access
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-            - "s3:*"
-            Resource:
-            - !Join ["", [!GetAtt S3Bucket.Arn, "/*"]]
-            - !GetAtt S3Bucket.Arn
-            - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname, "/*"]]
-            - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname]]
-      - PolicyName: customResourceSupport
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-            - 'lambda:InvokeFunction'
-            - "s3:*"
-            Resource: '*'
-      - PolicyName: createLambdaFunctions
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-            - 'lambda:CreateFunction'
-            - 'lambda:DeleteFunction'
-            - 'lambda:AddPermission'
-            - 'lambda:UpdateFunction'
-            - 'lambda:UpdateFunctionCode'
-            - 'lambda:GetFunction'
-            - 'lambda:GetFunctionConfiguration'
-            - 'lambda:UpdateFunctionConfiguration'
-            - 'lambda:RemovePermission'
-            - 'lambda:listTags'
-            - 'lambda:TagResource'
-            - 'lambda:UntagResource'
-            - 'apigateway:*'
-            - 'ssm:GetParameters'
-            Resource: '*'
-  PipelineRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Ref PipelineRolename
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-        - Effect: Allow
-          Action:
-          - sts:AssumeRole
-          Principal:
-            Service:
-            - lambda.amazonaws.com
-            - codepipeline.amazonaws.com
-            - codebuild.amazonaws.com
-            - cloudformation.amazonaws.com
-            - iam.amazonaws.com
-      ManagedPolicyArns:
-      - arn:aws:iam::aws:policy/AWSCodePipelineFullAccess
-      - arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess
-
-      Policies:
-      - PolicyName: s3Access
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-            - "s3:*"
-            Resource:
-            - !Join ["", [!GetAtt S3Bucket.Arn, "/*"]]
-            - !GetAtt S3Bucket.Arn
-            - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname, "/*"]]
-            - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname]]
-          - Effect: Allow
-            Action:
-            - logs:CreateLogGroup
-            - logs:CreateLogStream
-            - logs:PutLogEvents
-            Resource: "*"
-      - PolicyName: cloudFormationAccess
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-            - cloudformation:DescribeStacks
-            - cloudformation:DescribeChangeSet
-            - cloudformation:CreateChangeSet
-            - cloudformation:DeleteChangeSet
-            - cloudformation:ExecuteChangeSet
-            - cloudformation:DeleteStack
-            Resource:
-            - !Sub
-              - 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackName}/*'
-              - { StackName: !Ref PipelineTestServiceStackName}
-            - !Sub
-              - 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackName}/*'
-              - { StackName: !Ref PipelineFinalServiceStackName }
-      - PolicyName: assumeRole
-        PolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-          - Action:
-            - 'sts:AssumeRole'
-            Effect: Allow
-            Resource: "*"
-      - PolicyName: ssmAccess
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-            - 'ssm:GetParameters'
-            Resource: '*'
-  CodeBuildProject:
-    DependsOn:
-      - S3Bucket
-    Type: AWS::CodeBuild::Project
-    Description: CodeBuild project for using in the CodePipeline
-    Properties:
-      Name: !Ref CodebuildProjectname
-      Artifacts:
-        Name: !Ref CodebuildOutputArtifact
-        Type: CODEPIPELINE
-      Source:
-        Type: CODEPIPELINE
-      Environment:
-        ComputeType: BUILD_GENERAL1_MEDIUM
-        Image: "aws/codebuild/eb-java-8-amazonlinux-64:2.4.3"
-        Type: LINUX_CONTAINER
-        EnvironmentVariables:
-        - Name: S3_BUCKET
-          Type: PLAINTEXT
-          Value: !Ref PipelineBucketname
-      ServiceRole: !GetAtt PipelineRole.Arn
-      Cache:
-        Location:  !Join ['',[!Ref PipelineBucketname,'/buildcache']]
-        Type: S3
-
-  Pipeline:
-    DependsOn:
-    - CodeBuildProject
-    - CreateStackRole
-    - PipelineRole
-    Type: AWS::CodePipeline::Pipeline
-    Properties:
-      RoleArn: !GetAtt PipelineRole.Arn
-      Name: !Ref PipelineName
-      ArtifactStore:
-        Type: S3
-        Location: !Ref PipelineBucketname
-      Stages:
-      - Name: Github_pull
-        Actions:
-        - Name: Source
-          ActionTypeId:
-            Category: Source
-            Provider: GitHub
-            Owner: ThirdParty
-            Version: 1
-          Configuration:
-            Owner: !Ref GithubOwner
-            Repo:   !Ref GithubRepo
-            OAuthToken: !Ref GithubAuth
-            Branch: !Ref ProjectBranch
-          OutputArtifacts:
-          - Name: !Ref SourceStageOutputArtifact
-      - Name: CodeBuild
-        Actions:
-        - Name: CodeBuildAction
-          ActionTypeId:
-            Category: Build
-            Owner: AWS
-            Provider: CodeBuild
-            Version: 1
-          InputArtifacts:
-          - Name: !Ref SourceStageOutputArtifact
-          OutputArtifacts:
-          - Name: !Ref CodebuildOutputArtifact
-          Configuration:
-            ProjectName: !Ref CodebuildProjectname
-
-      - Name: TestStack
-        Actions:
-        - Name: CreateTestStack
-          ActionTypeId:
-            Category: Deploy
-            Owner: AWS
-            Version: 1
-            Provider: CloudFormation
-          Configuration:
-            ActionMode: CHANGE_SET_REPLACE
-            StackName: !Ref PipelineTestServiceStackName
-            ChangeSetName: TestStageChangeSet
-            Capabilities: CAPABILITY_NAMED_IAM
-            RoleArn: !GetAtt CreateStackRole.Arn
-            TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
-            ParameterOverrides:
-              !Sub
-            - '{"ProjectId":"${ProjectIdValue}", "Stage":"test", "Branch":"${NormalizedBranchName}", "CodeBucket":"${S3Bucket}"}'
-            - { ProjectIdValue: !Ref ProjectId}
-
-          InputArtifacts:
-          - Name: !Ref CodebuildOutputArtifact
-          RunOrder: 1
-
-        - Name: ExecuteTestStack
-          ActionTypeId:
-            Category: Deploy
-            Owner: AWS
-            Version: '1'
-            Provider: CloudFormation
-          Configuration:
-            ActionMode: CHANGE_SET_EXECUTE
-            ChangeSetName: TestStageChangeSet
-            StackName: !Ref PipelineTestServiceStackName
-          InputArtifacts: []
-          OutputArtifacts: []
-          RunOrder: 2
-        - Name: InitializeStack
-          ActionTypeId:
-            Category: Invoke
-            Owner: AWS
-            Version: 1
-            Provider: Lambda
-          Configuration:
-            FunctionName: Init
-          InputArtifacts: []
-          OutputArtifacts: []
-          RunOrder: 3
-        - Name: ManualReview
-          ActionTypeId:
-            Category: Approval # TODO: automated function tests
-            Owner: AWS
-            Provider: Manual
-            Version: 1
-          RunOrder: 4
-        - Name: DeleteTestStack
-          ActionTypeId:
-            Category: Deploy
-            Owner: AWS
-            Provider: CloudFormation
-            Version: '1'
-          Configuration:
-            ActionMode: DELETE_ONLY
-            RoleArn: !GetAtt CreateStackRole.Arn
-            StackName: !Ref PipelineTestServiceStackName
-          RunOrder: 5
-
-      - Name: ProdStack
-        Actions:
-        - Name: CreateFinalStack
-          ActionTypeId:
-            Category: Deploy
-            Owner: AWS
-            Version: 1
-            Provider: CloudFormation
-          Configuration:
-            ActionMode: CHANGE_SET_REPLACE
-            StackName: !Ref PipelineFinalServiceStackName
-            ChangeSetName: ProdStageChangeSet
-            Capabilities: CAPABILITY_NAMED_IAM
-            RoleArn: !GetAtt CreateStackRole.Arn
-            TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
-            ParameterOverrides:
-              !Sub
-            - '{"ProjectId":"${ProjectIdValue}", "Stage":"final", "Branch":"${NormalizedBranchName}" , "CodeBucket":"${S3Bucket}"}'
-            - { ProjectIdValue: !Ref ProjectId}
-
-          InputArtifacts:
-          - Name: !Ref CodebuildOutputArtifact
-          RunOrder: 1
-        - Name: ExecuteFinalStack
-          ActionTypeId:
-            Category: Deploy
-            Owner: AWS
-            Version: '1'
-            Provider: CloudFormation
-          Configuration:
-            ActionMode: CHANGE_SET_EXECUTE
-            ChangeSetName: ProdStageChangeSet
-            StackName: !Ref PipelineFinalServiceStackName
-          InputArtifacts: []
-          OutputArtifacts: []
-          RunOrder: 2
-
-      - Name: Initialize
-        Actions:
-          - Name: InitializeStack
-            ActionTypeId:
-              Category: Invoke
-              Owner: AWS
-              Version: 1
-              Provider: Lambda
-            Configuration:
-              FunctionName: Init
-
-            InputArtifacts: []
-            OutputArtifacts: []
+#  CreateStackRole:
+#    DependsOn:
+#    - PipelineRole
+#    Type: AWS::IAM::Role
+#    Properties:
+#      RoleName: !Ref CreateStackRolename
+#      AssumeRolePolicyDocument:
+#        Version: "2012-10-17"
+#        Statement:
+#        - Sid: 1
+#          Effect: Allow
+#          Action:
+#          - sts:AssumeRole
+#          Principal:
+#            Service:
+#            - cloudformation.amazonaws.com
+#            - codepipeline.amazonaws.com
+#            - codebuild.amazonaws.com
+#            - iam.amazonaws.com
+#            AWS: !GetAtt PipelineRole.Arn
+#
+#      Policies:
+#      - PolicyName: "passRole"
+#        PolicyDocument:
+#          Version: "2012-10-17"
+#          Statement:
+#          - Action:
+#            - 'iam:PassRole'
+#            Effect: Allow
+#            Resource: "*"
+#          - Action:
+#            - 'cloudformation:CreateChangeSet'
+#            Effect: Allow
+#            Resource:
+#            - arn:aws:cloudformation:eu-west-1:aws:transform/Serverless-2016-10-31
+#            - arn:aws:cloudformation:eu-west-1:aws:transform/Include
+#          - Action:
+#            - 'iam:GetRole'
+#            - 'iam:CreateRole'
+#            - 'iam:PutRolePolicy'
+#            - 'iam:DetachRolePolicy'
+#            - 'iam:DeleteRolePolicy'
+#            - 'iam:DeleteRole'
+#            - 'iam:AttachRolePolicy'
+#            - 'ssm:PutParameter'
+#            - 'ssm:DeleteParameter'
+#            Resource: '*'
+#            Effect: Allow
+#      - PolicyName: s3Access
+#        PolicyDocument:
+#          Version: '2012-10-17'
+#          Statement:
+#          - Effect: Allow
+#            Action:
+#            - "s3:*"
+#            Resource:
+#            - !Join ["", [!GetAtt S3Bucket.Arn, "/*"]]
+#            - !GetAtt S3Bucket.Arn
+#            - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname, "/*"]]
+#            - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname]]
+#      - PolicyName: customResourceSupport
+#        PolicyDocument:
+#          Version: '2012-10-17'
+#          Statement:
+#          - Effect: Allow
+#            Action:
+#            - 'lambda:InvokeFunction'
+#            - "s3:*"
+#            Resource: '*'
+#      - PolicyName: createLambdaFunctions
+#        PolicyDocument:
+#          Version: '2012-10-17'
+#          Statement:
+#          - Effect: Allow
+#            Action:
+#            - 'lambda:CreateFunction'
+#            - 'lambda:DeleteFunction'
+#            - 'lambda:AddPermission'
+#            - 'lambda:UpdateFunction'
+#            - 'lambda:UpdateFunctionCode'
+#            - 'lambda:GetFunction'
+#            - 'lambda:GetFunctionConfiguration'
+#            - 'lambda:UpdateFunctionConfiguration'
+#            - 'lambda:RemovePermission'
+#            - 'lambda:listTags'
+#            - 'lambda:TagResource'
+#            - 'lambda:UntagResource'
+#            - 'apigateway:*'
+#            - 'ssm:GetParameters'
+#            Resource: '*'
+#  PipelineRole:
+#    Type: AWS::IAM::Role
+#    Properties:
+#      RoleName: !Ref PipelineRolename
+#      AssumeRolePolicyDocument:
+#        Version: '2012-10-17'
+#        Statement:
+#        - Effect: Allow
+#          Action:
+#          - sts:AssumeRole
+#          Principal:
+#            Service:
+#            - lambda.amazonaws.com
+#            - codepipeline.amazonaws.com
+#            - codebuild.amazonaws.com
+#            - cloudformation.amazonaws.com
+#            - iam.amazonaws.com
+#      ManagedPolicyArns:
+#      - arn:aws:iam::aws:policy/AWSCodePipelineFullAccess
+#      - arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess
+#
+#      Policies:
+#      - PolicyName: s3Access
+#        PolicyDocument:
+#          Version: '2012-10-17'
+#          Statement:
+#          - Effect: Allow
+#            Action:
+#            - "s3:*"
+#            Resource:
+#            - !Join ["", [!GetAtt S3Bucket.Arn, "/*"]]
+#            - !GetAtt S3Bucket.Arn
+#            - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname, "/*"]]
+#            - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname]]
+#          - Effect: Allow
+#            Action:
+#            - logs:CreateLogGroup
+#            - logs:CreateLogStream
+#            - logs:PutLogEvents
+#            Resource: "*"
+#      - PolicyName: cloudFormationAccess
+#        PolicyDocument:
+#          Version: '2012-10-17'
+#          Statement:
+#          - Effect: Allow
+#            Action:
+#            - cloudformation:DescribeStacks
+#            - cloudformation:DescribeChangeSet
+#            - cloudformation:CreateChangeSet
+#            - cloudformation:DeleteChangeSet
+#            - cloudformation:ExecuteChangeSet
+#            - cloudformation:DeleteStack
+#            Resource:
+#            - !Sub
+#              - 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackName}/*'
+#              - { StackName: !Ref PipelineTestServiceStackName}
+#            - !Sub
+#              - 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackName}/*'
+#              - { StackName: !Ref PipelineFinalServiceStackName }
+#      - PolicyName: assumeRole
+#        PolicyDocument:
+#          Version: "2012-10-17"
+#          Statement:
+#          - Action:
+#            - 'sts:AssumeRole'
+#            Effect: Allow
+#            Resource: "*"
+#      - PolicyName: ssmAccess
+#        PolicyDocument:
+#          Version: '2012-10-17'
+#          Statement:
+#          - Effect: Allow
+#            Action:
+#            - 'ssm:GetParameters'
+#            Resource: '*'
+#  CodeBuildProject:
+#    DependsOn:
+#      - S3Bucket
+#    Type: AWS::CodeBuild::Project
+#    Description: CodeBuild project for using in the CodePipeline
+#    Properties:
+#      Name: !Ref CodebuildProjectname
+#      Artifacts:
+#        Name: !Ref CodebuildOutputArtifact
+#        Type: CODEPIPELINE
+#      Source:
+#        Type: CODEPIPELINE
+#      Environment:
+#        ComputeType: BUILD_GENERAL1_MEDIUM
+#        Image: "aws/codebuild/eb-java-8-amazonlinux-64:2.4.3"
+#        Type: LINUX_CONTAINER
+#        EnvironmentVariables:
+#        - Name: S3_BUCKET
+#          Type: PLAINTEXT
+#          Value: !Ref PipelineBucketname
+#      ServiceRole: !GetAtt PipelineRole.Arn
+#      Cache:
+#        Location:  !Join ['',[!Ref PipelineBucketname,'/buildcache']]
+#        Type: S3
+#
+#  Pipeline:
+#    DependsOn:
+#    - CodeBuildProject
+#    - CreateStackRole
+#    - PipelineRole
+#    Type: AWS::CodePipeline::Pipeline
+#    Properties:
+#      RoleArn: !GetAtt PipelineRole.Arn
+#      Name: !Ref PipelineName
+#      ArtifactStore:
+#        Type: S3
+#        Location: !Ref PipelineBucketname
+#      Stages:
+#      - Name: Github_pull
+#        Actions:
+#        - Name: Source
+#          ActionTypeId:
+#            Category: Source
+#            Provider: GitHub
+#            Owner: ThirdParty
+#            Version: 1
+#          Configuration:
+#            Owner: !Ref GithubOwner
+#            Repo:   !Ref GithubRepo
+#            OAuthToken: !Ref GithubAuth
+#            Branch: !Ref ProjectBranch
+#          OutputArtifacts:
+#          - Name: !Ref SourceStageOutputArtifact
+#      - Name: CodeBuild
+#        Actions:
+#        - Name: CodeBuildAction
+#          ActionTypeId:
+#            Category: Build
+#            Owner: AWS
+#            Provider: CodeBuild
+#            Version: 1
+#          InputArtifacts:
+#          - Name: !Ref SourceStageOutputArtifact
+#          OutputArtifacts:
+#          - Name: !Ref CodebuildOutputArtifact
+#          Configuration:
+#            ProjectName: !Ref CodebuildProjectname
+#
+#      - Name: TestStack
+#        Actions:
+#        - Name: CreateTestStack
+#          ActionTypeId:
+#            Category: Deploy
+#            Owner: AWS
+#            Version: 1
+#            Provider: CloudFormation
+#          Configuration:
+#            ActionMode: CHANGE_SET_REPLACE
+#            StackName: !Ref PipelineTestServiceStackName
+#            ChangeSetName: TestStageChangeSet
+#            Capabilities: CAPABILITY_NAMED_IAM
+#            RoleArn: !GetAtt CreateStackRole.Arn
+#            TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
+#            ParameterOverrides:
+#              !Sub
+#            - '{"ProjectId":"${ProjectIdValue}", "Stage":"test", "Branch":"${NormalizedBranchName}", "CodeBucket":"${S3Bucket}"}'
+#            - { ProjectIdValue: !Ref ProjectId}
+#
+#          InputArtifacts:
+#          - Name: !Ref CodebuildOutputArtifact
+#          RunOrder: 1
+#
+#        - Name: ExecuteTestStack
+#          ActionTypeId:
+#            Category: Deploy
+#            Owner: AWS
+#            Version: '1'
+#            Provider: CloudFormation
+#          Configuration:
+#            ActionMode: CHANGE_SET_EXECUTE
+#            ChangeSetName: TestStageChangeSet
+#            StackName: !Ref PipelineTestServiceStackName
+#          InputArtifacts: []
+#          OutputArtifacts: []
+#          RunOrder: 2
+##        - Name: InitializeStack
+##          ActionTypeId:
+##            Category: Invoke
+##            Owner: AWS
+##            Version: 1
+##            Provider: Lambda
+##          Configuration:
+##            FunctionName: Init
+##          InputArtifacts: []
+##          OutputArtifacts: []
+##          RunOrder: 3
+#        - Name: ManualReview
+#          ActionTypeId:
+#            Category: Approval # TODO: automated function tests
+#            Owner: AWS
+#            Provider: Manual
+#            Version: 1
+#          RunOrder: 4
+#        - Name: DeleteTestStack
+#          ActionTypeId:
+#            Category: Deploy
+#            Owner: AWS
+#            Provider: CloudFormation
+#            Version: '1'
+#          Configuration:
+#            ActionMode: DELETE_ONLY
+#            RoleArn: !GetAtt CreateStackRole.Arn
+#            StackName: !Ref PipelineTestServiceStackName
+#          RunOrder: 5
+#
+#      - Name: ProdStack
+#        Actions:
+#        - Name: CreateFinalStack
+#          ActionTypeId:
+#            Category: Deploy
+#            Owner: AWS
+#            Version: 1
+#            Provider: CloudFormation
+#          Configuration:
+#            ActionMode: CHANGE_SET_REPLACE
+#            StackName: !Ref PipelineFinalServiceStackName
+#            ChangeSetName: ProdStageChangeSet
+#            Capabilities: CAPABILITY_NAMED_IAM
+#            RoleArn: !GetAtt CreateStackRole.Arn
+#            TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
+#            ParameterOverrides:
+#              !Sub
+#            - '{"ProjectId":"${ProjectIdValue}", "Stage":"final", "Branch":"${NormalizedBranchName}" , "CodeBucket":"${S3Bucket}"}'
+#            - { ProjectIdValue: !Ref ProjectId}
+#
+#          InputArtifacts:
+#          - Name: !Ref CodebuildOutputArtifact
+#          RunOrder: 1
+#        - Name: ExecuteFinalStack
+#          ActionTypeId:
+#            Category: Deploy
+#            Owner: AWS
+#            Version: '1'
+#            Provider: CloudFormation
+#          Configuration:
+#            ActionMode: CHANGE_SET_EXECUTE
+#            ChangeSetName: ProdStageChangeSet
+#            StackName: !Ref PipelineFinalServiceStackName
+#          InputArtifacts: []
+#          OutputArtifacts: []
+#          RunOrder: 2
+#
+#      - Name: Initialize
+#        Actions:
+#          - Name: InitializeStack
+#            ActionTypeId:
+#              Category: Invoke
+#              Owner: AWS
+#              Version: 1
+#              Provider: Lambda
+#            Configuration:
+#              FunctionName: Init
+#
+#            InputArtifacts: []
+#            OutputArtifacts: []

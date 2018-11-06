@@ -46,9 +46,7 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
     }
 
     private String initBucketName() {
-        Random random=new Random();
-        String randomString=Integer.toHexString(random.nextInt(100));
-        return format(projectId, normalizedBranchName,randomString);
+        return format(projectId, normalizedBranchName);
     }
 
 
