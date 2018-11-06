@@ -28,11 +28,7 @@ public class CodeBuildConfigurationTest extends ConfigurationTests {
 
     }
 
-    @Test
-    public void getCacheBucket() {
-        String bucketName = conf.getCodeBuildConfiguration().getCacheBucket();
-        namingConventions(bucketName);
-    }
+
 
 
     private void namingConventions(String buildProjecName) {

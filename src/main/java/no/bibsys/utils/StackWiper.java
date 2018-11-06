@@ -46,7 +46,6 @@ public class StackWiper {
 
     private void deleteBuckets() {
         deleteBucket(pipelineStackConfiguration.getBucketName());
-        deleteBucket(pipelineStackConfiguration.getCodeBuildConfiguration().getCacheBucket());
     }
 
 
