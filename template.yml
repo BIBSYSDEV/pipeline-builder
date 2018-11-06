@@ -88,7 +88,7 @@ Resources:
   GithubHook:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: no.bibsys.handler.SimpleHandler::handleRequest
+      Handler: no.bibsys.handler.GithubHandler::handleRequest
       Runtime: java8
       CodeUri: build/libs/pipeline-fat.jar
       MemorySize:  1500
@@ -169,7 +169,7 @@ Resources:
   BuildBranch:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: no.bibsys.handler.CustomBranchBuilder::handleRequest
+      Handler: no.bibsys.handler.UpdateStackRequestHandler::handleRequest
       Runtime: java8
       CodeUri: build/libs/pipeline-fat.jar
       MemorySize:  1500
