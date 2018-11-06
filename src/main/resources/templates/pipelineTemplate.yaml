@@ -399,5 +399,8 @@ Resources:
               Category: Invoke
               Owner: AWS
               Version: 1
-              Provider: CloudFormation
+              Provider: Lambda
+            Configuration:
 
+            InputArtifacts: []
+            OutputArtifacts: []
