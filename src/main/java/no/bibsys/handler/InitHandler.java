@@ -2,35 +2,55 @@ package no.bibsys.handler;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import no.bibsys.apigateway.ApiExporter;
 import no.bibsys.cloudformation.CloudFormationConfigurable;
 import no.bibsys.handler.requests.PublishApi;
 import no.bibsys.swaggerhub.SwaggerDriver;
+import no.bibsys.utils.Environment;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 
-public class InitHandler extends HandlerTemplate<PublishApi,String> {
+public class InitHandler extends HandlerTemplate<String,String> {
+
+    private transient String repository;
+    private transient String branch;
+    private transient String swaggerOrganization;
+    private transient String swaggerHubApiKey;
+    private transient String apiId;
+    private transient String apiVersion;
+    private transient String stage;
+    private transient String owner;
+
+    private final transient Environment environment= new Environment();
 
     public InitHandler() {
-        super(PublishApi.class);
+        super(String.class);
     }
 
+
+
+
     @Override
-    public String processInput(final PublishApi input, Context context)
+    public String processInput(String input, Context context)
         throws IOException, URISyntaxException {
 
-        CloudFormationConfigurable config=new CloudFormationConfigurable(input.getRepository(),input.getBranch());
-        String json=generateApiSpec(input, config);
+
+        initFields(environment);
+        PublishApi publishApi=newPublishApi();
+        CloudFormationConfigurable config=new CloudFormationConfigurable(publishApi.getRepository()
+            ,publishApi.getBranch());
+        String json=generateApiSpec(publishApi, config);
 //
-        SwaggerDriver swaggerDriver=new SwaggerDriver(input.getSwaggetHubApiKey(),
-            input.getSwaggerOrganization(),input.getApiId());
+        SwaggerDriver swaggerDriver=new SwaggerDriver(publishApi.getSwaggetHubApiKey(),
+            publishApi.getSwaggerOrganization(),publishApi.getApiId());
         HttpPost request = swaggerDriver
-            .updateSpecificationPostRequest(json, input.getApiVersion());
+            .updateSpecificationPostRequest(json, publishApi.getApiVersion());
         swaggerDriver.executeUpdate(request);
 
         HttpGet getSpecRequest = swaggerDriver
-            .getSpecificationVesionRequest(input.getApiVersion());
+            .getSpecificationVesionRequest(publishApi.getApiVersion());
         String response=swaggerDriver.executeGet(getSpecRequest);
         return response;
 
@@ -41,5 +61,42 @@ public class InitHandler extends HandlerTemplate<PublishApi,String> {
         ApiExporter apiExporter=new ApiExporter(config,input.getStage());
         return apiExporter.generateOpenApiNoExtensions();
 
+    }
+
+
+    private void initFields(Environment environment){
+        this.apiId=environment.readEnvOpt("API_ID").orElseThrow(()->newException("API_ID"));
+        this.apiVersion=environment.readEnvOpt("API_VERSION").orElseThrow(()->newException("API_VERSION"));
+        this.owner=environment.readEnvOpt("OWNER").orElseThrow(()->newException("OWNER"));
+        this.branch=environment.readEnvOpt("BRANCH").orElseThrow(()->newException("BRANCH"));
+        this.repository=environment.readEnvOpt("REPOSITORY").orElseThrow(()->newException("REPOSITORY"));
+        this.stage=environment.readEnvOpt("STAGE").orElseThrow(()->newException("STAGE"));
+        this.swaggerHubApiKey=environment.readEnvOpt("SWAGGER_KEY").orElseThrow(()->newException("SWAGGER_KEY"));
+        this.swaggerOrganization=environment.readEnvOpt("SWAGGER_ORG").orElseThrow(()->newException("SWAGGER_ORG"));
+
+
+    }
+
+    private IllegalStateException newException(String missingVariable){
+        return new IllegalStateException(String.format("%s is missing",missingVariable));
+
+    }
+
+    @Override
+    protected String parseInput(InputStream inputStream)  {
+        return null;
+    }
+
+    private PublishApi newPublishApi(){
+        PublishApi publishApi=new PublishApi();
+        publishApi.setApiId(apiId);
+        publishApi.setApiVersion(apiVersion);
+        publishApi.setStage(stage);
+        publishApi.setSwaggerOrganization(swaggerOrganization);
+        publishApi.setSwaggetHubApiKey(swaggerHubApiKey);
+        publishApi.setBranch(branch);
+        publishApi.setOwner(owner);
+        publishApi.setRepository(repository);
+        return publishApi;
     }
 }

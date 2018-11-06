@@ -259,6 +259,16 @@ Resources:
       Handler: no.bibsys.handler.InitHandler::handleRequest
       FunctionName: !Ref InitFunctionName
       Runtime: java8
+      Environment:
+        Variables:
+          API_ID: "small-api"
+          API_VERSION: "1.0"
+          OWNER: "BIBSYSDEV"
+          BRANCH: !Ref Branch
+          REPOSITORY: 'authority-registry-infrastructure'
+          STAGE: !Ref Stage
+          SWAGGER_ORG: 'axthosarouris'
+          SWAGGER_KEY: '{{resolve:ssm-secure:swaggerhub_auth:1}}'
       CodeUri: build/libs/pipeline-fat.jar
       Policies:
         Version: '2012-10-17'
@@ -271,6 +281,4 @@ Resources:
       MemorySize: 1500
       Timeout: 900
 
-Outputs:
-  InitFunction:
-    Value: !GetAtt Init.Arn
+
