@@ -401,6 +401,7 @@ Resources:
               Version: 1
               Provider: Lambda
             Configuration:
+              FunctionName: Init
 
             InputArtifacts: []
             OutputArtifacts: []
