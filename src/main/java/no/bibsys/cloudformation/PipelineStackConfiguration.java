@@ -1,5 +1,6 @@
 package no.bibsys.cloudformation;
 
+import java.util.Random;
 import no.bibsys.git.github.GitInfo;
 
 public class PipelineStackConfiguration extends CloudFormationConfigurable {
@@ -45,7 +46,9 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
     }
 
     private String initBucketName() {
-        return format(projectId, normalizedBranchName);
+        Random random=new Random();
+        String randomString=Integer.toHexString(random.nextInt(100));
+        return format(projectId, normalizedBranchName,randomString);
     }
 
 
