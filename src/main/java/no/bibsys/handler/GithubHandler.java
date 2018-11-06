@@ -14,13 +14,13 @@ import no.bibsys.utils.Environment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class SimpleHandler extends HandlerHelper<String, String> {
+public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
 
-    private static final Logger logger = LogManager.getLogger(SimpleHandler.class);
+    private static final Logger logger = LogManager.getLogger(GithubHandler.class);
 
 
-    public SimpleHandler() {
+    public GithubHandler() {
         super(String.class);
     }
 
@@ -37,9 +37,7 @@ public class SimpleHandler extends HandlerHelper<String, String> {
                    response=processPushEvent((PushEvent) repositoryInfo);
                }
         }
-
         return response;
-
     }
 
 

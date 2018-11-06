@@ -8,7 +8,7 @@ import no.bibsys.handler.requests.Action;
 import no.bibsys.handler.requests.CustomBuildRequest;
 import no.bibsys.utils.JsonUtils;
 
-public class CustomBranchBuilder extends SimpleHandler {
+public class UpdateStackRequestHandler extends GithubHandler {
 
 
     @Override

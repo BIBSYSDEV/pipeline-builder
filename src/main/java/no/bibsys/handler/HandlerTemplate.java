@@ -12,22 +12,20 @@ import java.io.OutputStreamWriter;
 import java.net.URISyntaxException;
 import java.util.Optional;
 import no.bibsys.handler.responses.GatewayResponse;
-import no.bibsys.utils.ApiMessageParser;
 import no.bibsys.utils.IoUtils;
 import org.apache.http.HttpStatus;
 
 
-public abstract class HandlerHelper<I, O> implements RequestStreamHandler {
+public abstract class HandlerTemplate<I, O> implements RequestStreamHandler {
 
 
     private final transient Class<I> iclass;
-    private final transient ApiMessageParser<I> inputParser = new ApiMessageParser<>();
     private final transient ObjectMapper objectMapper = new ObjectMapper();
     protected transient LambdaLogger logger;
     private transient OutputStream outputStream;
     private transient Context context;
 
-    public HandlerHelper(Class<I> iclass) {
+    public HandlerTemplate(Class<I> iclass) {
         this.iclass = iclass;
 
     }
@@ -39,10 +37,10 @@ public abstract class HandlerHelper<I, O> implements RequestStreamHandler {
         this.logger = context.getLogger();
     }
 
-    public I parseInput(InputStream inputStream)
+    protected I parseInput(InputStream inputStream)
         throws IOException {
         String inputString = IoUtils.streamToString(inputStream);
-        I input = inputParser.getBodyElementFromJson(inputString, iclass);
+        I input=objectMapper.readValue(inputString,iclass);
         return input;
 
     }
@@ -96,5 +94,9 @@ public abstract class HandlerHelper<I, O> implements RequestStreamHandler {
         }
     }
 
+
+    protected Class<I> getIClass(){
+        return iclass;
+    }
 
 }

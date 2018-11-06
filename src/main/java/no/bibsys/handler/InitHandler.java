@@ -10,7 +10,7 @@ import no.bibsys.swaggerhub.SwaggerDriver;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 
-public class InitHandler extends  HandlerHelper<PublishApi,String> {
+public class InitHandler extends HandlerTemplate<PublishApi,String> {
 
     public InitHandler() {
         super(PublishApi.class);

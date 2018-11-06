@@ -44,7 +44,7 @@ public class PipelineTest {
         InitHandler initHandler=new InitHandler();
         PublishApi publishApi=new PublishApi();
         publishApi.setApiId("small-api");
-        publishApi.setApiVersion("1.23");
+        publishApi.setApiVersion("2");
         publishApi.setStage(Stage.FINAL);
         publishApi.setSwaggerOrganization("Unit3");
         publishApi.setBranch(branchName);
