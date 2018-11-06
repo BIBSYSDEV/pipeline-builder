@@ -268,7 +268,7 @@ Resources:
           REPOSITORY: 'authority-registry-infrastructure'
           STAGE: !Ref Stage
           SWAGGER_ORG: 'axthosarouris'
-          SWAGGER_KEY: '{{resolve:ssm-secure:swaggerhub_auth:1}}'
+
       CodeUri: build/libs/pipeline-fat.jar
       Policies:
         Version: '2012-10-17'
