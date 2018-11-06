@@ -89,6 +89,9 @@ public class StackBuilder {
         parameters.add(newParameter("PipelineFinalServiceStackName",
             pipelineStack.getPipelineConfiguration().getFinalServiceStack()));
 
+        parameters.add(newParameter("InitFunctionName",pipelineStack.getPipelineConfiguration().getInitLambdaFunctionName()));
+
+
         createStackRequest.setParameters(parameters);
         createStackRequest.withCapabilities(Capability.CAPABILITY_NAMED_IAM);
 

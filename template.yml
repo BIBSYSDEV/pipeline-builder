@@ -13,6 +13,9 @@ Parameters:
     Type: String
   CodeBucket:
     Type: String
+  InitFunctionName:
+    Type: String
+
 
 Resources:
   RestApi:
@@ -250,8 +253,11 @@ Resources:
 
   Init:
     Type: AWS::Serverless::Function
+    DependsOn:
+      - RestApi
     Properties:
       Handler: no.bibsys.handler.InitHandler::handleRequest
+      FunctionName: !Ref InitFunctionName
       Runtime: java8
       CodeUri: build/libs/pipeline-fat.jar
       Policies:
@@ -264,3 +270,7 @@ Resources:
           Resource: "*"
       MemorySize: 1500
       Timeout: 900
+
+Outputs:
+  InitFunction:
+    Value: !GetAtt Init.Arn

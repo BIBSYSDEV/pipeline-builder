@@ -30,8 +30,9 @@ Parameters:
     Type: String
   CodebuildOutputArtifact:
     Type: String
-
   SourceStageOutputArtifact:
+    Type: String
+  InitFunctionName:
     Type: String
 
 
@@ -323,17 +324,17 @@ Resources:
           InputArtifacts: []
           OutputArtifacts: []
           RunOrder: 2
-#        - Name: InitializeStack
-#          ActionTypeId:
-#            Category: Invoke
-#            Owner: AWS
-#            Version: 1
-#            Provider: Lambda
-#          Configuration:
-#            FunctionName: Init
-#          InputArtifacts: []
-#          OutputArtifacts: []
-#          RunOrder: 3
+        - Name: InitializeStack
+          ActionTypeId:
+            Category: Invoke
+            Owner: AWS
+            Version: 1
+            Provider: Lambda
+          Configuration:
+            FunctionName: !Ref InitFunctionName
+          InputArtifacts: []
+          OutputArtifacts: []
+          RunOrder: 3
         - Name: ManualReview
           ActionTypeId:
             Category: Approval # TODO: automated function tests
@@ -399,7 +400,7 @@ Resources:
               Version: 1
               Provider: Lambda
             Configuration:
-              FunctionName: Init
+              FunctionName: !Ref InitFunctionName
 
             InputArtifacts: []
             OutputArtifacts: []

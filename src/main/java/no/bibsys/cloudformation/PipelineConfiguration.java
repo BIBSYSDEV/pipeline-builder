@@ -9,6 +9,10 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
     private final String pipelineName;
 
 
+
+    private final String initLambdaFunctionName;
+
+
     public PipelineConfiguration(String repositoryName, String branchName) {
         super(repositoryName, branchName);
 
@@ -17,7 +21,11 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
         this.finalServiceStack = initServiceStack(Stage.FINAL);
         this.pipelineName = initializePipelineName();
 
+        initLambdaFunctionName = initInitLambdaFunction();
+    }
 
+    private String initInitLambdaFunction() {
+        return format(projectId,normalizedBranchName,"init-function");
     }
 
 
@@ -31,6 +39,10 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
 
     private String initSourceOutputArtifactName() {
         return format(projectId, normalizedBranchName, "sourceOutput");
+    }
+
+    public String getInitLambdaFunctionName() {
+        return initLambdaFunctionName;
     }
 
 
