@@ -138,6 +138,7 @@ Resources:
             - 'lambda:GetFunctionConfiguration'
             - 'lambda:UpdateFunctionConfiguration'
             - 'lambda:RemovePermission'
+            -  'lambda:Invoke'
             - 'lambda:listTags'
             - 'lambda:TagResource'
             - 'lambda:UntagResource'
