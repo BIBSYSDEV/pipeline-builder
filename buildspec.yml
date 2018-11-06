@@ -9,7 +9,7 @@ phases:
   pre_build:
     commands:
     - echo Test started on `date`
-    - sh gradlew  test
+    - sh gradlew clean test
   build:
     commands:
     - echo Build started on `date`
