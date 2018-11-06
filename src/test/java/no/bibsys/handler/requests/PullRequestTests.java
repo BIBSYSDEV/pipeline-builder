@@ -12,9 +12,8 @@ import org.junit.Test;
 public class PullRequestTests {
 
 
-
-    String pullRequestString;
-    PullRequest pullRequest;
+    private String pullRequestString;
+    private PullRequest pullRequest;
 
     public PullRequestTests() throws IOException {
         pullRequestString = IoUtils.resourceAsString(Paths.get("github", "pullrequest.json"));

@@ -37,7 +37,7 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
     }
 
     private String initServiceStack(String postifx) {
-        return format(projectId, normalizedBranchName, "serviceStack", postifx);
+        return format(projectId, normalizedBranchName, "service-stack", postifx);
     }
 
     private String initSourceOutputArtifactName() {

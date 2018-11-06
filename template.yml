@@ -17,11 +17,72 @@ Parameters:
     Type: String
 
 Resources:
-
   RestApi:
+    DependsOn:
+      - BuildBranch
     Type: AWS::Serverless::Api
     Properties:
+      Name: !Join ['-',[!Ref ProjectId, !Ref Branch, !Ref Stage]]
       StageName: !Ref Stage
+      DefinitionBody:
+        openapi: 3.0.0
+        info:
+          description: Small api to build a branch
+          version: "0.1"
+        paths:
+          /githubhook:
+            post:
+              responses:
+                default:
+                  description: A simple string response
+                  content:
+                    text/plain:
+                      schema:
+                        type: string
+              x-amazon-apigateway-integration:
+                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GithubHook.Arn}/invocations"
+                httpMethod: "POST"
+                type: aws_proxy
+                passthroughBehavior: when_no_match
+          /buildbranch:
+            post:
+              operationId: insertEntry
+              responses:
+                default:
+                  description: A simple string response
+                  content:
+                    text/plain:
+                      schema:
+                        type: string
+              requestBody:
+                content:
+                  application/json :
+                    schema:
+                      type: "object"
+                      properties:
+                        repository:
+                          description: The name of the repository
+                          type: string
+                        branch:
+                          description: The name of the branch
+                          type: string
+                        owner:
+                          description: The owner
+                          type: string
+                        action:
+                          description: create or update
+                          type: string
+                    example:
+                      repositoryName: 'authority-registry'
+                      branch: master
+                      owner: BIBSYSDEV
+                      action: create
+              x-amazon-apigateway-integration:
+                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${BuildBranch.Arn}/invocations"
+                httpMethod: "POST"
+                type: aws_proxy
+                passthroughBehavior: when_no_match
+
   GithubHook:
     Type: AWS::Serverless::Function
     Properties:

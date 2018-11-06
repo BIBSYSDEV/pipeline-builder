@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.Optional;
 import no.bibsys.utils.Environment;
 
-public class GithubConf {
+public class GithubConf implements  GitInfo{
 
     private final transient String owner;
     private final transient String repo;
@@ -29,14 +29,17 @@ public class GithubConf {
     }
 
 
+    @Override
     public String getOwner() {
         return owner;
     }
 
+    @Override
     public String getRepo() {
         return repo;
     }
 
+    @Override
     public String getOauth() {
         return oauth;
     }

@@ -25,7 +25,7 @@ public final class IoUtils {
 
     public static  String streamToString(InputStream stream) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-        List<String> lines = new ArrayList<>();
+        List<String> lines=new ArrayList<>();
         String line = reader.readLine();
         while (line != null) {
             lines.add(line);
@@ -42,7 +42,7 @@ public final class IoUtils {
     }
 
 
-    public static List<String> linesfromResource(Path path) throws IOException {
+    public static  List<String> linesfromResource(Path path) throws IOException {
         BufferedReader reader = new BufferedReader(
             new InputStreamReader(inputStreamFromResources(path)));
         List<String> lines = new ArrayList<>();

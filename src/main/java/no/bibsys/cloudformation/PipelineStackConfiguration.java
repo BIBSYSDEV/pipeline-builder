@@ -5,8 +5,8 @@ import com.typesafe.config.ConfigFactory;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import no.bibsys.git.github.GithubConf;
-import no.bibsys.git.github.GithubReader;
+import no.bibsys.git.github.GitInfo;
+import no.bibsys.git.github.ResourceFileReader;
 import no.bibsys.utils.JsonUtils;
 
 public class PipelineStackConfiguration extends CloudFormationConfigurable {
@@ -24,15 +24,15 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
 //    private final transient GithubConf githubConf;
 
 
-    private final GithubConf githubConf;
+    private final GitInfo githubConf;
 
     private final transient PipelineConfiguration pipelineConfiguration;
     private final transient CodeBuildConfiguration codeBuildConfiguration;
 
 
-    public PipelineStackConfiguration(GithubReader githubreader) throws IOException {
-        super(githubreader.getGithubConf().getRepo(), githubreader.getBranch());
-        this.githubConf = githubreader.getGithubConf();
+    public PipelineStackConfiguration(ResourceFileReader githubreader) throws IOException {
+        super(githubreader.getGitInfo().getRepo(), githubreader.getBranch());
+        this.githubConf = githubreader.getGitInfo();
         this.pipelineStackName = initPipelineStackName();
         this.bucketName = initBucketName();
         this.createStackRoleName = initCreateStackRole();
@@ -45,7 +45,7 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
     }
 
     private PipelineConfiguration initPipelineConfiguration(String branchName, String repoName,
-        GithubReader githubReader)
+        ResourceFileReader githubReader)
         throws IOException {
         PolicyReader policyReader = new PolicyReader(githubReader).invoke();
         String assumePolicyDocument = policyReader.getAssumePolicyDocument();
@@ -103,7 +103,7 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
         return codeBuildConfiguration;
     }
 
-    public GithubConf getGithubConf() {
+    public GitInfo getGithubConf() {
         return githubConf;
     }
 
@@ -112,11 +112,11 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
 
         private final transient Config config = ConfigFactory.load().resolve();
-        private final transient GithubReader githubReader;
+        private final transient ResourceFileReader githubReader;
         private transient String assumePolicyDocument;
         private transient String accessPolicyDocument;
 
-        public PolicyReader(GithubReader githubReader) {
+        public PolicyReader(ResourceFileReader githubReader) {
             this.githubReader = githubReader;
         }
 

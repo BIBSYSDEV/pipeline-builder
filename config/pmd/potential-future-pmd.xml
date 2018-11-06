@@ -34,6 +34,7 @@
     <exclude name="OnlyOneReturn"/>
     <exclude name="LocalVariableCouldBeFinal"/>
     <exclude name="MethodArgumentCouldBeFinal"/>
+    <exclude name="ClassNamingConventions"/>
 
     <!--<exclude name="BeanMembersShouldSerialize"/>-->
 
@@ -58,7 +59,9 @@
   </rule>
 
 
-  <rule ref="category/java/performance.xml"/>
+  <rule ref="category/java/performance.xml">
+    <exclude name="ConsecutiveLiteralAppends"/>
+  </rule>
 
   <rule ref="category/java/design.xml/TooManyMethods">
     <properties>
@@ -71,6 +74,7 @@
     <exclude name="LawOfDemeter"/>
     <exclude name="DataClass"/>
     <exclude name="AvoidCatchingGenericException"/>
+    <exclude name="UseObjectForClearerAPI"/>
 
 
     <!-- This rule does not allow the Lambda Handler to cast  the ContainerInitializationException

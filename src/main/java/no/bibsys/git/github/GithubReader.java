@@ -6,38 +6,29 @@ import java.io.IOException;
 import java.nio.file.Path;
 import no.bibsys.utils.JsonUtils;
 
-public class GithubReader {
+public class GithubReader   implements ResourceFileReader {
 
 
     private final transient static String urlTemplate = "https://api.github.com/"
         + "repos/%1$s/%2$s/contents/%4$s?ref=%3$s";
 
 
-    private final transient GithubConf githubConf;
+    private final transient GitInfo githubConf;
     private final transient RestReader restReader;
 
 
     private final transient String branch;
 
     public GithubReader(RestReader restReader, String branch) {
-        this.githubConf = restReader.getGithubConf();
+        this.githubConf = restReader.getGitInfo();
         this.branch = branch;
         this.restReader = restReader;
     }
 
 
-    private String createUrl(Path path) {
-        String pathString = path.toString();
-        return String.format(urlTemplate,
-            githubConf.getOwner(),
-            githubConf.getRepo(),
-            branch,
-            pathString
-        );
-
-    }
 
 
+    @Override
     public String readFile(Path path) throws IOException {
         String downloadField = "download_url";
         String url = createUrl(path);
@@ -54,14 +45,30 @@ public class GithubReader {
 
     }
 
+    private String createUrl(Path path) {
+        String pathString = path.toString();
+        return String.format(urlTemplate,
+            githubConf.getOwner(),
+            githubConf.getRepo(),
+            branch,
+            pathString
+        );
 
+    }
+
+
+
+    @Override
     public String getBranch() {
         return branch;
     }
 
-    public GithubConf getGithubConf() {
+    @Override
+    public GitInfo getGitInfo() {
         return githubConf;
     }
+
+
 
 
 }

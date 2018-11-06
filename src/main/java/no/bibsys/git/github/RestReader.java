@@ -12,18 +12,18 @@ import org.apache.http.message.BasicHeader;
 public class RestReader {
 
 
-    private final transient GithubConf githubConf;
+    private final transient GitInfo gitInfo;
 
 
-    public RestReader(GithubConf githubConf) {
-        this.githubConf = githubConf;
+    public RestReader(GitInfo gitInfo) {
+        this.gitInfo = gitInfo;
 
     }
 
     public String readRest(String url) throws IOException {
         CloseableHttpClient httpClient = HttpClients.createMinimal();
         HttpGet get = new HttpGet(url);
-        get.setHeader(new BasicHeader("Authentication", "token " + githubConf.getOauth()));
+        get.setHeader(new BasicHeader("Authentication", "token " + gitInfo.getOauth()));
         get.setHeader(new BasicHeader("Accept", "application/vnd.github.v3+json"));
         CloseableHttpResponse response = httpClient.execute(get);
         HttpEntity responseEntity = response.getEntity();
@@ -39,7 +39,7 @@ public class RestReader {
     }
 
 
-    public GithubConf getGithubConf() {
-        return githubConf;
+    public GitInfo getGitInfo() {
+        return gitInfo;
     }
 }

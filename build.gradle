@@ -58,6 +58,8 @@ dependencies {
     compile group: 'com.amazonaws', name: 'aws-java-sdk-codebuild', version: '1.11.+'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-secretsmanager', version: '1.11.+'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-iam', version: '1.11.+'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-api-gateway', version: '1.11.+'
+
 
     //For reading and deleting logs
     compile group: 'com.amazonaws', name: 'aws-java-sdk-logs', version: '1.11.+'
@@ -68,24 +70,27 @@ dependencies {
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.8.2'
 
 
+    //this should be the same version as the one used by amazon
+    compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.6.0'
+
     compile group: 'com.amazonaws', name: 'aws-lambda-java-core', version: '+'
 
-    //libraries for more expressive testing
+    //libraries for testing
     testCompile group: 'org.hamcrest', name: 'hamcrest-junit', version: '2.0.0.0'
-
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.23.0'
     //JUnit should be the same version as spring
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.23.0'
-
-//    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
-
-    compile 'org.apache.commons:commons-lang3:+'
+    
+    
+    compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.6'
 
     compile 'com.typesafe:config:+'
 
     compile group: 'com.google.guava', name: 'guava', version: '27.0-jre'
 
 
+    
+    
 }
 
 
