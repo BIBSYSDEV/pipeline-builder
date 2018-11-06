@@ -30,8 +30,7 @@ Parameters:
     Type: String
   CodebuildOutputArtifact:
     Type: String
-  CodebuildCache:
-    Type: String
+
   SourceStageOutputArtifact:
     Type: String
 
@@ -41,20 +40,6 @@ Conditions:
 
 Resources:
 
-  #The buckets cannot be deleted when the stack is deleted because they are not empty.
-  #We have to delete them using the API
-  CodebuildCacheBucket:
-    Type: AWS::S3::Bucket
-    DeletionPolicy: Retain
-    Properties:
-      AccessControl: Private
-      BucketName: !Ref CodebuildCache
-      VersioningConfiguration:
-        Status: Enabled
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-        - ServerSideEncryptionByDefault:
-            SSEAlgorithm: aws:kms
   S3Bucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
@@ -126,8 +111,8 @@ Resources:
             Resource:
             - !Join ["", [!GetAtt S3Bucket.Arn, "/*"]]
             - !GetAtt S3Bucket.Arn
-            - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache, "/*"]]
-            - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache]]
+            - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname, "/*"]]
+            - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname]]
       - PolicyName: customResourceSupport
         PolicyDocument:
           Version: '2012-10-17'
@@ -190,8 +175,8 @@ Resources:
             Resource:
             - !Join ["", [!GetAtt S3Bucket.Arn, "/*"]]
             - !GetAtt S3Bucket.Arn
-            - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache, "/*"]]
-            - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache]]
+            - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname, "/*"]]
+            - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname]]
           - Effect: Allow
             Action:
             - logs:CreateLogGroup
@@ -235,7 +220,7 @@ Resources:
             Resource: '*'
   CodeBuildProject:
     DependsOn:
-      - CodebuildCacheBucket
+      - S3Bucket
     Type: AWS::CodeBuild::Project
     Description: CodeBuild project for using in the CodePipeline
     Properties:
@@ -255,7 +240,7 @@ Resources:
           Value: !Ref PipelineBucketname
       ServiceRole: !GetAtt PipelineRole.Arn
       Cache:
-        Location:  !Join ['',[!Ref CodebuildCache,'/cache']]
+        Location:  !Join ['',[!Ref PipelineBucketname,'/buildcache']]
         Type: S3
 
   Pipeline:

@@ -81,8 +81,7 @@ public class StackBuilder {
             pipelineStack.getCodeBuildConfiguration().getOutputArtifact()));
         parameters.add(newParameter("CodebuildProjectname",
             pipelineStack.getCodeBuildConfiguration().getBuildProjectName()));
-        parameters.add(newParameter("CodebuildCache",
-            pipelineStack.getCodeBuildConfiguration().getCacheBucket()));
+
 
         parameters.add(newParameter("PipelineTestServiceStackName",
             pipelineStack.getPipelineConfiguration().getTestServiceStack()));
