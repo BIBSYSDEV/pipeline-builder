@@ -6,8 +6,6 @@ import com.amazonaws.services.codepipeline.model.FailureDetails;
 import com.amazonaws.services.codepipeline.model.FailureType;
 import com.amazonaws.services.codepipeline.model.PutJobFailureResultRequest;
 import com.amazonaws.services.codepipeline.model.PutJobSuccessResultRequest;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,12 +60,12 @@ public abstract class CodePipelineFunctionHandler<O> extends HandlerTemplate<Cod
         writer.close();
     }
 
-    private String createContinuationToken(CodePipelineEvent input) throws JsonProcessingException {
-        ObjectNode continuationToken = objectMapper.getNodeFactory().objectNode();
-        continuationToken.put("previous_job_id",input.getId());
-        return objectMapper.writeValueAsString(continuationToken);
-
-    }
+//    private String createContinuationToken(CodePipelineEvent input) throws JsonProcessingException {
+//        ObjectNode continuationToken = objectMapper.getNodeFactory().objectNode();
+//        continuationToken.put("previous_job_id",input.getId());
+//        return objectMapper.writeValueAsString(continuationToken);
+//
+//    }
 
 
 
