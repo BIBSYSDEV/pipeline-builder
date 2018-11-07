@@ -307,15 +307,8 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
               !Sub
-            - >
-            '{"ProjectId":"${ProjectIdValue}",
-            "Stage":"test",
-            "Branch":"${NormalizedBranchName}",
-            "CodeBucket":"${S3Bucket}",
-            "InitFunctionName": "${InitFunctionName}",
-            "DestroyFunctionName: "${DestroyFunctionName}"
-            }'
-            - { ProjectIdValue: !Ref ProjectId}
+                - '{"ProjectId":"${ProjectIdValue}","Stage":"test","Branch":"${NormalizedBranchName}","CodeBucket":"${S3Bucket}","InitFunctionName": "${InitFunctionName}","DestroyFunctionName: "${DestroyFunctionName}"}'
+                - { ProjectIdValue: !Ref ProjectId}
 
           InputArtifacts:
           - Name: !Ref CodebuildOutputArtifact
@@ -381,15 +374,8 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
               !Sub
-            - >
-            '{"ProjectId":"${ProjectIdValue}",
-            "Stage":"test",
-            "Branch":"${NormalizedBranchName}",
-            "CodeBucket":"${S3Bucket}",
-            "InitFunctionName": "${InitFunctionName}",
-            "DestroyFunctionName: "${DestroyFunctionName}"
-            }'
-            - { ProjectIdValue: !Ref ProjectId}
+                - '{"ProjectId":"${ProjectIdValue}", "Stage":"test","Branch":"${NormalizedBranchName}","CodeBucket":"${S3Bucket}","InitFunctionName": "${InitFunctionName}","DestroyFunctionName: "${DestroyFunctionName}"}'
+                - { ProjectIdValue: !Ref ProjectId}
 
           InputArtifacts:
           - Name: !Ref CodebuildOutputArtifact
