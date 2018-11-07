@@ -11,6 +11,7 @@ import no.bibsys.handler.requests.PublishApi;
 import no.bibsys.secrets.SecretsReader;
 import no.bibsys.swaggerhub.SwaggerDriver;
 import no.bibsys.utils.Environment;
+import no.bibsys.utils.IoUtils;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 
@@ -36,6 +37,7 @@ public class InitHandler extends HandlerTemplate<String, String> {
     public String processInput(String input, Context context)
         throws IOException, URISyntaxException {
 
+        System.out.println(input);
         System.out.println("Lambda function started");
         initFields(environment);
         PublishApi publishApi = newPublishApi();
@@ -89,8 +91,8 @@ public class InitHandler extends HandlerTemplate<String, String> {
     }
 
     @Override
-    protected String parseInput(InputStream inputStream) {
-        return null;
+    protected String parseInput(InputStream inputStream) throws IOException {
+        return IoUtils.streamToString(inputStream);
     }
 
     private PublishApi newPublishApi() {
