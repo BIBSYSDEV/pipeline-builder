@@ -38,9 +38,9 @@ public abstract class CodePipelineFunctionHandler<O> extends HandlerTemplate<Cod
         PutJobSuccessResultRequest success = new PutJobSuccessResultRequest();
         String continutationToken=createContinuationToken(input);
         success.withJobId(input.getId()).withContinuationToken(continutationToken);
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-        writer.write(outputString);
-        writer.close();
+//        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+//        writer.write(outputString);
+//        writer.close();
         pipeline.putJobSuccessResult(success);
 
     }
