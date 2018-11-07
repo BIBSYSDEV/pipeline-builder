@@ -2,7 +2,6 @@ package no.bibsys.handler;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
 import no.bibsys.apigateway.ApiExporter;
 import no.bibsys.cloudformation.CloudFormationConfigurable;
@@ -11,7 +10,6 @@ import no.bibsys.handler.requests.PublishApi;
 import no.bibsys.secrets.SecretsReader;
 import no.bibsys.swaggerhub.SwaggerDriver;
 import no.bibsys.utils.Environment;
-import no.bibsys.utils.IoUtils;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 

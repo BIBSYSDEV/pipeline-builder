@@ -5,13 +5,11 @@ import com.amazonaws.services.codepipeline.AWSCodePipelineClientBuilder;
 import com.amazonaws.services.codepipeline.model.FailureDetails;
 import com.amazonaws.services.codepipeline.model.PutJobFailureResultRequest;
 import com.amazonaws.services.codepipeline.model.PutJobSuccessResultRequest;
-import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Optional;
 import no.bibsys.handler.requests.CodePipelineEvent;
@@ -19,7 +17,7 @@ import no.bibsys.utils.IoUtils;
 
 public abstract class CodePipelineFunctionHandler<O> extends HandlerTemplate<CodePipelineEvent,O> {
 
-    private AWSCodePipeline pipeline=AWSCodePipelineClientBuilder.defaultClient();
+    private final transient AWSCodePipeline pipeline=AWSCodePipelineClientBuilder.defaultClient();
 
     public CodePipelineFunctionHandler() {
         super(CodePipelineEvent.class);
@@ -70,23 +68,6 @@ public abstract class CodePipelineFunctionHandler<O> extends HandlerTemplate<Cod
     }
 
 
-    @Override
-    public void handleRequest(InputStream input, OutputStream output, Context context)
-        throws IOException {
-        init(output, context);
-        CodePipelineEvent inputObject = parseInput(input);
-        O response = null;
-        try {
-            response = processInput(inputObject, context);
-            AWSCodePipeline client = AWSCodePipelineClientBuilder
-                .defaultClient();
-
-            writeOutput(inputObject,response);
-        } catch (Exception e) {
-            logger.log(e.getMessage());
-            writeFailure(inputObject,e);
-        }
-    }
 
 
 
