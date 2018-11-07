@@ -154,7 +154,7 @@ public class SwaggerDriver {
 
     private Map<String, String> setupRequestParametersForUpdate(String version) {
         Map<String, String> parameters = new HashMap<>();
-        parameters.put("isPrivate", "true");
+        parameters.put("isPrivate", "false");
         parameters.put("force", "true");
         parameters.put("version", version);
         return parameters;
