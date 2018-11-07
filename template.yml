@@ -278,6 +278,8 @@ Resources:
         - Action:
           - secretsmanager:GetSecretValue
           - lambda:InvokeFunction
+          - codepipeline:PutJobFailureResult
+          - codepipeline:PutJobSuccessResult
           - apigateway:*
           Effect: Allow
           Resource: "*"
