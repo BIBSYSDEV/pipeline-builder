@@ -1,6 +1,7 @@
 package no.bibsys.handler;
 
 import com.amazonaws.services.lambda.runtime.Context;
+import java.awt.SystemTray;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -35,12 +36,14 @@ public class InitHandler extends HandlerTemplate<String, String> {
     public String processInput(String input, Context context)
         throws IOException, URISyntaxException {
 
+        System.out.println("Lambda function started");
         initFields(environment);
         PublishApi publishApi = newPublishApi();
         CloudFormationConfigurable config = new CloudFormationConfigurable(
             publishApi.getRepository()
             , publishApi.getBranch());
         String json = generateApiSpec(publishApi, config);
+        System.out.println(json);
 //
         SwaggerDriver swaggerDriver = new SwaggerDriver(publishApi.getSwaggetHubApiKey(),
             publishApi.getSwaggerOrganization(), publishApi.getApiId());
