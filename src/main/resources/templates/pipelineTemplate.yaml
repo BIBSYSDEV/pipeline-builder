@@ -175,7 +175,7 @@ Resources:
           Statement:
           - Effect: Allow
             Action:
-            - "lambda:InvokeFunction"
+            - 'lambda:InvokeFunction'
             Resource: "*"
       - PolicyName: s3Access
         PolicyDocument:
