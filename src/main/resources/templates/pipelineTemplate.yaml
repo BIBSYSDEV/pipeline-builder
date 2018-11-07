@@ -34,6 +34,8 @@ Parameters:
     Type: String
   InitFunctionName:
     Type: String
+  DestroyFunctionName:
+    Type: String
 
 
 Conditions:
@@ -305,7 +307,14 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
               !Sub
-            - '{"ProjectId":"${ProjectIdValue}", "Stage":"test", "Branch":"${NormalizedBranchName}", "CodeBucket":"${S3Bucket}", "InitFunctionName": "${InitFunctionName}"}'
+            - >
+            '{"ProjectId":"${ProjectIdValue}",
+            "Stage":"test",
+            "Branch":"${NormalizedBranchName}",
+            "CodeBucket":"${S3Bucket}",
+            "InitFunctionName": "${InitFunctionName}",
+            "DestroyFunctionName: "${DestroyFunctionName}"
+            }'
             - { ProjectIdValue: !Ref ProjectId}
 
           InputArtifacts:
@@ -372,7 +381,14 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
               !Sub
-            - '{"ProjectId":"${ProjectIdValue}", "Stage":"final", "Branch":"${NormalizedBranchName}" , "CodeBucket":"${S3Bucket}, "InitFunctionName": "${InitFunctionName}"}'
+            - >
+            '{"ProjectId":"${ProjectIdValue}",
+            "Stage":"test",
+            "Branch":"${NormalizedBranchName}",
+            "CodeBucket":"${S3Bucket}",
+            "InitFunctionName": "${InitFunctionName}",
+            "DestroyFunctionName: "${DestroyFunctionName}"
+            }'
             - { ProjectIdValue: !Ref ProjectId}
 
           InputArtifacts:

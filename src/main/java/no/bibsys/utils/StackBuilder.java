@@ -90,6 +90,8 @@ public class StackBuilder {
             pipelineStack.getPipelineConfiguration().getFinalServiceStack()));
 
         parameters.add(newParameter("InitFunctionName",pipelineStack.getPipelineConfiguration().getInitLambdaFunctionName()));
+        parameters.add(newParameter("DestroyFunctionName",pipelineStack.getPipelineConfiguration().getDestroyLambdaFunctionName()));
+
 
 
         createStackRequest.setParameters(parameters);

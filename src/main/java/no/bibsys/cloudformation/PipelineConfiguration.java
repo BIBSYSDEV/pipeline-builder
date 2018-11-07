@@ -8,9 +8,11 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
     private final String finalServiceStack;
     private final String pipelineName;
 
-
-
     private final String initLambdaFunctionName;
+
+
+
+    private final String destroyLambdaFunctionName;
 
 
     public PipelineConfiguration(String repositoryName, String branchName) {
@@ -22,6 +24,11 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
         this.pipelineName = initializePipelineName();
 
         initLambdaFunctionName = initInitLambdaFunction();
+        destroyLambdaFunctionName= initDestroyLambdaFunction();
+    }
+
+    private String initDestroyLambdaFunction() {
+         return format(projectId,normalizedBranchName,"destroy-function");
     }
 
     private String initInitLambdaFunction() {
@@ -64,7 +71,9 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
         return finalServiceStack;
     }
 
-
+    public String getDestroyLambdaFunctionName() {
+        return destroyLambdaFunctionName;
+    }
 
 
 }
