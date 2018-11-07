@@ -18,7 +18,7 @@ public class CodePipelineEvent {
     public static CodePipelineEvent create(String eventJsonString) throws IOException {
         ObjectMapper mapper = JsonUtils.newJsonParser();
         JsonNode root = mapper.readTree(eventJsonString);
-        String id = root.get("id").asText();
+        String id = root.get("CodePipeline.job").get("id").asText();
         return new CodePipelineEvent(id);
     }
 
