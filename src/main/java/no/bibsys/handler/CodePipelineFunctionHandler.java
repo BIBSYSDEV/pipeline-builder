@@ -37,7 +37,7 @@ public abstract class CodePipelineFunctionHandler<O> extends HandlerTemplate<Cod
 //        String outputString = objectMapper.writeValueAsString(output);
         PutJobSuccessResultRequest success = new PutJobSuccessResultRequest();
         String continutationToken=createContinuationToken(input);
-        success.withJobId(input.getId()).withContinuationToken(continutationToken);
+        success.withJobId(input.getId());//.withContinuationToken(continutationToken);
 //        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
 //        writer.write(outputString);
 //        writer.close();
