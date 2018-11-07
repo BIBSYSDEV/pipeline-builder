@@ -3,6 +3,7 @@ package no.bibsys.handler;
 import com.amazonaws.services.codepipeline.AWSCodePipeline;
 import com.amazonaws.services.codepipeline.AWSCodePipelineClientBuilder;
 import com.amazonaws.services.codepipeline.model.FailureDetails;
+import com.amazonaws.services.codepipeline.model.FailureType;
 import com.amazonaws.services.codepipeline.model.PutJobFailureResultRequest;
 import com.amazonaws.services.codepipeline.model.PutJobSuccessResultRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -51,7 +52,8 @@ public abstract class CodePipelineFunctionHandler<O> extends HandlerTemplate<Cod
         String outputString = Optional.ofNullable(error.getMessage())
             .orElse("Unknown error. Check stacktrace.");
 
-        FailureDetails failureDetails=new FailureDetails().withMessage(outputString);
+        FailureDetails failureDetails=new FailureDetails().withMessage(outputString)
+            .withType(FailureType.JobFailed);
         PutJobFailureResultRequest failure=new PutJobFailureResultRequest()
             .withJobId(input.getId()).withFailureDetails(failureDetails);
         pipeline.putJobFailureResult(failure);
