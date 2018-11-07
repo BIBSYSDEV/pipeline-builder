@@ -169,14 +169,14 @@ Resources:
       - arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess
 
       Policies:
-      - PolicyName: invokeLambda
+      - PolicyName: lambdaInvocation
         PolicyDocument:
           Vesion: '2012-10-17'
           Statement:
-            - Effect: Allow
-              Action:
-                - "lambda:InvokeFunction"
-              Resource: "*"
+          - Effect: Allow
+            Action:
+            - "lambda:InvokeFunction"
+            Resource: "*"
       - PolicyName: s3Access
         PolicyDocument:
           Version: '2012-10-17'
