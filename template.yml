@@ -276,6 +276,7 @@ Resources:
         Version: '2012-10-17'
         Statement:
         - Action:
+          - secretsmanager:GetSecretValue
           - lambda:InvokeFunction
           - apigateway:*
           Effect: Allow
