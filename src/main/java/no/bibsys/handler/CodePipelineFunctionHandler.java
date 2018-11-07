@@ -26,6 +26,7 @@ public abstract class CodePipelineFunctionHandler<O> extends HandlerTemplate<Cod
     @Override
     protected final CodePipelineEvent parseInput(InputStream inputStream) throws IOException {
         String jsonSting= IoUtils.streamToString(inputStream);
+        System.out.println(jsonSting);
         return CodePipelineEvent.create(jsonSting);
     }
 
