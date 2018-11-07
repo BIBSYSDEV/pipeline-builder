@@ -30,7 +30,7 @@ Resources:
           description: Small api to build a branch
           version: "0.1"
         paths:
-          /githubhook:
+          /github:
             post:
               responses:
                 default:
