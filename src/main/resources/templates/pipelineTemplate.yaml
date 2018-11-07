@@ -169,6 +169,14 @@ Resources:
       - arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess
 
       Policies:
+      - PolicyName: invokeLambda
+        PolicyDocument:
+          Vesion: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - "lambda:InvokeFunction"
+              Resource: "*"
       - PolicyName: s3Access
         PolicyDocument:
           Version: '2012-10-17'
@@ -224,7 +232,7 @@ Resources:
             Resource: '*'
   CodeBuildProject:
     DependsOn:
-      - S3Bucket
+    - S3Bucket
     Type: AWS::CodeBuild::Project
     Description: CodeBuild project for using in the CodePipeline
     Properties:
@@ -307,8 +315,8 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
               !Sub
-                - '{"ProjectId":"${ProjectIdValue}", "Stage":"test","Branch":"${NormalizedBranchName}","CodeBucket":"${S3Bucket}","InitFunctionName": "${InitFunctionName}", "DestroyFunctionName":"${DestroyFunctionName}"}'
-                - { ProjectIdValue: !Ref ProjectId}
+            - '{"ProjectId":"${ProjectIdValue}", "Stage":"test","Branch":"${NormalizedBranchName}","CodeBucket":"${S3Bucket}","InitFunctionName": "${InitFunctionName}", "DestroyFunctionName":"${DestroyFunctionName}"}'
+            - { ProjectIdValue: !Ref ProjectId}
           InputArtifacts:
           - Name: !Ref CodebuildOutputArtifact
           RunOrder: 1
@@ -373,8 +381,8 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
               !Sub
-                - '{"ProjectId":"${ProjectIdValue}", "Stage":"final","Branch":"${NormalizedBranchName}","CodeBucket":"${S3Bucket}","InitFunctionName": "${InitFunctionName}","DestroyFunctionName": "${DestroyFunctionName}"}'
-                - { ProjectIdValue: !Ref ProjectId}
+            - '{"ProjectId":"${ProjectIdValue}", "Stage":"final","Branch":"${NormalizedBranchName}","CodeBucket":"${S3Bucket}","InitFunctionName": "${InitFunctionName}","DestroyFunctionName": "${DestroyFunctionName}"}'
+            - { ProjectIdValue: !Ref ProjectId}
           InputArtifacts:
           - Name: !Ref CodebuildOutputArtifact
           RunOrder: 1
@@ -394,14 +402,14 @@ Resources:
 
       - Name: Initialize
         Actions:
-          - Name: InitializeStack
-            ActionTypeId:
-              Category: Invoke
-              Owner: AWS
-              Version: 1
-              Provider: Lambda
-            Configuration:
-              FunctionName: !Ref InitFunctionName
+        - Name: InitializeStack
+          ActionTypeId:
+            Category: Invoke
+            Owner: AWS
+            Version: 1
+            Provider: Lambda
+          Configuration:
+            FunctionName: !Ref InitFunctionName
 
-            InputArtifacts: []
-            OutputArtifacts: []
+          InputArtifacts: []
+          OutputArtifacts: []
