@@ -10,19 +10,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URISyntaxException;
-import java.util.Optional;
 import no.bibsys.handler.responses.GatewayResponse;
-import no.bibsys.utils.IoUtils;
-import org.apache.http.HttpStatus;
 
 
 public abstract class HandlerTemplate<I, O> implements RequestStreamHandler {
 
 
     private final transient Class<I> iclass;
-    private final transient ObjectMapper objectMapper = new ObjectMapper();
+    protected final transient ObjectMapper objectMapper = new ObjectMapper();
     protected transient LambdaLogger logger;
-    private transient OutputStream outputStream;
+    protected transient OutputStream outputStream;
     private transient Context context;
 
     public HandlerTemplate(Class<I> iclass) {
@@ -31,47 +28,23 @@ public abstract class HandlerTemplate<I, O> implements RequestStreamHandler {
     }
 
 
-    private void init(OutputStream outputStream, Context context) {
+    protected void init(OutputStream outputStream, Context context) {
         this.outputStream = outputStream;
         this.context = context;
         this.logger = context.getLogger();
     }
 
-    protected I parseInput(InputStream inputStream)
-        throws IOException {
-        String inputString = IoUtils.streamToString(inputStream);
-        I input=objectMapper.readValue(inputString,iclass);
-        return input;
 
-    }
+    protected abstract I parseInput(InputStream inputStream) throws IOException;
 
-    public abstract O processInput(I input, Context context)
+
+    protected abstract O processInput(I input, Context context)
         throws IOException, URISyntaxException;
 
-    public void writeOutput(O output) throws IOException {
-        String outputString = objectMapper.writeValueAsString(output);
-        GatewayResponse gatewayResponse = new GatewayResponse(outputString);
-        String responseJson = objectMapper.writeValueAsString(gatewayResponse);
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-        writer.write(responseJson);
-        writer.close();
-
-    }
+    protected abstract void writeOutput(I input,O output) throws IOException;
 
 
-    public void writerFailure(Throwable error) throws IOException {
-        String outputString = Optional.ofNullable(error.getMessage())
-            .orElse("Unknown error. Check stacktrace.");
-
-        GatewayResponse gatewayResponse = new GatewayResponse(outputString,
-            GatewayResponse.defaultHeaders(), HttpStatus.SC_INTERNAL_SERVER_ERROR);
-        gatewayResponse.setBody(outputString);
-        String gateWayResponseJson = objectMapper.writeValueAsString(gatewayResponse);
-
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-        writer.write(gateWayResponseJson);
-        writer.close();
-    }
+    protected  abstract void writeFailure(I input,Throwable exception) throws IOException;
 
 
     protected Context getContext() {
@@ -87,10 +60,10 @@ public abstract class HandlerTemplate<I, O> implements RequestStreamHandler {
         O response = null;
         try {
             response = processInput(inputObject, context);
-            writeOutput(response);
+            writeOutput(inputObject,response);
         } catch (Exception e) {
             logger.log(e.getMessage());
-            writerFailure(e);
+            writeFailure(inputObject,e);
         }
     }
 

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.common.base.Preconditions;
 
 @JsonInclude(Include.NON_NULL)
-public class CustomBuildRequest extends RepositoryInfo {
+public final class CustomBuildRequest extends RepositoryInfo {
 
 
     private String action;

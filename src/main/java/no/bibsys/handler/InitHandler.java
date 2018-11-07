@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import no.bibsys.apigateway.ApiExporter;
 import no.bibsys.cloudformation.CloudFormationConfigurable;
+import no.bibsys.handler.requests.CodePipelineEvent;
 import no.bibsys.handler.requests.PublishApi;
 import no.bibsys.secrets.SecretsReader;
 import no.bibsys.swaggerhub.SwaggerDriver;
@@ -14,7 +15,7 @@ import no.bibsys.utils.IoUtils;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 
-public class InitHandler extends HandlerTemplate<String, String> {
+public class InitHandler extends CodePipelineFunctionHandler<String> {
 
     private transient String repository;
     private transient String branch;
@@ -27,13 +28,9 @@ public class InitHandler extends HandlerTemplate<String, String> {
 
     private final transient Environment environment = new Environment();
 
-    public InitHandler() {
-        super(String.class);
-    }
-
 
     @Override
-    public String processInput(String input, Context context)
+    public String processInput(CodePipelineEvent input, Context context)
         throws IOException, URISyntaxException {
 
         System.out.println(input);
@@ -89,10 +86,6 @@ public class InitHandler extends HandlerTemplate<String, String> {
 
     }
 
-    @Override
-    protected String parseInput(InputStream inputStream) throws IOException {
-        return IoUtils.streamToString(inputStream);
-    }
 
     private PublishApi newPublishApi() {
         PublishApi publishApi = new PublishApi();

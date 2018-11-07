@@ -1,6 +1,6 @@
 package no.bibsys.handler.requests;
 
-public class PublishApi extends RepositoryInfo {
+public  final class PublishApi extends RepositoryInfo {
 
 
     private String stage;
