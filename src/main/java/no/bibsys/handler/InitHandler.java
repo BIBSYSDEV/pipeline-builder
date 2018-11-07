@@ -1,7 +1,6 @@
 package no.bibsys.handler;
 
 import com.amazonaws.services.lambda.runtime.Context;
-import java.awt.SystemTray;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
