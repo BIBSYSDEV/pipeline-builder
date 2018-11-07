@@ -2,6 +2,7 @@ package no.bibsys.handler;
 
 import com.amazonaws.services.codepipeline.AWSCodePipeline;
 import com.amazonaws.services.codepipeline.AWSCodePipelineClientBuilder;
+import com.amazonaws.services.codepipeline.model.ExecutionDetails;
 import com.amazonaws.services.codepipeline.model.FailureDetails;
 import com.amazonaws.services.codepipeline.model.FailureType;
 import com.amazonaws.services.codepipeline.model.PutJobFailureResultRequest;
@@ -32,13 +33,12 @@ public abstract class CodePipelineFunctionHandler<O> extends HandlerTemplate<Cod
 
     @Override
     protected void writeOutput(CodePipelineEvent input,O output) throws IOException {
-//        String outputString = objectMapper.writeValueAsString(output);
+        String outputString = objectMapper.writeValueAsString(output);
         PutJobSuccessResultRequest success = new PutJobSuccessResultRequest();
-//        String continutationToken=createContinuationToken(input);
-        success.withJobId(input.getId());//.withContinuationToken(continutationToken);
-//        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-//        writer.write(outputString);
-//        writer.close();
+        success.withJobId(input.getId()).withExecutionDetails(new ExecutionDetails().withSummary(outputString));
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+        writer.write(outputString);
+        writer.close();
         pipeline.putJobSuccessResult(success);
 
     }
