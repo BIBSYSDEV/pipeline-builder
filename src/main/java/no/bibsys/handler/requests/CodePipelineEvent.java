@@ -19,7 +19,6 @@ public class CodePipelineEvent {
         ObjectMapper mapper = JsonUtils.newJsonParser();
         JsonNode root = mapper.readTree(eventJsonString);
         String id= root.get("CodePipeline.job").get("id").asText();
-//        String id=element.get("id").asText();
         return new CodePipelineEvent(id);
     }
 
