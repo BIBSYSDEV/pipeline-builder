@@ -36,6 +36,10 @@ Parameters:
     Type: String
   DestroyFunctionName:
     Type: String
+  TestPhaseName:
+    Type: String
+  FinalPhaseName:
+    Type: String
 
 
 Conditions:
@@ -317,8 +321,8 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
               !Sub
-            - '{"ProjectId":"${ProjectIdValue}", "Stage":"test","Branch":"${NormalizedBranchName}","CodeBucket":"${S3Bucket}","InitFunctionName": "${InitFunctionNameStage}", "DestroyFunctionName":"${DestroyFunctionName}"}'
-            - { ProjectIdValue: !Ref ProjectId,  InitFunctionNameStage: !Join ['-', [!Ref InitFunctionName, 'test']] }
+            - '{"ProjectId":"${ProjectIdValue}", "Stage":"${TestPhaseName}","Branch":"${NormalizedBranchName}","CodeBucket":"${S3Bucket}","InitFunctionName": "${InitFunctionNameStage}", "DestroyFunctionName":"${DestroyFunctionName}"}'
+            -  { ProjectIdValue: !Ref ProjectId,  InitFunctionNameStage: !Join ['-', [!Ref InitFunctionName, !Ref TestPhaseName]], DestroyFunctionNameStage: !Join ['-', [!Ref DestroyFunctionName, !Ref TestPhaseName]] }
           InputArtifacts:
           - Name: !Ref CodebuildOutputArtifact
           RunOrder: 1
@@ -354,6 +358,17 @@ Resources:
             Provider: Manual
             Version: 1
           RunOrder: 4
+        - Name: DestroyStack
+            ActionTypeId:
+              Category: Invoke
+              Owner: AWS
+              Version: 1
+              Provider: Lambda
+            Configuration:
+              FunctionName: !Ref DestroyFunctionName
+            InputArtifacts: []
+            OutputArtifacts: []
+            RunOrder: 5
         - Name: DeleteTestStack
           ActionTypeId:
             Category: Deploy
@@ -364,7 +379,7 @@ Resources:
             ActionMode: DELETE_ONLY
             RoleArn: !GetAtt CreateStackRole.Arn
             StackName: !Ref PipelineTestServiceStackName
-          RunOrder: 5
+          RunOrder: 6
 
       - Name: ProdStack
         Actions:
@@ -383,8 +398,8 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
               !Sub
-            - '{"ProjectId":"${ProjectIdValue}", "Stage":"final","Branch":"${NormalizedBranchName}","CodeBucket":"${S3Bucket}","InitFunctionName": "${InitFunctionName}","DestroyFunctionName": "${DestroyFunctionName}"}'
-            - { ProjectIdValue: !Ref ProjectId,  InitFunctionNameStage: !Join ['-', [!Ref InitFunctionName, 'final']] }
+            - '{"ProjectId":"${ProjectIdValue}", "Stage":"${FinalPhaseName}","Branch":"${NormalizedBranchName}","CodeBucket":"${S3Bucket}","InitFunctionName": "${InitFunctionName}","DestroyFunctionName": "${DestroyFunctionNameStage}"}'
+            - { ProjectIdValue: !Ref ProjectId,  InitFunctionNameStage: !Join ['-', [!Ref InitFunctionName, !Ref FinalPhaseName]], DestroyFunctionNameStage: !Join ['-', [!Ref DestroyFunctionName, !Ref FinalPhaseName]] }
           InputArtifacts:
           - Name: !Ref CodebuildOutputArtifact
           RunOrder: 1
@@ -411,7 +426,7 @@ Resources:
             Version: 1
             Provider: Lambda
           Configuration:
-            FunctionName: !Ref InitFunctionName
+            FunctionName: !Join ['-', [!Ref InitFunctionName, 'final']]
 
           InputArtifacts: []
           OutputArtifacts: []

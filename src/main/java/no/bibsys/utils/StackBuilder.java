@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
+import no.bibsys.cloudformation.Stage;
 
 public class StackBuilder {
 
@@ -92,7 +93,8 @@ public class StackBuilder {
         parameters.add(newParameter("InitFunctionName",pipelineStack.getPipelineConfiguration().getInitLambdaFunctionName()));
         parameters.add(newParameter("DestroyFunctionName",pipelineStack.getPipelineConfiguration().getDestroyLambdaFunctionName()));
 
-
+        parameters.add(newParameter("TestPhaseName", Stage.TEST));
+        parameters.add(newParameter("FinalPhaseName", Stage.FINAL));
 
         createStackRequest.setParameters(parameters);
         createStackRequest.withCapabilities(Capability.CAPABILITY_NAMED_IAM);
