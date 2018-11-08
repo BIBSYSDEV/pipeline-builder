@@ -1,6 +1,6 @@
 # Building Pipelines
 
-##Build
+## Build
  ` sh build.sh ` 
  
 ## Run 
