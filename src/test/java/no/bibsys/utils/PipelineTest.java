@@ -1,12 +1,8 @@
 package no.bibsys.utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import no.bibsys.Application;
 import no.bibsys.git.github.GithubConf;
-import no.bibsys.handler.InitHandler;
-import no.bibsys.handler.responses.SimpleResponse;
 import org.junit.Ignore;
 import org.junit.Test;
 
