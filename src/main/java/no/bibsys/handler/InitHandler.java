@@ -3,17 +3,19 @@ package no.bibsys.handler;
 import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Optional;
 import no.bibsys.apigateway.ApiExporter;
 import no.bibsys.cloudformation.CloudFormationConfigurable;
 import no.bibsys.handler.requests.CodePipelineEvent;
 import no.bibsys.handler.requests.PublishApi;
+import no.bibsys.handler.responses.SimpleResponse;
 import no.bibsys.secrets.SecretsReader;
 import no.bibsys.swaggerhub.SwaggerDriver;
 import no.bibsys.utils.Environment;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 
-public class InitHandler extends CodePipelineFunctionHandler<String> {
+public class InitHandler extends CodePipelineFunctionHandler<SimpleResponse> {
 
     private transient String repository;
     private transient String branch;
@@ -28,7 +30,7 @@ public class InitHandler extends CodePipelineFunctionHandler<String> {
 
 
     @Override
-    public String processInput(CodePipelineEvent input, Context context)
+    public SimpleResponse processInput(CodePipelineEvent input, Context context)
         throws IOException, URISyntaxException {
 
         System.out.println(input);
@@ -38,23 +40,43 @@ public class InitHandler extends CodePipelineFunctionHandler<String> {
         CloudFormationConfigurable config = new CloudFormationConfigurable(
             publishApi.getRepository()
             , publishApi.getBranch());
-        String json = generateApiSpec(publishApi, config);
-        System.out.println(json);
-//
-        SwaggerDriver swaggerDriver = new SwaggerDriver(publishApi.getSwaggetHubApiKey(),
-            publishApi.getSwaggerOrganization(), publishApi.getApiId());
-        HttpPost request = swaggerDriver
-            .updateSpecificationPostRequest(json, publishApi.getApiVersion());
-        swaggerDriver.executeUpdate(request);
+        Optional<String> jsonOpt = generateApiSpec(publishApi, config);
+        System.out.println(jsonOpt.toString());
+        if(jsonOpt.isPresent()){
+            String json = jsonOpt.get();
+            SwaggerDriver swaggerDriver = newSwaggerDriver(publishApi);
+            executeUpdate(publishApi, json, swaggerDriver);
+            String response = readTheUpdatedAPI(publishApi, swaggerDriver);
+            return new SimpleResponse(response);
+        }
+        else{
 
-        HttpGet getSpecRequest = swaggerDriver
-            .getSpecificationVesionRequest(publishApi.getApiVersion());
-        String response = swaggerDriver.executeGet(getSpecRequest);
-        return response;
+            return new SimpleResponse("No API found");
+        }
+
 
     }
 
-    private String generateApiSpec(PublishApi input, CloudFormationConfigurable config)
+    private String readTheUpdatedAPI(PublishApi publishApi, SwaggerDriver swaggerDriver)
+        throws URISyntaxException, IOException {
+        HttpGet getSpecRequest = swaggerDriver
+            .getSpecificationVesionRequest(publishApi.getApiVersion());
+        return swaggerDriver.executeGet(getSpecRequest);
+    }
+
+    private SwaggerDriver newSwaggerDriver(PublishApi publishApi) {
+        return new SwaggerDriver(publishApi.getSwaggetHubApiKey(),
+                    publishApi.getSwaggerOrganization(), publishApi.getApiId());
+    }
+
+    private void executeUpdate(PublishApi publishApi, String json, SwaggerDriver swaggerDriver)
+        throws URISyntaxException, IOException {
+        HttpPost request = swaggerDriver
+            .updateSpecificationPostRequest(json, publishApi.getApiVersion());
+        swaggerDriver.executeUpdate(request);
+    }
+
+    private Optional<String> generateApiSpec(PublishApi input, CloudFormationConfigurable config)
         throws IOException {
         ApiExporter apiExporter = new ApiExporter(config, input.getStage());
         return apiExporter.generateOpenApiNoExtensions();

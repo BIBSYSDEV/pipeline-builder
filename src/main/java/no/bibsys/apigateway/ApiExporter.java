@@ -25,13 +25,13 @@ public class ApiExporter {
     }
 
 
-    public String generateOpenApiNoExtensions() throws IOException {
+    public Optional<String> generateOpenApiNoExtensions() throws IOException {
         Map<String, String> requestParameters = new HashMap<>();
         requestParameters.put("accepts", "application/json");
         return generateOpenApi(requestParameters);
     }
 
-    private String generateOpenApi(Map<String, String> requestParameters)
+    private Optional<String> generateOpenApi(Map<String, String> requestParameters)
         throws IOException {
 
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
@@ -52,11 +52,11 @@ public class ApiExporter {
             GetExportResult result = apiGateway
                 .getExport(request);
             String swaggerFile = new String(result.getBody().array());
-            return swaggerFile;
+            return Optional.ofNullable(swaggerFile);
 
         }
 
-        return null;
+        return Optional.empty();
 
 
     }

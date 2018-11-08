@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import no.bibsys.Application;
 import no.bibsys.git.github.GithubConf;
 import no.bibsys.handler.InitHandler;
+import no.bibsys.handler.responses.SimpleResponse;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -33,16 +34,6 @@ public class PipelineTest {
     }
 
 
-
-    @Test
-    @Ignore
-    public void publishAPi() throws IOException, URISyntaxException {
-        InitHandler initHandler = new InitHandler();
-        ObjectMapper mapper = JsonUtils.newJsonParser();
-
-        String output = initHandler.processInput(null, null);
-        System.out.println(output);
-    }
 
     private Application initApplication() throws IOException {
         GithubConf githubConf = new GithubConf(repoOwner, repoName, new Environment());
