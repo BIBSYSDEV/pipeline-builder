@@ -10,7 +10,7 @@ import no.bibsys.utils.ApiMessageParser;
 import no.bibsys.utils.IoUtils;
 import org.apache.http.HttpStatus;
 
-public abstract class ApiGatewayHandlerTemplate<I,O> extends HandlerTemplate<I,O> {
+public abstract class ApiGatewayHandlerTemplate<I, O> extends HandlerTemplate<I, O> {
 
 
     private final transient ApiMessageParser<I> inputParser = new ApiMessageParser<>();
@@ -32,32 +32,33 @@ public abstract class ApiGatewayHandlerTemplate<I,O> extends HandlerTemplate<I,O
 
 
     @Override
-    protected void writeOutput(I input,O output) throws IOException {
-        String outputString = objectMapper.writeValueAsString(output);
-        GatewayResponse gatewayResponse = new GatewayResponse(outputString);
-        String responseJson = objectMapper.writeValueAsString(gatewayResponse);
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-        writer.write(responseJson);
-        writer.close();
+    protected void writeOutput(I input, O output) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream))) {
+            String outputString = objectMapper.writeValueAsString(output);
+            GatewayResponse gatewayResponse = new GatewayResponse(outputString);
+            String responseJson = objectMapper.writeValueAsString(gatewayResponse);
+            writer.write(responseJson);
+        }
+
 
     }
 
 
     @Override
-    protected void writeFailure(I input,Throwable error) throws IOException {
-        String outputString = Optional.ofNullable(error.getMessage())
-            .orElse("Unknown error. Check stacktrace.");
+    protected void writeFailure(I input, Throwable error) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream))) {
 
-        GatewayResponse gatewayResponse = new GatewayResponse(outputString,
-            GatewayResponse.defaultHeaders(), HttpStatus.SC_INTERNAL_SERVER_ERROR);
-        gatewayResponse.setBody(outputString);
-        String gateWayResponseJson = objectMapper.writeValueAsString(gatewayResponse);
+            String outputString = Optional.ofNullable(error.getMessage())
+                .orElse("Unknown error. Check stacktrace.");
 
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-        writer.write(gateWayResponseJson);
-        writer.close();
+            GatewayResponse gatewayResponse = new GatewayResponse(outputString,
+                GatewayResponse.defaultHeaders(), HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            gatewayResponse.setBody(outputString);
+            String gateWayResponseJson = objectMapper.writeValueAsString(gatewayResponse);
+            writer.write(gateWayResponseJson);
+        }
+
     }
-
 
 
 }
