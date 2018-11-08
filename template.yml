@@ -40,7 +40,7 @@ Resources:
                 default:
                   description: default response
                   content:
-                    stromg:
+                    string:
                       schema:
                         ref: '#/definitions/StringResponse'
               x-amazon-apigateway-integration:
