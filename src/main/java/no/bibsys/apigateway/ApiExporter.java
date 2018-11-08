@@ -48,7 +48,8 @@ public class ApiExporter {
             RestApi api = apiOpt.get();
 
             GetExportRequest request = new GetExportRequest().withRestApiId(api.getId())
-                .withStageName(stage).withExportType("oas30").withParameters(requestParameters);
+                .withStageName(stage).withExportType(ApiGatewayConstants.OPEN_API_3)
+                .withParameters(requestParameters);
             GetExportResult result = apiGateway
                 .getExport(request);
             String swaggerFile = new String(result.getBody().array());
