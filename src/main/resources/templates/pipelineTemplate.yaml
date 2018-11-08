@@ -317,8 +317,8 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
               !Sub
-            - '{"ProjectId":"${ProjectIdValue}", "Stage":"test","Branch":"${NormalizedBranchName}","CodeBucket":"${S3Bucket}","InitFunctionName": "${InitFunctionName}", "DestroyFunctionName":"${DestroyFunctionName}"}'
-            - { ProjectIdValue: !Ref ProjectId}
+            - '{"ProjectId":"${ProjectIdValue}", "Stage":"test","Branch":"${NormalizedBranchName}","CodeBucket":"${S3Bucket}","InitFunctionName": "${InitFunctionNameStage}", "DestroyFunctionName":"${DestroyFunctionName}"}'
+            - { ProjectIdValue: !Ref ProjectId,  InitFunctionNameStage: !Join ['-', [!Ref InitFunctionName, 'test']] }
           InputArtifacts:
           - Name: !Ref CodebuildOutputArtifact
           RunOrder: 1
@@ -384,7 +384,7 @@ Resources:
             ParameterOverrides:
               !Sub
             - '{"ProjectId":"${ProjectIdValue}", "Stage":"final","Branch":"${NormalizedBranchName}","CodeBucket":"${S3Bucket}","InitFunctionName": "${InitFunctionName}","DestroyFunctionName": "${DestroyFunctionName}"}'
-            - { ProjectIdValue: !Ref ProjectId}
+            - { ProjectIdValue: !Ref ProjectId,  InitFunctionNameStage: !Join ['-', [!Ref InitFunctionName, 'final']] }
           InputArtifacts:
           - Name: !Ref CodebuildOutputArtifact
           RunOrder: 1

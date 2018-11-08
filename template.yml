@@ -5,7 +5,6 @@ Description: Lambda function for Dynamic Pipelines
 Parameters:
   ProjectId:
     Type: String
-    Description: AWS CodeStar projectID used to associate new resources to team members
   Stage:
     Type: String
     Description: Deployment stage. E.g. test, prod, etc.
