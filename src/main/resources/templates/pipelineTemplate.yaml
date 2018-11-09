@@ -347,7 +347,7 @@ Resources:
             Version: 1
             Provider: Lambda
           Configuration:
-            FunctionName: !Ref InitFunctionName
+            FunctionName: !Join ['-', [!Ref InitFunctionName, !Ref TestPhaseName]]
           InputArtifacts: []
           OutputArtifacts: []
           RunOrder: 3
@@ -365,7 +365,7 @@ Resources:
               Version: 1
               Provider: Lambda
             Configuration:
-              FunctionName: !Ref DestroyFunctionName
+              FunctionName: !!Join ['-', [!Ref DestroyFunctionName, !Ref TestPhaseName]]
             InputArtifacts: []
             OutputArtifacts: []
             RunOrder: 5
@@ -426,7 +426,7 @@ Resources:
             Version: 1
             Provider: Lambda
           Configuration:
-            FunctionName: !Join ['-', [!Ref InitFunctionName, 'final']]
+            FunctionName: !Join ['-', [!Ref InitFunctionName, !Ref FinalPhaseName]]
 
           InputArtifacts: []
           OutputArtifacts: []

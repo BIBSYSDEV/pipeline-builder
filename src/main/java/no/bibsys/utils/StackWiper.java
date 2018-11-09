@@ -3,10 +3,6 @@ package no.bibsys.utils;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
 import com.amazonaws.services.cloudformation.model.DeleteStackRequest;
-import com.amazonaws.services.lambda.AWSLambda;
-import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
-import com.amazonaws.services.lambda.model.InvocationType;
-import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.logs.AWSLogsClientBuilder;
 import com.amazonaws.services.logs.model.DeleteLogGroupRequest;
@@ -18,8 +14,6 @@ import com.amazonaws.services.s3.model.VersionListing;
 import java.util.List;
 import java.util.stream.Collectors;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
-import no.bibsys.cloudformation.Stage;
-import no.bibsys.handler.requests.CodePipelineEvent;
 
 public class StackWiper {
 
@@ -51,16 +45,16 @@ public class StackWiper {
     }
 
 
-    private void deleteLambdaFunction(){
-        AWSLambda lambda= AWSLambdaClientBuilder.defaultClient();
-        String destroyFunctionName=pipelineStackConfiguration.getPipelineConfiguration().getDestroyLambdaFunctionName();
-        String.join("-",destroyFunctionName, Stage.FINAL);
-        InvokeRequest request=new InvokeRequest();
-
-        request.withInvocationType(InvocationType.RequestResponse).withClientContext()
-        lambda.invoke(new InvokeRequest().)
-
-    }
+//    private void deleteLambdaFunction(){
+//        AWSLambda lambda= AWSLambdaClientBuilder.defaultClient();
+//        String destroyFunctionName=pipelineStackConfiguration.getPipelineConfiguration().getDestroyLambdaFunctionName();
+//        String.join("-",destroyFunctionName, Stage.FINAL);
+//        InvokeRequest request=new InvokeRequest();
+//
+//        request.withInvocationType(InvocationType.RequestResponse).withClientContext()
+//        lambda.invoke(new InvokeRequest().)
+//
+//    }
 
     private void deleteBuckets() {
         deleteBucket(pipelineStackConfiguration.getBucketName());
