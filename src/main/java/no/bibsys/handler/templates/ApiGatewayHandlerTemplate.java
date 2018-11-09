@@ -1,4 +1,4 @@
-package no.bibsys.handler;
+package no.bibsys.handler.templates;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

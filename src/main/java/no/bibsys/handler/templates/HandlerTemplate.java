@@ -1,4 +1,4 @@
-package no.bibsys.handler;
+package no.bibsys.handler.templates;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;

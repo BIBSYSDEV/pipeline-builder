@@ -6,16 +6,17 @@ import java.net.URISyntaxException;
 import java.util.Optional;
 import no.bibsys.apigateway.ApiExporter;
 import no.bibsys.cloudformation.CloudFormationConfigurable;
-import no.bibsys.handler.requests.CodePipelineEvent;
 import no.bibsys.handler.requests.PublishApi;
+import no.bibsys.handler.requests.buildevents.BuildEvent;
 import no.bibsys.handler.responses.SimpleResponse;
+import no.bibsys.handler.templates.CodePipelineFunctionHandlerTemplate;
 import no.bibsys.secrets.SecretsReader;
 import no.bibsys.swaggerhub.SwaggerDriver;
 import no.bibsys.utils.Environment;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 
-public class InitHandler extends CodePipelineFunctionHandler<SimpleResponse> {
+public class InitHandler extends CodePipelineFunctionHandlerTemplate<SimpleResponse> {
 
     private transient String repository;
     private transient String branch;
@@ -30,7 +31,7 @@ public class InitHandler extends CodePipelineFunctionHandler<SimpleResponse> {
 
 
     @Override
-    public SimpleResponse processInput(CodePipelineEvent input, Context context)
+    public SimpleResponse processInput(BuildEvent input, Context context)
         throws IOException, URISyntaxException {
 
         System.out.println(input);

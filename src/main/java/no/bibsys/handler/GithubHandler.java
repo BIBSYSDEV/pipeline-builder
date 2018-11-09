@@ -10,6 +10,7 @@ import no.bibsys.git.github.GithubConf;
 import no.bibsys.handler.requests.PullRequest;
 import no.bibsys.handler.requests.PushEvent;
 import no.bibsys.handler.requests.RepositoryInfo;
+import no.bibsys.handler.templates.ApiGatewayHandlerTemplate;
 import no.bibsys.utils.Environment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -40,8 +40,8 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
         return format(projectId, normalizedBranchName, "pipeline");
     }
 
-    private String initServiceStack(String postifx) {
-        return format(projectId, normalizedBranchName, "service-stack", postifx);
+    private String initServiceStack(Stage stage) {
+        return format(projectId, normalizedBranchName, "service-stack", stage.toString());
     }
 
     private String initSourceOutputArtifactName() {

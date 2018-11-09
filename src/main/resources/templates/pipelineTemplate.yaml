@@ -321,12 +321,11 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
               !Sub
-            - '{"ProjectId":"${ProjectIdValue}", "Stage":"${TestPhaseName}","Branch":"${NormalizedBranchName}","CodeBucket":"${S3Bucket}","InitFunctionName": "${InitFunctionNameStage}", "DestroyFunctionName":"${DestroyFunctionName}"}'
+            - '{"ProjectId":"${ProjectIdValue}", "Stage":"${TestPhaseName}","Branch":"${NormalizedBranchName}","CodeBucket":"${S3Bucket}","InitFunctionName": "${InitFunctionNameStage}", "DestroyFunctionName": "${DestroyFunctionName}"}'
             -  { ProjectIdValue: !Ref ProjectId,  InitFunctionNameStage: !Join ['-', [!Ref InitFunctionName, !Ref TestPhaseName]], DestroyFunctionNameStage: !Join ['-', [!Ref DestroyFunctionName, !Ref TestPhaseName]] }
           InputArtifacts:
           - Name: !Ref CodebuildOutputArtifact
           RunOrder: 1
-
         - Name: ExecuteTestStack
           ActionTypeId:
             Category: Deploy
@@ -359,16 +358,16 @@ Resources:
             Version: 1
           RunOrder: 4
         - Name: DestroyStack
-            ActionTypeId:
-              Category: Invoke
-              Owner: AWS
-              Version: 1
-              Provider: Lambda
-            Configuration:
-              FunctionName: !!Join ['-', [!Ref DestroyFunctionName, !Ref TestPhaseName]]
-            InputArtifacts: []
-            OutputArtifacts: []
-            RunOrder: 5
+          ActionTypeId:
+            Category: Invoke
+            Owner: AWS
+            Version: 1
+            Provider: Lambda
+          Configuration:
+            FunctionName: !Join ['-', [!Ref DestroyFunctionName, !Ref TestPhaseName]]
+          InputArtifacts: []
+          OutputArtifacts: []
+          RunOrder: 5
         - Name: DeleteTestStack
           ActionTypeId:
             Category: Deploy
@@ -380,7 +379,6 @@ Resources:
             RoleArn: !GetAtt CreateStackRole.Arn
             StackName: !Ref PipelineTestServiceStackName
           RunOrder: 6
-
       - Name: ProdStack
         Actions:
         - Name: CreateFinalStack
@@ -416,7 +414,7 @@ Resources:
           InputArtifacts: []
           OutputArtifacts: []
           RunOrder: 2
-
+#
       - Name: Initialize
         Actions:
         - Name: InitializeStack
@@ -427,6 +425,5 @@ Resources:
             Provider: Lambda
           Configuration:
             FunctionName: !Join ['-', [!Ref InitFunctionName, !Ref FinalPhaseName]]
-
           InputArtifacts: []
           OutputArtifacts: []

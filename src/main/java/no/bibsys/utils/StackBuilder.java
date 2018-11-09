@@ -93,8 +93,8 @@ public class StackBuilder {
         parameters.add(newParameter("InitFunctionName",pipelineStack.getPipelineConfiguration().getInitLambdaFunctionName()));
         parameters.add(newParameter("DestroyFunctionName",pipelineStack.getPipelineConfiguration().getDestroyLambdaFunctionName()));
 
-        parameters.add(newParameter("TestPhaseName", Stage.TEST));
-        parameters.add(newParameter("FinalPhaseName", Stage.FINAL));
+        parameters.add(newParameter("TestPhaseName", Stage.TEST.toString()));
+        parameters.add(newParameter("FinalPhaseName", Stage.FINAL.toString()));
 
         createStackRequest.setParameters(parameters);
         createStackRequest.withCapabilities(Capability.CAPABILITY_NAMED_IAM);
