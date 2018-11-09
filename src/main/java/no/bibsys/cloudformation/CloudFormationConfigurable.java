@@ -3,11 +3,12 @@ package no.bibsys.cloudformation;
 
 import no.bibsys.utils.StringUtils;
 
-public class CloudFormationConfigurable {
+public   class CloudFormationConfigurable {
 
     public final static int NORMALIZED_BRANCH_MAX_LENGTH = 40;
     public final static transient int MAX_BRANCH_WORD_LENGTH = 10;
     public final static transient int MAX_PROJECT_WORD_LENGTH = 3;
+
     protected final transient String projectId;
     protected final transient String normalizedBranchName;
     private final transient StringUtils stringUtils = new StringUtils();
