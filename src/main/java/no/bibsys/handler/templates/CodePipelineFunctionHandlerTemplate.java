@@ -7,7 +7,6 @@ import com.amazonaws.services.codepipeline.model.FailureDetails;
 import com.amazonaws.services.codepipeline.model.FailureType;
 import com.amazonaws.services.codepipeline.model.PutJobFailureResultRequest;
 import com.amazonaws.services.codepipeline.model.PutJobSuccessResultRequest;
-import java.awt.SystemTray;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
