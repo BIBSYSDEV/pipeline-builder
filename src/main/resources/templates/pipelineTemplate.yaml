@@ -321,7 +321,7 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
               !Sub
-            - '{"ProjectId":"${ProjectIdValue}", "Stage":"${TestPhaseName}","Branch":"${NormalizedBranchName}","CodeBucket":"${S3Bucket}","InitFunctionName": "${InitFunctionNameStage}", "DestroyFunctionName": "${DestroyFunctionName}"}'
+            - '{"ProjectId":"${ProjectIdValue}", "Stage":"${TestPhaseName}","Branch":"${NormalizedBranchName}","CodeBucket":"${S3Bucket}","InitFunctionName": "${InitFunctionNameStage}", "DestroyFunctionName": "${DestroyFunctionNameStage}"}'
             -  { ProjectIdValue: !Ref ProjectId,  InitFunctionNameStage: !Join ['-', [!Ref InitFunctionName, !Ref TestPhaseName]], DestroyFunctionNameStage: !Join ['-', [!Ref DestroyFunctionName, !Ref TestPhaseName]] }
           InputArtifacts:
           - Name: !Ref CodebuildOutputArtifact
