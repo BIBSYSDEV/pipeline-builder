@@ -8,8 +8,9 @@ import org.junit.Test;
 
 public class PipelineTest {
 
-    private String branchName = "autreg-58-openapi-lambdab";
-    private String repoName = "authority-registry-infrastructure";
+    private String branchName="autreg-58-openapi-lambdab";
+    //private String branchName = "remove-lambdaTrustRole";
+    private String repoName = "authority-registry";
     private String repoOwner = "BIBSYSDEV";
     private String swaggerApiKey = "";
 
