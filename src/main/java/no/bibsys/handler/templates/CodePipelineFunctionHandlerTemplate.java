@@ -7,6 +7,7 @@ import com.amazonaws.services.codepipeline.model.FailureDetails;
 import com.amazonaws.services.codepipeline.model.FailureType;
 import com.amazonaws.services.codepipeline.model.PutJobFailureResultRequest;
 import com.amazonaws.services.codepipeline.model.PutJobSuccessResultRequest;
+import java.awt.SystemTray;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,9 +37,12 @@ public abstract class CodePipelineFunctionHandlerTemplate<O> extends HandlerTemp
     @Override
     protected void writeOutput(BuildEvent input, O output) throws IOException {
         String outputString = objectMapper.writeValueAsString(output);
+
         if (isPipelineEvent(input)) {
             sendSuceessToCodePipeline((CodePipelineEvent) input,
                 outputString);
+
+
         }
         writeOutput(outputString);
 
@@ -62,16 +66,21 @@ public abstract class CodePipelineFunctionHandlerTemplate<O> extends HandlerTemp
 
     private void writeOutput(String outputString) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream))) {
+            System.out.println("Writing output!");
             writer.write(outputString);
+
         }
+        System.out.println("Wrote output");
 
     }
     private void sendSuceessToCodePipeline(CodePipelineEvent input, String outputString) {
+        System.out.println("sending success");
         CodePipelineEvent codePipelineEvent = input;
         PutJobSuccessResultRequest success = new PutJobSuccessResultRequest();
         success.withJobId(codePipelineEvent.getId())
             .withExecutionDetails(new ExecutionDetails().withSummary(outputString));
         pipeline.putJobSuccessResult(success);
+        System.out.println("sent success");
     }
 
     private void sendFailureToCodePipeline(CodePipelineEvent input, String outputString) {
