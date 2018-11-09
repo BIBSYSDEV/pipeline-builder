@@ -37,13 +37,16 @@ public abstract class CodePipelineFunctionHandlerTemplate<O> extends HandlerTemp
     protected void writeOutput(BuildEvent input, O output) throws IOException {
         String outputString = objectMapper.writeValueAsString(output);
 
+        writeOutput(outputString);
+
+
         if (isPipelineEvent(input)) {
             sendSuceessToCodePipeline((CodePipelineEvent) input,
                 outputString);
 
 
         }
-        writeOutput(outputString);
+
 
     }
 
