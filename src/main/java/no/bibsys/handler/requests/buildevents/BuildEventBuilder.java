@@ -14,7 +14,7 @@ public  final class BuildEventBuilder {
 
 
     public static BuildEvent create(String eventJsonString) throws IOException {
-        if (eventJsonString != null && eventJsonString.isEmpty()) {
+        if ( eventJsonString != null && !eventJsonString.isEmpty()) {
             return readEventFromString(eventJsonString);
         }
         else{

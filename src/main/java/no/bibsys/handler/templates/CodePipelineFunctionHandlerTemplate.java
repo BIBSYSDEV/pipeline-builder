@@ -38,7 +38,8 @@ public abstract class CodePipelineFunctionHandlerTemplate<O> extends HandlerTemp
         String outputString = objectMapper.writeValueAsString(output);
 
         writeOutput(outputString);
-
+        System.out.println(input.getClass().getName());
+        System.out.println(input instanceof CodePipelineEvent);
 
         if (isPipelineEvent(input)) {
             sendSuceessToCodePipeline((CodePipelineEvent) input,
