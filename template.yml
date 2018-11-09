@@ -284,5 +284,27 @@ Resources:
           Resource: "*"
       MemorySize: 1500
       Timeout: 900
+  Destroy:
+    Type: AWS::Serverless::Function
+    DependsOn:
+    - RestApi
+    Properties:
+      Handler: no.bibsys.handler.DestroyHandler::handleRequest
+      FunctionName: !Ref DestroyFunctionName
+      Runtime: java8
+      CodeUri: build/libs/pipeline-fat.jar
+      Policies:
+        Version: '2012-10-17'
+        Statement:
+        - Action:
+          - secretsmanager:GetSecretValue
+          - lambda:InvokeFunction
+          - codepipeline:PutJobFailureResult
+          - codepipeline:PutJobSuccessResult
+          - apigateway:*
+          Effect: Allow
+          Resource: "*"
+      MemorySize: 1500
+      Timeout: 900
 
 
