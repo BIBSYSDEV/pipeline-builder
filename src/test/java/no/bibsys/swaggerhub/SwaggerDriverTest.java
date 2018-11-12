@@ -33,9 +33,8 @@ public class SwaggerDriverTest {
     }
 
     @Test
-    public void UpdateRequestURLPathShouldNotApiVersion()
+    public void UpdateRequestURLPathShouldNotIncludeApiVersion()
         throws URISyntaxException, MalformedURLException {
-        String apiVersion="2.1";
         HttpPost post = postRequest();
         String path = post.getURI().toURL().getPath();
         assertThat(path,not(containsString(apiVersion)));
@@ -76,9 +75,9 @@ public class SwaggerDriverTest {
 
 
     @Test
-    public void DeleteRequestURLPathShouldIncludeOrganizationApiIdAndVersion()
+    public void DeleteVersionRequestURLPathShouldIncludeOrganizationApiIdAndVersion()
         throws URISyntaxException, MalformedURLException {
-        HttpDelete delete=deleteRequest();
+        HttpDelete delete= deleteVersionRequest();
         assertThat(delete.getURI().toURL().toString(),containsString(organization));
         assertThat(delete.getURI().toURL().toString(),containsString(apiId));
         assertThat(delete.getURI().toURL().toString(),containsString(apiVersion));
@@ -86,15 +85,30 @@ public class SwaggerDriverTest {
     }
 
 
+    @Test
+    public void DeleteRequestURLPathShouldIncludeOrganizationApiIdButNotVersion()
+        throws URISyntaxException, MalformedURLException {
+        HttpDelete delete= deleteApiRequest();
+        assertThat(delete.getURI().toURL().toString(),containsString(organization));
+        assertThat(delete.getURI().toURL().toString(),containsString(apiId));
+        assertThat(delete.getURI().toURL().toString(),not(containsString(apiVersion)));
+        assertThat(delete.getURI().toURL().getQuery(),is(equalTo(null)));
+    }
 
-    private HttpDelete deleteRequest() throws URISyntaxException {
-        return driver.deleteSpecificationVesionRequest(apiVersion);
+
+
+    private HttpDelete deleteApiRequest() throws URISyntaxException {
+        return driver.createDeleteApiRequest();
+    }
+
+    private HttpDelete deleteVersionRequest() throws URISyntaxException {
+        return driver.createDeleteVersionRequest(apiVersion);
     }
 
 
     private HttpPost postRequest() throws URISyntaxException {
         return driver
-            .updateSpecificationPostRequest("jsonString", apiVersion);
+            .createUpdateRequest("jsonString", apiVersion);
     }
 
 

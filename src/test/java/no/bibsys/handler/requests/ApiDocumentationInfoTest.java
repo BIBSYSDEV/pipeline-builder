@@ -9,7 +9,7 @@ import java.io.IOException;
 import no.bibsys.utils.JsonUtils;
 import org.junit.Test;
 
-public class PublishApiTest {
+public class ApiDocumentationInfoTest {
 
 
     private String test="{\"owner\":\"OWNER\","
@@ -25,7 +25,7 @@ public class PublishApiTest {
     @Test
     public void BuildPhaseTestShouldBeInitlializedThroughAJsonObjet() throws IOException {
         ObjectMapper parser= JsonUtils.newJsonParser();
-        PublishApi phase=parser.readValue(test, PublishApi.class);
+        ApiDocumentationInfo phase=parser.readValue(test, ApiDocumentationInfo.class);
         assertThat(phase.getStage(),is(equalTo("test")));
         assertThat(phase.getOwner(),is(equalTo("OWNER")));
         assertThat(phase.getRepository(),is(equalTo("REPOSITORY")));

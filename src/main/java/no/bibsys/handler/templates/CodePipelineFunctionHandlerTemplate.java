@@ -42,7 +42,7 @@ public abstract class CodePipelineFunctionHandlerTemplate<O> extends HandlerTemp
         System.out.println(input instanceof CodePipelineEvent);
 
         if (isPipelineEvent(input)) {
-            sendSuceessToCodePipeline((CodePipelineEvent) input,
+            sendSuccessToCodePipeline((CodePipelineEvent) input,
                 outputString);
 
 
@@ -69,14 +69,12 @@ public abstract class CodePipelineFunctionHandlerTemplate<O> extends HandlerTemp
 
     private void writeOutput(String outputString) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream))) {
-            System.out.println("Writing output!");
             writer.write(outputString);
-
         }
-        System.out.println("Wrote output");
+
 
     }
-    private void sendSuceessToCodePipeline(CodePipelineEvent input, String outputString) {
+    private void sendSuccessToCodePipeline(CodePipelineEvent input, String outputString) {
         System.out.println("sending success");
         CodePipelineEvent codePipelineEvent = input;
         PutJobSuccessResultRequest success = new PutJobSuccessResultRequest();

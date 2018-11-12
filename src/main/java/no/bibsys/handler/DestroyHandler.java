@@ -4,19 +4,26 @@ import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import no.bibsys.handler.requests.buildevents.BuildEvent;
-import no.bibsys.handler.templates.CodePipelineFunctionHandlerTemplate;
+import no.bibsys.handler.responses.SimpleResponse;
+import no.bibsys.handler.templates.SwaggerHubEditor;
+import no.bibsys.swaggerhub.SwaggerDriver;
+import org.apache.http.client.methods.HttpDelete;
 
-public class DestroyHandler extends CodePipelineFunctionHandlerTemplate<String> {
+public class DestroyHandler extends SwaggerHubEditor {
 
 
     @Override
-    protected String processInput(BuildEvent input, Context context)
+    protected SimpleResponse processInput(BuildEvent input, Context context)
         throws IOException, URISyntaxException {
+        initFields();
 
+        SwaggerDriver swaggerDriver=new SwaggerDriver(swaggerHubApiKey,swaggerOrganization,apiId);
+        HttpDelete deleteRequest = swaggerDriver
+            .createDeleteApiRequest();
+        int response = swaggerDriver.executeDelete(deleteRequest);
         String message = "Destroying stuff!!!";
         System.out.println(message);
-        return message;
-
+        return new SimpleResponse(message);
 
     }
 }

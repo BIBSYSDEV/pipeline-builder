@@ -37,6 +37,7 @@ public class ApiExporter {
         Optional<ServerInfo> serverInfo = readServerInfo();
         Optional<String> updatedOpenApiSpecification = serverInfo
             .map(server -> injectServerInfo(openApiTemplate, server));
+
         if(updatedOpenApiSpecification.isPresent()){
             String openApiJsonSpec = JsonUtils.yamlToJson(updatedOpenApiSpecification.get());
             return  Optional.of(openApiJsonSpec);
