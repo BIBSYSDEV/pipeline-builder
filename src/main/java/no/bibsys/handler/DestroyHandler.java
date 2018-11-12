@@ -20,10 +20,10 @@ public class DestroyHandler extends SwaggerHubEditor {
         SwaggerDriver swaggerDriver=new SwaggerDriver(swaggerHubApiKey,swaggerOrganization,apiId);
         HttpDelete deleteRequest = swaggerDriver
             .createDeleteApiRequest();
-        int response = swaggerDriver.executeDelete(deleteRequest);
-        String message = "Destroying stuff!!!";
-        System.out.println(message);
-        return new SimpleResponse(message);
+        Integer response = swaggerDriver.executeDelete(deleteRequest);
+
+        System.out.println(response);
+        return new SimpleResponse(response.toString());
 
     }
 }
