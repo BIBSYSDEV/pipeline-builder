@@ -2,6 +2,7 @@ package no.bibsys.apigateway;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -20,35 +21,87 @@ import org.junit.experimental.categories.Category;
 public class ApiExporterTest {
 
 
+    private String apiJson;
+    private JsonNode root;
+    public ApiExporterTest() throws IOException {
+        apiJson = generateOpenApiSpec().orElse(null);
+        root = parseOpenApiSpec(apiJson);
+    }
+
+
     @Test
     @Category(IntegrationTest.class)
-    public void apiExporterShouldGenerateAnOpenApi3Documentation() throws IOException {
-        Repository repo = FileRepositoryBuilder.create(new File(".", ".git"));
+    public void apiExporter_void_JsonString(){
+        assertThat(apiJson,is(not(equalTo(null))));
+        assertThat(apiJson.isEmpty(),is(equalTo(false)));
+    }
 
-        String branch=repo.getBranch();
+    @Test
+    @Category(IntegrationTest.class)
+    public void apiExporter_void_OpenAPI3Version() throws IOException {
 
-        CloudFormationConfigurable conf=new CloudFormationConfigurable(
-            "authority-registry-infrastructure",branch){};
-        ApiExporter apiExporter=new ApiExporter(conf,"test");
-        Optional<String> apiJsonOpt = apiExporter.generateOpenApiNoExtensions();
-
-        assertThat(apiJsonOpt.isPresent(),is(equalTo(true)));
-
-        String apiJson=apiJsonOpt.get();
-        Optional<String> openApiVersion = openApiVersion(apiJson);
-
-        assertThat(openApiVersion.isPresent(),is(equalTo(true)));
-        assertThat(openApiVersion.get(),is(equalTo("3.0.1")));
+        Optional<String> openApiVersion = openApiVersion(root);
+        assertThat(openApiVersion.isPresent(), is(equalTo(true)));
+        assertThat(openApiVersion.get(), is(equalTo("3.0.1")));
 
     }
 
 
-    private Optional<String> openApiVersion(String json) throws IOException {
+    @Test
+    @Category(IntegrationTest.class)
+    public void apiExporter_void_ValidServerUrl(){
+        String serverUrl=getServerUrl(root);
+        assertThat(serverUrl,is(not(equalTo(null))));
+        assertThat(serverUrl.isEmpty(),is(equalTo(false)));
+    }
 
-        ObjectMapper mapper = JsonUtils.newJsonParser();
-        JsonNode root = mapper.readTree(json);
+
+    @Test
+    @Category(IntegrationTest.class)
+    public void apiExporter_void_validVBasePath(){
+        String basePath=getBasePath(root);
+        assertThat(basePath,is(not(equalTo(null))));
+        assertThat(basePath.isEmpty(),is(equalTo(false)));
+        assertThat(basePath,is(equalTo("test")));
+    }
+
+    private Optional<String> generateOpenApiSpec() throws IOException {
+        CloudFormationConfigurable conf = buildConfiguration();
+        ApiExporter apiExporter = new ApiExporter(conf, "test");
+        return apiExporter.generateOpenApiNoExtensions();
+    }
+
+    private CloudFormationConfigurable buildConfiguration() throws IOException {
+        Repository repo = FileRepositoryBuilder.create(new File(".", ".git"));
+        String branch = repo.getBranch();
+
+        return new CloudFormationConfigurable(
+            "authority-registry-infrastructure", branch) {
+        };
+    }
+
+
+    private Optional<String> openApiVersion(JsonNode root) throws IOException {
         String openApi = root.get("openapi").asText();
         return Optional.ofNullable(openApi);
+
+    }
+
+    private JsonNode parseOpenApiSpec(String json) throws IOException {
+        ObjectMapper mapper = JsonUtils.newJsonParser();
+        return mapper.readTree(json);
+    }
+
+
+    private String getServerUrl(JsonNode root) {
+        JsonNode serversNode = root.get("servers").get(0);
+        return serversNode.get("url").asText();
+    }
+
+
+    private String getBasePath(JsonNode root) {
+        JsonNode serversNode = root.get("servers").get(0);
+        return serversNode.get("variables").get("basePath").get("default").asText();
 
     }
 
