@@ -1,0 +1,67 @@
+openapi: 3.0.1
+info:
+  title: aut-reg-inf-autreg-58-openapi-lambdab-final
+  version: "1.0-oas3"
+servers:
+- url: '<SERVER_PLACEHOLDER>'
+  variables:
+    basePath:
+      default: '<STAGE_PLACEHOLDER>'
+
+paths:
+  /buildbranch:
+    post:
+      operationId: insertEntry
+      responses:
+        default:
+          description: A textual response
+          content:
+            application/json:
+              schema:
+                type: "object"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MODELde9675'
+            example:
+              repository: 'authority-registry'
+              branch: master
+              owner: BIBSYSDEV
+              action: create
+        required: true
+  /githubhook:
+    post:
+      operationId: githubhook
+      responses:
+        default:
+          description: A textual response
+          content:
+            text/plain:
+              schema:
+                type: "string"
+components:
+  securitySchemes:
+    ApiKeyAuth:        # arbitrary name for the security scheme
+      type: apiKey
+      in: header       # can be "header", "query" or "cookie"
+      name: X-API-KEY  # name of the header, query parameter or cookie
+  schemas:
+    MODELde9675:
+      type: object
+      properties:
+        owner:
+          type: string
+          description: The owner
+        action:
+          type: string
+          description: create or update
+        repository:
+          type: string
+          description: The name of the repository
+        branch:
+          type: string
+          description: The name of the branch
+
+security:
+- ApiKeyAuth: []     # use the same name as under securitySchemes
