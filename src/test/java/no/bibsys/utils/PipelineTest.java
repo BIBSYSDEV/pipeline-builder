@@ -9,7 +9,7 @@ import org.junit.Test;
 public class PipelineTest {
 
 
-    private String branchName="autreg-58-openapi-lambdab";
+    private String branchName = "master";
     //private String branchName = "remove-lambdaTrustRole";
     private String repoName = "authority-registry-infrastructure";
     private String repoOwner = "BIBSYSDEV";
@@ -30,7 +30,6 @@ public class PipelineTest {
         application.wipeStacks();
 
     }
-
 
 
     private Application initApplication() throws IOException {
