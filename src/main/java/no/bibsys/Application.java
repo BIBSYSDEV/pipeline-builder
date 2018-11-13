@@ -21,7 +21,7 @@ public class Application {
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
 
 
-    public Application(GitInfo gitInfo,String branch) throws IOException {
+    public Application(GitInfo gitInfo, String branch) {
 
         GitInfo githubConf = gitInfo;
         this.pipelineStackConfiguration = new PipelineStackConfiguration(githubConf,branch);

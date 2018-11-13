@@ -97,6 +97,7 @@ public class StackWiper {
     public void wipeStacks() {
         int invokeStatusCode = invokeDeleteLambdaFunction();
         System.out.println(invokeStatusCode);
+        //Delete buckets first because they cannot be deleted automatically when we delete a Stack
         deleteBuckets();
         deleteStacks();
         deleteLogs();

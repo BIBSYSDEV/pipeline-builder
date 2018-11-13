@@ -47,7 +47,6 @@ public abstract class CodePipelineFunctionHandlerTemplate<O> extends HandlerTemp
 
         }
 
-
     }
 
 
