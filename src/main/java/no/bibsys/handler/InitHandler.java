@@ -17,8 +17,6 @@ import org.apache.http.client.methods.HttpPost;
 public class InitHandler extends SwaggerHubEditor {
 
 
-
-
     @Override
     public SimpleResponse processInput(BuildEvent input, Context context)
         throws IOException, URISyntaxException {

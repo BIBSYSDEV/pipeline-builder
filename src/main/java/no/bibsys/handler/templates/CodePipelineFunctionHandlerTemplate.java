@@ -45,7 +45,6 @@ public abstract class CodePipelineFunctionHandlerTemplate<O> extends HandlerTemp
             sendSuccessToCodePipeline((CodePipelineEvent) input,
                 outputString);
 
-
         }
 
 
