@@ -234,7 +234,7 @@ Resources:
       CodeUri: build/libs/pipeline-fat.jar
       Environment:
         Variables:
-          API_ID: !Join['-',["small-api", !Ref Stage]]
+          API_ID: !Join ['-' , ['small-api', !Ref Stage]]
           API_VERSION: "1.0"
           OWNER: "BIBSYSDEV"
           BRANCH: !Ref Branch
