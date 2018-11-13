@@ -22,8 +22,6 @@ Parameters:
     Type: String
   PipelineName:
     Type: String
-  LambdaTrustRoleArn:
-    Type: String
   PipelineTestServiceStackName:
     Type: String
   PipelineFinalServiceStackName:
@@ -32,9 +30,15 @@ Parameters:
     Type: String
   CodebuildOutputArtifact:
     Type: String
-  CodebuildCache:
-    Type: String
   SourceStageOutputArtifact:
+    Type: String
+  InitFunctionName:
+    Type: String
+  DestroyFunctionName:
+    Type: String
+  TestPhaseName:
+    Type: String
+  FinalPhaseName:
     Type: String
 
 
@@ -43,20 +47,6 @@ Conditions:
 
 Resources:
 
-  #The buckets cannot be deleted when the stack is deleted because they are not empty.
-  #We have to delete them using the API
-  CodebuildCacheBucket:
-    Type: AWS::S3::Bucket
-    DeletionPolicy: Retain
-    Properties:
-      AccessControl: Private
-      BucketName: !Ref CodebuildCache
-      VersioningConfiguration:
-        Status: Enabled
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-        - ServerSideEncryptionByDefault:
-            SSEAlgorithm: aws:kms
   S3Bucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
@@ -128,8 +118,8 @@ Resources:
             Resource:
             - !Join ["", [!GetAtt S3Bucket.Arn, "/*"]]
             - !GetAtt S3Bucket.Arn
-            - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache, "/*"]]
-            - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache]]
+            - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname, "/*"]]
+            - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname]]
       - PolicyName: customResourceSupport
         PolicyDocument:
           Version: '2012-10-17'
@@ -154,6 +144,7 @@ Resources:
             - 'lambda:GetFunctionConfiguration'
             - 'lambda:UpdateFunctionConfiguration'
             - 'lambda:RemovePermission'
+            - 'lambda:InvokeFunction'
             - 'lambda:listTags'
             - 'lambda:TagResource'
             - 'lambda:UntagResource'
@@ -182,6 +173,16 @@ Resources:
       - arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess
 
       Policies:
+      - PolicyName: lambdaInvocation
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - 'lambda:InvokeFunction'
+            - 'codepipeline:PutJobFailureResult'
+            - 'codepipeline:PutJobSuccessResult'
+            Resource: '*'
       - PolicyName: s3Access
         PolicyDocument:
           Version: '2012-10-17'
@@ -192,8 +193,8 @@ Resources:
             Resource:
             - !Join ["", [!GetAtt S3Bucket.Arn, "/*"]]
             - !GetAtt S3Bucket.Arn
-            - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache, "/*"]]
-            - !Join ["", ["arn:aws:s3:::",!Ref CodebuildCache]]
+            - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname, "/*"]]
+            - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname]]
           - Effect: Allow
             Action:
             - logs:CreateLogGroup
@@ -236,6 +237,8 @@ Resources:
             - 'ssm:GetParameters'
             Resource: '*'
   CodeBuildProject:
+    DependsOn:
+    - S3Bucket
     Type: AWS::CodeBuild::Project
     Description: CodeBuild project for using in the CodePipeline
     Properties:
@@ -246,7 +249,7 @@ Resources:
       Source:
         Type: CODEPIPELINE
       Environment:
-        ComputeType: BUILD_GENERAL1_MEDIUM
+        ComputeType: BUILD_GENERAL1_SMALL
         Image: "aws/codebuild/eb-java-8-amazonlinux-64:2.4.3"
         Type: LINUX_CONTAINER
         EnvironmentVariables:
@@ -255,7 +258,7 @@ Resources:
           Value: !Ref PipelineBucketname
       ServiceRole: !GetAtt PipelineRole.Arn
       Cache:
-        Location:  !Join ['',[!Ref CodebuildCache,'/cache']]
+        Location:  !Join ['',[!Ref PipelineBucketname,'/buildcache']]
         Type: S3
 
   Pipeline:
@@ -318,13 +321,11 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
               !Sub
-            - '{"ProjectId":"${ProjectIdValue}", "Stage":"test", "Branch":"${NormalizedBranchName}", "LambdaTrustRoleArn": "${LambdaTrustRoleArn}", "CodeBucket":"${S3Bucket}"}'
-            - { ProjectIdValue: !Ref ProjectId}
-
+            - '{"ProjectId":"${ProjectIdValue}", "Stage":"${TestPhaseName}","Branch":"${NormalizedBranchName}","CodeBucket":"${S3Bucket}","InitFunctionName": "${InitFunctionNameStage}", "DestroyFunctionName": "${DestroyFunctionNameStage}"}'
+            -  { ProjectIdValue: !Ref ProjectId,  InitFunctionNameStage: !Join ['-', [!Ref InitFunctionName, !Ref TestPhaseName]], DestroyFunctionNameStage: !Join ['-', [!Ref DestroyFunctionName, !Ref TestPhaseName]] }
           InputArtifacts:
           - Name: !Ref CodebuildOutputArtifact
           RunOrder: 1
-
         - Name: ExecuteTestStack
           ActionTypeId:
             Category: Deploy
@@ -338,13 +339,35 @@ Resources:
           InputArtifacts: []
           OutputArtifacts: []
           RunOrder: 2
+        - Name: InitializeStack
+          ActionTypeId:
+            Category: Invoke
+            Owner: AWS
+            Version: 1
+            Provider: Lambda
+          Configuration:
+            FunctionName: !Join ['-', [!Ref InitFunctionName, !Ref TestPhaseName]]
+          InputArtifacts: []
+          OutputArtifacts: []
+          RunOrder: 3
         - Name: ManualReview
           ActionTypeId:
             Category: Approval # TODO: automated function tests
             Owner: AWS
             Provider: Manual
             Version: 1
-          RunOrder: 3
+          RunOrder: 4
+        - Name: DestroyStack
+          ActionTypeId:
+            Category: Invoke
+            Owner: AWS
+            Version: 1
+            Provider: Lambda
+          Configuration:
+            FunctionName: !Join ['-', [!Ref DestroyFunctionName, !Ref TestPhaseName]]
+          InputArtifacts: []
+          OutputArtifacts: []
+          RunOrder: 5
         - Name: DeleteTestStack
           ActionTypeId:
             Category: Deploy
@@ -355,8 +378,7 @@ Resources:
             ActionMode: DELETE_ONLY
             RoleArn: !GetAtt CreateStackRole.Arn
             StackName: !Ref PipelineTestServiceStackName
-          RunOrder: 4
-
+          RunOrder: 6
       - Name: ProdStack
         Actions:
         - Name: CreateFinalStack
@@ -374,9 +396,8 @@ Resources:
             TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
             ParameterOverrides:
               !Sub
-            - '{"ProjectId":"${ProjectIdValue}", "Stage":"final", "Branch":"${NormalizedBranchName}" ,"LambdaTrustRoleArn": "${LambdaTrustRoleArn}", "CodeBucket":"${S3Bucket}"}'
-            - { ProjectIdValue: !Ref ProjectId}
-
+            - '{"ProjectId":"${ProjectIdValue}", "Stage":"${FinalPhaseName}","Branch":"${NormalizedBranchName}","CodeBucket":"${S3Bucket}","InitFunctionName": "${InitFunctionNameStage}","DestroyFunctionName": "${DestroyFunctionNameStage}"}'
+            - { ProjectIdValue: !Ref ProjectId,  InitFunctionNameStage: !Join ['-', [!Ref InitFunctionName, !Ref FinalPhaseName]], DestroyFunctionNameStage: !Join ['-', [!Ref DestroyFunctionName, !Ref FinalPhaseName]] }
           InputArtifacts:
           - Name: !Ref CodebuildOutputArtifact
           RunOrder: 1
@@ -393,3 +414,16 @@ Resources:
           InputArtifacts: []
           OutputArtifacts: []
           RunOrder: 2
+#
+      - Name: Initialize
+        Actions:
+        - Name: InitializeStack
+          ActionTypeId:
+            Category: Invoke
+            Owner: AWS
+            Version: 1
+            Provider: Lambda
+          Configuration:
+            FunctionName: !Join ['-', [!Ref InitFunctionName, !Ref FinalPhaseName]]
+          InputArtifacts: []
+          OutputArtifacts: []

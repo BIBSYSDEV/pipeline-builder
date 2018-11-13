@@ -8,40 +8,48 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
     private final String finalServiceStack;
     private final String pipelineName;
 
-
-    private final String lambdaTrustRolename;
-    private final String lambdaTrustRoleAssumePolicy;
-    private final String lambdaTrustRoleAccessPolicy;
+    private final String initLambdaFunctionName;
 
 
-    public PipelineConfiguration(String repositoryName, String branchName,
-        String assumePolicy, String accessPolicy) {
+
+    private final String destroyLambdaFunctionName;
+
+
+    public PipelineConfiguration(String repositoryName, String branchName) {
         super(repositoryName, branchName);
 
         this.sourceOutputArtifactName = initSourceOutputArtifactName();
-        this.testServiceStack = initServiceStack("test");
-        this.finalServiceStack = initServiceStack("prod");
+        this.testServiceStack = initServiceStack(Stage.TEST);
+        this.finalServiceStack = initServiceStack(Stage.FINAL);
         this.pipelineName = initializePipelineName();
-        this.lambdaTrustRolename = initializeLambdaTrustRole();
-        this.lambdaTrustRoleAssumePolicy = assumePolicy;
-        this.lambdaTrustRoleAccessPolicy = accessPolicy;
+
+        initLambdaFunctionName = initInitLambdaFunction();
+        destroyLambdaFunctionName= initDestroyLambdaFunction();
     }
 
-
-    private String initializeLambdaTrustRole() {
-        return format("LambdaTrustRole", projectId, normalizedBranchName);
+    private String initDestroyLambdaFunction() {
+         return format(projectId,normalizedBranchName,"destroy-function");
     }
+
+    private String initInitLambdaFunction() {
+        return format(projectId,normalizedBranchName,"init-function");
+    }
+
 
     private String initializePipelineName() {
         return format(projectId, normalizedBranchName, "pipeline");
     }
 
-    private String initServiceStack(String postifx) {
-        return format(projectId, normalizedBranchName, "service-stack", postifx);
+    private String initServiceStack(Stage stage) {
+        return format(projectId, normalizedBranchName, "service-stack", stage.toString());
     }
 
     private String initSourceOutputArtifactName() {
         return format(projectId, normalizedBranchName, "sourceOutput");
+    }
+
+    public String getInitLambdaFunctionName() {
+        return initLambdaFunctionName;
     }
 
 
@@ -63,18 +71,9 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
         return finalServiceStack;
     }
 
-
-    public String getLambdaTrustRolename() {
-        return lambdaTrustRolename;
+    public String getDestroyLambdaFunctionName() {
+        return destroyLambdaFunctionName;
     }
 
-
-    public String getLambdaTrustRoleAssumePolicy() {
-        return this.lambdaTrustRoleAssumePolicy;
-    }
-
-    public String getLambdaTrustRoleAccessPolicy() {
-        return this.lambdaTrustRoleAccessPolicy;
-    }
 
 }

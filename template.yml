@@ -5,91 +5,35 @@ Description: Lambda function for Dynamic Pipelines
 Parameters:
   ProjectId:
     Type: String
-    Description: AWS CodeStar projectID used to associate new resources to team members
   Stage:
     Type: String
     Description: Deployment stage. E.g. test, prod, etc.
   Branch:
     Type: String
-  LambdaTrustRoleArn:
-    Type: String
   CodeBucket:
     Type: String
+  InitFunctionName:
+    Type: String
+  DestroyFunctionName:
+    Type:  String
+
 
 Resources:
   RestApi:
     DependsOn:
-      - BuildBranch
+    - BuildBranch
+    - GithubHook
     Type: AWS::Serverless::Api
     Properties:
       Name: !Join ['-',[!Ref ProjectId, !Ref Branch, !Ref Stage]]
       StageName: !Ref Stage
-      DefinitionBody:
-        openapi: 3.0.0
-        info:
-          description: Small api to build a branch
-          version: "0.1"
-        paths:
-          /github:
-            post:
-              responses:
-                default:
-                  description: A simple string response
-                  content:
-                    text/plain:
-                      schema:
-                        type: string
-              x-amazon-apigateway-integration:
-                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GithubHook.Arn}/invocations"
-                httpMethod: "POST"
-                type: aws_proxy
-                passthroughBehavior: when_no_match
-          /buildbranch:
-            post:
-              operationId: insertEntry
-              responses:
-                default:
-                  description: A simple string response
-                  content:
-                    text/plain:
-                      schema:
-                        type: string
-              requestBody:
-                content:
-                  application/json :
-                    schema:
-                      type: "object"
-                      properties:
-                        repository:
-                          description: The name of the repository
-                          type: string
-                        branch:
-                          description: The name of the branch
-                          type: string
-                        owner:
-                          description: The owner
-                          type: string
-                        action:
-                          description: create or update
-                          type: string
-                    example:
-                      repositoryName: 'authority-registry'
-                      branch: master
-                      owner: BIBSYSDEV
-                      action: create
-              x-amazon-apigateway-integration:
-                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${BuildBranch.Arn}/invocations"
-                httpMethod: "POST"
-                type: aws_proxy
-                passthroughBehavior: when_no_match
 
   GithubHook:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: no.bibsys.handler.SimpleHandler::handleRequest
+      Handler: no.bibsys.handler.GithubHandler::handleRequest
       Runtime: java8
       CodeUri: build/libs/pipeline-fat.jar
-      Role: !Ref LambdaTrustRoleArn
       MemorySize:  1500
       Timeout: 900
       Events:
@@ -99,13 +43,78 @@ Resources:
             Path: /github
             Method: post
             RestApiId: !Ref RestApi
+      Policies:
+        Version: '2012-10-17'
+        Statement:
+        - Action:
+          - cloudformation:CreateStack
+          - cloudformation:DescribeStacks
+          - cloudformation:DeleteStack
+          - codebuild:CreateProject
+          - codebuild:DeleteProject
+          - codepipeline:CreatePipeline
+          - codepipeline:DeletePipeline
+          - codepipeline:GetPipeline
+          - codepipeline:GetPipelineState
+          - iam:AttachRolePolicy
+          - iam:CreateRole
+          - iam:CreateRolePolicy
+          - iam:DeleteRole
+          - iam:DeleteRolePolicy
+          - iam:DetachRolePolicy
+          - iam:ListRolePolicies
+          - iam:GetRole
+          - iam:GetRolePolicy
+          - iam:PassRole
+          - lambda:InvokeFunction
+          - iam:PutRolePolicy
+          - logs:DeleteLogGroup
+          - logs:DescribeLogGroups
+          - s3:CreateBucket
+          - s3:DeleteBucket
+          - s3:DeleteBucketPolicy
+          - s3:DeleteObject
+          - s3:DeleteObjectVersion
+          - s3:GetBucketPolicy
+          - s3:GetEncryptionConfiguration
+          - s3:ListBucket
+          - s3:ListBucketVersions
+          - s3:PutObject
+          - s3:PutBucketVersioning
+          - s3:PutBucketPolicy
+          - s3:PutEncryptionConfiguration
+          - s3:PutObject
+          Resource: "*"
+          Effect: Allow
+        - Action:
+          - secretsmanager:GetSecretValue
+          - ssm:GetParameter
+          Resource: "*"
+          Effect: Allow
+        #The rest of the policies are for all lambda functions
+        - Action:
+          - logs:CreateLogGroup
+          - logs:CreateLogStream
+          - logs:PutLogEvents
+          Resource: "*"
+          Effect: Allow
+        - Effect: Allow
+          Action:
+          - s3:GetObject
+          Resource: arn:aws:s3:::*/AWSLogs/*/Config/*
+        - Effect: Allow
+          Action:
+          - config:Put*
+          - config:Get*
+          - config:List*
+          - config:Describe*
+          Resource: "*"
   BuildBranch:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: no.bibsys.handler.CustomBranchBuilder::handleRequest
+      Handler: no.bibsys.handler.UpdateStackRequestHandler::handleRequest
       Runtime: java8
       CodeUri: build/libs/pipeline-fat.jar
-      Role: !Ref LambdaTrustRoleArn
       MemorySize:  1500
       Timeout: 900
       Events:
@@ -115,3 +124,135 @@ Resources:
             Path: /buildbranch
             Method: post
             RestApiId: !Ref RestApi
+      Policies:
+        Version: '2012-10-17'
+        Statement:
+        - Action:
+          - cloudformation:CreateStack
+          - cloudformation:DescribeStacks
+          - cloudformation:DeleteStack
+          - codebuild:CreateProject
+          - codebuild:DeleteProject
+          - codepipeline:CreatePipeline
+          - codepipeline:DeletePipeline
+          - codepipeline:GetPipeline
+          - codepipeline:GetPipelineState
+          - iam:AttachRolePolicy
+          - iam:CreateRole
+          - iam:CreateRolePolicy
+          - iam:DeleteRole
+          - iam:DeleteRolePolicy
+          - iam:DetachRolePolicy
+          - iam:ListRolePolicies
+          - iam:GetRole
+          - iam:GetRolePolicy
+          - iam:PassRole
+          - iam:PutRolePolicy
+          - lambda:InvokeFunction
+          - logs:DeleteLogGroup
+          - logs:DescribeLogGroups
+          - s3:CreateBucket
+          - s3:DeleteBucket
+          - s3:DeleteBucketPolicy
+          - s3:DeleteObject
+          - s3:DeleteObjectVersion
+          - s3:GetBucketPolicy
+          - s3:GetEncryptionConfiguration
+          - s3:ListBucket
+          - s3:ListBucketVersions
+          - s3:PutObject
+          - s3:PutBucketVersioning
+          - s3:PutBucketPolicy
+          - s3:PutEncryptionConfiguration
+          - s3:PutObject
+          Resource: "*"
+          Effect: Allow
+        - Action:
+          - secretsmanager:GetSecretValue
+          - ssm:GetParameter
+          Resource: "*"
+          Effect: Allow
+        #The rest of the policies are for all lambda functions
+        - Action:
+          - logs:CreateLogGroup
+          - logs:CreateLogStream
+          - logs:PutLogEvents
+          Resource: "*"
+          Effect: Allow
+        - Effect: Allow
+          Action:
+          - s3:GetObject
+          Resource: arn:aws:s3:::*/AWSLogs/*/Config/*
+        - Effect: Allow
+          Action:
+          - config:Put*
+          - config:Get*
+          - config:List*
+          - config:Describe*
+          Resource: "*"
+
+  Init:
+    Type: AWS::Serverless::Function
+    DependsOn:
+      - RestApi
+    Properties:
+      Handler: no.bibsys.handler.InitHandler::handleRequest
+      FunctionName: !Ref InitFunctionName
+      Runtime: java8
+      Environment:
+        Variables:
+          API_ID: "small-api"
+          API_VERSION: "1.0"
+          OWNER: "BIBSYSDEV"
+          BRANCH: !Ref Branch
+          REPOSITORY: 'authority-registry-infrastructure'
+          STAGE: !Ref Stage
+          SWAGGER_ORG: 'axthosarouris'
+
+      CodeUri: build/libs/pipeline-fat.jar
+      Policies:
+        Version: '2012-10-17'
+        Statement:
+        - Action:
+          - secretsmanager:GetSecretValue
+          - lambda:InvokeFunction
+          - codepipeline:PutJobFailureResult
+          - codepipeline:PutJobSuccessResult
+          - apigateway:*
+          Effect: Allow
+          Resource: "*"
+      MemorySize: 1500
+      Timeout: 900
+  Destroy:
+    Type: AWS::Serverless::Function
+    DependsOn:
+    - RestApi
+    Properties:
+      Handler: no.bibsys.handler.DestroyHandler::handleRequest
+      FunctionName: !Ref DestroyFunctionName
+      Runtime: java8
+      CodeUri: build/libs/pipeline-fat.jar
+      Environment:
+        Variables:
+          API_ID: !Join ['-' , ['small-api', !Ref Stage]]
+          API_VERSION: "1.0"
+          OWNER: "BIBSYSDEV"
+          BRANCH: !Ref Branch
+          REPOSITORY: 'authority-registry-infrastructure'
+          STAGE: !Ref Stage
+          SWAGGER_ORG: 'axthosarouris'
+      Policies:
+        Version: '2012-10-17'
+        Statement:
+        - Action:
+          - secretsmanager:GetSecretValue
+          - lambda:InvokeFunction
+          - codepipeline:PutJobFailureResult
+          - codepipeline:PutJobSuccessResult
+          - apigateway:*
+          Effect: Allow
+          Resource: "*"
+      MemorySize: 1500
+      Timeout: 900
+
+

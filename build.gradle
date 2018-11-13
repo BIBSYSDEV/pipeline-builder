@@ -4,20 +4,18 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '2.0.4'
     id 'checkstyle'
     id 'pmd'
-//    id "jacoco"
 }
 
 
 apply plugin: 'java'
 //apply plugin: 'base'
 
-
 apply plugin: 'checkstyle'
-//apply plugin: "jacoco"
+
 
 repositories {
     mavenCentral()
-    maven { url "https://jitpack.io" }
+
 }
 
 wrapper {
@@ -51,7 +49,6 @@ tasks.withType(Checkstyle) {
 
 
 dependencies {
-
     compile group: 'com.amazonaws', name: 'aws-java-sdk-cloudformation', version: '1.11.+'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.+'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: '1.11.+'
@@ -59,12 +56,13 @@ dependencies {
     compile group: 'com.amazonaws', name: 'aws-java-sdk-secretsmanager', version: '1.11.+'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-iam', version: '1.11.+'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-api-gateway', version: '1.11.+'
-
-
-    //For reading and deleting logs
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-codepipeline', version: '1.11.+'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-lambda', version: '1.11.+'
+    // For reading and deleting logs (application functionality)
     compile group: 'com.amazonaws', name: 'aws-java-sdk-logs', version: '1.11.+'
+    compile group: 'com.amazonaws', name: 'aws-lambda-java-core', version: '+'
 
-    //For writing logs
+    // For logging during runtime
     compile group: 'com.amazonaws', name: 'aws-lambda-java-log4j2', version: '1.0.0'
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.8.2'
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.8.2'
@@ -73,7 +71,8 @@ dependencies {
     //this should be the same version as the one used by amazon
     compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.6.0'
 
-    compile group: 'com.amazonaws', name: 'aws-lambda-java-core', version: '+'
+    // useful java libraries
+    compile group: 'com.google.guava', name: 'guava', version: '27.0-jre'
 
     //libraries for testing
     testCompile group: 'org.hamcrest', name: 'hamcrest-junit', version: '2.0.0.0'
@@ -84,12 +83,7 @@ dependencies {
     
     compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.6'
 
-    compile 'com.typesafe:config:+'
-
-    compile group: 'com.google.guava', name: 'guava', version: '27.0-jre'
-
-
-    
+    compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '5.1.+'
     
 }
 
@@ -102,14 +96,14 @@ shadowJar {
 
 test {
     useJUnit {
-        excludeCategories 'no.bibsys.utils.AmazonDependentTest'
+        excludeCategories 'no.bibsys.utils.IntegrationTest'
         excludeCategories 'no.bibsys.utils.DoNotRunTest'
     }
 }
 
 task amazonTest(type: Test){
     useJUnit{
-        includeCategories 'no.bibsys.utils.AmazonDependentTests' 
+        includeCategories 'no.bibsys.utils.IntegrationTest' 
     }
 }
 

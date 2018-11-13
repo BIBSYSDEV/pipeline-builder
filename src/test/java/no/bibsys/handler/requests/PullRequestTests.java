@@ -23,17 +23,17 @@ public class PullRequestTests {
     //Assert that PullRequest ...
 
     @Test
-    public void readsAction() {
+    public void create_githubPullRequestJson_validAction() {
         assertThat(pullRequest.getAction(), is(equalTo(PullRequest.ACTION_CLOSE)));
     }
 
     @Test
-    public void readsBranch() {
+    public void create_githubPullRequestJson_branchName() {
         assertThat(pullRequest.getBranch(), is(equalTo("changes")));
     }
 
     @Test
-    public void readsRepositoryName() {
+    public void create_githubPullRequestJson_repositoryName() {
         assertThat(pullRequest.getRepository(), is(equalTo("Hello-World")));
     }
 

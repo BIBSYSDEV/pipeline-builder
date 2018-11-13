@@ -3,11 +3,12 @@ package no.bibsys.cloudformation;
 
 import no.bibsys.utils.StringUtils;
 
-public class CloudFormationConfigurable {
+public   class CloudFormationConfigurable {
 
     public final static int NORMALIZED_BRANCH_MAX_LENGTH = 40;
     public final static transient int MAX_BRANCH_WORD_LENGTH = 10;
     public final static transient int MAX_PROJECT_WORD_LENGTH = 3;
+
     protected final transient String projectId;
     protected final transient String normalizedBranchName;
     private final transient StringUtils stringUtils = new StringUtils();
@@ -16,8 +17,8 @@ public class CloudFormationConfigurable {
 
     public CloudFormationConfigurable(String repositoryName, String branchName) {
         this.projectId = initProjectId(repositoryName);
-        this.branchName = initBranchName(branchName);
-        this.normalizedBranchName = initShortBranch(branchName);
+        this.branchName = branchName;
+        this.normalizedBranchName = initNormalizedBranchName(branchName);
     }
 
     private String initProjectId(String repositoryName) {
@@ -27,11 +28,8 @@ public class CloudFormationConfigurable {
         return projectName;
     }
 
-    private String initBranchName(String branchName) {
-        return branchName;
-    }
 
-    private String initShortBranch(String branchName) {
+    private String initNormalizedBranchName(String branchName) {
         String normalized = stringUtils.shortNormalizedString(branchName, MAX_BRANCH_WORD_LENGTH);
         int cutIndex = Math.min(normalized.length(), NORMALIZED_BRANCH_MAX_LENGTH);
         return normalized.substring(0, cutIndex);

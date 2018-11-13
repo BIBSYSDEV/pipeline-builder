@@ -8,52 +8,53 @@ import java.nio.file.Paths;
 import java.util.Optional;
 import no.bibsys.utils.JsonUtils;
 
-public final class PushEvent implements GitEvent {
+public final class PushEvent extends RepositoryInfo {
 
 
-    private final transient JsonNode root;
+    public PushEvent() {
+        super();
+    }
 
-
-
-    private PushEvent(JsonNode root)  {
-        this.root = root;
+    private PushEvent(JsonNode root) {
+        super();
+        this.setBranch(initBranch(root));
+        this.setOwner(initOwner(root));
+        this.setRepository(initRepository(root));
 
     }
 
 
-    public static Optional<GitEvent> create(String json) throws IOException {
-        ObjectMapper mapper=JsonUtils.newJsonParser();
-        JsonNode root=mapper.readValue(json,JsonNode.class);
-        if(root.has("pusher")){
+    public static Optional<RepositoryInfo> create(String json) throws IOException {
+        ObjectMapper mapper = JsonUtils.newJsonParser();
+        JsonNode root = mapper.readValue(json, JsonNode.class);
+        if (root.has("pusher")) {
             return Optional.of(new PushEvent(root));
-        }
-        else {
+        } else {
             return Optional.empty();
         }
 
     }
 
 
-    @Override
-    public String getBranch() {
+    private String initBranch(JsonNode root) {
         Path ref = Paths.get(root.get("ref").asText());
         String branch = ref.getFileName().toString();
         return branch;
     }
 
-    @Override
-    public String getOwner() {
-        JsonNode repository = getRepositoryDetails();
+
+    private String initOwner(JsonNode root) {
+        JsonNode repository = getRepositoryDetails(root);
         return repository.get("owner").get("name").asText();
     }
 
-    @Override
-    public String getRepository() {
-        JsonNode repository = getRepositoryDetails();
+
+    private String initRepository(JsonNode root) {
+        JsonNode repository = getRepositoryDetails(root);
         return repository.get("name").asText();
     }
 
-    private JsonNode getRepositoryDetails() {
+    private JsonNode getRepositoryDetails(JsonNode root) {
         return root.get("repository");
     }
 

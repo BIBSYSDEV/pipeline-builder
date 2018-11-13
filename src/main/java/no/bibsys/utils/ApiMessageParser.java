@@ -1,7 +1,6 @@
 package no.bibsys.utils;
 
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TreeTraversingParser;
@@ -15,9 +14,7 @@ public class ApiMessageParser<T> {
 //    private static final Logger logger = LogManager.getLogger(ApiMessageParser.class);
 
     public T getBodyElementFromJson(String inputString, Class<T> tclass) throws IOException {
-        JsonFactory jsonFactory = new JsonFactory();
-
-        ObjectMapper mapper = new ObjectMapper(jsonFactory);
+        ObjectMapper mapper = JsonUtils.newJsonParser();
         Optional<JsonNode> tree = Optional
             .ofNullable(mapper.readTree(new StringReader(inputString)));
         JsonNode body = tree.map(node -> node.get("body")).orElse(null);

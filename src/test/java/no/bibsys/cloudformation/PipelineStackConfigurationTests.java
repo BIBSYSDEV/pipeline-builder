@@ -18,92 +18,77 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
     }
 
     @Test
-    public void pipelineStacknameShouldContainProjectName() {
+    public void initPipelineStackName_projectIdAndNormalizedBranch_containsProjectId() {
         assertThat(conf.getPipelineStackName(), containsString(projectId));
     }
 
     @Test
-    public void pipelineStackNameShouldContainShortBranchName() {
+    public void initPipelineStackName_projectIdAndNormalizedBranch_containsNormalizedBranch() {
         assertThat(conf.getPipelineStackName(), containsString(normalizedBranch));
     }
 
     @Test
-    public void createStackRoleShouldContainShortBranch() {
+    public void initCreateStackRole_projectIdAndNormalizedBranch_containsNormalizedBranch() {
         assertThat(conf.getCreateStackRoleName(), containsString(normalizedBranch));
     }
 
 
     @Test
-    public void createStackRoleShouldContainProjectId() {
+    public void initCreateStackRole_projectIdAndNormalizedBranch_containsProjectId() {
         assertThat(conf.getCreateStackRoleName(), containsString(projectId));
     }
 
 
     @Test
-    public void pipelineRoleShouldContainProjectId() {
+    public void initPipelineRole_projectIdAndNormalizedBranch_containsProjectId() {
         assertThat(conf.getPipelineRoleName(), containsString(projectId));
     }
 
 
-    @Test
-    public void lambdaTrustRoeleShouldContainProjectId() {
-        assertThat(conf.getPipelineConfiguration().getLambdaTrustRolename(),
-            containsString(projectId));
-    }
+
+
+
 
 
     @Test
-    public void lambdaTrustRoeleShouldContainShortBranch() {
-        assertThat(conf.getPipelineConfiguration().getLambdaTrustRolename(),
-            containsString(normalizedBranch));
-    }
-
-
-    @Test
-    public void pipelineRoleContainShortBranch() {
+    public void initPipelineRole_projectIdAndNormalizedBranch_containsNormalizedBranch() {
         assertThat(conf.getPipelineRoleName(), containsString(normalizedBranch));
 
     }
 
 
     @Test
-    public void pipelineRoleNameIsLessThan64chars() {
+    public void initPipelineRole_projectIdAndNormalizedBranch_noLongerThan64chars() {
         assertThat(conf.getPipelineRoleName().length(), is(not(greaterThan(maxLengthForRoles))));
 
     }
 
 
     @Test
-    public void createStackRoleNameIsLessThan64chars() {
+    public void initStackRoleName_projectIdAndNormalizedBranch_noLongerThan64chars() {
         assertThat(conf.getCreateStackRoleName().length(), is(not(greaterThan(maxLengthForRoles))));
 
     }
 
 
+
+
     @Test
-    public void lambdaTrustRoleNameIsLessThan64chars() {
-        assertThat(conf.getPipelineConfiguration().getLambdaTrustRolename().length(),
-            is(not(greaterThan(maxLengthForRoles))));
+    public void initBucketName_projectIdAndNormalizedBranch_containsProjectId() {
+        assertThat(conf.getBucketName(), containsString(projectId));
 
     }
 
+
     @Test
-    public void bucketNameShouldContainProjectIdAndBranch() {
-        assertThat(conf.getBucketName(), containsString(projectId));
+    public void initBucketName_projectIdAndNormalizedBranch_containsNormalizedBranch() {
         assertThat(conf.getBucketName(), containsString(normalizedBranch));
 
     }
 
-    @Test
-    public void shortBrancNameShouldComplyToAmazonRestrctricions() {
-        Matcher matcher = amazonPattern.matcher(conf.getNormalizedBranchName());
-        assertThat(matcher.matches(), is(equalTo(true)));
-
-    }
-
 
     @Test
-    public void stackNamesShouldComplyToAmazonRestrctricions() {
+    public void initStackName_projectIdAndNormalizedBranch_compliesToAmazonRestrictions() {
 
         Matcher matcher = amazonPattern.matcher(conf.getPipelineStackName());
         assertThat(matcher.matches(), is(equalTo(true)));

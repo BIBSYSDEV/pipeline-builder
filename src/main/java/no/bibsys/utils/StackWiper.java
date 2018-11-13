@@ -3,6 +3,12 @@ package no.bibsys.utils;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
 import com.amazonaws.services.cloudformation.model.DeleteStackRequest;
+import com.amazonaws.services.lambda.AWSLambda;
+import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
+import com.amazonaws.services.lambda.model.InvocationType;
+import com.amazonaws.services.lambda.model.InvokeRequest;
+import com.amazonaws.services.lambda.model.InvokeResult;
+import com.amazonaws.services.lambda.model.ResourceNotFoundException;
 import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.logs.AWSLogsClientBuilder;
 import com.amazonaws.services.logs.model.DeleteLogGroupRequest;
@@ -14,14 +20,14 @@ import com.amazonaws.services.s3.model.VersionListing;
 import java.util.List;
 import java.util.stream.Collectors;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
-import no.bibsys.roles.RoleManager;
+import no.bibsys.cloudformation.Stage;
 
 public class StackWiper {
 
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
 
-    public StackWiper(PipelineStackConfiguration pipelineStackConfiguration){
-        this.pipelineStackConfiguration=pipelineStackConfiguration;
+    public StackWiper(PipelineStackConfiguration pipelineStackConfiguration) {
+        this.pipelineStackConfiguration = pipelineStackConfiguration;
     }
 
 
@@ -45,9 +51,30 @@ public class StackWiper {
 
     }
 
+
+    private Integer invokeDeleteLambdaFunction() {
+        String destroyFunctionName = null;
+        try {
+            AWSLambda lambda = AWSLambdaClientBuilder.defaultClient();
+            destroyFunctionName = pipelineStackConfiguration.getPipelineConfiguration()
+                .getDestroyLambdaFunctionName();
+            destroyFunctionName = String.join("-", destroyFunctionName, Stage.FINAL.toString());
+            InvokeRequest request = new InvokeRequest();
+            request.withInvocationType(InvocationType.RequestResponse)
+                .withFunctionName(destroyFunctionName);
+            InvokeResult invokeResult = lambda.invoke(request);
+            return invokeResult.getStatusCode();
+        } catch (ResourceNotFoundException e) {
+            System.out
+                .println(String.format("Function %s could not be found", destroyFunctionName));
+        }
+
+        return -1;
+
+    }
+
     private void deleteBuckets() {
         deleteBucket(pipelineStackConfiguration.getBucketName());
-        deleteBucket(pipelineStackConfiguration.getCodeBuildConfiguration().getCacheBucket());
     }
 
 
@@ -68,17 +95,12 @@ public class StackWiper {
 
 
     public void wipeStacks() {
-
+        int invokeStatusCode = invokeDeleteLambdaFunction();
+        System.out.println(invokeStatusCode);
+        //Delete buckets first because they cannot be deleted automatically when we delete a Stack
         deleteBuckets();
         deleteStacks();
         deleteLogs();
-        deleteRoles();
-    }
-
-    private void deleteRoles() {
-        RoleManager roleManager = new RoleManager(pipelineStackConfiguration.getPipelineConfiguration());
-        roleManager.deleteRole();
-
     }
 
 

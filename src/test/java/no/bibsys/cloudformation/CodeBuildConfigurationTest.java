@@ -14,30 +14,24 @@ public class CodeBuildConfigurationTest extends ConfigurationTests {
     }
 
     @Test
-    public void codeBuildProjectNameShouldNotIncludeTheBranchString() {
+    public void initBuildProjectName_repositoryAndNormalizedBranch_buildProjectnameWithoutOriginalBranchName() {
         String buildProjecName = conf.getCodeBuildConfiguration().getBuildProjectName();
-        namingConventions(buildProjecName);
-    }
-
-
-    @Test
-    public void getOutputArtifact() {
-        String outputArtifact = conf.getCodeBuildConfiguration().getOutputArtifact();
-        namingConventions(outputArtifact);
-
-
-    }
-
-    @Test
-    public void getCacheBucket() {
-        String bucketName = conf.getCodeBuildConfiguration().getCacheBucket();
-        namingConventions(bucketName);
-    }
-
-
-    private void namingConventions(String buildProjecName) {
         assertThat(buildProjecName, not(containsString(branchName)));
-        assertThat(buildProjecName, containsString(normalizedBranch));
-        assertThat(buildProjecName, containsString(projectId));
     }
+
+
+    @Test
+    public void CodeBuildConfiguration_repositoryAndNormalizedBranch_buildProjectnameWithNormalizedlBranchName() {
+
+        String outputArtifact = conf.getCodeBuildConfiguration().getOutputArtifact();
+        assertThat(outputArtifact, containsString(normalizedBranch));
+
+    }
+
+    @Test
+    public void CodeBuildConfiguration_repositoryAndNormalizedBranch_buildProjectnameWithProjectId() {
+        String outputArtifact = conf.getCodeBuildConfiguration().getOutputArtifact();
+        assertThat(outputArtifact, containsString(projectId));
+    }
+
 }

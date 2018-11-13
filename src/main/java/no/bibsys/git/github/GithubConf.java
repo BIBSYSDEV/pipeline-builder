@@ -1,14 +1,8 @@
 package no.bibsys.git.github;
 
-import com.amazonaws.services.s3.model.Region;
-import com.amazonaws.services.secretsmanager.AWSSecretsManager;
-import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
-import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
-import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
-import com.amazonaws.services.secretsmanager.model.InvalidRequestException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Optional;
+import no.bibsys.secrets.SecretsReader;
 import no.bibsys.utils.Environment;
 
 public class GithubConf implements  GitInfo{
@@ -58,40 +52,15 @@ public class GithubConf implements  GitInfo{
         if (envAuth.isPresent()) {
             return envAuth.get();
         } else {
-            return readAuthFromSecrets();
+            SecretsReader secretsReader= new SecretsReader() ;
+            return secretsReader.readAuthFromSecrets("githubapikey","githubapikey");
         }
     }
 
 
-    private String readAuthFromSecrets() throws IOException {
-        AWSSecretsManager client = AWSSecretsManagerClientBuilder.standard()
-            .withRegion(Region.EU_Ireland.toString())
-            .build();
-        ObjectMapper mapper = new ObjectMapper();
 
-        Optional<GetSecretValueResult> getSecretValueResult = readAuthKey(client);
 
-        if (getSecretValueResult.map(result -> result.getSecretString()).isPresent()) {
-            String secret = getSecretValueResult.get().getSecretString();
-            String value = mapper.readTree(secret)
-                .findValuesAsText("githubapikey").stream().findFirst().orElse(null);
-            return value;
-        }
-        return null;
-    }
 
-    private Optional<GetSecretValueResult> readAuthKey(AWSSecretsManager client) {
-        GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest()
-            .withSecretId("githubapikey");
-        Optional<GetSecretValueResult> getSecretValueResult = Optional.empty();
-        try {
-            getSecretValueResult = Optional.ofNullable(client
-                .getSecretValue(getSecretValueRequest));
-        } catch (InvalidRequestException e) {
-            getSecretValueResult = Optional.empty();
-        }
-        return getSecretValueResult;
-    }
 
 
 }
