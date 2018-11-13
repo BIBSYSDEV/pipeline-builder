@@ -23,7 +23,7 @@ public class ApiDocumentationInfoTest {
 
 
     @Test
-    public void BuildPhaseTestShouldBeInitlializedThroughAJsonObjet() throws IOException {
+    public void ApiDocumentationInfoBean_jsonOBject_apiDocumenationInfo() throws IOException {
         ObjectMapper parser= JsonUtils.newJsonParser();
         ApiDocumentationInfo phase=parser.readValue(test, ApiDocumentationInfo.class);
         assertThat(phase.getStage(),is(equalTo("test")));

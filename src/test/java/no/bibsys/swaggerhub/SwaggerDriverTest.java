@@ -23,7 +23,7 @@ public class SwaggerDriverTest {
 
 
     @Test
-    public void UpdateRequestURLPathShouldIncludeOnlyOrganizationAndApiId()
+    public void createUpdateRequest_apiVersionAndJsonSpec_UrlIncludesOrganizationAndApiId()
         throws URISyntaxException, MalformedURLException {
         HttpPost post = postRequest();
         String path = post.getURI().toURL().getPath();
@@ -33,7 +33,7 @@ public class SwaggerDriverTest {
     }
 
     @Test
-    public void UpdateRequestURLPathShouldNotIncludeApiVersion()
+    public void createUpdateRequest_apiVersionAndJsonSpec_UrlDoesNotIncludeApiVersion()
         throws URISyntaxException, MalformedURLException {
         HttpPost post = postRequest();
         String path = post.getURI().toURL().getPath();
@@ -42,7 +42,7 @@ public class SwaggerDriverTest {
 
 
     @Test
-    public void UpdateRequestURLParametersShouldIncludeApiVersion()
+    public void createUpdateRequest_apiVersionAndJsonSpec_requestParametersIncludeApiVersion()
         throws URISyntaxException {
 
         HttpPost post = postRequest();
@@ -54,7 +54,7 @@ public class SwaggerDriverTest {
 
 
     @Test
-    public void UpdateRequestURLParametersShouldIncludeForceParamater()
+    public void createUpdateRequest_apiVersionAndJsonSpec_requestParametersIncludeForceParameter()
         throws URISyntaxException {
 
         HttpPost post = postRequest();
@@ -64,7 +64,7 @@ public class SwaggerDriverTest {
 
 
     @Test
-    public void UpdateRequestURLParametersShouldIncludeIsPrivateParamater()
+    public void createUpdateRequest_apiVersionAndJsonSpec_requestParametersIncludePrivateParameter()
         throws URISyntaxException {
 
         HttpPost post = postRequest();
@@ -75,7 +75,7 @@ public class SwaggerDriverTest {
 
 
     @Test
-    public void DeleteVersionRequestURLPathShouldIncludeOrganizationApiIdAndVersion()
+    public void createDeleteVersionRequest_apiVersion_urlPathIncludedOrganizationApiIdAndVersion()
         throws URISyntaxException, MalformedURLException {
         HttpDelete delete= deleteVersionRequest();
         assertThat(delete.getURI().toURL().toString(),containsString(organization));
@@ -86,7 +86,7 @@ public class SwaggerDriverTest {
 
 
     @Test
-    public void DeleteRequestURLPathShouldIncludeOrganizationApiIdButNotVersion()
+    public void createDeleteRequest_null_urlPathIncludesOrganizationApiIdButNotVersion()
         throws URISyntaxException, MalformedURLException {
         HttpDelete delete= deleteApiRequest();
         assertThat(delete.getURI().toURL().toString(),containsString(organization));

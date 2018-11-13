@@ -23,7 +23,7 @@ public class PushEventTest {
 
 
     @Test
-    public void PushEventTestShouldReadTheBranch() {
+    public void create_githubPushEventJson_branchName() {
         String branch = this.pushEvent.getBranch();
         assertThat(branch, is(equalTo("autreg-61-bugfix-lambdatrustrole")));
 
@@ -31,7 +31,7 @@ public class PushEventTest {
 
 
     @Test
-    public void PushEventTestShouldReadTheOwner(){
+    public void create_githubPushEventJson_githubOwner() {
         String owner=this.pushEvent.getOwner();
         assertThat(owner,is(equalTo("BIBSYSDEV")));
     }
@@ -39,14 +39,14 @@ public class PushEventTest {
 
 
     @Test
-    public void PushEventTestShouldReadTheRepositoryName(){
+    public void create_githubPushEventJson_githubRepository() {
         String repository=this.pushEvent.getRepository();
         assertThat(repository,is(equalTo("authority-registry-infrastructure")));
     }
 
 
     @Test
-    public void PushEventShouldAcceptOnlyPushEvents() throws IOException {
+    public void create_otherEvent_emptyOption() throws IOException {
         String json=IoUtils.resourceAsString(Paths.get("requests","pullrequest.json"));
         Optional<RepositoryInfo> event = PushEvent.create(json);
         assertThat(event.isPresent(),is(equalTo(false)));

@@ -23,7 +23,7 @@ public class IoUtilsTest {
 
     // IOUtilsShould ...
     @Test
-    public void readAResourceFileAsInputStream() throws IOException {
+    public void inputStreamFromResources_resourcePath_nonEmptyInputStream() throws IOException {
 
         InputStream inputSteam = IoUtils.inputStreamFromResources(path);
         int x = inputSteam.read();
@@ -32,19 +32,28 @@ public class IoUtilsTest {
     }
 
     @Test
-    public void readResourceAsListOfStrings() throws IOException {
+    public void linesfromResource_resourcePath_nonEmptyListOfStrings() throws IOException {
         List<String> list = IoUtils.linesfromResource(path);
         assertThat(list.size(), is(not(equalTo(0))));
     }
 
 
     @Test
-    public void readResourceAsString() throws IOException {
+    public void linesfromResource_resourcePath_nonEmptyString() throws IOException {
+        String content = IoUtils.resourceAsString(path);
+        assertThat(content.length(), is(not(equalTo(0))));
+
+    }
+
+
+    @Test
+    public void linesfromResource_removeMultipleWhiteSpaces_StringwithoutMultipleWhitespaces()
+        throws IOException {
         String content = IoUtils.resourceAsString(path);
         String trimmed = IoUtils.removeMultipleWhiteSpaces(content);
 
         assertThat(trimmed.length(), is(not(equalTo(0))));
-        assertThat(trimmed,not(matchesPattern("\\s\\s")));
+        assertThat(trimmed, not(matchesPattern("\\s\\s")));
     }
 
 

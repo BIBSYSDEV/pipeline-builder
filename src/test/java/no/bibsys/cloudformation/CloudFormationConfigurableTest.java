@@ -9,6 +9,8 @@ import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
 public class CloudFormationConfigurableTest extends ConfigurationTests {
@@ -22,24 +24,24 @@ public class CloudFormationConfigurableTest extends ConfigurationTests {
 
 
     @Test
-    public void normalizedBranchShouldNotExceedPredefinedLength() {
+    public void initNormalizedBranchName_branchName_normalizedBranchNameUnderSpecifiedLength() {
         assertThat(conf.getNormalizedBranchName().length(),
             is(not(greaterThan(CloudFormationConfigurable.NORMALIZED_BRANCH_MAX_LENGTH))));
     }
 
 
     @Test
-    public void projectIdShoulNotContainedUnderscores() {
+    public void initProjectId_repositoryName_projectIdWithoutUnderscores() {
         assertThat(repoName, containsString("_"));
         assertThat(repoName, is(equalTo("REPOSITORY_NAME")));
 
-        assertThat(projectId, not(containsString("_")));
+        assertThat(conf.getProjectId(), not(containsString("_")));
 
     }
 
 
     @Test
-    public void projectIdWordsShoudNotExceedCertainLength(){
+    public void initProjectId_repositoryName_projectIdWithTokensNotLongerThanSpecified() {
 
         String[] tokens = projectId.split("-");
         Arrays.stream(tokens).forEach(token -> {
@@ -53,6 +55,13 @@ public class CloudFormationConfigurableTest extends ConfigurationTests {
             assertThat(token.length(),
                 is(not(greaterThan(CloudFormationConfigurable.MAX_PROJECT_WORD_LENGTH))));
         });
+
+    }
+
+    @Test
+    public void initNormalizedBranch_branchName_compliesToAmazonRestrctricions() {
+        Matcher matcher = amazonPattern.matcher(conf.getNormalizedBranchName());
+        MatcherAssert.assertThat(matcher.matches(), is(equalTo(true)));
 
     }
 }

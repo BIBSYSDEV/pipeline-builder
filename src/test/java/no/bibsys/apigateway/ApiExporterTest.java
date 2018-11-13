@@ -31,14 +31,14 @@ public class ApiExporterTest {
 
     @Test
     @Category(IntegrationTest.class)
-    public void apiExporter_void_JsonString(){
+    public void apiExporter_existingAPIGatewayEndpoint_JsonString() {
         assertThat(apiJson,is(not(equalTo(null))));
         assertThat(apiJson.isEmpty(),is(equalTo(false)));
     }
 
     @Test
     @Category(IntegrationTest.class)
-    public void apiExporter_void_OpenAPI3Version() throws IOException {
+    public void apiExporter_existingAPIGatewayEndpoint_OpenAPI3Version() throws IOException {
 
         Optional<String> openApiVersion = openApiVersion(root);
         assertThat(openApiVersion.isPresent(), is(equalTo(true)));
@@ -49,7 +49,7 @@ public class ApiExporterTest {
 
     @Test
     @Category(IntegrationTest.class)
-    public void apiExporter_void_ValidServerUrl(){
+    public void apiExporter_existingAPIGatewayEndpoint_ValidServerUrl() {
         String serverUrl=getServerUrl(root);
         assertThat(serverUrl,is(not(equalTo(null))));
         assertThat(serverUrl.isEmpty(),is(equalTo(false)));
@@ -58,7 +58,7 @@ public class ApiExporterTest {
 
     @Test
     @Category(IntegrationTest.class)
-    public void apiExporter_void_validVBasePath(){
+    public void apiExporter_existingAPIGatewayEndpoint_validVBasePath() {
         String basePath=getBasePath(root);
         assertThat(basePath,is(not(equalTo(null))));
         assertThat(basePath.isEmpty(),is(equalTo(false)));

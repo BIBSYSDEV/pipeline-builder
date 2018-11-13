@@ -14,14 +14,14 @@ public class CodeBuildConfigurationTest extends ConfigurationTests {
     }
 
     @Test
-    public void codeBuildProjectNameShouldNotIncludeTheBranchString() {
+    public void initBuildProjectName_repositoryAndNormalizedBranch_buildProjectnameWithoutOriginalBranchName() {
         String buildProjecName = conf.getCodeBuildConfiguration().getBuildProjectName();
         assertThat(buildProjecName, not(containsString(branchName)));
     }
 
 
     @Test
-    public void codeBuildProjectShouldContainTheNormalizedBranch() {
+    public void CodeBuildConfiguration_repositoryAndNormalizedBranch_buildProjectnameWithNormalizedlBranchName() {
 
         String outputArtifact = conf.getCodeBuildConfiguration().getOutputArtifact();
         assertThat(outputArtifact, containsString(normalizedBranch));
@@ -29,7 +29,7 @@ public class CodeBuildConfigurationTest extends ConfigurationTests {
     }
 
     @Test
-    public void codeBuildProjectShouldContainTheProjectId() {
+    public void CodeBuildConfiguration_repositoryAndNormalizedBranch_buildProjectnameWithProjectId() {
         String outputArtifact = conf.getCodeBuildConfiguration().getOutputArtifact();
         assertThat(outputArtifact, containsString(projectId));
     }
