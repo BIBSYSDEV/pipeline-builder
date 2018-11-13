@@ -21,7 +21,6 @@ public class InitHandler extends SwaggerHubEditor {
     public SimpleResponse processInput(BuildEvent input, Context context)
         throws IOException, URISyntaxException {
 
-        System.out.println(input);
         System.out.println("Lambda function started");
         initFields();
 
