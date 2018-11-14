@@ -4,6 +4,7 @@ package no.bibsys.handler;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.util.Map;
 import no.bibsys.handler.requests.Action;
 import no.bibsys.handler.requests.CustomBuildRequest;
 import no.bibsys.utils.JsonUtils;
@@ -12,7 +13,8 @@ public class UpdateStackRequestHandler extends GithubHandler {
 
 
     @Override
-    public String processInput(String string, Context context) throws IOException {
+    public String processInput(String string, Map<String, String> headers, Context context)
+        throws IOException {
 
         ObjectMapper mapper = JsonUtils.newJsonParser();
         CustomBuildRequest request = mapper.readValue(string, CustomBuildRequest.class);

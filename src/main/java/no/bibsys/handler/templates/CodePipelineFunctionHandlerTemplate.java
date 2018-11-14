@@ -9,13 +9,11 @@ import com.amazonaws.services.codepipeline.model.PutJobFailureResultRequest;
 import com.amazonaws.services.codepipeline.model.PutJobSuccessResultRequest;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.util.Optional;
 import no.bibsys.handler.requests.buildevents.BuildEvent;
 import no.bibsys.handler.requests.buildevents.BuildEventBuilder;
 import no.bibsys.handler.requests.buildevents.CodePipelineEvent;
-import no.bibsys.utils.IoUtils;
 
 public abstract class CodePipelineFunctionHandlerTemplate<O> extends HandlerTemplate<BuildEvent, O> {
 
@@ -26,10 +24,9 @@ public abstract class CodePipelineFunctionHandlerTemplate<O> extends HandlerTemp
     }
 
     @Override
-    protected final BuildEvent parseInput(InputStream inputStream) throws IOException {
-        String jsonSting = IoUtils.streamToString(inputStream);
-        System.out.println(jsonSting);
-        return BuildEventBuilder.create(jsonSting);
+    protected final BuildEvent parseInput(String inputString) throws IOException {
+
+        return BuildEventBuilder.create(inputString);
     }
 
 

@@ -1,13 +1,13 @@
 package no.bibsys.handler.templates;
 
+import com.amazonaws.services.lambda.runtime.Context;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.util.Map;
 import java.util.Optional;
 import no.bibsys.handler.responses.GatewayResponse;
 import no.bibsys.utils.ApiMessageParser;
-import no.bibsys.utils.IoUtils;
 import org.apache.http.HttpStatus;
 
 public abstract class ApiGatewayHandlerTemplate<I, O> extends HandlerTemplate<I, O> {
@@ -22,13 +22,26 @@ public abstract class ApiGatewayHandlerTemplate<I, O> extends HandlerTemplate<I,
 
 
     @Override
-    protected I parseInput(InputStream inputStream)
+    protected I parseInput(String inputString)
         throws IOException {
-        String inputString = IoUtils.streamToString(inputStream);
         I input = inputParser.getBodyElementFromJson(inputString, getIClass());
         return input;
 
     }
+
+
+    @Override
+    protected final O processInput(I input, String apiGatewayInputString, Context context)
+        throws IOException {
+        Map<String, String> headers = inputParser.getHeadersFromJson(apiGatewayInputString);
+        return processInput(input, headers, context);
+    }
+
+
+    protected abstract O processInput(I input, Map<String, String> headers, Context context)
+        throws IOException;
+
+
 
 
     @Override

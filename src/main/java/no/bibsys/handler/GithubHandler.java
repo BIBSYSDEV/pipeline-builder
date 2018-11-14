@@ -3,6 +3,7 @@ package no.bibsys.handler;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 import no.bibsys.Application;
 import no.bibsys.git.github.GitInfo;
@@ -26,8 +27,11 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     }
 
     @Override
-    public String processInput(String request, Context context) throws IOException {
+    public String processInput(String request, Map<String, String> headers, Context context)
+        throws IOException {
         Optional<RepositoryInfo> gitEventOpt=parseEvent(request);
+        String webhookSecurityToken = headers.get("X-Hub-Signature");
+        verifySecurityToken(webhookSecurityToken);
         String response="No action";
         if(gitEventOpt.isPresent()){
             RepositoryInfo repositoryInfo =gitEventOpt.get();
@@ -94,6 +98,25 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
         application.createStacks();
     }
 
+
+    private boolean verifySecurityToken(String token) throws IOException {
+        if (token != null) {
+            System.out.println(token);
+//            SecretsReader secretsReader=new SecretsReader();
+//            String securityToken = secretsReader
+//                .readAuthFromSecrets("githubWebhook", "entity-infrastrucutre");
+//            System.out.println(securityToken)
+        }
+
+        return true;
+
+    }
+
+
+    /*def verify_signature(payload_body)
+  signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), ENV['SECRET_TOKEN'], payload_body)
+  return halt 500, "Signatures didn't match!" unless Rack::Utils.secure_compare(signature, request.env['HTTP_X_HUB_SIGNATURE'])
+end*/
 
 }
 

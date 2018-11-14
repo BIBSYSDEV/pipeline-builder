@@ -13,7 +13,8 @@ public class DestroyHandler extends SwaggerHubEditor {
 
 
     @Override
-    protected SimpleResponse processInput(BuildEvent input, Context context)
+    protected SimpleResponse processInput(BuildEvent input, String apiGatewayInputString,
+        Context context)
         throws IOException, URISyntaxException {
         initFields();
 

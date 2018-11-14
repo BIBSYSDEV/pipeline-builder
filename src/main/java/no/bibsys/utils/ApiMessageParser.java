@@ -6,15 +6,27 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TreeTraversingParser;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Map;
 import java.util.Optional;
 
 
 public class ApiMessageParser<T> {
 
 //    private static final Logger logger = LogManager.getLogger(ApiMessageParser.class);
+private final transient ObjectMapper mapper = JsonUtils.newJsonParser();
+
+    public Map<String, String> getHeadersFromJson(String inputString) throws IOException {
+        JsonNode root = mapper.readTree(new StringReader(inputString));
+        JsonNode headers = root.get("headers");
+        Map<String, String> headersMap = (Map<String, String>) mapper
+            .convertValue(headers, Map.class);
+        return headersMap;
+
+    }
+
 
     public T getBodyElementFromJson(String inputString, Class<T> tclass) throws IOException {
-        ObjectMapper mapper = JsonUtils.newJsonParser();
+
         Optional<JsonNode> tree = Optional
             .ofNullable(mapper.readTree(new StringReader(inputString)));
         JsonNode body = tree.map(node -> node.get("body")).orElse(null);
@@ -24,7 +36,7 @@ public class ApiMessageParser<T> {
         } else {
             T request = null;
             if (body != null) {
-                // body should always be a string for A lambda function connected to the API
+                // body should always be a string for a lambda function connected to the API
                 if (body.isValueNode()) {
                     request = parseBody(mapper, body.asText(), tclass);
                 } else {
