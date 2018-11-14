@@ -101,7 +101,8 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
     private boolean verifySecurityToken(String token) throws IOException {
         if (token != null) {
-            System.out.println(token);
+
+            System.out.println("*************" + token);
 //            SecretsReader secretsReader=new SecretsReader();
 //            String securityToken = secretsReader
 //                .readAuthFromSecrets("githubWebhook", "entity-infrastrucutre");
