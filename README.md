@@ -3,6 +3,8 @@
 ## Build
  ` sh build.sh ` 
  
+ 
+ 
 ## Run 
 
  `python run.py <owner> <repository> <branch> <action>` 
@@ -34,4 +36,6 @@
   `java -cp build/libs/pipeline-fat.jar -Downer=<owner> -Drepository=<repository> -Dbranch=<branch>
    -Daction=<action>`
    
-   
+## Swaggerhub: 
+
+  https://app.swaggerhub.com/apis/axthosarouris/small-api/1.0-oas3   
