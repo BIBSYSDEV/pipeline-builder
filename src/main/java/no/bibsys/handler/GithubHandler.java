@@ -2,6 +2,7 @@ package no.bibsys.handler;
 
 
 import com.amazonaws.services.lambda.runtime.Context;
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
@@ -20,8 +21,8 @@ import org.apache.logging.log4j.Logger;
 
 public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
-    private static String AWS_SECRET_NAME = "SECRET_NAME";
-    private static String AWS_SECRET_KEY = "SECRET_KEY";
+    private static String SECRET_NAME = "SECRET_NAME";
+    private static String SECRET_KEY = "SECRET_KEY";
 
 
     private static final Logger logger = LogManager.getLogger(GithubHandler.class);
@@ -111,18 +112,26 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
 
     private boolean verifySecurityToken(String token, String requestBody) throws IOException {
+        String privateKey = readSecretsKey();
+        return verifySecurityToken(token, requestBody, privateKey);
+    }
+
+
+    @VisibleForTesting
+    public boolean verifySecurityToken(String token, String requestBody, String privateKey)
+        throws IOException {
         if (token != null) {
-            String storedKey = readSecretsKey();
-            String hashedKey = DigestUtils.sha1Hex(storedKey + requestBody);
+
+            String hashedKey = DigestUtils.sha1Hex(privateKey + requestBody);
+            System.out.println(requestBody);
             String signature = "sha1=" + hashedKey;
+
             System.out.println("Input token:" + token);
             System.out.println("Signature  :" + signature);
-
 
         }
 
         return true;
-
     }
 
 
@@ -134,11 +143,11 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     }
 
     private void initializeAmazonSecrets() {
-        this.amazonSecretName = environment.readEnvOpt(AWS_SECRET_NAME)
+        this.amazonSecretName = environment.readEnvOpt(SECRET_NAME)
             .orElseThrow(
-                () -> new IllegalStateException("Missing env variable:" + AWS_SECRET_NAME));
-        this.amazonSecretKey = environment.readEnvOpt(AWS_SECRET_KEY)
-            .orElseThrow(() -> new IllegalStateException("Missing env variable:" + AWS_SECRET_KEY));
+                () -> new IllegalStateException("Missing env variable:" + SECRET_NAME));
+        this.amazonSecretKey = environment.readEnvOpt(SECRET_KEY)
+            .orElseThrow(() -> new IllegalStateException("Missing env variable:" + SECRET_KEY));
     }
 
 
