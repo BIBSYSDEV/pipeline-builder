@@ -42,7 +42,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
         Optional<RepositoryInfo> gitEventOpt=parseEvent(request);
 
         String webhookSecurityToken = headers.get("X-Hub-Signature");
-        verifySecurityToken(webhookSecurityToken);
+        verifySecurityToken(webhookSecurityToken, request);
         String response="No action";
         if(gitEventOpt.isPresent()){
             RepositoryInfo repositoryInfo =gitEventOpt.get();
@@ -110,10 +110,10 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     }
 
 
-    private boolean verifySecurityToken(String token) throws IOException {
+    private boolean verifySecurityToken(String token, String requestBody) throws IOException {
         if (token != null) {
             String storedKey = readSecretsKey();
-            String hashedKey = DigestUtils.sha1Hex(storedKey);
+            String hashedKey = DigestUtils.sha1Hex(storedKey + requestBody);
             String signature = "sha1=" + hashedKey;
             System.out.println("Input token:" + token);
             System.out.println("Signature  :" + signature);
