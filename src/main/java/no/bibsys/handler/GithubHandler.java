@@ -120,16 +120,12 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     @VisibleForTesting
     public boolean verifySecurityToken(String token, String requestBody, String privateKey)
         throws IOException {
-        if (token != null) {
 
-            String hashedKey = DigestUtils.sha1Hex(privateKey + requestBody);
+        String hashedKey = DigestUtils.sha1Hex(privateKey + requestBody);
             System.out.println(requestBody);
             String signature = "sha1=" + hashedKey;
-
             System.out.println("Input token:" + token);
             System.out.println("Signature  :" + signature);
-
-        }
 
         return true;
     }
