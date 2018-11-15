@@ -1,6 +1,7 @@
 package no.bibsys.handler;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import no.bibsys.utils.IoUtils;
 import org.junit.Test;
@@ -15,10 +16,10 @@ public class GithubHandlerTest {
             .resourceAsString(Paths.get("requests", "sha_test_githubEvent.json"));
         String header = IoUtils
             .resourceAsString(Paths.get("requests", "sha_test_github_header.txt"));
-        String secretKey = "SECRETKEY";
+        String secretKey = "0";
 
         GithubHandler githubHandler = new GithubHandler();
-        githubHandler.verifySecurityToken(header, requestBody, secretKey);
+        githubHandler.validateSignature(header, requestBody, null, secretKey);
 
 
     }

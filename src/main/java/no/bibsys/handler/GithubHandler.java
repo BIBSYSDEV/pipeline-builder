@@ -23,7 +23,6 @@ import no.bibsys.secrets.SecretsReader;
 import no.bibsys.utils.Environment;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -132,7 +131,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     public boolean validateSignature(String signatureHeader, String body, String encoding,
         String webhookSecret)
         throws UnsupportedEncodingException {
-        byte[] payload = body.getBytes(encoding == null ? "UTF-8" : encoding);
+
 //        if (webhookSecret == null || webhookSecret.equals("")) {
 //            logger.debug(
 //                "{}.webhookSecret not configured. Skip signature validation");
@@ -147,7 +146,14 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
             logger.error("Invalid signature: {}", signatureHeader);
             return false;
         }
+        byte[] payload = body.getBytes(encoding == null ? "UTF-8" : encoding);
         byte[] expectedSignature = getExpectedSignature(payload, webhookSecret);
+        String signatureString = new String(signature);
+
+        String expectedSignatureString = new String(expectedSignature);
+        System.out.println(signatureHeader);
+        System.out.println(signatureString);
+        System.out.println(expectedSignatureString);
         return MessageDigest.isEqual(signature, expectedSignature);
     }
 
