@@ -28,7 +28,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
     private transient String amazonSecretName;
     private transient String amazonSecretKey;
-    private Environment environment;
+    private transient Environment environment;
 
 
     public GithubHandler() {
@@ -38,7 +38,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     @Override
     public String processInput(String request, Map<String, String> headers, Context context)
         throws IOException {
-
+        init();
         Optional<RepositoryInfo> gitEventOpt=parseEvent(request);
 
         String webhookSecurityToken = headers.get("X-Hub-Signature");
@@ -155,11 +155,6 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
         this.environment = environment;
     }
 
-
-    /*def verify_signature(payload_body)
-  signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), ENV['SECRET_TOKEN'], payload_body)
-  return halt 500, "Signatures didn't match!" unless Rack::Utils.secure_compare(signature, request.env['HTTP_X_HUB_SIGNATURE'])
-end*/
 
 }
 
