@@ -15,6 +15,7 @@ import no.bibsys.handler.requests.RepositoryInfo;
 import no.bibsys.handler.templates.ApiGatewayHandlerTemplate;
 import no.bibsys.secrets.SecretsReader;
 import no.bibsys.utils.Environment;
+import no.bibsys.utils.IoUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

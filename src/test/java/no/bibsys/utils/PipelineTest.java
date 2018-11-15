@@ -9,7 +9,7 @@ import org.junit.Test;
 public class PipelineTest {
 
 
-    private String branchName = "master";
+    private String branchName = "secure-webhooks";
     //private String branchName = "remove-lambdaTrustRole";
     private String repoName = "authority-registry-infrastructure";
     private String repoOwner = "BIBSYSDEV";
