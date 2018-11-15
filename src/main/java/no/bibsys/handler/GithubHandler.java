@@ -4,8 +4,14 @@ package no.bibsys.handler;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Optional;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import no.bibsys.Application;
 import no.bibsys.git.github.GitInfo;
 import no.bibsys.git.github.GithubConf;
@@ -15,15 +21,20 @@ import no.bibsys.handler.requests.RepositoryInfo;
 import no.bibsys.handler.templates.ApiGatewayHandlerTemplate;
 import no.bibsys.secrets.SecretsReader;
 import no.bibsys.utils.Environment;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
+    private static final String SIGNATURE_PREFIX = "sha1=";
     private static String SECRET_NAME = "SECRET_NAME";
     private static String SECRET_KEY = "SECRET_KEY";
 
+
+    private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
 
     private static final Logger logger = LogManager.getLogger(GithubHandler.class);
 
@@ -113,22 +124,52 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
     private boolean verifySecurityToken(String token, String requestBody) throws IOException {
         String privateKey = readSecretsKey();
-        return verifySecurityToken(token, requestBody, privateKey);
+        return validateSignature(token, requestBody, null, privateKey);
     }
 
 
     @VisibleForTesting
-    public boolean verifySecurityToken(String token, String requestBody, String privateKey)
-        throws IOException {
+    public boolean validateSignature(String signatureHeader, String body, String encoding,
+        String webhookSecret)
+        throws UnsupportedEncodingException {
+        byte[] payload = body.getBytes(encoding == null ? "UTF-8" : encoding);
+//        if (webhookSecret == null || webhookSecret.equals("")) {
+//            logger.debug(
+//                "{}.webhookSecret not configured. Skip signature validation");
+//            return true;
+//        }
 
-        String hashedKey = DigestUtils.sha1Hex(privateKey + requestBody);
-            System.out.println(requestBody);
-            String signature = "sha1=" + hashedKey;
-            System.out.println("Input token:" + token);
-            System.out.println("Signature  :" + signature);
-
-        return true;
+        byte[] signature;
+        try {
+            signature = Hex
+                .decodeHex(signatureHeader.substring(SIGNATURE_PREFIX.length()).toCharArray());
+        } catch (DecoderException e) {
+            logger.error("Invalid signature: {}", signatureHeader);
+            return false;
+        }
+        byte[] expectedSignature = getExpectedSignature(payload, webhookSecret);
+        return MessageDigest.isEqual(signature, expectedSignature);
     }
+
+
+    @VisibleForTesting
+    public byte[] getExpectedSignature(byte[] payload, String webhookSecret) {
+        SecretKeySpec key = new SecretKeySpec(webhookSecret.getBytes(), HMAC_SHA1_ALGORITHM);
+        Mac hmac;
+        try {
+            hmac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
+            hmac.init(key);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("Hmac SHA1 must be supported", e);
+        } catch (InvalidKeyException e) {
+            throw new IllegalStateException("Hmac SHA1 must be compatible to Hmac SHA1 Secret Key",
+                e);
+        }
+        return hmac.doFinal(payload);
+    }
+
+
+
 
 
     private void init() {
