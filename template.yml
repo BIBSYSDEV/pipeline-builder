@@ -38,8 +38,8 @@ Resources:
       Timeout: 900
       Environment:
         Variables:
-          AWS_SECRET_NAME: github
-          AWS_SECRET_KEY: github_webhook_authorization
+          SECRET_NAME: github
+          SECRET_KEY: github_webhook_authorization
       Events:
         RestApiEvent:
           Type: Api

@@ -20,8 +20,8 @@ import org.apache.logging.log4j.Logger;
 
 public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
-    private static String AWS_SECRET_NAME = "AWS_SECRET_NAME";
-    private static String AWS_SECRET_KEY = "AWS_SECRET_KEY";
+    private static String AWS_SECRET_NAME = "SECRET_NAME";
+    private static String AWS_SECRET_KEY = "SECRET_KEY";
 
 
     private static final Logger logger = LogManager.getLogger(GithubHandler.class);
