@@ -150,10 +150,12 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
         byte[] expectedSignature = getExpectedSignature(payload, webhookSecret);
         String signatureString = new String(signature);
 
-        String expectedSignatureString = new String(expectedSignature);
-        System.out.println(signatureHeader);
-        System.out.println(signatureString);
-        System.out.println(expectedSignatureString);
+        String signatureFrommHeader = new String(Hex.encodeHex(signature));
+        String expectedSignatureString = new String(Hex.encodeHex(expectedSignature));
+
+        System.out.println("signagtureHeader:" + signatureHeader);
+        System.out.println("signagtureFromHeader:" + signatureFrommHeader);
+        System.out.println("ExpectectedSignagure:" + expectedSignatureString);
         return MessageDigest.isEqual(signature, expectedSignature);
     }
 
