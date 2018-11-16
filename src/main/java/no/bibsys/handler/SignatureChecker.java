@@ -60,12 +60,12 @@ public class SignatureChecker {
             return false;
         }
 
-        byte[] expectedSignature = getActualSignature(body, webhookSecret);
+        byte[] expectedSigature = calculateExpectedSignature(body, webhookSecret);
 
-        String expectedSignatureString = new String(Hex.encodeHex(expectedSignature));
+        String expectedSignatureString = new String(Hex.encodeHex(expectedSigature));
         System.out.println("signagtureHeader:" + signatureHeader);
         System.out.println("ExpectedSignagure:" + expectedSignatureString);
-        return MessageDigest.isEqual(signature, expectedSignature);
+        return MessageDigest.isEqual(signature, expectedSigature);
     }
 
     private byte[] decodeSignature(String signatureHeader) throws DecoderException {
@@ -76,13 +76,13 @@ public class SignatureChecker {
     }
 
     @VisibleForTesting
-    public byte[] getActualSignature(String body, String webhookSecret) {
+    public byte[] calculateExpectedSignature(String body, String webhookSecret) {
         byte[] payload = body.getBytes(StandardCharsets.UTF_8);
-        return getActualSignature(payload, webhookSecret);
+        return calculateExpectedSignature(payload, webhookSecret);
     }
 
 
-    private byte[] getActualSignature(byte[] payload, String webhookSecret) {
+    private byte[] calculateExpectedSignature(byte[] payload, String webhookSecret) {
         SecretKeySpec key = new SecretKeySpec(webhookSecret.getBytes(), HMAC_SHA1_ALGORITHM);
         Mac hmac;
         try {

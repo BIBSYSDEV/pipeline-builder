@@ -40,7 +40,8 @@ public class SignatureCheckerTest {
         String expectedSignature = header.replaceFirst("sha1=", "");
 
         SignatureChecker signatureChecker = new SignatureChecker(environment);
-        byte[] actualSignatureBytes = signatureChecker.getActualSignature(requestBody, secretKey);
+        byte[] actualSignatureBytes = signatureChecker
+            .calculateExpectedSignature(requestBody, secretKey);
         String actualSignature = Hex.encodeHexString(actualSignatureBytes);
 
         assertThat(actualSignature, is(equalTo(expectedSignature)));
