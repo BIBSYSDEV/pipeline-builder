@@ -148,7 +148,6 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
         }
         byte[] payload = body.getBytes(encoding == null ? "UTF-8" : encoding);
         byte[] expectedSignature = getExpectedSignature(payload, webhookSecret);
-        String signatureString = new String(signature);
 
         String signatureFrommHeader = new String(Hex.encodeHex(signature));
         String expectedSignatureString = new String(Hex.encodeHex(expectedSignature));
