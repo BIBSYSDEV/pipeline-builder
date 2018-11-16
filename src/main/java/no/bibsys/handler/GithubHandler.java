@@ -151,7 +151,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
         String signatureFrommHeader = new String(Hex.encodeHex(signature));
         String expectedSignatureString = new String(Hex.encodeHex(expectedSignature));
-
+        System.out.println("body" + body);
         System.out.println("signagtureHeader:" + signatureHeader);
         System.out.println("signagtureFromHeader:" + signatureFrommHeader);
         System.out.println("ExpectectedSignagure:" + expectedSignatureString);
