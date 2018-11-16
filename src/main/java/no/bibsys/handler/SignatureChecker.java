@@ -14,7 +14,7 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-;
+
 
 public class SignatureChecker {
 
@@ -49,7 +49,7 @@ public class SignatureChecker {
 
         if (webhookSecret == null || webhookSecret.equals("")) {
             logger.debug(
-                "{}.webhookSecret not configured. Skip signature validation");
+                "webhookSecret not configured. Skip signature validation");
             return true;
         }
 
