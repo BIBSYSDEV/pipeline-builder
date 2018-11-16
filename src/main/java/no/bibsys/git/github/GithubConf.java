@@ -53,7 +53,7 @@ public class GithubConf implements  GitInfo{
             return envAuth.get();
         } else {
             SecretsReader secretsReader= new SecretsReader() ;
-            return secretsReader.readAuthFromSecrets("githubapikey","githubapikey");
+            return secretsReader.readAuthFromSecrets("github", "read_from_github");
         }
     }
 
