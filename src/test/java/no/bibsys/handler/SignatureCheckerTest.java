@@ -7,8 +7,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.file.Paths;
 import no.bibsys.utils.Environment;
 import no.bibsys.utils.IoUtils;
@@ -18,7 +16,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
-public class GithubHandlerTest {
+public class SignatureCheckerTest {
 
     Environment environment = Mockito.mock(Environment.class);
 
