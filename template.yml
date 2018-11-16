@@ -31,7 +31,7 @@ Resources:
   GithubHook:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: no.bibsys.handler.GithubHandler::handleRequest
+      Handler: no.bibsys.lambda.api.handlers.GithubHandler::handleRequest
       Runtime: java8
       CodeUri: build/libs/pipeline-fat.jar
       MemorySize:  1500
@@ -116,7 +116,7 @@ Resources:
   BuildBranch:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: no.bibsys.handler.UpdateStackRequestHandler::handleRequest
+      Handler: no.bibsys.lambda.api.handlers.UpdateStackRequestHandler::handleRequest
       Runtime: java8
       CodeUri: build/libs/pipeline-fat.jar
       MemorySize:  1500
@@ -200,7 +200,7 @@ Resources:
     DependsOn:
       - RestApi
     Properties:
-      Handler: no.bibsys.handler.InitHandler::handleRequest
+      Handler: no.bibsys.lambda.deploy.handlers.InitHandler::handleRequest
       FunctionName: !Ref InitFunctionName
       Runtime: java8
       Environment:
@@ -232,7 +232,7 @@ Resources:
     DependsOn:
     - RestApi
     Properties:
-      Handler: no.bibsys.handler.DestroyHandler::handleRequest
+      Handler: no.bibsys.lambda.deploy.handlers.DestroyHandler::handleRequest
       FunctionName: !Ref DestroyFunctionName
       Runtime: java8
       CodeUri: build/libs/pipeline-fat.jar
@@ -258,5 +258,3 @@ Resources:
           Resource: "*"
       MemorySize: 1500
       Timeout: 900
-
-

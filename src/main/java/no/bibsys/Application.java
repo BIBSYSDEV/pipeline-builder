@@ -5,7 +5,7 @@ import java.io.IOException;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.git.github.GitInfo;
 import no.bibsys.git.github.GithubConf;
-import no.bibsys.handler.requests.Action;
+import no.bibsys.lambda.api.utils.Action;
 import no.bibsys.utils.Environment;
 import no.bibsys.utils.StackBuilder;
 import no.bibsys.utils.StackWiper;
