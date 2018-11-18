@@ -19,13 +19,13 @@ import no.bibsys.cloudformation.CloudFormationConfigurable;
 import no.bibsys.utils.IoUtils;
 import no.bibsys.utils.JsonUtils;
 
-public class ApiExporter {
+public class ApiGatewayApiInfo {
 
 
     private final transient CloudFormationConfigurable config;
     private final transient String stage;
 
-    public ApiExporter(CloudFormationConfigurable config, String stage) {
+    public ApiGatewayApiInfo(CloudFormationConfigurable config, String stage) {
         this.config = config;
         this.stage = stage;
         Preconditions.checkNotNull(stage);
@@ -47,13 +47,7 @@ public class ApiExporter {
 
     }
 
-    private String injectServerInfo(String openApiTemplate, ServerInfo serverInfo) {
-        return openApiTemplate.replace("<SERVER_PLACEHOLDER>",serverInfo.getServerUrl())
-            .replace("<STAGE_PLACEHOLDER>",serverInfo.getStage());
-    }
-
-
-    private Optional<ServerInfo> readServerInfo() throws IOException {
+    public Optional<ServerInfo> readServerInfo() throws IOException {
         Map<String, String> requestParameters = new HashMap<>();
         requestParameters.put("accepts", "application/json");
         Optional<JsonNode> amazonApiSpec = readOpenApiSpecFromAmazon(requestParameters);
@@ -61,6 +55,16 @@ public class ApiExporter {
 
 
     }
+
+
+
+    private String injectServerInfo(String openApiTemplate, ServerInfo serverInfo) {
+        return openApiTemplate.replace("<SERVER_PLACEHOLDER>",serverInfo.getServerUrl())
+            .replace("<STAGE_PLACEHOLDER>",serverInfo.getStage());
+    }
+
+
+
 
     private Optional<JsonNode> readOpenApiSpecFromAmazon(Map<String, String> requestParameters)
         throws IOException {
@@ -115,31 +119,7 @@ public class ApiExporter {
     }
 
 
-    private class ServerInfo {
 
-        private final String serverUrl;
-        private final String stage;
-
-
-         public ServerInfo(String serverUrl, String stage) {
-            this.serverUrl = serverUrl;
-
-            if (serverUrl.contains("/{basePath}") && stage.charAt(0)=='/') {
-                this.stage = stage.substring(1);
-            } else {
-                this.stage = stage;
-            }
-        }
-
-
-        protected String getServerUrl() {
-            return serverUrl;
-        }
-
-        protected String getStage() {
-            return stage;
-        }
-    }
 
 
 }

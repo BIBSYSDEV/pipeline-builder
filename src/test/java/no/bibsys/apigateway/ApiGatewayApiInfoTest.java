@@ -18,12 +18,13 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-public class ApiExporterTest {
+public class ApiGatewayApiInfoTest {
 
 
     private String apiJson;
     private JsonNode root;
-    public ApiExporterTest() throws IOException {
+
+    public ApiGatewayApiInfoTest() throws IOException {
         apiJson = generateOpenApiSpec().orElse(null);
         root = parseOpenApiSpec(apiJson);
     }
@@ -67,8 +68,8 @@ public class ApiExporterTest {
 
     private Optional<String> generateOpenApiSpec() throws IOException {
         CloudFormationConfigurable conf = buildConfiguration();
-        ApiExporter apiExporter = new ApiExporter(conf, "test");
-        return apiExporter.generateOpenApiNoExtensions();
+        ApiGatewayApiInfo apiGatewayApiInfo = new ApiGatewayApiInfo(conf, "test");
+        return apiGatewayApiInfo.generateOpenApiNoExtensions();
     }
 
     private CloudFormationConfigurable buildConfiguration() throws IOException {
