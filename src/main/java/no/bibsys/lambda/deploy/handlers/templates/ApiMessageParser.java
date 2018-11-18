@@ -1,4 +1,4 @@
-package no.bibsys.lambda.templates;
+package no.bibsys.lambda.deploy.handlers.templates;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,7 +13,6 @@ import no.bibsys.utils.JsonUtils;
 
 public class ApiMessageParser<T> {
 
-//    private static final Logger logger = LogManager.getLogger(ApiMessageParser.class);
 private final transient ObjectMapper mapper = JsonUtils.newJsonParser();
 
     public Map<String, String> getHeadersFromJson(String inputString) throws IOException {

@@ -1,4 +1,4 @@
-package no.bibsys.lambda.templates;
+package no.bibsys.lambda.deploy.handlers.templates;
 
 import com.amazonaws.services.codepipeline.AWSCodePipeline;
 import com.amazonaws.services.codepipeline.AWSCodePipelineClientBuilder;

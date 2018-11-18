@@ -5,12 +5,15 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import no.bibsys.lambda.deploy.requests.DeployEvent;
 import no.bibsys.lambda.responses.SimpleResponse;
-import no.bibsys.lambda.templates.SwaggerHubEditor;
 import no.bibsys.swaggerhub.SwaggerDriver;
 import org.apache.http.client.methods.HttpDelete;
 
-public class DestroyHandler extends SwaggerHubEditor {
+public class DestroyHandler extends SwaggerHubUpdater {
 
+
+    public DestroyHandler() throws IOException {
+        super();
+    }
 
     @Override
     protected SimpleResponse processInput(DeployEvent input, String apiGatewayInputString,

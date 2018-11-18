@@ -13,7 +13,7 @@ import no.bibsys.lambda.api.utils.SignatureChecker;
 import no.bibsys.lambda.api.requests.PullRequest;
 import no.bibsys.lambda.api.requests.PushEvent;
 import no.bibsys.lambda.api.requests.RepositoryInfo;
-import no.bibsys.lambda.templates.ApiGatewayHandlerTemplate;
+import no.bibsys.lambda.deploy.handlers.templates.ApiGatewayHandlerTemplate;
 import no.bibsys.utils.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
