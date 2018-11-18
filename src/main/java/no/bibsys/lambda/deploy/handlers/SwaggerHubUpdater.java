@@ -14,8 +14,7 @@ import no.bibsys.utils.Environment;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 
-public abstract class SwaggerHubUpdater extends
-    CodePipelineFunctionHandlerTemplate<SimpleResponse> {
+public class SwaggerHubUpdater {
 
 
     private final transient Environment environment = new Environment();
@@ -89,10 +88,7 @@ public abstract class SwaggerHubUpdater extends
     }
 
 
-    private IllegalStateException newException(String missingVariable) {
-        return new IllegalStateException(String.format("%s is missing\n", missingVariable));
 
-    }
 
 
     private SwaggerDriver newSwaggerDriver(ApiDocumentationInfo publishApi) {

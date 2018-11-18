@@ -6,6 +6,7 @@ import com.amazonaws.services.route53.model.Change;
 import com.amazonaws.services.route53.model.ChangeAction;
 import com.amazonaws.services.route53.model.ChangeBatch;
 import com.amazonaws.services.route53.model.ChangeResourceRecordSetsRequest;
+import com.amazonaws.services.route53.model.ChangeResourceRecordSetsResult;
 import com.amazonaws.services.route53.model.HostedZone;
 import com.amazonaws.services.route53.model.RRType;
 import com.amazonaws.services.route53.model.ResourceRecord;
@@ -16,13 +17,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import no.bibsys.apigateway.ApiGatewayApiInfo;
-import no.bibsys.apigateway.ApiGatewayApiInfo.ServerInfo;
 import no.bibsys.apigateway.ServerInfo;
 import no.bibsys.cloudformation.CloudFormationConfigurable;
 import no.bibsys.cloudformation.Stage;
 import no.bibsys.utils.Environment;
 
-public abstract class Route53Updater {
+public class Route53Updater {
 
 
     private static String ZONE_NAME_ENV = "ZONE_NAME";
@@ -37,7 +37,6 @@ public abstract class Route53Updater {
 
 
     public Route53Updater(Environment environment) {
-
         this.zoneName = environment.readEnv(ZONE_NAME_ENV);
         String branchName = environment.readEnv(BRANCH_NAME);
         String repository = environment.readEnv(REPOSITORY_NAME);
@@ -52,6 +51,16 @@ public abstract class Route53Updater {
         this(new Environment());
     }
 
+
+    public Optional<ChangeResourceRecordSetsResult> updateServerUrl() throws IOException {
+        Optional<ServerInfo> serverInfo = getServerInfo();
+        Optional<ChangeResourceRecordSetsRequest> request = serverInfo
+            .map(info -> updateRecordSetsRequest(info));
+
+        Optional<ChangeResourceRecordSetsResult> result = request
+            .map(r -> client.changeResourceRecordSets(r));
+        return result;
+    }
 
     private Optional<ServerInfo> getServerInfo() throws IOException {
         return apiGatewayApiInfo.readServerInfo();
@@ -72,16 +81,15 @@ public abstract class Route53Updater {
     }
 
 
-    private void updateServerUrl(ServerInfo serverInfo) {
+    private ChangeResourceRecordSetsRequest updateRecordSetsRequest(ServerInfo serverInfo) {
         String hostedZoneId = getHostedZone().getName();
 
         ResourceRecordSet recordSet = createRecordSet(serverInfo);
         Change change = createChange(recordSet);
         ChangeBatch changeBatch = new ChangeBatch().withChanges(change);
         ChangeResourceRecordSetsRequest request = new ChangeResourceRecordSetsRequest();
-        request.withHostedZoneId(hostedZoneId).withChangeBatch(changeBatch);
-
-
+        request.withChangeBatch(changeBatch).withHostedZoneId(hostedZoneId);
+        return request;
     }
 
     private Change createChange(ResourceRecordSet recordSet) {
