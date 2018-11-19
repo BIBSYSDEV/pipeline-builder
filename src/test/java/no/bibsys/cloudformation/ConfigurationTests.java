@@ -1,9 +1,15 @@
 package no.bibsys.cloudformation;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
+import java.util.Optional;
 import no.bibsys.git.github.GithubConf;
 import no.bibsys.utils.AmazonRestrictions;
-import no.bibsys.utils.MockEnvironment;
+import no.bibsys.utils.Environment;
+import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 
 public abstract class ConfigurationTests extends AmazonRestrictions {
 
@@ -18,7 +24,11 @@ public abstract class ConfigurationTests extends AmazonRestrictions {
 
 
     public ConfigurationTests() throws IOException {
-        githubConf = new GithubConf(repoOwner, repoName, new MockEnvironment());
+        Environment environment = Mockito.mock(Environment.class);
+        when(environment.readEnvOpt(anyString())).then(
+            (Answer<Optional<String>>) invocation -> Optional
+                .ofNullable(invocation.getArgument(0)));
+        githubConf = new GithubConf(repoOwner, repoName, environment);
         this.conf = new PipelineStackConfiguration(githubConf,branchName);
         this.normalizedBranch = conf.getNormalizedBranchName();
         this.projectId = conf.getProjectId();

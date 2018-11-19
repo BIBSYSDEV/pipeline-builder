@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public final class IoUtils {
 
 
     public static  String streamToString(InputStream stream) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        BufferedReader reader = new BufferedReader(newInputStreamReader(stream));
         List<String> lines=new ArrayList<>();
         String line = reader.readLine();
         while (line != null) {
@@ -33,6 +34,10 @@ public final class IoUtils {
         }
         String output = String.join("\n", lines);
         return output;
+    }
+
+    private static InputStreamReader newInputStreamReader(InputStream stream) {
+        return new InputStreamReader(stream, StandardCharsets.UTF_8);
     }
 
 
@@ -44,7 +49,7 @@ public final class IoUtils {
 
     public static  List<String> linesfromResource(Path path) throws IOException {
         BufferedReader reader = new BufferedReader(
-            new InputStreamReader(inputStreamFromResources(path)));
+            newInputStreamReader(inputStreamFromResources(path)));
         List<String> lines = new ArrayList<>();
         String line = reader.readLine();
         while (line != null) {

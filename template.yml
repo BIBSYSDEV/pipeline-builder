@@ -36,6 +36,10 @@ Resources:
       CodeUri: build/libs/pipeline-fat.jar
       MemorySize:  1500
       Timeout: 900
+      Environment:
+        Variables:
+          SECRET_NAME: github
+          SECRET_KEY: github_webhook_authorization
       Events:
         RestApiEvent:
           Type: Api

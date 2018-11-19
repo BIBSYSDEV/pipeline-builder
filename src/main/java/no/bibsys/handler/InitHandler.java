@@ -18,7 +18,7 @@ public class InitHandler extends SwaggerHubEditor {
 
 
     @Override
-    public SimpleResponse processInput(BuildEvent input, Context context)
+    public SimpleResponse processInput(BuildEvent input, String apiGatewayMessage, Context context)
         throws IOException, URISyntaxException {
 
         System.out.println("Lambda function started");

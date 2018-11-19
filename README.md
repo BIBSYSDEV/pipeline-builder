@@ -27,9 +27,7 @@
   
   `python run.py BIBSYSDEV authority-registry master delete`
   
-  To update the Role that is executing the code we will run the command:
-  
-  `python run.py BIBSYSDEV authority-registry master update-role`
+
   
   Alternatively you can run:
   
