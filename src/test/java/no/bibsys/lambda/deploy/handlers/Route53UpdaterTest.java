@@ -2,19 +2,22 @@ package no.bibsys.lambda.deploy.handlers;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import com.amazonaws.services.route53.AmazonRoute53;
 import com.amazonaws.services.route53.model.Change;
 import com.amazonaws.services.route53.model.ChangeAction;
 import com.amazonaws.services.route53.model.ChangeResourceRecordSetsRequest;
+import com.amazonaws.services.route53.model.ChangeResourceRecordSetsResult;
 import com.amazonaws.services.route53.model.HostedZone;
 import com.amazonaws.services.route53.model.ListHostedZonesResult;
 import com.amazonaws.services.route53.model.RRType;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Optional;
 import no.bibsys.apigateway.ServerInfo;
 import no.bibsys.cloudformation.Stage;
 import no.bibsys.utils.Environment;
@@ -22,8 +25,6 @@ import no.bibsys.utils.IntegrationTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 public class Route53UpdaterTest {
 
@@ -46,6 +47,18 @@ public class Route53UpdaterTest {
     }
 
     private Environment setupMockEnvironment() {
+        Environment environment;
+        environment = Mockito.mock(Environment.class);
+        when(environment.readEnv(Route53Updater.ZONE_NAME_ENV)).thenReturn("aws.unit.no.");
+        when(environment.readEnv(Route53Updater.REPOSITORY_NAME_ENV_VAR))
+            .thenReturn("authority-registry-infrastructure");
+        when(environment.readEnv(Route53Updater.BRANCH_NAME_ENV_VAR))
+            .thenReturn("autreg-52-update-route53-dynamically");
+        return environment;
+    }
+
+
+    private Environment setupIntegrationEnvironment() {
         Environment environment;
         environment = Mockito.mock(Environment.class);
         when(environment.readEnv(Route53Updater.ZONE_NAME_ENV)).thenReturn(zoneName);
@@ -89,14 +102,19 @@ public class Route53UpdaterTest {
     }
 
 
-//    @Test
-//    @Category(IntegrationTest.class)
-//    public void updateRoute53() {
-//        Route53Updater updater = new Route53Updater();
-//
-//
-//
-//    }
+    @Test
+    @Category(IntegrationTest.class)
+    public void updateRoute53() throws IOException {
+
+        Route53Updater updater = new Route53Updater(setupIntegrationEnvironment());
+
+        Optional<ChangeResourceRecordSetsResult> result = updater
+            .updateServerUrl();
+
+        assertThat(result, is(not(equalTo(Optional.empty()))));
+
+
+    }
 
 
 }
