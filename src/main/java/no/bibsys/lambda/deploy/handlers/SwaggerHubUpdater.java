@@ -5,12 +5,11 @@ import java.net.URISyntaxException;
 import java.util.Optional;
 import no.bibsys.apigateway.ApiGatewayApiInfo;
 import no.bibsys.cloudformation.CloudFormationConfigurable;
-import no.bibsys.lambda.deploy.handlers.templates.CodePipelineFunctionHandlerTemplate;
-import no.bibsys.swaggerhub.ApiDocumentationInfo;
-import no.bibsys.lambda.responses.SimpleResponse;
 import no.bibsys.secrets.SecretsReader;
+import no.bibsys.swaggerhub.ApiDocumentationInfo;
 import no.bibsys.swaggerhub.SwaggerDriver;
 import no.bibsys.utils.Environment;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 
@@ -50,19 +49,16 @@ public class SwaggerHubUpdater {
     }
 
 
-    protected ApiDocumentationInfo constructApiDocumentationInfo() {
-        ApiDocumentationInfo publishApi = new ApiDocumentationInfo();
-        publishApi.setApiId(apiId);
-        publishApi.setApiVersion(apiVersion);
-        publishApi.setStage(stage);
-        publishApi.setSwaggerOrganization(swaggerOrganization);
-        publishApi.setSwaggetHubApiKey(swaggerHubApiKey);
-
-        return publishApi;
+    public Integer deleteApi() throws URISyntaxException, IOException {
+        SwaggerDriver swaggerDriver = new SwaggerDriver(swaggerHubApiKey, swaggerOrganization,
+            apiId);
+        HttpDelete deleteRequest = swaggerDriver
+            .createDeleteApiRequest();
+        return swaggerDriver.executeDelete(deleteRequest);
     }
 
 
-    protected Optional<String> updateApiDocumentation() throws IOException, URISyntaxException {
+    public Optional<String> updateApiDocumentation() throws IOException, URISyntaxException {
         ApiDocumentationInfo apiDocInfo = constructApiDocumentationInfo();
         CloudFormationConfigurable config = new CloudFormationConfigurable(repository, branch);
         Optional<String> jsonOpt = generateApiSpec(apiDocInfo, config);
@@ -77,6 +73,21 @@ public class SwaggerHubUpdater {
         }
 
     }
+
+
+    private ApiDocumentationInfo constructApiDocumentationInfo() {
+        ApiDocumentationInfo publishApi = new ApiDocumentationInfo();
+        publishApi.setApiId(apiId);
+        publishApi.setApiVersion(apiVersion);
+        publishApi.setStage(stage);
+        publishApi.setSwaggerOrganization(swaggerOrganization);
+        publishApi.setSwaggetHubApiKey(swaggerHubApiKey);
+
+        return publishApi;
+    }
+
+
+
 
     private String readTheUpdatedAPI(String json, ApiDocumentationInfo publishApi)
         throws URISyntaxException, IOException {
