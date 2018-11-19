@@ -26,12 +26,13 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
     public GithubHandler() {
         super(String.class);
+        init();
     }
 
     @Override
     public String processInput(String request, Map<String, String> headers, Context context)
         throws IOException {
-        init();
+
         String webhookSecurityToken = headers.get("X-Hub-Signature");
         boolean verified = signatureChecker.verifySecurityToken(webhookSecurityToken, request);
         if (verified) {
@@ -39,6 +40,16 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
         } else {
             throw new UnauthorizedException("Wrong API key signature");
         }
+
+    }
+
+
+    private void init() {
+        if (environment == null) {
+            environment = new Environment();
+        }
+
+        signatureChecker = new SignatureChecker(environment);
 
     }
 
@@ -110,14 +121,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
 
 
-    private void init() {
-        if (environment == null) {
-            environment = new Environment();
-        }
 
-        signatureChecker = new SignatureChecker(environment);
-
-    }
 
 
 

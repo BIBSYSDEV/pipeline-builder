@@ -14,6 +14,10 @@ public class GithubConf implements  GitInfo{
     private final transient Environment env;
 
 
+    public static String AWS_SECRET_NAME = "github";
+    public static String AWS_SECRET_KEY = "read_from_github";
+
+
     public GithubConf(String owner, String repo, Environment env) throws IOException {
 
         this.env = env;
@@ -53,7 +57,7 @@ public class GithubConf implements  GitInfo{
             return envAuth.get();
         } else {
             SecretsReader secretsReader= new SecretsReader() ;
-            return secretsReader.readAuthFromSecrets("github", "read_from_github");
+            return secretsReader.readAuthFromSecrets(AWS_SECRET_NAME, AWS_SECRET_KEY);
         }
     }
 
