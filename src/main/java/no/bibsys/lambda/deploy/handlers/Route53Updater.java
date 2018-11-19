@@ -25,26 +25,32 @@ import no.bibsys.utils.Environment;
 public class Route53Updater {
 
 
-    public static final  String ZONE_NAME_ENV = "ZONE_NAME";
+    public static final String ZONE_NAME_ENV = "ZONE_NAME";
     public static final String REPOSITORY_NAME_ENV_VAR = "REPOSITORY";
-    public static final  String BRANCH_NAME_ENV_VAR = "BRANCH";
+    public static final String BRANCH_NAME_ENV_VAR = "BRANCH";
     public static final String STAGE_ENV = "STAGE";
 
+    public static final String RECORD_SET_NAME = "infrastructure.entitydata.aws.unit.no.";
+    private transient String recordSetName;
 
-    public  static final String RECORD_SET_NAME = "infrastructure.entitydata.aws.unit.no.";
-
-
+    private final transient Stage stage;
     private final transient String zoneName;
     private transient AmazonRoute53 client;
     private final transient ApiGatewayApiInfo apiGatewayApiInfo;
 
 
     public Route53Updater(Environment environment) {
+        recordSetName = RECORD_SET_NAME;
+
         this.zoneName = environment.readEnv(ZONE_NAME_ENV);
+        this.stage = Stage.fromString(environment.readEnv(STAGE_ENV)).orElseThrow(() ->
+            new IllegalStateException("Allowed stages:" + String.join(",", Stage.listStages())));
+        if (stage.equals(Stage.TEST)) {
+            recordSetName = "test." + recordSetName;
+        }
         String branchName = environment.readEnv(BRANCH_NAME_ENV_VAR);
         String repository = environment.readEnv(REPOSITORY_NAME_ENV_VAR);
-        Stage stage = Stage.fromString(environment.readEnv(STAGE_ENV)).orElseThrow(() ->
-            new IllegalStateException("Allowed stages:" + String.join(",", Stage.listStages())));
+
         this.client = AmazonRoute53ClientBuilder.defaultClient();
 
         CloudFormationConfigurable conf = new CloudFormationConfigurable(repository, branchName);
@@ -59,13 +65,17 @@ public class Route53Updater {
 
     public Optional<ChangeResourceRecordSetsResult> updateServerUrl() throws IOException {
         Optional<ServerInfo> serverInfo = getServerInfo();
-        Optional<ChangeResourceRecordSetsRequest> request = serverInfo
+
+        Optional<ChangeResourceRecordSetsRequest> updateRequest = serverInfo
             .map(info -> updateRecordSetsRequest(info.completeServerUrl()));
 
-        Optional<ChangeResourceRecordSetsResult> result = request
+        Optional<ChangeResourceRecordSetsResult> result = updateRequest
             .map(r -> client.changeResourceRecordSets(r));
         return result;
+
+
     }
+
 
     private Optional<ServerInfo> getServerInfo() throws IOException {
         return apiGatewayApiInfo.readServerInfo();
@@ -76,7 +86,8 @@ public class Route53Updater {
         List<HostedZone> hostedZones = client.listHostedZones().getHostedZones().stream()
             .filter(zone -> zone.getName().equals(zoneName))
             .collect(Collectors.toList());
-        Preconditions.checkArgument(hostedZones.size()==1, "There should exist exactly one hosted zone with the name "+zoneName);
+        Preconditions.checkArgument(hostedZones.size() == 1,
+            "There should exist exactly one hosted zone with the name " + zoneName);
         return hostedZones.get(0);
 
     }
@@ -101,7 +112,7 @@ public class Route53Updater {
     }
 
     private ResourceRecordSet createRecordSet(String serverUrl) {
-        ResourceRecordSet recordSet = new ResourceRecordSet().withName(RECORD_SET_NAME).withType(
+        ResourceRecordSet recordSet = new ResourceRecordSet().withName(recordSetName).withType(
             RRType.CNAME)
             .withTTL(300L)
             .withResourceRecords(new ResourceRecord().withValue(serverUrl));
