@@ -25,10 +25,12 @@ import no.bibsys.utils.Environment;
 public class Route53Updater {
 
 
-    private static String ZONE_NAME_ENV = "ZONE_NAME";
-    private static String RECORD_SET_NAME = "infrastructure.entitydata.aws.unit.no.";
-    private static String REPOSITORY_NAME = "REPOSITORY";
-    private static String BRANCH_NAME = "BRANCH";
+    public static final  String ZONE_NAME_ENV = "ZONE_NAME";
+    public static final String REPOSITORY_NAME_ENV_VAR = "REPOSITORY";
+    public static final  String BRANCH_NAME_ENV_VAR = "BRANCH";
+
+
+    public  static final String RECORD_SET_NAME = "infrastructure.entitydata.aws.unit.no.";
 
 
     private final transient String zoneName;
@@ -38,8 +40,8 @@ public class Route53Updater {
 
     public Route53Updater(Environment environment) {
         this.zoneName = environment.readEnv(ZONE_NAME_ENV);
-        String branchName = environment.readEnv(BRANCH_NAME);
-        String repository = environment.readEnv(REPOSITORY_NAME);
+        String branchName = environment.readEnv(BRANCH_NAME_ENV_VAR);
+        String repository = environment.readEnv(REPOSITORY_NAME_ENV_VAR);
         this.client = AmazonRoute53ClientBuilder.defaultClient();
 
         CloudFormationConfigurable conf = new CloudFormationConfigurable(repository, branchName);
@@ -71,11 +73,7 @@ public class Route53Updater {
         List<HostedZone> hostedZones = client.listHostedZones().getHostedZones().stream()
             .filter(zone -> zone.getName().equals(zoneName))
             .collect(Collectors.toList());
-        Preconditions.checkArgument(hostedZones.size() <= 1, "More than "
-            + "one hosted zones found with the name " + zoneName);
-        Preconditions.checkArgument(hostedZones.size() > 0, "No "
-            + "hosted zones found with the name " + zoneName);
-
+        Preconditions.checkArgument(hostedZones.size()==1, "There should exist exactly one hosted zone with the name "+zoneName);
         return hostedZones.get(0);
 
     }
