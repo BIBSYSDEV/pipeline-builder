@@ -57,7 +57,7 @@ public class Route53Updater {
     public Optional<ChangeResourceRecordSetsResult> updateServerUrl() throws IOException {
         Optional<ServerInfo> serverInfo = getServerInfo();
         Optional<ChangeResourceRecordSetsRequest> request = serverInfo
-            .map(info -> updateRecordSetsRequest(info));
+            .map(info -> updateRecordSetsRequest(info.completeServerUrl()));
 
         Optional<ChangeResourceRecordSetsResult> result = request
             .map(r -> client.changeResourceRecordSets(r));
@@ -79,10 +79,10 @@ public class Route53Updater {
     }
 
 
-    private ChangeResourceRecordSetsRequest updateRecordSetsRequest(ServerInfo serverInfo) {
+    private ChangeResourceRecordSetsRequest updateRecordSetsRequest(String serverUrl) {
         String hostedZoneId = getHostedZone().getName();
 
-        ResourceRecordSet recordSet = createRecordSet(serverInfo);
+        ResourceRecordSet recordSet = createRecordSet(serverUrl);
         Change change = createChange(recordSet);
         ChangeBatch changeBatch = new ChangeBatch().withChanges(change);
         ChangeResourceRecordSetsRequest request = new ChangeResourceRecordSetsRequest();
@@ -97,11 +97,11 @@ public class Route53Updater {
         return change;
     }
 
-    private ResourceRecordSet createRecordSet(ServerInfo serverInfo) {
+    private ResourceRecordSet createRecordSet(String serverUrl) {
         ResourceRecordSet recordSet = new ResourceRecordSet().withName(RECORD_SET_NAME).withType(
             RRType.CNAME)
             .withTTL(300L)
-            .withResourceRecords(new ResourceRecord().withValue(serverInfo.getServerUrl()));
+            .withResourceRecords(new ResourceRecord().withValue(serverUrl));
         return recordSet;
     }
 

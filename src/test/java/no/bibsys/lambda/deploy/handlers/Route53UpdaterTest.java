@@ -22,7 +22,6 @@ import no.bibsys.apigateway.ServerInfo;
 import no.bibsys.cloudformation.Stage;
 import no.bibsys.utils.Environment;
 import no.bibsys.utils.IntegrationTest;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mockito.Mockito;
@@ -103,7 +102,7 @@ public class Route53UpdaterTest {
     }
 
 
-    @Ignore
+    @Test
     @Category(IntegrationTest.class)
     public void updateRoute53() throws IOException {
 
