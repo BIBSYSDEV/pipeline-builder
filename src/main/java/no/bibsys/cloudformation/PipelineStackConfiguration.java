@@ -5,6 +5,7 @@ import no.bibsys.git.github.GitInfo;
 public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
 
+    public final static Integer MAX_ROLENAME_SIZE=64;
     private final transient String pipelineStackName;
 
     // Role for creating the stack of the pipeline

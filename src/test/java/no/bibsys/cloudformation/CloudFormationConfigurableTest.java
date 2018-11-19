@@ -33,7 +33,7 @@ public class CloudFormationConfigurableTest extends ConfigurationTests {
     @Test
     public void initProjectId_repositoryName_projectIdWithoutUnderscores() {
         assertThat(repoName, containsString("_"));
-        assertThat(repoName, is(equalTo("REPOSITORY_NAME")));
+        assertThat(repoName, is(equalTo("REPOSITORY_NAME_ENV_VAR")));
 
         assertThat(conf.getProjectId(), not(containsString("_")));
 

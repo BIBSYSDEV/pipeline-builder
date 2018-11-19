@@ -59,14 +59,14 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
 
     @Test
     public void initPipelineRole_projectIdAndNormalizedBranch_noLongerThan64chars() {
-        assertThat(conf.getPipelineRoleName().length(), is(not(greaterThan(maxLengthForRoles))));
+        assertThat(conf.getPipelineRoleName().length(), is(not(greaterThan(PipelineStackConfiguration.MAX_ROLENAME_SIZE))));
 
     }
 
 
     @Test
     public void initStackRoleName_projectIdAndNormalizedBranch_noLongerThan64chars() {
-        assertThat(conf.getCreateStackRoleName().length(), is(not(greaterThan(maxLengthForRoles))));
+        assertThat(conf.getCreateStackRoleName().length(), is(not(greaterThan(PipelineStackConfiguration.MAX_ROLENAME_SIZE))));
 
     }
 
