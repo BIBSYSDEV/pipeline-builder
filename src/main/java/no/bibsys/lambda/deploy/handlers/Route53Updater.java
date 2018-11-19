@@ -28,12 +28,14 @@ public class Route53Updater {
     public static final  String ZONE_NAME_ENV = "ZONE_NAME";
     public static final String REPOSITORY_NAME_ENV_VAR = "REPOSITORY";
     public static final  String BRANCH_NAME_ENV_VAR = "BRANCH";
+    public static final String STAGE_ENV = "STAGE";
 
 
     public  static final String RECORD_SET_NAME = "infrastructure.entitydata.aws.unit.no.";
 
 
     private final transient String zoneName;
+    private final transient Stage stage;
     private transient AmazonRoute53 client;
     private final transient ApiGatewayApiInfo apiGatewayApiInfo;
 
@@ -42,10 +44,12 @@ public class Route53Updater {
         this.zoneName = environment.readEnv(ZONE_NAME_ENV);
         String branchName = environment.readEnv(BRANCH_NAME_ENV_VAR);
         String repository = environment.readEnv(REPOSITORY_NAME_ENV_VAR);
+        this.stage = Stage.fromString(environment.readEnv(STAGE_ENV)).orElseThrow(() ->
+            new NullPointerException("Allowed stages:" + String.join(",", Stage.listStages())));
         this.client = AmazonRoute53ClientBuilder.defaultClient();
 
         CloudFormationConfigurable conf = new CloudFormationConfigurable(repository, branchName);
-        this.apiGatewayApiInfo = new ApiGatewayApiInfo(conf, Stage.FINAL.toString());
+        this.apiGatewayApiInfo = new ApiGatewayApiInfo(conf, stage.toString());
     }
 
 
@@ -80,7 +84,7 @@ public class Route53Updater {
 
 
     private ChangeResourceRecordSetsRequest updateRecordSetsRequest(String serverUrl) {
-        String hostedZoneId = getHostedZone().getName();
+        String hostedZoneId = getHostedZone().getId();
 
         ResourceRecordSet recordSet = createRecordSet(serverUrl);
         Change change = createChange(recordSet);
