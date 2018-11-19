@@ -32,7 +32,7 @@ public class InitHandler extends CodePipelineFunctionHandlerTemplate<SimpleRespo
             .updateServerUrl();
         Optional<String> route53Status = route53UpdateResult
             .map(result -> result.getChangeInfo().getStatus());
-        StringBuilder output = new StringBuilder();
+        StringBuilder output = new StringBuilder(20);
         output.append("Swagger:");
         swaggerUpdateResult.ifPresent(s -> output.append(s));
         output.append("\nRoute53:");

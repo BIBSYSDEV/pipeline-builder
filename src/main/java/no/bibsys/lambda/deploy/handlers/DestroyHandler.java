@@ -10,7 +10,7 @@ import no.bibsys.lambda.responses.SimpleResponse;
 public class DestroyHandler extends CodePipelineFunctionHandlerTemplate<SimpleResponse> {
 
 
-    SwaggerHubUpdater swaggerHubUpdater;
+    private final transient SwaggerHubUpdater swaggerHubUpdater;
 
     public DestroyHandler() throws IOException {
         super();

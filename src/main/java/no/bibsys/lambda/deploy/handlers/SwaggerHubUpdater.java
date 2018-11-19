@@ -33,7 +33,7 @@ public class SwaggerHubUpdater {
     }
 
 
-    protected void initFields() throws IOException {
+    private  void initFields() throws IOException {
         this.apiId = environment.readEnv("API_ID");
         this.apiVersion = environment.readEnv("API_VERSION");
 
