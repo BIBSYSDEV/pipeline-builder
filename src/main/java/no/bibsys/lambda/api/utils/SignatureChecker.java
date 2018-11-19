@@ -12,14 +12,15 @@ import no.bibsys.secrets.SecretsReader;
 import no.bibsys.utils.Environment;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class SignatureChecker {
 
     private static final String SIGNATURE_PREFIX = "sha1=";
     private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
-    private static final Logger logger = LogManager.getLogger(SignatureChecker.class);
+    private static final Logger logger = LoggerFactory.getLogger(SignatureChecker.class);
 
     public static String SECRET_NAME = "SECRET_NAME";
     public static String SECRET_KEY = "SECRET_KEY";
@@ -48,7 +49,7 @@ public class SignatureChecker {
 
         if (webhookSecret == null || webhookSecret.equals("")) {
             logger.debug(
-                "{}.webhookSecret not configured. Skip signature validation");
+                "webhookSecret not configured. Skip signature validation");
             return true;
         }
 
