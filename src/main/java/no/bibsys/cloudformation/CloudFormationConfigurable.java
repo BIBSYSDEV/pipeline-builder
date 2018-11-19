@@ -5,7 +5,7 @@ import no.bibsys.utils.StringUtils;
 
 public   class CloudFormationConfigurable {
 
-    public final static int NORMALIZED_BRANCH_MAX_LENGTH = 30;
+    public final static int NORMALIZED_BRANCH_MAX_LENGTH = 10;
     public final static transient int MAX_BRANCH_WORD_LENGTH = 5;
     public final static transient int MAX_PROJECT_WORD_LENGTH = 3;
 
