@@ -23,10 +23,9 @@ public class Application {
 
     public Application(GitInfo gitInfo, String branch) {
 
-        GitInfo githubConf = gitInfo;
-        this.pipelineStackConfiguration = new PipelineStackConfiguration(githubConf,branch);
-        this.repoOwner = githubConf.getOwner();
-        this.repoName = githubConf.getOwner();
+        this.pipelineStackConfiguration = new PipelineStackConfiguration(gitInfo, branch);
+        this.repoOwner = gitInfo.getOwner();
+        this.repoName = gitInfo.getOwner();
         this.branch =branch;
         wiper = new StackWiper(pipelineStackConfiguration);
         checkNulls();
