@@ -75,11 +75,11 @@ public class Route53UpdaterTest {
         throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
         Method method = Route53Updater.class
-            .getDeclaredMethod("updateRecordSetsRequest", ServerInfo.class);
+            .getDeclaredMethod("updateRecordSetsRequest", String.class);
         method.setAccessible(true);
         ServerInfo serverInfo = new ServerInfo("SERVER_URL", Stage.FINAL.toString());
         ChangeResourceRecordSetsRequest request = (ChangeResourceRecordSetsRequest) method
-            .invoke(route53Updater, serverInfo);
+            .invoke(route53Updater, serverInfo.completeServerUrl());
         assertThat(request.getChangeBatch().getChanges().size(), is(equalTo(1)));
 
     }
@@ -90,11 +90,11 @@ public class Route53UpdaterTest {
         throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
         Method method = Route53Updater.class
-            .getDeclaredMethod("updateRecordSetsRequest", ServerInfo.class);
+            .getDeclaredMethod("updateRecordSetsRequest", String.class);
         ServerInfo serverInfo = new ServerInfo("SERVERURL", Stage.FINAL.toString());
         method.setAccessible(true);
         ChangeResourceRecordSetsRequest request = (ChangeResourceRecordSetsRequest) method
-            .invoke(route53Updater, serverInfo);
+            .invoke(route53Updater, serverInfo.completeServerUrl());
         Change change = request.getChangeBatch().getChanges().get(0);
 
         assertThat(change.getAction(), is(equalTo(ChangeAction.UPSERT.toString())));

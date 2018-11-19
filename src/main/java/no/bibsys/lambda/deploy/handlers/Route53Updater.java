@@ -35,7 +35,6 @@ public class Route53Updater {
 
 
     private final transient String zoneName;
-    private final transient Stage stage;
     private transient AmazonRoute53 client;
     private final transient ApiGatewayApiInfo apiGatewayApiInfo;
 
@@ -44,8 +43,8 @@ public class Route53Updater {
         this.zoneName = environment.readEnv(ZONE_NAME_ENV);
         String branchName = environment.readEnv(BRANCH_NAME_ENV_VAR);
         String repository = environment.readEnv(REPOSITORY_NAME_ENV_VAR);
-        this.stage = Stage.fromString(environment.readEnv(STAGE_ENV)).orElseThrow(() ->
-            new NullPointerException("Allowed stages:" + String.join(",", Stage.listStages())));
+        Stage stage = Stage.fromString(environment.readEnv(STAGE_ENV)).orElseThrow(() ->
+            new IllegalStateException("Allowed stages:" + String.join(",", Stage.listStages())));
         this.client = AmazonRoute53ClientBuilder.defaultClient();
 
         CloudFormationConfigurable conf = new CloudFormationConfigurable(repository, branchName);
