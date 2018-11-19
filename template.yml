@@ -226,6 +226,7 @@ Resources:
           - codepipeline:PutJobSuccessResult
           - apigateway:*
           - route53:ListHostedZones
+          - route53:ChangeResourceRecordSets
           Effect: Allow
           Resource: "*"
       MemorySize: 1500
