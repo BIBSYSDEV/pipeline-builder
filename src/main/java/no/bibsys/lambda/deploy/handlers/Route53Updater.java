@@ -33,7 +33,7 @@ public class Route53Updater {
     public static final String RECORD_SET_NAME = "infrastructure.entitydata.aws.unit.no.";
     private transient String recordSetName;
 
-    private final transient Stage stage;
+
     private final transient String zoneName;
     private transient AmazonRoute53 client;
     private final transient ApiGatewayApiInfo apiGatewayApiInfo;
@@ -43,7 +43,7 @@ public class Route53Updater {
         recordSetName = RECORD_SET_NAME;
 
         this.zoneName = environment.readEnv(ZONE_NAME_ENV);
-        this.stage = Stage.fromString(environment.readEnv(STAGE_ENV)).orElseThrow(() ->
+        Stage stage = Stage.fromString(environment.readEnv(STAGE_ENV)).orElseThrow(() ->
             new IllegalStateException("Allowed stages:" + String.join(",", Stage.listStages())));
         if (stage.equals(Stage.TEST)) {
             recordSetName = "test." + recordSetName;

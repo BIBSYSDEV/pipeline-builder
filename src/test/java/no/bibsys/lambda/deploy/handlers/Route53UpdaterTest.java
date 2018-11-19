@@ -54,7 +54,7 @@ public class Route53UpdaterTest {
             .thenReturn("authority-registry-infrastructure");
         when(environment.readEnv(Route53Updater.BRANCH_NAME_ENV_VAR))
             .thenReturn("autreg-52-update-route53-dynamically");
-        when(environment.readEnv(Route53Updater.STAGE_ENV)).thenReturn("final");
+        when(environment.readEnv(Route53Updater.STAGE_ENV)).thenReturn("test");
         return environment;
     }
 
@@ -65,7 +65,7 @@ public class Route53UpdaterTest {
         when(environment.readEnv(Route53Updater.ZONE_NAME_ENV)).thenReturn(zoneName);
         when(environment.readEnv(Route53Updater.REPOSITORY_NAME_ENV_VAR)).thenReturn("Repository");
         when(environment.readEnv(Route53Updater.BRANCH_NAME_ENV_VAR)).thenReturn("Branch");
-        when(environment.readEnv(Route53Updater.STAGE_ENV)).thenReturn("test");
+        when(environment.readEnv(Route53Updater.STAGE_ENV)).thenReturn("final");
         return environment;
     }
 
@@ -91,7 +91,7 @@ public class Route53UpdaterTest {
 
         Method method = Route53Updater.class
             .getDeclaredMethod("updateRecordSetsRequest", String.class);
-        ServerInfo serverInfo = new ServerInfo("SERVERURL", Stage.FINAL.toString());
+        ServerInfo serverInfo = new ServerInfo("SERVERURL", Stage.TEST.toString());
         method.setAccessible(true);
         ChangeResourceRecordSetsRequest request = (ChangeResourceRecordSetsRequest) method
             .invoke(route53Updater, serverInfo.completeServerUrl());
