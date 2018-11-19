@@ -22,6 +22,7 @@ import no.bibsys.apigateway.ServerInfo;
 import no.bibsys.cloudformation.Stage;
 import no.bibsys.utils.Environment;
 import no.bibsys.utils.IntegrationTest;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mockito.Mockito;
@@ -46,7 +47,7 @@ public class Route53UpdaterTest {
 
     }
 
-    private Environment setupMockEnvironment() {
+    private Environment setupIntegrationEnvironment() {
         Environment environment;
         environment = Mockito.mock(Environment.class);
         when(environment.readEnv(Route53Updater.ZONE_NAME_ENV)).thenReturn("aws.unit.no.");
@@ -58,7 +59,7 @@ public class Route53UpdaterTest {
     }
 
 
-    private Environment setupIntegrationEnvironment() {
+    private Environment setupMockEnvironment() {
         Environment environment;
         environment = Mockito.mock(Environment.class);
         when(environment.readEnv(Route53Updater.ZONE_NAME_ENV)).thenReturn(zoneName);
@@ -102,7 +103,7 @@ public class Route53UpdaterTest {
     }
 
 
-    @Test
+    @Ignore
     @Category(IntegrationTest.class)
     public void updateRoute53() throws IOException {
 
