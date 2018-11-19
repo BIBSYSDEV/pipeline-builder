@@ -212,6 +212,8 @@ Resources:
           REPOSITORY: 'authority-registry-infrastructure'
           STAGE: !Ref Stage
           SWAGGER_ORG: 'axthosarouris'
+          ZONE_NAME: 'aws.unit.no.'
+
 
       CodeUri: build/libs/pipeline-fat.jar
       Policies:
