@@ -12,7 +12,9 @@ import com.amazonaws.services.apigateway.model.GetBasePathMappingsRequest;
 import com.amazonaws.services.apigateway.model.GetDomainNameRequest;
 import com.amazonaws.services.apigateway.model.NotFoundException;
 import com.amazonaws.services.apigateway.model.RestApi;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import no.bibsys.cloudformation.Stage;
 
@@ -32,10 +34,8 @@ public class ApiGatewayBasePathMapping {
         this.apiGatewayClient = apiGatewayClient;
         this.domainName = domainName;
         this.stage = stage;
-        this.certificateArn=regionalCertificateArn;
+        this.certificateArn = regionalCertificateArn;
     }
-
-
 
 
     public CreateBasePathMappingResult createBasePath(RestApi restApi) {
@@ -52,8 +52,6 @@ public class ApiGatewayBasePathMapping {
     }
 
 
-
-
     public void deleteBasePathMappings() {
         System.out.println("Deleting old basepath Mappings");
         List<DeleteBasePathMappingRequest> deleteRequests = executeDeleteRequests();
@@ -68,10 +66,9 @@ public class ApiGatewayBasePathMapping {
     }
 
 
-
-
-    public String getTargeDomainName(){
-        String targetname= apiGatewayClient.getDomainName(new GetDomainNameRequest().withDomainName(domainName))
+    public String getTargeDomainName() {
+        String targetname = apiGatewayClient
+            .getDomainName(new GetDomainNameRequest().withDomainName(domainName))
             .getRegionalDomainName();
         return targetname;
     }
@@ -91,8 +88,14 @@ public class ApiGatewayBasePathMapping {
         GetBasePathMappingsRequest listBasePathsRequest = new GetBasePathMappingsRequest()
             .withDomainName(domainName);
 
-        return apiGatewayClient.getBasePathMappings(listBasePathsRequest).getItems().stream().map(
-            item -> newDeleteBasePathRequest(item)).collect(Collectors.toList());
+        Optional<List<BasePathMapping>> items = Optional
+            .ofNullable(apiGatewayClient.getBasePathMappings(listBasePathsRequest)
+                .getItems());
+        List<DeleteBasePathMappingRequest> result = items
+            .map(list -> list.stream().map(item -> newDeleteBasePathRequest(item))
+                .collect(Collectors.toList())).orElse(Collections.emptyList());
+        return result;
+
 
     }
 
@@ -114,7 +117,7 @@ public class ApiGatewayBasePathMapping {
 
     private boolean domainExists(AmazonApiGateway client) {
         try {
-             client.getDomainName(new GetDomainNameRequest().withDomainName(domainName));
+            client.getDomainName(new GetDomainNameRequest().withDomainName(domainName));
         } catch (NotFoundException e) {
             return false;
         }

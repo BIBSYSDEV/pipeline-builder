@@ -7,6 +7,8 @@ import com.amazonaws.services.apigateway.model.GetRestApisRequest;
 import com.amazonaws.services.apigateway.model.RestApi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -37,12 +39,12 @@ public class ApiGatewayApiInfo {
     public Optional<String> generateOpenApiNoExtensions() throws IOException {
         String openApiTemplate = readOpenApiTemplate();
         Optional<ServerInfo> serverInfo = readServerInfo();
-        Optional<String> updatedOpenApiSpecification = serverInfo
-            .map(server -> injectServerInfo(openApiTemplate, server));
-
-        if (updatedOpenApiSpecification.isPresent()) {
-            String openApiJsonSpec = JsonUtils.yamlToJson(updatedOpenApiSpecification.get());
+        if (serverInfo.isPresent()) {
+            ServerInfo info = serverInfo.get();
+            String updatedOpenApiSpecification = injectServerInfo(openApiTemplate, info);
+            String openApiJsonSpec = JsonUtils.yamlToJson(updatedOpenApiSpecification);
             return Optional.of(openApiJsonSpec);
+
         }
         return Optional.empty();
 
@@ -59,14 +61,23 @@ public class ApiGatewayApiInfo {
     }
 
 
-    private String injectServerInfo(String openApiTemplate, ServerInfo serverInfo) {
+    private String injectServerInfo(String openApiTemplate, ServerInfo serverInfo)
+        throws IOException {
 
         String replacedSever = openApiTemplate
             .replace("<SERVER_PLACEHOLDER>", serverInfo.getServerUrl());
         if (serverInfo.getStage() != null) {
             return replacedSever.replace("<STAGE_PLACEHOLDER>", serverInfo.getStage());
         } else {
-            return replacedSever;
+            ObjectMapper yamlParser = JsonUtils.newYamlParser();
+            ObjectNode root = (ObjectNode) yamlParser.readTree(replacedSever);
+            ArrayNode servers=(ArrayNode) root.get("servers");
+            ObjectNode server=(ObjectNode)servers.get(0);
+            server.remove("variables");
+            String removedVariables = yamlParser.writeValueAsString(root);
+            return removedVariables;
+
+
         }
 
     }

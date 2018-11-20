@@ -79,6 +79,7 @@ public abstract class HandlerTemplate<I, O> implements RequestStreamHandler {
             writeOutput(inputObject,response);
         } catch (Exception e) {
             logger.log(e.getMessage());
+            e.printStackTrace();
             writeFailure(inputObject,e);
         }
     }
