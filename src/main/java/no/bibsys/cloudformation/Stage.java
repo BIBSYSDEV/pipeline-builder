@@ -4,7 +4,6 @@ package no.bibsys.cloudformation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 
 public enum Stage {
 
@@ -18,13 +17,13 @@ public enum Stage {
     }
 
 
-    public static Optional<Stage> fromString(String stage) {
+    public static Stage fromString(String stage) {
         if (stage.equalsIgnoreCase(FINAL.name())) {
-            return Optional.of(FINAL);
+            return FINAL;
         } else if (stage.equalsIgnoreCase(TEST.name())) {
-            return Optional.of(TEST);
+            return TEST;
         } else {
-            return Optional.empty();
+            throw new IllegalArgumentException("Allowed stages:"+String.join(",",listStages()));
         }
     }
 

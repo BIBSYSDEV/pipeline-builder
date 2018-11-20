@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import java.util.Optional;
 import no.bibsys.apigateway.ServerInfo;
 import no.bibsys.cloudformation.Stage;
+import no.bibsys.lambda.deploy.constants.NetworkConstants;
 import no.bibsys.utils.Environment;
 import no.bibsys.utils.IntegrationTest;
 import org.junit.Test;
@@ -103,7 +104,7 @@ public class Route53UpdaterTest {
 
         assertThat(change.getAction(), is(equalTo(ChangeAction.UPSERT.toString())));
         assertThat(change.getResourceRecordSet().getType(),is(equalTo(RRType.CNAME.toString())));
-        assertThat(change.getResourceRecordSet().getName(),is(equalTo(Route53Updater.RECORD_SET_NAME)));
+        assertThat(change.getResourceRecordSet().getName(),is(equalTo(NetworkConstants.RECORD_SET_NAME)));
         assertThat(change.getResourceRecordSet().getTTL(),is(equalTo(300L)));
     }
 

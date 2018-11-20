@@ -24,6 +24,7 @@ import no.bibsys.apigateway.ApiGatewayBasePathMapping;
 import no.bibsys.apigateway.ServerInfo;
 import no.bibsys.cloudformation.CloudFormationConfigurable;
 import no.bibsys.cloudformation.Stage;
+import no.bibsys.lambda.deploy.constants.NetworkConstants;
 import no.bibsys.utils.Environment;
 
 public class Route53Updater {
@@ -32,20 +33,22 @@ public class Route53Updater {
     public static final String REPOSITORY_NAME_ENV_VAR = "REPOSITORY";
     public static final String BRANCH_NAME_ENV_VAR = "BRANCH";
     public static final String STAGE_ENV = "STAGE";
-    public static final String RECORD_SET_NAME = "infrastructure.entitydata.aws.unit.no.";
+
     private final transient String zoneName;
     private final transient ApiGatewayApiInfo apiGatewayApiInfo;
+
+
+
     private final transient ApiGatewayBasePathMapping apiGatewayBasePathMapping;
     private transient String recordSetName;
     private transient AmazonRoute53 route53Client;
 
 
     public Route53Updater(Environment environment, AmazonApiGateway apiGatewayClient) {
-        recordSetName = RECORD_SET_NAME;
+        recordSetName = NetworkConstants.RECORD_SET_NAME;
 
         this.zoneName = environment.readEnv(ZONE_NAME_ENV);
-        Stage stage = Stage.fromString(environment.readEnv(STAGE_ENV)).orElseThrow(() ->
-            new IllegalStateException("Allowed stages:" + String.join(",", Stage.listStages())));
+        Stage stage = Stage.fromString(environment.readEnv(STAGE_ENV));
         if (stage.equals(Stage.TEST)) {
             recordSetName = "test." + recordSetName;
         }
@@ -55,8 +58,7 @@ public class Route53Updater {
         this.route53Client = AmazonRoute53ClientBuilder.defaultClient();
         CloudFormationConfigurable conf = new CloudFormationConfigurable(repository, branchName);
         this.apiGatewayApiInfo = new ApiGatewayApiInfo(conf, stage.toString(), apiGatewayClient);
-        this.apiGatewayBasePathMapping = new ApiGatewayBasePathMapping(apiGatewayClient,
-            domainName(), stage);
+        this.apiGatewayBasePathMapping =  new ApiGatewayBasePathMapping(apiGatewayClient,NetworkConstants.DOMAIN_NAME, stage);
     }
 
 
@@ -132,8 +134,10 @@ public class Route53Updater {
     }
 
 
-    private String domainName() {
-        return RECORD_SET_NAME.substring(0, RECORD_SET_NAME.length() - 1);
+
+
+    public ApiGatewayBasePathMapping getApiGatewayBasePathMapping() {
+        return apiGatewayBasePathMapping;
     }
 
 

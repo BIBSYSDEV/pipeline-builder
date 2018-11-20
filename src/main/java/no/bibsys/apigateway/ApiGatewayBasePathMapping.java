@@ -40,8 +40,7 @@ public class ApiGatewayBasePathMapping {
     public CreateBasePathMappingResult createBasePath(RestApi restApi) {
         checkAndCreateCustomDomainName();
 
-        List<DeleteBasePathMappingRequest> deleteRequests = executeDeleteRequests();
-        executeDeleteRequests(deleteRequests);
+        deleteBasePathMappings();
 
         CreateBasePathMappingRequest createBasePathMappingRequest = newBasePathMappingRequest(
             restApi.getId());
@@ -49,6 +48,14 @@ public class ApiGatewayBasePathMapping {
         return apiGatewayClient.createBasePathMapping(createBasePathMappingRequest);
 
 
+    }
+
+
+
+
+    public void deleteBasePathMappings() {
+        List<DeleteBasePathMappingRequest> deleteRequests = executeDeleteRequests();
+        executeDeleteRequests(deleteRequests);
     }
 
 
