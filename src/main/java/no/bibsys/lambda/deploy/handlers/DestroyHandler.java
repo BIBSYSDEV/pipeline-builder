@@ -22,7 +22,7 @@ public class DestroyHandler extends CodePipelineFunctionHandlerTemplate<SimpleRe
     public DestroyHandler() throws IOException {
         super();
         Environment environment = new Environment();
-        Stage stage = Stage.fromString(environment.readEnv(Route53Updater.BRANCH_NAME_ENV_VAR));
+        Stage stage = Stage.fromString(environment.readEnv(Route53Updater.STAGE_ENV));
 
         String domainName = initDomainName(stage);
         AmazonApiGateway client = AmazonApiGatewayClientBuilder.defaultClient();

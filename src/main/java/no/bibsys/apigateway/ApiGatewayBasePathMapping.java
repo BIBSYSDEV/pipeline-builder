@@ -87,14 +87,19 @@ public class ApiGatewayBasePathMapping {
     private List<DeleteBasePathMappingRequest> executeDeleteRequests() {
         GetBasePathMappingsRequest listBasePathsRequest = new GetBasePathMappingsRequest()
             .withDomainName(domainName);
+        try{
+            Optional<List<BasePathMapping>> items = Optional
+                .ofNullable(apiGatewayClient.getBasePathMappings(listBasePathsRequest).getItems());
+            List<DeleteBasePathMappingRequest> result = items
+                .map(list -> list.stream().map(item -> newDeleteBasePathRequest(item))
+                    .collect(Collectors.toList())).orElse(Collections.emptyList());
+            return result;
+        }
+        catch(NotFoundException e){
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
 
-        Optional<List<BasePathMapping>> items = Optional
-            .ofNullable(apiGatewayClient.getBasePathMappings(listBasePathsRequest)
-                .getItems());
-        List<DeleteBasePathMappingRequest> result = items
-            .map(list -> list.stream().map(item -> newDeleteBasePathRequest(item))
-                .collect(Collectors.toList())).orElse(Collections.emptyList());
-        return result;
 
 
     }
