@@ -25,7 +25,6 @@ import no.bibsys.apigateway.ServerInfo;
 import no.bibsys.cloudformation.CloudFormationConfigurable;
 import no.bibsys.cloudformation.Stage;
 import no.bibsys.lambda.deploy.constants.NetworkConstants;
-import no.bibsys.utils.Environment;
 
 public class Route53Updater {
 
@@ -33,6 +32,7 @@ public class Route53Updater {
     public static final String REPOSITORY_NAME_ENV_VAR = "REPOSITORY";
     public static final String BRANCH_NAME_ENV_VAR = "BRANCH";
     public static final String STAGE_ENV = "STAGE";
+    public static final String CERTIFICATE_ARN="REGIONAL_CERTIFICATE_ARN";
 
     private final transient String zoneName;
     private final transient ApiGatewayApiInfo apiGatewayApiInfo;
@@ -44,21 +44,28 @@ public class Route53Updater {
     private transient AmazonRoute53 route53Client;
 
 
-    public Route53Updater(Environment environment, AmazonApiGateway apiGatewayClient) {
+    public Route53Updater(String zonName,
+        String repository,
+        String branch,
+        Stage stage,
+        String regionalCertificateArn,
+        AmazonApiGateway apiGatewayClient) {
         recordSetName = NetworkConstants.RECORD_SET_NAME;
 
-        this.zoneName = environment.readEnv(ZONE_NAME_ENV);
-        Stage stage = Stage.fromString(environment.readEnv(STAGE_ENV));
+        this.zoneName = zonName;
         if (stage.equals(Stage.TEST)) {
             recordSetName = "test." + recordSetName;
         }
-        String branchName = environment.readEnv(BRANCH_NAME_ENV_VAR);
-        String repository = environment.readEnv(REPOSITORY_NAME_ENV_VAR);
+
+
 
         this.route53Client = AmazonRoute53ClientBuilder.defaultClient();
-        CloudFormationConfigurable conf = new CloudFormationConfigurable(repository, branchName);
+        CloudFormationConfigurable conf = new CloudFormationConfigurable(repository, branch);
         this.apiGatewayApiInfo = new ApiGatewayApiInfo(conf, stage.toString(), apiGatewayClient);
-        this.apiGatewayBasePathMapping =  new ApiGatewayBasePathMapping(apiGatewayClient,NetworkConstants.DOMAIN_NAME, stage);
+        this.apiGatewayBasePathMapping =  new ApiGatewayBasePathMapping(
+            apiGatewayClient,
+            NetworkConstants.DOMAIN_NAME,
+            stage,regionalCertificateArn);
     }
 
 

@@ -18,20 +18,21 @@ import no.bibsys.cloudformation.Stage;
 
 public class ApiGatewayBasePathMapping {
 
-    private final static String CERTIFICATE_NAME = "global-entitydata-certificate";
+
     private final transient AmazonApiGateway apiGatewayClient;
     private final transient String domainName;
     private final transient Stage stage;
-
-
+    private final transient String certificateArn;
 
 
     public ApiGatewayBasePathMapping(AmazonApiGateway apiGatewayClient,
         String domainName,
-        Stage stage) {
+        Stage stage,
+        String regionalCertificateArn) {
         this.apiGatewayClient = apiGatewayClient;
         this.domainName = domainName;
         this.stage = stage;
+        this.certificateArn=regionalCertificateArn;
     }
 
 
@@ -103,7 +104,7 @@ public class ApiGatewayBasePathMapping {
 
     private void createDomainName(AmazonApiGateway client) {
         CreateDomainNameRequest createDomainNameRequest =
-            new CreateDomainNameRequest().withRegionalCertificateName(CERTIFICATE_NAME)
+            new CreateDomainNameRequest().withRegionalCertificateArn(certificateArn)
                 .withDomainName(domainName)
                 .withEndpointConfiguration(new EndpointConfiguration().withTypes(
                     EndpointType.REGIONAL));

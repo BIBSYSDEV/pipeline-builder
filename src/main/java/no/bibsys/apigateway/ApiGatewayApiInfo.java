@@ -25,17 +25,13 @@ public class ApiGatewayApiInfo {
     private final transient String stage;
     private final transient AmazonApiGateway client;
 
-    public ApiGatewayApiInfo(CloudFormationConfigurable config, String stage,AmazonApiGateway apiGatewayClient) {
+    public ApiGatewayApiInfo(CloudFormationConfigurable config, String stage,
+        AmazonApiGateway apiGatewayClient) {
         this.config = config;
         this.stage = stage;
         Preconditions.checkNotNull(stage);
-        this.client=apiGatewayClient;
+        this.client = apiGatewayClient;
     }
-
-
-
-
-
 
 
     public Optional<String> generateOpenApiNoExtensions() throws IOException {
@@ -44,9 +40,9 @@ public class ApiGatewayApiInfo {
         Optional<String> updatedOpenApiSpecification = serverInfo
             .map(server -> injectServerInfo(openApiTemplate, server));
 
-        if(updatedOpenApiSpecification.isPresent()){
+        if (updatedOpenApiSpecification.isPresent()) {
             String openApiJsonSpec = JsonUtils.yamlToJson(updatedOpenApiSpecification.get());
-            return  Optional.of(openApiJsonSpec);
+            return Optional.of(openApiJsonSpec);
         }
         return Optional.empty();
 
@@ -63,13 +59,17 @@ public class ApiGatewayApiInfo {
     }
 
 
-
     private String injectServerInfo(String openApiTemplate, ServerInfo serverInfo) {
-        return openApiTemplate.replace("<SERVER_PLACEHOLDER>",serverInfo.getServerUrl())
-            .replace("<STAGE_PLACEHOLDER>",serverInfo.getStage());
+
+        String replacedSever = openApiTemplate
+            .replace("<SERVER_PLACEHOLDER>", serverInfo.getServerUrl());
+        if (serverInfo.getStage() != null) {
+            return replacedSever.replace("<STAGE_PLACEHOLDER>", serverInfo.getStage());
+        } else {
+            return replacedSever;
+        }
+
     }
-
-
 
 
     private Optional<JsonNode> readOpenApiSpecFromAmazon(Map<String, String> requestParameters)
@@ -98,11 +98,19 @@ public class ApiGatewayApiInfo {
 
 
     private ServerInfo generateServerInfo(JsonNode openApiSpec) {
-        JsonNode serversNode=openApiSpec.get("servers").get(0);
+        JsonNode serversNode = openApiSpec.get("servers").get(0);
         String serverUrl = serversNode.get("url").asText();
-        String stage = serversNode.get("variables").get("basePath").get("default").asText();
-        return new ServerInfo(serverUrl, stage);
+        String apiStage = getStageVariable(serversNode).orElse(null);
+        return new ServerInfo(serverUrl, apiStage);
 
+    }
+
+    private Optional<String> getStageVariable(JsonNode serversNode) {
+        Optional<String> apiStage = Optional.ofNullable(serversNode.get("variables"))
+            .map(var -> var.get("basePath"))
+            .map(basePath -> basePath.get("default"))
+            .map(deflt -> deflt.asText());
+        return apiStage;
     }
 
     public Optional<RestApi> findRestApi() {
@@ -122,9 +130,6 @@ public class ApiGatewayApiInfo {
 
 
     }
-
-
-
 
 
 }

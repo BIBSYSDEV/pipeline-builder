@@ -21,13 +21,15 @@ public class DestroyHandler extends CodePipelineFunctionHandlerTemplate<SimpleRe
 
     public DestroyHandler() throws IOException {
         super();
-        Environment envinoment=new Environment();
-        Stage stage = initStage(envinoment);
-        String domainName=initDomainName(stage);
-        AmazonApiGateway client= AmazonApiGatewayClientBuilder.defaultClient();
-        swaggerHubUpdater = new SwaggerHubUpdater(client);
+        Environment environment = new Environment();
+        Stage stage = Stage.fromString(environment.readEnv(Route53Updater.BRANCH_NAME_ENV_VAR));
 
-        apiGatewayBasePathMapping = new ApiGatewayBasePathMapping(client, domainName,stage);
+        String domainName = initDomainName(stage);
+        AmazonApiGateway client = AmazonApiGatewayClientBuilder.defaultClient();
+        swaggerHubUpdater = new SwaggerHubUpdater(client);
+        String certificateArn = environment.readEnv(Route53Updater.CERTIFICATE_ARN);
+        AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
+        this.apiGatewayBasePathMapping = new ApiGatewayBasePathMapping(apiGateway,domainName,stage,certificateArn );
     }
 
     @Override
@@ -38,22 +40,16 @@ public class DestroyHandler extends CodePipelineFunctionHandlerTemplate<SimpleRe
         Integer response = swaggerHubUpdater.deleteApi();
         apiGatewayBasePathMapping.deleteBasePathMappings();
 
-        System.out.println("Swagger reponse"+response);
+        System.out.println("Swagger reponse" + response);
         return new SimpleResponse("OK");
 
     }
 
-    private Stage initStage(Environment env){
-        String stage=env.readEnv("STAGE");
-        return Stage.fromString(stage);
-    }
 
-
-    private String  initDomainName(Stage stage){
-        if(!stage.equals(Stage.FINAL)){
-           return "test."+ NetworkConstants.DOMAIN_NAME;
-        }
-        else{
+    private String initDomainName(Stage stage) {
+        if (!stage.equals(Stage.FINAL)) {
+            return "test." + NetworkConstants.DOMAIN_NAME;
+        } else {
             return NetworkConstants.DOMAIN_NAME;
         }
 

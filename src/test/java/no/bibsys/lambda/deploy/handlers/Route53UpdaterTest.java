@@ -7,7 +7,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.amazonaws.services.apigateway.AmazonApiGateway;
-import com.amazonaws.services.apigateway.AmazonApiGatewayAsync;
 import com.amazonaws.services.apigateway.AmazonApiGatewayClientBuilder;
 import com.amazonaws.services.route53.AmazonRoute53;
 import com.amazonaws.services.route53.model.Change;
@@ -17,6 +16,7 @@ import com.amazonaws.services.route53.model.ChangeResourceRecordSetsResult;
 import com.amazonaws.services.route53.model.HostedZone;
 import com.amazonaws.services.route53.model.ListHostedZonesResult;
 import com.amazonaws.services.route53.model.RRType;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -26,6 +26,8 @@ import no.bibsys.cloudformation.Stage;
 import no.bibsys.lambda.deploy.constants.NetworkConstants;
 import no.bibsys.utils.Environment;
 import no.bibsys.utils.IntegrationTest;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mockito.Mockito;
@@ -33,46 +35,25 @@ import org.mockito.Mockito;
 public class Route53UpdaterTest {
 
 
-    private final transient  String zoneName="ZoneName";
+    private final transient String zoneName = "ZoneName";
 
-    private final transient Environment environment;
     private final transient Route53Updater route53Updater;
-    private final transient AmazonRoute53 client;
 
-    private final transient AmazonApiGateway apiGateway=Mockito.mock(AmazonApiGateway.class);
+    private final transient AmazonApiGateway apiGateway = Mockito.mock(AmazonApiGateway.class);
+
     public Route53UpdaterTest() {
-        environment = setupMockEnvironment();
 
-        client=Mockito.mock(AmazonRoute53.class);
-        when(client.listHostedZones()).thenReturn(new ListHostedZonesResult().withHostedZones(new HostedZone().withId("ZoneId").withName(zoneName)));
+        AmazonRoute53 client = Mockito.mock(AmazonRoute53.class);
+        when(client.listHostedZones()).thenReturn(new ListHostedZonesResult()
+            .withHostedZones(new HostedZone().withId("ZoneId").withName(zoneName)));
 
-        route53Updater=new Route53Updater(environment,apiGateway);
+        route53Updater = new Route53Updater(zoneName, "Repository", "Branch", Stage.TEST,
+            "certificateArn", apiGateway);
         route53Updater.setRoute53Client(client);
 
     }
 
-    private Environment setupIntegrationEnvironment() {
-        Environment environment;
-        environment = Mockito.mock(Environment.class);
-        when(environment.readEnv(Route53Updater.ZONE_NAME_ENV)).thenReturn("aws.unit.no.");
-        when(environment.readEnv(Route53Updater.REPOSITORY_NAME_ENV_VAR))
-            .thenReturn("authority-registry-infrastructure");
-        when(environment.readEnv(Route53Updater.BRANCH_NAME_ENV_VAR))
-            .thenReturn("autreg-52-update-route53-dynamically");
-        when(environment.readEnv(Route53Updater.STAGE_ENV)).thenReturn("final");
-        return environment;
-    }
 
-
-    private Environment setupMockEnvironment() {
-        Environment environment;
-        environment = Mockito.mock(Environment.class);
-        when(environment.readEnv(Route53Updater.ZONE_NAME_ENV)).thenReturn(zoneName);
-        when(environment.readEnv(Route53Updater.REPOSITORY_NAME_ENV_VAR)).thenReturn("Repository");
-        when(environment.readEnv(Route53Updater.BRANCH_NAME_ENV_VAR)).thenReturn("Branch");
-        when(environment.readEnv(Route53Updater.STAGE_ENV)).thenReturn("final");
-        return environment;
-    }
 
 
     @Test
@@ -103,9 +84,10 @@ public class Route53UpdaterTest {
         Change change = request.getChangeBatch().getChanges().get(0);
 
         assertThat(change.getAction(), is(equalTo(ChangeAction.UPSERT.toString())));
-        assertThat(change.getResourceRecordSet().getType(),is(equalTo(RRType.CNAME.toString())));
-        assertThat(change.getResourceRecordSet().getName(),is(equalTo(NetworkConstants.RECORD_SET_NAME)));
-        assertThat(change.getResourceRecordSet().getTTL(),is(equalTo(300L)));
+        assertThat(change.getResourceRecordSet().getType(), is(equalTo(RRType.CNAME.toString())));
+        assertThat(change.getResourceRecordSet().getName(),
+            is(equalTo("test."+NetworkConstants.RECORD_SET_NAME)));
+        assertThat(change.getResourceRecordSet().getTTL(), is(equalTo(300L)));
     }
 
 
@@ -113,15 +95,24 @@ public class Route53UpdaterTest {
     @Category(IntegrationTest.class)
     public void updateRoute53() throws IOException {
 
-        Route53Updater updater = new Route53Updater(setupIntegrationEnvironment(),
-            AmazonApiGatewayClientBuilder.defaultClient());
+        String zoneName = "aws.unit.no.";
+        String repository = "authority-registry-infrastructure";
+        String branch = extractLocalBranch();
+        String certificateArn = "arn:aws:acm:eu-west-1:933878624978:certificate/b163e7df-2e12-4abf-ae91-7a8bbd19fb9a";
+
+        Route53Updater updater = new Route53Updater(zoneName, repository, branch, Stage.TEST,
+            certificateArn,AmazonApiGatewayClientBuilder.defaultClient());
 
         Optional<ChangeResourceRecordSetsResult> result = updater.updateServerUrl();
 
         assertThat(result, is(not(equalTo(Optional.empty()))));
 //        assertThat(result.get().getSdkHttpMetadata().getHttpStatusCode(), is(equalTo(200)));
 
+    }
 
+    private String extractLocalBranch() throws IOException {
+        Repository repo = FileRepositoryBuilder.create(new File(".", ".git"));
+        return repo.getBranch();
     }
 
 

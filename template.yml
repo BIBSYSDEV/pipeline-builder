@@ -213,6 +213,7 @@ Resources:
           STAGE: !Ref Stage
           SWAGGER_ORG: 'axthosarouris'
           ZONE_NAME: 'aws.unit.no.'
+          REGIONAL_CERTIFICATE_ARN: arn:aws:acm:eu-west-1:933878624978:certificate/b163e7df-2e12-4abf-ae91-7a8bbd19fb9a
 
 
       CodeUri: build/libs/pipeline-fat.jar
@@ -227,7 +228,7 @@ Resources:
           - apigateway:*
           - route53:ListHostedZones
           - route53:ChangeResourceRecordSets
-          - apigateway:POST
+          - apigateway:*
 
           Effect: Allow
           Resource: "*"
@@ -251,6 +252,7 @@ Resources:
           REPOSITORY: 'authority-registry-infrastructure'
           STAGE: !Ref Stage
           SWAGGER_ORG: 'axthosarouris'
+
       Policies:
         Version: '2012-10-17'
         Statement:
