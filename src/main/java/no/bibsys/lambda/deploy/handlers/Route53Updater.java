@@ -65,6 +65,7 @@ public class Route53Updater {
     public Optional<ChangeResourceRecordSetsResult> updateServerUrl() throws IOException {
         RestApi restApi = apiGatewayApiInfo.findRestApi()
             .orElseThrow(() -> new NotFoundException("GatewayApi or GatewayApi stage not found"));
+
          apiGatewayBasePathMapping.createBasePath(restApi);
 
         String targetDomainName = apiGatewayBasePathMapping.getTargeDomainName();
