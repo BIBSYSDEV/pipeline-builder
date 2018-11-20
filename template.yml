@@ -227,6 +227,8 @@ Resources:
           - apigateway:*
           - route53:ListHostedZones
           - route53:ChangeResourceRecordSets
+          - apigateway:POST
+
           Effect: Allow
           Resource: "*"
       MemorySize: 1500

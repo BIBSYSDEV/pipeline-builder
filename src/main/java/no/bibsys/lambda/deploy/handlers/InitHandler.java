@@ -1,5 +1,7 @@
 package no.bibsys.lambda.deploy.handlers;
 
+import com.amazonaws.services.apigateway.AmazonApiGateway;
+import com.amazonaws.services.apigateway.AmazonApiGatewayClientBuilder;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.route53.model.ChangeResourceRecordSetsResult;
 import java.io.IOException;
@@ -8,6 +10,7 @@ import java.util.Optional;
 import no.bibsys.lambda.deploy.handlers.templates.CodePipelineFunctionHandlerTemplate;
 import no.bibsys.lambda.deploy.requests.DeployEvent;
 import no.bibsys.lambda.responses.SimpleResponse;
+import no.bibsys.utils.Environment;
 
 public class InitHandler extends CodePipelineFunctionHandlerTemplate<SimpleResponse> {
 
@@ -17,8 +20,9 @@ public class InitHandler extends CodePipelineFunctionHandlerTemplate<SimpleRespo
 
     public InitHandler() throws IOException {
         super();
-        this.swaggerHubUpdater = new SwaggerHubUpdater();
-        this.route53Updater = new Route53Updater();
+        AmazonApiGateway apiGateway=AmazonApiGatewayClientBuilder.defaultClient();
+        this.swaggerHubUpdater = new SwaggerHubUpdater(apiGateway);
+        this.route53Updater = new Route53Updater(new Environment(),apiGateway);
     }
 
     @Override

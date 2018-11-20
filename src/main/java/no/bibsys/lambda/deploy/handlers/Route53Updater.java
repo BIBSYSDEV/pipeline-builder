@@ -1,5 +1,8 @@
 package no.bibsys.lambda.deploy.handlers;
 
+import com.amazonaws.services.apigateway.AmazonApiGateway;
+import com.amazonaws.services.apigateway.model.RestApi;
+import com.amazonaws.services.kms.model.NotFoundException;
 import com.amazonaws.services.route53.AmazonRoute53;
 import com.amazonaws.services.route53.AmazonRoute53ClientBuilder;
 import com.amazonaws.services.route53.model.Change;
@@ -17,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import no.bibsys.apigateway.ApiGatewayApiInfo;
+import no.bibsys.apigateway.ApiGatewayBasePathMapping;
 import no.bibsys.apigateway.ServerInfo;
 import no.bibsys.cloudformation.CloudFormationConfigurable;
 import no.bibsys.cloudformation.Stage;
@@ -24,22 +28,19 @@ import no.bibsys.utils.Environment;
 
 public class Route53Updater {
 
-
     public static final String ZONE_NAME_ENV = "ZONE_NAME";
     public static final String REPOSITORY_NAME_ENV_VAR = "REPOSITORY";
     public static final String BRANCH_NAME_ENV_VAR = "BRANCH";
     public static final String STAGE_ENV = "STAGE";
-
     public static final String RECORD_SET_NAME = "infrastructure.entitydata.aws.unit.no.";
-    private transient String recordSetName;
-
-
     private final transient String zoneName;
-    private transient AmazonRoute53 client;
     private final transient ApiGatewayApiInfo apiGatewayApiInfo;
+    private final transient ApiGatewayBasePathMapping apiGatewayBasePathMapping;
+    private transient String recordSetName;
+    private transient AmazonRoute53 route53Client;
 
 
-    public Route53Updater(Environment environment) {
+    public Route53Updater(Environment environment, AmazonApiGateway apiGatewayClient) {
         recordSetName = RECORD_SET_NAME;
 
         this.zoneName = environment.readEnv(ZONE_NAME_ENV);
@@ -51,29 +52,35 @@ public class Route53Updater {
         String branchName = environment.readEnv(BRANCH_NAME_ENV_VAR);
         String repository = environment.readEnv(REPOSITORY_NAME_ENV_VAR);
 
-        this.client = AmazonRoute53ClientBuilder.defaultClient();
-
+        this.route53Client = AmazonRoute53ClientBuilder.defaultClient();
         CloudFormationConfigurable conf = new CloudFormationConfigurable(repository, branchName);
-        this.apiGatewayApiInfo = new ApiGatewayApiInfo(conf, stage.toString());
-    }
-
-
-    public Route53Updater() {
-        this(new Environment());
+        this.apiGatewayApiInfo = new ApiGatewayApiInfo(conf, stage.toString(), apiGatewayClient);
+        this.apiGatewayBasePathMapping = new ApiGatewayBasePathMapping(apiGatewayClient,
+            domainName(), stage);
     }
 
 
     public Optional<ChangeResourceRecordSetsResult> updateServerUrl() throws IOException {
+        RestApi restApi = apiGatewayApiInfo.findRestApi()
+            .orElseThrow(() -> new NotFoundException("GatewayApi or GatewayApi stage not found"));
+         apiGatewayBasePathMapping.createBasePath(restApi);
+
+        String targetDomainName = apiGatewayBasePathMapping.getTargeDomainName();
+        return updateRoute53CanonicalName(targetDomainName);
+
+    }
+
+    private Optional<ChangeResourceRecordSetsResult> updateRoute53CanonicalName(
+        String targetDomainName)
+        throws IOException {
         Optional<ServerInfo> serverInfo = getServerInfo();
 
         Optional<ChangeResourceRecordSetsRequest> updateRequest = serverInfo
-            .map(info -> updateRecordSetsRequest(info.completeServerUrl()));
+            .map(info -> updateRecordSetsRequest(targetDomainName));
 
         Optional<ChangeResourceRecordSetsResult> result = updateRequest
-            .map(r -> client.changeResourceRecordSets(r));
+            .map(r -> route53Client.changeResourceRecordSets(r));
         return result;
-
-
     }
 
 
@@ -83,7 +90,7 @@ public class Route53Updater {
 
 
     public HostedZone getHostedZone() {
-        List<HostedZone> hostedZones = client.listHostedZones().getHostedZones().stream()
+        List<HostedZone> hostedZones = route53Client.listHostedZones().getHostedZones().stream()
             .filter(zone -> zone.getName().equals(zoneName))
             .collect(Collectors.toList());
         Preconditions.checkArgument(hostedZones.size() == 1,
@@ -120,8 +127,13 @@ public class Route53Updater {
     }
 
 
-    public void setClient(AmazonRoute53 client) {
-        this.client = client;
+    public void setRoute53Client(AmazonRoute53 route53Client) {
+        this.route53Client = route53Client;
+    }
+
+
+    private String domainName() {
+        return RECORD_SET_NAME.substring(0, RECORD_SET_NAME.length() - 1);
     }
 
 

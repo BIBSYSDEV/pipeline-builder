@@ -1,5 +1,6 @@
 package no.bibsys.lambda.deploy.handlers;
 
+import com.amazonaws.services.apigateway.AmazonApiGateway;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
@@ -27,8 +28,11 @@ public class SwaggerHubUpdater {
     protected transient String stage;
     protected transient String owner;
 
+    private final transient AmazonApiGateway apiGateway;
 
-    public SwaggerHubUpdater() throws IOException {
+
+    public SwaggerHubUpdater(AmazonApiGateway apiGateway) throws IOException {
+        this.apiGateway=apiGateway;
         initFields();
     }
 
@@ -118,7 +122,7 @@ public class SwaggerHubUpdater {
     private Optional<String> generateApiSpec(ApiDocumentationInfo publishAPi,
         CloudFormationConfigurable config)
         throws IOException {
-        ApiGatewayApiInfo apiGatewayApiInfo = new ApiGatewayApiInfo(config, publishAPi.getStage());
+        ApiGatewayApiInfo apiGatewayApiInfo = new ApiGatewayApiInfo(config, publishAPi.getStage(),apiGateway);
         return apiGatewayApiInfo.generateOpenApiNoExtensions();
 
     }

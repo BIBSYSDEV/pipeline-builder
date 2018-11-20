@@ -6,6 +6,9 @@ import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.amazonaws.services.apigateway.AmazonApiGateway;
+import com.amazonaws.services.apigateway.AmazonApiGatewayAsync;
+import com.amazonaws.services.apigateway.AmazonApiGatewayClientBuilder;
 import com.amazonaws.services.route53.AmazonRoute53;
 import com.amazonaws.services.route53.model.Change;
 import com.amazonaws.services.route53.model.ChangeAction;
@@ -35,14 +38,15 @@ public class Route53UpdaterTest {
     private final transient Route53Updater route53Updater;
     private final transient AmazonRoute53 client;
 
+    private final transient AmazonApiGateway apiGateway=Mockito.mock(AmazonApiGateway.class);
     public Route53UpdaterTest() {
         environment = setupMockEnvironment();
 
         client=Mockito.mock(AmazonRoute53.class);
         when(client.listHostedZones()).thenReturn(new ListHostedZonesResult().withHostedZones(new HostedZone().withId("ZoneId").withName(zoneName)));
 
-        route53Updater=new Route53Updater(environment);
-        route53Updater.setClient(client);
+        route53Updater=new Route53Updater(environment,apiGateway);
+        route53Updater.setRoute53Client(client);
 
     }
 
@@ -54,7 +58,7 @@ public class Route53UpdaterTest {
             .thenReturn("authority-registry-infrastructure");
         when(environment.readEnv(Route53Updater.BRANCH_NAME_ENV_VAR))
             .thenReturn("autreg-52-update-route53-dynamically");
-        when(environment.readEnv(Route53Updater.STAGE_ENV)).thenReturn("test");
+        when(environment.readEnv(Route53Updater.STAGE_ENV)).thenReturn("final");
         return environment;
     }
 
@@ -79,7 +83,7 @@ public class Route53UpdaterTest {
         method.setAccessible(true);
         ServerInfo serverInfo = new ServerInfo("SERVER_URL", Stage.FINAL.toString());
         ChangeResourceRecordSetsRequest request = (ChangeResourceRecordSetsRequest) method
-            .invoke(route53Updater, serverInfo.completeServerUrl());
+            .invoke(route53Updater, serverInfo.serverAddress());
         assertThat(request.getChangeBatch().getChanges().size(), is(equalTo(1)));
 
     }
@@ -94,7 +98,7 @@ public class Route53UpdaterTest {
         ServerInfo serverInfo = new ServerInfo("SERVERURL", Stage.TEST.toString());
         method.setAccessible(true);
         ChangeResourceRecordSetsRequest request = (ChangeResourceRecordSetsRequest) method
-            .invoke(route53Updater, serverInfo.completeServerUrl());
+            .invoke(route53Updater, serverInfo.serverAddress());
         Change change = request.getChangeBatch().getChanges().get(0);
 
         assertThat(change.getAction(), is(equalTo(ChangeAction.UPSERT.toString())));
@@ -108,13 +112,13 @@ public class Route53UpdaterTest {
     @Category(IntegrationTest.class)
     public void updateRoute53() throws IOException {
 
-        Route53Updater updater = new Route53Updater(setupIntegrationEnvironment());
+        Route53Updater updater = new Route53Updater(setupIntegrationEnvironment(),
+            AmazonApiGatewayClientBuilder.defaultClient());
 
-        Optional<ChangeResourceRecordSetsResult> result = updater
-            .updateServerUrl();
+        Optional<ChangeResourceRecordSetsResult> result = updater.updateServerUrl();
 
         assertThat(result, is(not(equalTo(Optional.empty()))));
-        assertThat(result.get().getSdkHttpMetadata().getHttpStatusCode(), is(equalTo(200)));
+//        assertThat(result.get().getSdkHttpMetadata().getHttpStatusCode(), is(equalTo(200)));
 
 
     }

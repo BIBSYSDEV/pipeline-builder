@@ -1,5 +1,6 @@
 package no.bibsys.lambda.deploy.handlers;
 
+import com.amazonaws.services.apigateway.AmazonApiGatewayClientBuilder;
 import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -15,7 +16,7 @@ public class DestroyHandler extends CodePipelineFunctionHandlerTemplate<SimpleRe
     public DestroyHandler() throws IOException {
         super();
 
-        swaggerHubUpdater = new SwaggerHubUpdater();
+        swaggerHubUpdater = new SwaggerHubUpdater(AmazonApiGatewayClientBuilder.defaultClient());
     }
 
     @Override

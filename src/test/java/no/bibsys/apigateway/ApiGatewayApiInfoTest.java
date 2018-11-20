@@ -5,6 +5,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 
+import com.amazonaws.services.apigateway.AmazonApiGateway;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
@@ -17,6 +18,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.mockito.Mockito;
 
 public class ApiGatewayApiInfoTest {
 
@@ -24,6 +26,7 @@ public class ApiGatewayApiInfoTest {
     private String apiJson;
     private JsonNode root;
 
+    private AmazonApiGateway apiGateway= Mockito.mock(AmazonApiGateway.class);
     public ApiGatewayApiInfoTest() throws IOException {
         apiJson = generateOpenApiSpec().orElse(null);
         root = parseOpenApiSpec(apiJson);
@@ -68,7 +71,7 @@ public class ApiGatewayApiInfoTest {
 
     private Optional<String> generateOpenApiSpec() throws IOException {
         CloudFormationConfigurable conf = buildConfiguration();
-        ApiGatewayApiInfo apiGatewayApiInfo = new ApiGatewayApiInfo(conf, "test");
+        ApiGatewayApiInfo apiGatewayApiInfo = new ApiGatewayApiInfo(conf, "test",apiGateway);
         return apiGatewayApiInfo.generateOpenApiNoExtensions();
     }
 

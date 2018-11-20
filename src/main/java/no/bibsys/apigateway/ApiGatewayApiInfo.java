@@ -1,7 +1,6 @@
 package no.bibsys.apigateway;
 
 import com.amazonaws.services.apigateway.AmazonApiGateway;
-import com.amazonaws.services.apigateway.AmazonApiGatewayClientBuilder;
 import com.amazonaws.services.apigateway.model.GetExportRequest;
 import com.amazonaws.services.apigateway.model.GetExportResult;
 import com.amazonaws.services.apigateway.model.GetRestApisRequest;
@@ -24,12 +23,19 @@ public class ApiGatewayApiInfo {
 
     private final transient CloudFormationConfigurable config;
     private final transient String stage;
+    private final transient AmazonApiGateway client;
 
-    public ApiGatewayApiInfo(CloudFormationConfigurable config, String stage) {
+    public ApiGatewayApiInfo(CloudFormationConfigurable config, String stage,AmazonApiGateway apiGatewayClient) {
         this.config = config;
         this.stage = stage;
         Preconditions.checkNotNull(stage);
+        this.client=apiGatewayClient;
     }
+
+
+
+
+
 
 
     public Optional<String> generateOpenApiNoExtensions() throws IOException {
@@ -69,8 +75,7 @@ public class ApiGatewayApiInfo {
     private Optional<JsonNode> readOpenApiSpecFromAmazon(Map<String, String> requestParameters)
         throws IOException {
 
-        AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
-        Optional<RestApi> apiOpt = findRestApi(apiGateway);
+        Optional<RestApi> apiOpt = findRestApi();
 
         if (apiOpt.isPresent()) {
             RestApi api = apiOpt.get();
@@ -78,7 +83,7 @@ public class ApiGatewayApiInfo {
             GetExportRequest request = new GetExportRequest().withRestApiId(api.getId())
                 .withStageName(stage).withExportType(ApiGatewayConstants.OPEN_API_3)
                 .withParameters(requestParameters);
-            GetExportResult result = apiGateway
+            GetExportResult result = client
                 .getExport(request);
             String swaggerFile = new String(result.getBody().array());
             ObjectMapper parser = JsonUtils.newJsonParser();
@@ -100,8 +105,8 @@ public class ApiGatewayApiInfo {
 
     }
 
-    private Optional<RestApi> findRestApi(AmazonApiGateway apiGateway) {
-        List<RestApi> apiList = apiGateway
+    public Optional<RestApi> findRestApi() {
+        List<RestApi> apiList = client
             .getRestApis(new GetRestApisRequest().withLimit(100)).getItems();
 
         return apiList.stream()

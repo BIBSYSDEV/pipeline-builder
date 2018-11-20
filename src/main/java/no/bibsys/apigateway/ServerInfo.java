@@ -5,6 +5,7 @@ public class ServerInfo {
     private final String serverUrl;
     private final String stage;
     private final static String basePathString = "/{basePath}";
+    private final static String basePathStringRegex = "/\\{basePath\\}";
 
     public ServerInfo(String serverUrl, String stage) {
         this.serverUrl = serverUrl;
@@ -41,7 +42,7 @@ public class ServerInfo {
      * @return The Server URL where {@code {basepath}} has been replaced by {@code stage}.
      *
      */
-    public String completeServerUrl() {
-        return serverUrl.replace(basePathString, "/" + stage);
+    public String serverAddress() {
+        return serverUrl.replaceAll("(http(s?))://","").replaceAll(basePathStringRegex,"");
     }
 }
