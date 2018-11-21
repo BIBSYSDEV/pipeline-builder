@@ -50,8 +50,9 @@ public class Route53Updater {
         String regionalCertificateArn,
         AmazonApiGateway apiGatewayClient) {
 
+        NetworkConstants networkConstants=new NetworkConstants(stage);
 
-        recordSetName = NetworkConstants.RECORD_SET_NAME;
+        recordSetName = networkConstants.getRecordSetName();
         this.zoneName = zonName;
         if (stage.equals(Stage.TEST)) {
             recordSetName = "test." + recordSetName;
@@ -65,7 +66,7 @@ public class Route53Updater {
         this.apiGatewayApiInfo = new ApiGatewayApiInfo(conf, stage.toString(), apiGatewayClient);
         this.apiGatewayBasePathMapping =  new ApiGatewayBasePathMapping(
             apiGatewayClient,
-            NetworkConstants.DOMAIN_NAME,
+            networkConstants.getDomainName(),
             stage);
     }
 

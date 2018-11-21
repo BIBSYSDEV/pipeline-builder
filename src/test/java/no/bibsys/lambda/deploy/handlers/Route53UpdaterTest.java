@@ -23,11 +23,10 @@ import java.lang.reflect.Method;
 import java.util.Optional;
 import no.bibsys.apigateway.ServerInfo;
 import no.bibsys.cloudformation.Stage;
-import no.bibsys.lambda.deploy.constants.NetworkConstants;
-import no.bibsys.utils.Environment;
 import no.bibsys.utils.IntegrationTest;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mockito.Mockito;
@@ -85,8 +84,7 @@ public class Route53UpdaterTest {
 
         assertThat(change.getAction(), is(equalTo(ChangeAction.UPSERT.toString())));
         assertThat(change.getResourceRecordSet().getType(), is(equalTo(RRType.CNAME.toString())));
-        assertThat(change.getResourceRecordSet().getName(),
-            is(equalTo("test."+NetworkConstants.RECORD_SET_NAME)));
+        assertThat(change.getResourceRecordSet().getName(), CoreMatchers.startsWith("test."));
         assertThat(change.getResourceRecordSet().getTTL(), is(equalTo(300L)));
     }
 

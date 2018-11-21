@@ -32,7 +32,7 @@ public class ApiGatewayBasePathMapping {
         Stage stage) {
         this.apiGatewayClient = apiGatewayClient;
         this.stage = stage;
-        this.domainName = (stage.equals(Stage.FINAL))? domainName: "test."+domainName;
+        this.domainName = stage.equals(Stage.FINAL)? domainName: "test."+domainName;
 
     }
 

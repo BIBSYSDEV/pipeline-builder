@@ -19,7 +19,7 @@ public class ResourceDestroyer {
         throws IOException {
         super();
 
-        String domainName = initDomainName(stage);
+        String domainName = new NetworkConstants(stage).getDomainName();
         AmazonApiGateway client = AmazonApiGatewayClientBuilder.defaultClient();
         swaggerHubUpdater = new SwaggerHubUpdater(client,swaggerHubInfo,repository,branch,stage);
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
@@ -39,14 +39,7 @@ public class ResourceDestroyer {
     }
 
 
-    private String initDomainName(Stage stage) {
-        if (!stage.equals(Stage.FINAL)) {
-            return "test." + NetworkConstants.DOMAIN_NAME;
-        } else {
-            return NetworkConstants.DOMAIN_NAME;
-        }
 
-    }
 
 
 
