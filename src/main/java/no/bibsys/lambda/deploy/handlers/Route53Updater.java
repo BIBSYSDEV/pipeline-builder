@@ -52,11 +52,8 @@ public class Route53Updater {
 
         NetworkConstants networkConstants=new NetworkConstants(stage);
 
-        recordSetName = networkConstants.getRecordSetName();
+        this.recordSetName = networkConstants.getRecordSetName();
         this.zoneName = zonName;
-        if (stage.equals(Stage.TEST)) {
-            recordSetName = "test." + recordSetName;
-        }
 
         this.certificateArn=regionalCertificateArn;
 

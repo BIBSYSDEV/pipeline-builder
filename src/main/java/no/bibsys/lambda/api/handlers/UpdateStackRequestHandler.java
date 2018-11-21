@@ -19,6 +19,7 @@ public class UpdateStackRequestHandler extends GithubHandler {
 
     private final transient SecretsReader secretsReader;
     private final transient SwaggerHubInfo swaggerHubInfo;
+    private static final String API_KEY_HEADER="api-key";
 
     public UpdateStackRequestHandler(Environment environment){
         super(environment);
@@ -38,7 +39,7 @@ public class UpdateStackRequestHandler extends GithubHandler {
 
         ObjectMapper mapper = JsonUtils.newJsonParser();
         UpdateStackRequest request = mapper.readValue(string, UpdateStackRequest.class);
-        String securityToken = headers.get("api-key");
+        String securityToken = headers.get(API_KEY_HEADER);
         checkAuthorization(securityToken);
         if (request.getAction().equals(Action.CREATE)) {
             createStacks(request,swaggerHubInfo);
