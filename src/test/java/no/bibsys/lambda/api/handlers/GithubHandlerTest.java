@@ -1,4 +1,4 @@
-package no.bibsys.lambda.deploy.handlers;
+package no.bibsys.lambda.api.handlers;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-import no.bibsys.lambda.api.handlers.GithubHandler;
 import no.bibsys.lambda.api.utils.SignatureChecker;
 import no.bibsys.secrets.SecretsReader;
 import no.bibsys.utils.Environment;

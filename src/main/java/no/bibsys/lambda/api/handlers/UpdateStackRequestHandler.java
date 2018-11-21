@@ -37,9 +37,10 @@ public class UpdateStackRequestHandler extends GithubHandler {
     public String processInput(String string, Map<String, String> headers, Context context)
         throws IOException, URISyntaxException {
 
-        UpdateStackRequest request = parseRequest(string);
         String securityToken = headers.get(API_KEY_HEADER);
         checkAuthorization(securityToken);
+        UpdateStackRequest request = parseRequest(string);
+
         if (request.getAction().equals(Action.CREATE)) {
             createStacks(request,swaggerHubInfo);
         }
