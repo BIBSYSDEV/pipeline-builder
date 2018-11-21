@@ -9,14 +9,14 @@ public class GithubConf implements GitInfo {
     public static String AWS_SECRET_KEY = "read_from_github";
     private final transient String owner;
     private final transient String repo;
-    private final transient String oauth;
 
 
 
-    public GithubConf(String owner, String repo) throws IOException {
+
+    public GithubConf(String owner, String repo)  {
         this.owner = initOwner(owner);
         this.repo = initRepo(repo);
-        this.oauth = initOAuth();
+
     }
 
 
@@ -31,8 +31,9 @@ public class GithubConf implements GitInfo {
     }
 
     @Override
-    public String getOauth() {
-        return oauth;
+    public String getOauth() throws IOException {
+        SecretsReader secretsReader = new SecretsReader();
+        return secretsReader.readAuthFromSecrets(AWS_SECRET_NAME, AWS_SECRET_KEY);
     }
 
 
@@ -44,11 +45,7 @@ public class GithubConf implements GitInfo {
         return owner;
     }
 
-    private String initOAuth() throws IOException {
-        SecretsReader secretsReader = new SecretsReader();
-        return secretsReader.readAuthFromSecrets(AWS_SECRET_NAME, AWS_SECRET_KEY);
 
-    }
 
 
 }

@@ -1,5 +1,7 @@
 package no.bibsys.git.github;
 
+import java.io.IOException;
+
 public interface GitInfo {
 
 
@@ -7,7 +9,7 @@ public interface GitInfo {
 
     String getRepo() ;
 
-    String getOauth() ;
+    String getOauth() throws IOException;
 
 
 }
