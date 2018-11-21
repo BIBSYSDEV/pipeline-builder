@@ -2,6 +2,7 @@ package no.bibsys;
 
 import com.google.common.base.Preconditions;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.git.github.GitInfo;
 import no.bibsys.git.github.GithubConf;
@@ -33,7 +34,7 @@ public class Application {
     }
 
     public static void run(String repoOwner, String repository, String branch, String action)
-        throws IOException {
+        throws IOException, URISyntaxException {
         GitInfo gitInfo = new GithubConf(repoOwner, repository, new Environment());
 
         Application application = new Application(gitInfo,branch);
@@ -46,7 +47,7 @@ public class Application {
 
     }
 
-    public static void main(String args[]) throws IOException {
+    public static void main(String args[]) throws IOException, URISyntaxException {
         String repoOwner = System.getProperty("owner");
         Preconditions.checkNotNull(repoOwner, "System property \"owner\" is not set");
         String repository = System.getProperty("repository");
@@ -67,14 +68,14 @@ public class Application {
         return pipelineStackConfiguration;
     }
 
-    public void createStacks() throws IOException {
+    public void createStacks() throws IOException, URISyntaxException {
         StackBuilder stackBuilder = new StackBuilder(wiper, pipelineStackConfiguration);
         stackBuilder.createStacks();
     }
 
 
 
-    public void wipeStacks() {
+    public void wipeStacks() throws IOException, URISyntaxException {
         checkNulls();
         wiper.wipeStacks();
 

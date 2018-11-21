@@ -5,6 +5,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Optional;
 import no.bibsys.lambda.responses.GatewayResponse;
@@ -32,14 +33,14 @@ public abstract class ApiGatewayHandlerTemplate<I, O> extends HandlerTemplate<I,
 
     @Override
     protected final O processInput(I input, String apiGatewayInputString, Context context)
-        throws IOException {
+        throws IOException, URISyntaxException {
         Map<String, String> headers = inputParser.getHeadersFromJson(apiGatewayInputString);
         return processInput(input, headers, context);
     }
 
 
     protected abstract O processInput(I input, Map<String, String> headers, Context context)
-        throws IOException;
+        throws IOException, URISyntaxException;
 
 
 

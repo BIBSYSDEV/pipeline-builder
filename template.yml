@@ -18,6 +18,7 @@ Parameters:
     Type:  String
 
 
+
 Resources:
   RestApi:
     DependsOn:
@@ -213,7 +214,7 @@ Resources:
           STAGE: !Ref Stage
           SWAGGER_ORG: 'axthosarouris'
           ZONE_NAME: 'aws.unit.no.'
-          REGIONAL_CERTIFICATE_ARN: arn:aws:acm:eu-west-1:933878624978:certificate/b163e7df-2e12-4abf-ae91-7a8bbd19fb9a
+          REGIONAL_CERTIFICATE_ARN: "{{resolve:ssm:infrastructure-entitydata-certificate-arn}}"
 
 
       CodeUri: build/libs/pipeline-fat.jar
@@ -252,7 +253,7 @@ Resources:
           REPOSITORY: 'authority-registry-infrastructure'
           STAGE: !Ref Stage
           SWAGGER_ORG: 'axthosarouris'
-          REGIONAL_CERTIFICATE_ARN: arn:aws:acm:eu-west-1:933878624978:certificate/b163e7df-2e12-4abf-ae91-7a8bbd19fb9a
+          REGIONAL_CERTIFICATE_ARN: "{{resolve:ssm:infrastructure-entitydata-certificate-arn}}"
 
       Policies:
         Version: '2012-10-17'

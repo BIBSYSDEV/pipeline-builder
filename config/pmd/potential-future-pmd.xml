@@ -64,6 +64,7 @@
 
   <rule ref="category/java/performance.xml">
     <exclude name="ConsecutiveLiteralAppends"/>
+    <exclude name="AvoidInstantiatingObjectsInLoops"/>
   </rule>
 
   <rule ref="category/java/design.xml/TooManyMethods">

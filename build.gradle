@@ -49,16 +49,18 @@ tasks.withType(Checkstyle) {
 
 
 dependencies {
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-cloudformation', version: '1.11.+'
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.+'
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: '1.11.+'
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-codebuild', version: '1.11.+'
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-secretsmanager', version: '1.11.+'
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-iam', version: '1.11.+'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-acm', version: '1.11.+'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-api-gateway', version: '1.11.+'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-cloudformation', version: '1.11.+'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-codebuild', version: '1.11.+'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-codepipeline', version: '1.11.+'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: '1.11.+'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-lambda', version: '1.11.+'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-iam', version: '1.11.+'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-route53', version: '1.11.+'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-secretsmanager', version: '1.11.+'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-ssm', version: '1.11.+'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.+'
     // For reading and deleting logs (application functionality)
     compile group: 'com.amazonaws', name: 'aws-java-sdk-logs', version: '1.11.+'
     compile group: 'com.amazonaws', name: 'aws-lambda-java-core', version: '+'

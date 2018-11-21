@@ -36,7 +36,7 @@ public class Route53Updater {
 
     private final transient String zoneName;
     private final transient ApiGatewayApiInfo apiGatewayApiInfo;
-
+    private final transient String certificateArn;
 
 
     private final transient ApiGatewayBasePathMapping apiGatewayBasePathMapping;
@@ -50,13 +50,15 @@ public class Route53Updater {
         Stage stage,
         String regionalCertificateArn,
         AmazonApiGateway apiGatewayClient) {
-        recordSetName = NetworkConstants.RECORD_SET_NAME;
 
+
+        recordSetName = NetworkConstants.RECORD_SET_NAME;
         this.zoneName = zonName;
         if (stage.equals(Stage.TEST)) {
             recordSetName = "test." + recordSetName;
         }
 
+        this.certificateArn=regionalCertificateArn;
 
 
         this.route53Client = AmazonRoute53ClientBuilder.defaultClient();
@@ -65,7 +67,7 @@ public class Route53Updater {
         this.apiGatewayBasePathMapping =  new ApiGatewayBasePathMapping(
             apiGatewayClient,
             NetworkConstants.DOMAIN_NAME,
-            stage,regionalCertificateArn);
+            stage);
     }
 
 
@@ -73,7 +75,7 @@ public class Route53Updater {
         RestApi restApi = apiGatewayApiInfo.findRestApi()
             .orElseThrow(() -> new NotFoundException("GatewayApi or GatewayApi stage not found"));
 
-         apiGatewayBasePathMapping.createBasePath(restApi);
+         apiGatewayBasePathMapping.createBasePath(restApi,certificateArn);
 
         String targetDomainName = apiGatewayBasePathMapping.getTargeDomainName();
         return updateRoute53CanonicalName(targetDomainName);

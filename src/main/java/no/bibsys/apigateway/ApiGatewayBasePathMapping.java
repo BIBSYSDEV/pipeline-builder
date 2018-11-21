@@ -24,22 +24,21 @@ public class ApiGatewayBasePathMapping {
     private final transient AmazonApiGateway apiGatewayClient;
     private final transient String domainName;
     private final transient Stage stage;
-    private final transient String certificateArn;
+
 
 
     public ApiGatewayBasePathMapping(AmazonApiGateway apiGatewayClient,
         String domainName,
-        Stage stage,
-        String regionalCertificateArn) {
+        Stage stage) {
         this.apiGatewayClient = apiGatewayClient;
         this.domainName = domainName;
         this.stage = stage;
-        this.certificateArn = regionalCertificateArn;
+
     }
 
 
-    public CreateBasePathMappingResult createBasePath(RestApi restApi) {
-        checkAndCreateCustomDomainName();
+    public CreateBasePathMappingResult createBasePath(RestApi restApi,String certifcateArn) {
+        checkAndCreateCustomDomainName(certifcateArn);
 
         deleteBasePathMappings();
 
@@ -59,9 +58,9 @@ public class ApiGatewayBasePathMapping {
     }
 
 
-    private void checkAndCreateCustomDomainName() {
+    private void checkAndCreateCustomDomainName(String certifcateArn) {
         if (!domainExists(this.apiGatewayClient)) {
-            createDomainName(this.apiGatewayClient);
+            createDomainName(this.apiGatewayClient,certifcateArn);
         }
     }
 
@@ -81,7 +80,7 @@ public class ApiGatewayBasePathMapping {
     }
 
     private void executeDeleteRequests(List<DeleteBasePathMappingRequest> deleteRequests) {
-        deleteRequests.stream().forEach(request -> apiGatewayClient.deleteBasePathMapping(request));
+         deleteRequests.stream().forEach(request -> apiGatewayClient.deleteBasePathMapping(request));
     }
 
     private List<DeleteBasePathMappingRequest> executeDeleteRequests() {
@@ -110,7 +109,7 @@ public class ApiGatewayBasePathMapping {
     }
 
 
-    private void createDomainName(AmazonApiGateway client) {
+    private void createDomainName(AmazonApiGateway client, String certificateArn) {
         CreateDomainNameRequest createDomainNameRequest =
             new CreateDomainNameRequest().withRegionalCertificateArn(certificateArn)
                 .withDomainName(domainName)

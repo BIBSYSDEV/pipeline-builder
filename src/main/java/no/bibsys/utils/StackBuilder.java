@@ -6,6 +6,7 @@ import com.amazonaws.services.cloudformation.model.Capability;
 import com.amazonaws.services.cloudformation.model.CreateStackRequest;
 import com.amazonaws.services.cloudformation.model.Parameter;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,7 @@ public class StackBuilder {
 
 
     public void createStacks()
-        throws IOException {
+        throws IOException, URISyntaxException {
         stackWiper.wipeStacks();
         createPipelineStack(pipelineStackConfiguration);
     }

@@ -53,7 +53,7 @@ public class SwaggerHubUpdater {
     }
 
 
-    public Integer deleteApi() throws URISyntaxException, IOException {
+    public int deleteApi() throws URISyntaxException, IOException {
         SwaggerDriver swaggerDriver = new SwaggerDriver(swaggerHubApiKey, swaggerOrganization,
             apiId);
         HttpDelete deleteRequest = swaggerDriver

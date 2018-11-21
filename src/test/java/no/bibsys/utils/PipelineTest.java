@@ -1,6 +1,7 @@
 package no.bibsys.utils;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import no.bibsys.Application;
 import no.bibsys.git.github.GithubConf;
 import org.junit.Ignore;
@@ -18,14 +19,14 @@ public class PipelineTest {
 
     @Test
     @Ignore
-    public void createStacks() throws IOException {
+    public void createStacks() throws IOException, URISyntaxException {
         Application application = initApplication();
         application.createStacks();
     }
 
     @Test
     @Ignore
-    public void deleteStacks() throws IOException {
+    public void deleteStacks() throws IOException, URISyntaxException {
         Application application = initApplication();
         application.wipeStacks();
 

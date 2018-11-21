@@ -4,15 +4,16 @@ package no.bibsys.lambda.api.handlers;
 import com.amazonaws.services.apigateway.model.UnauthorizedException;
 import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Optional;
 import no.bibsys.Application;
 import no.bibsys.git.github.GitInfo;
 import no.bibsys.git.github.GithubConf;
-import no.bibsys.lambda.api.utils.SignatureChecker;
 import no.bibsys.lambda.api.requests.PullRequest;
 import no.bibsys.lambda.api.requests.PushEvent;
 import no.bibsys.lambda.api.requests.RepositoryInfo;
+import no.bibsys.lambda.api.utils.SignatureChecker;
 import no.bibsys.lambda.deploy.handlers.templates.ApiGatewayHandlerTemplate;
 import no.bibsys.utils.Environment;
 import org.slf4j.Logger;
@@ -31,7 +32,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
     @Override
     public String processInput(String request, Map<String, String> headers, Context context)
-        throws IOException {
+        throws IOException, URISyntaxException {
 
         String webhookSecurityToken = headers.get("X-Hub-Signature");
         boolean verified = signatureChecker.verifySecurityToken(webhookSecurityToken, request);
@@ -53,7 +54,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
     }
 
-    private String processGitEvent(String request) throws IOException {
+    private String processGitEvent(String request) throws IOException, URISyntaxException {
         Optional<RepositoryInfo> gitEventOpt = parseEvent(request);
         String response = "No action";
         if (gitEventOpt.isPresent()) {
@@ -68,13 +69,14 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     }
 
 
-    private String processPushEvent(PushEvent pushEvent) throws IOException {
+    private String processPushEvent(PushEvent pushEvent)  {
         return pushEvent.toString();
 
     }
 
 
-    private String processPullRequest(PullRequest pullRequest) throws IOException {
+    private String processPullRequest(PullRequest pullRequest)
+        throws IOException, URISyntaxException {
         if (pullRequest.getAction().equals(PullRequest.ACTION_OPEN)
             || pullRequest.getAction().equals(PullRequest.ACTION_REOPEN)) {
             createStacks(pullRequest);
@@ -103,7 +105,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
 
     protected void deleteStacks(RepositoryInfo repositoryInfo)
-        throws IOException {
+        throws IOException, URISyntaxException {
         GitInfo gitInfo = new GithubConf(repositoryInfo.getOwner(), repositoryInfo.getRepository(),
             new Environment());
         Application application = new Application(gitInfo, repositoryInfo.getBranch());
@@ -111,7 +113,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     }
 
     protected void createStacks(RepositoryInfo repositoryInfo)
-        throws IOException {
+        throws IOException, URISyntaxException {
         GitInfo gitInfo = new GithubConf(repositoryInfo.getOwner(), repositoryInfo.getRepository(),
             new Environment());
         Application application = new Application(gitInfo, repositoryInfo.getBranch());

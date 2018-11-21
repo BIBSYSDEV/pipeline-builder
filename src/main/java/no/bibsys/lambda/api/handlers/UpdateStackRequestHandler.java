@@ -5,6 +5,7 @@ import com.amazonaws.services.apigateway.model.UnauthorizedException;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Map;
 import no.bibsys.lambda.api.requests.UpdateStackRequest;
 import no.bibsys.lambda.api.utils.Action;
@@ -24,7 +25,7 @@ public class UpdateStackRequestHandler extends GithubHandler {
 
     @Override
     public String processInput(String string, Map<String, String> headers, Context context)
-        throws IOException {
+        throws IOException, URISyntaxException {
 
         ObjectMapper mapper = JsonUtils.newJsonParser();
         UpdateStackRequest request = mapper.readValue(string, UpdateStackRequest.class);

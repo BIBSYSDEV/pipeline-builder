@@ -17,6 +17,8 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ListVersionsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.VersionListing;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.stream.Collectors;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
@@ -28,6 +30,8 @@ public class StackWiper {
 
     public StackWiper(PipelineStackConfiguration pipelineStackConfiguration) {
         this.pipelineStackConfiguration = pipelineStackConfiguration;
+
+
     }
 
 
@@ -94,13 +98,23 @@ public class StackWiper {
     }
 
 
-    public void wipeStacks() {
+    public void wipeStacks() throws IOException, URISyntaxException {
         int invokeStatusCode = invokeDeleteLambdaFunction();
         System.out.println(invokeStatusCode);
+        destroyResources();
         //Delete buckets first because they cannot be deleted automatically when we delete a Stack
         deleteBuckets();
         deleteStacks();
         deleteLogs();
+    }
+
+
+    private void destroyResources() throws IOException, URISyntaxException {
+        List<Stage> stages = Stage.listStages();
+        for (Stage stage : stages) {
+            ResourceDestroyer destroyer = new ResourceDestroyer(stage);
+            destroyer.destroy();
+        }
     }
 
 

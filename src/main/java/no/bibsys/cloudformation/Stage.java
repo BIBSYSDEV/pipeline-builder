@@ -4,6 +4,7 @@ package no.bibsys.cloudformation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 public enum Stage {
 
@@ -23,16 +24,17 @@ public enum Stage {
         } else if (stage.equalsIgnoreCase(TEST.name())) {
             return TEST;
         } else {
-            throw new IllegalArgumentException("Allowed stages:"+String.join(",",listStages()));
+            throw new IllegalArgumentException("Allowed stages:"+String.join(",",
+                listStages().stream().map(st->st.toString()).collect(Collectors.toList())));
         }
     }
 
 
-    public static List<String> listStages() {
+    public static List<Stage> listStages() {
 
-        List<String> stages = new ArrayList<>();
-        stages.add(TEST.toString());
-        stages.add(FINAL.toString());
+        List<Stage> stages = new ArrayList<>();
+        stages.add(TEST);
+        stages.add(FINAL);
         return stages;
     }
 
