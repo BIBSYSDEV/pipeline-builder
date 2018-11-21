@@ -21,8 +21,8 @@ public class SignatureChecker {
     private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
     private static final Logger logger = LoggerFactory.getLogger(SignatureChecker.class);
 
-    public static String SECRET_NAME = "SECRET_NAME";
-    public static String SECRET_KEY = "SECRET_KEY";
+    public static String AWS_SECRET_NAME = "SECRET_NAME";
+    public static String AWS_SECRET_KEY = "SECRET_KEY";
 
     private transient SecretsReader secretsReader;
 

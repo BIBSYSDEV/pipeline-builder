@@ -38,8 +38,8 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     public GithubHandler(Environment environment) {
         super(String.class);
 
-        String secretName = environment.readEnv(SignatureChecker.SECRET_NAME);
-        String secretKey = environment.readEnv(SignatureChecker.SECRET_KEY);
+        String secretName = environment.readEnv(SignatureChecker.AWS_SECRET_NAME);
+        String secretKey = environment.readEnv(SignatureChecker.AWS_SECRET_KEY);
 
         signatureChecker = new SignatureChecker(secretName, secretKey);
         swaggerHubInfo = new SwaggerHubInfo(environment);
