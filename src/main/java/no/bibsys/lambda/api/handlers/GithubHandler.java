@@ -24,6 +24,8 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
     private final transient static Logger logger = LoggerFactory.getLogger(GithubHandler.class);
     private final transient SwaggerHubInfo swaggerHubInfo;
+
+
     private transient SignatureChecker signatureChecker;
 
 
@@ -38,6 +40,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
         String secretName = environment.readEnv(SignatureChecker.SECRET_NAME);
         String secretKey = environment.readEnv(SignatureChecker.SECRET_KEY);
+
         signatureChecker = new SignatureChecker(secretName, secretKey);
         swaggerHubInfo = new SwaggerHubInfo(environment);
 
@@ -57,8 +60,6 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
         }
 
     }
-
-
 
 
     private String processGitEvent(String request) throws IOException, URISyntaxException {
@@ -127,7 +128,9 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     }
 
 
-
+    public void setSignatureChecker(SignatureChecker signatureChecker) {
+        this.signatureChecker = signatureChecker;
+    }
 
 
 }

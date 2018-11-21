@@ -23,15 +23,13 @@ public class SignatureChecker {
 
     public static String SECRET_NAME = "SECRET_NAME";
     public static String SECRET_KEY = "SECRET_KEY";
-    private transient final String amazonSecretName;
-    private transient final String amazonSecretKey;
 
+    private transient SecretsReader secretsReader;
 
 
 
     public SignatureChecker(String secretName,String secretKey) {
-        this.amazonSecretName=secretName;
-        this.amazonSecretKey=secretKey;
+        secretsReader = new SecretsReader(secretName, secretKey);
     }
 
 
@@ -63,9 +61,6 @@ public class SignatureChecker {
 
         byte[] expectedSigature = calculateExpectedSignature(body, webhookSecret);
 
-        String expectedSignatureString = new String(Hex.encodeHex(expectedSigature));
-        System.out.println("signagtureHeader:" + signatureHeader);
-        System.out.println("ExpectedSignagure:" + expectedSignatureString);
         return MessageDigest.isEqual(signature, expectedSigature);
     }
 
@@ -100,13 +95,14 @@ public class SignatureChecker {
 
 
     private String readSecretsKey() throws IOException {
-        SecretsReader secretsReader = new SecretsReader();
-        String secretValue = secretsReader.readAuthFromSecrets(amazonSecretName, amazonSecretKey);
+        String secretValue = secretsReader.readSecret();
         return secretValue;
 
     }
 
-
+    public void setSecretsReader(SecretsReader secretsReader) {
+        this.secretsReader = secretsReader;
+    }
 
 
 

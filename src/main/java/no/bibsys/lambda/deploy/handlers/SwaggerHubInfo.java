@@ -49,8 +49,8 @@ public class SwaggerHubInfo {
 
     public String getSwaggerAuth() throws IOException {
 
-        SecretsReader secretsReader = new SecretsReader();
-        return secretsReader.readAuthFromSecrets("swaggerapikey", "swaggerapikey");
+        SecretsReader secretsReader = new SecretsReader("swaggerapikey", "swaggerapikey");
+        return secretsReader.readSecret();
 
     }
 }

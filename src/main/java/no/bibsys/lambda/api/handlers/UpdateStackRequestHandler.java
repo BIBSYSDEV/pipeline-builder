@@ -17,13 +17,13 @@ import no.bibsys.utils.JsonUtils;
 public class UpdateStackRequestHandler extends GithubHandler {
 
 
-    private final transient SecretsReader secretsReader;
+    private transient SecretsReader secretsReader;
     private final transient SwaggerHubInfo swaggerHubInfo;
     private static final String API_KEY_HEADER="api-key";
 
     public UpdateStackRequestHandler(Environment environment){
         super(environment);
-        this.secretsReader=new SecretsReader();
+        this.secretsReader = new SecretsReader("infrastructure", "buildbranch");
         this.swaggerHubInfo=new SwaggerHubInfo(environment);
     }
 
@@ -59,11 +59,16 @@ public class UpdateStackRequestHandler extends GithubHandler {
 
     private void checkAuthorization(String securityToken) throws IOException {
 
-        String secret=secretsReader.readAuthFromSecrets("infrastructure","buildbranch");
+        String secret = secretsReader.readSecret();
         if(!secret.equals(securityToken)){
              throw new UnauthorizedException("Wrong API key signature");
         }
     }
+
+    public void setSecretsReader(SecretsReader secretsReader) {
+        this.secretsReader = secretsReader;
+    }
+
 
 
 }

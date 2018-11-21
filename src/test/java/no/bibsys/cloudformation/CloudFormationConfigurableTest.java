@@ -16,8 +16,6 @@ import org.junit.Test;
 public class CloudFormationConfigurableTest extends ConfigurationTests {
 
 
-
-
     public CloudFormationConfigurableTest() throws IOException {
         super();
     }
@@ -56,14 +54,8 @@ public class CloudFormationConfigurableTest extends ConfigurationTests {
                 is(not(greaterThan(CloudFormationConfigurable.MAX_PROJECT_WORD_LENGTH))));
         });
 
-
-
-        Arrays.stream(tokens).forEach(token -> {
-            assertThat(token.length(),
-                is(not(greaterThan(CloudFormationConfigurable.MAX_PROJECT_WORD_LENGTH))));
-        });
-
     }
+
 
     @Test
     public void initNormalizedBranch_branchName_compliesToAmazonRestrctricions() {

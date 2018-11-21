@@ -32,8 +32,8 @@ public class GithubConf implements GitInfo {
 
     @Override
     public String getOauth() throws IOException {
-        SecretsReader secretsReader = new SecretsReader();
-        return secretsReader.readAuthFromSecrets(AWS_SECRET_NAME, AWS_SECRET_KEY);
+        SecretsReader secretsReader = new SecretsReader(AWS_SECRET_NAME, AWS_SECRET_KEY);
+        return secretsReader.readSecret();
     }
 
 
