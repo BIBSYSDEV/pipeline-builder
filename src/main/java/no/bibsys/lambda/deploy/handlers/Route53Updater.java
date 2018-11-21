@@ -39,7 +39,7 @@ public class Route53Updater {
 
 
     private final transient ApiGatewayBasePathMapping apiGatewayBasePathMapping;
-    private transient String recordSetName;
+    private transient final String recordSetName;
     private transient AmazonRoute53 route53Client;
 
 
