@@ -24,6 +24,13 @@ public class CloudFormationConfigurableTest extends ConfigurationTests {
 
 
     @Test
+    public void format_strings_stringWithDashes() {
+        String output = conf.format("hello", "worl_d");
+        assertThat(output, is(equalTo("hello-worl_d")));
+    }
+
+
+    @Test
     public void initNormalizedBranchName_branchName_normalizedBranchNameUnderSpecifiedLength() {
         assertThat(conf.getNormalizedBranchName().length(),
             is(not(greaterThan(CloudFormationConfigurable.NORMALIZED_BRANCH_MAX_LENGTH))));

@@ -12,6 +12,7 @@ import com.amazonaws.services.apigateway.model.GetBasePathMappingsRequest;
 import com.amazonaws.services.apigateway.model.GetDomainNameRequest;
 import com.amazonaws.services.apigateway.model.NotFoundException;
 import com.amazonaws.services.apigateway.model.RestApi;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -39,9 +40,7 @@ public class ApiGatewayBasePathMapping {
 
     public CreateBasePathMappingResult createBasePath(RestApi restApi,String certifcateArn) {
         checkAndCreateCustomDomainName(certifcateArn);
-
         deleteBasePathMappings();
-
         CreateBasePathMappingRequest createBasePathMappingRequest = newBasePathMappingRequest(
             restApi.getId());
 
@@ -73,14 +72,15 @@ public class ApiGatewayBasePathMapping {
     }
 
 
-    private CreateBasePathMappingRequest newBasePathMappingRequest(String restApiId) {
+    @VisibleForTesting
+    public CreateBasePathMappingRequest newBasePathMappingRequest(String restApiId) {
         return new CreateBasePathMappingRequest().withRestApiId(restApiId)
             .withDomainName(domainName)
             .withStage(stage.toString());
     }
 
     private void executeDeleteRequests(List<DeleteBasePathMappingRequest> deleteRequests) {
-         deleteRequests.stream().forEach(request -> apiGatewayClient.deleteBasePathMapping(request));
+        deleteRequests.forEach(apiGatewayClient::deleteBasePathMapping);
     }
 
     private List<DeleteBasePathMappingRequest> executeDeleteRequests() {
@@ -90,7 +90,7 @@ public class ApiGatewayBasePathMapping {
             Optional<List<BasePathMapping>> items = Optional
                 .ofNullable(apiGatewayClient.getBasePathMappings(listBasePathsRequest).getItems());
             List<DeleteBasePathMappingRequest> result = items
-                .map(list -> list.stream().map(item -> newDeleteBasePathRequest(item))
+                .map(list -> list.stream().map(this::newDeleteBasePathRequest)
                     .collect(Collectors.toList())).orElse(Collections.emptyList());
             return result;
         }

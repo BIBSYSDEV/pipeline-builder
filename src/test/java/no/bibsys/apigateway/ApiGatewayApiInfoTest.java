@@ -35,14 +35,15 @@ public class ApiGatewayApiInfoTest {
 
     @Test
     @Category(IntegrationTest.class)
-    public void apiExporter_existingAPIGatewayEndpoint_JsonString() {
+    public void generateOpenApiNoExtensions_existingAPIGatewayEndpoint_JsonString() {
         assertThat(apiJson,is(not(equalTo(null))));
         assertThat(apiJson.isEmpty(),is(equalTo(false)));
     }
 
     @Test
     @Category(IntegrationTest.class)
-    public void apiExporter_existingAPIGatewayEndpoint_OpenAPI3Version() throws IOException {
+    public void generateOpenApiNoExtensions_existingAPIGatewayEndpoint_OpenAPI3Version()
+        throws IOException {
 
         Optional<String> openApiVersion = openApiVersion(root);
         assertThat(openApiVersion.isPresent(), is(equalTo(true)));
@@ -53,7 +54,7 @@ public class ApiGatewayApiInfoTest {
 
     @Test
     @Category(IntegrationTest.class)
-    public void apiExporter_existingAPIGatewayEndpoint_ValidServerUrl() {
+    public void generateOpenApiNoExtensionsexistingAPIGatewayEndpoint_ValidServerUrl() {
         String serverUrl=getServerUrl(root);
         assertThat(serverUrl,is(not(equalTo(null))));
         assertThat(serverUrl.isEmpty(),is(equalTo(false)));
@@ -62,7 +63,7 @@ public class ApiGatewayApiInfoTest {
 
     @Test
     @Category(IntegrationTest.class)
-    public void apiExporter_existingAPIGatewayEndpoint_validVBasePath() {
+    public void generateOpenApiNoExtensions_existingAPIGatewayEndpoint_validVBasePath() {
         String basePath=getBasePath(root);
         assertThat(basePath,is(not(equalTo(null))));
         assertThat(basePath.isEmpty(),is(equalTo(false)));
@@ -85,7 +86,7 @@ public class ApiGatewayApiInfoTest {
     }
 
 
-    private Optional<String> openApiVersion(JsonNode root) throws IOException {
+    private Optional<String> openApiVersion(JsonNode root) {
         String openApi = root.get("openapi").asText();
         return Optional.ofNullable(openApi);
 
