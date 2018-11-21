@@ -253,7 +253,7 @@ Resources:
           REPOSITORY: 'authority-registry-infrastructure'
           STAGE: !Ref Stage
           SWAGGER_ORG: 'axthosarouris'
-          REGIONAL_CERTIFICATE_ARN: '{{resolve:ssm:infrastructure-entitydata-certificate-arn}}'
+          REGIONAL_CERTIFICATE_ARN: '{{resolve:ssm:infrastructure-entitydata-certificate-arn:1}}'
 
       Policies:
         Version: '2012-10-17'
