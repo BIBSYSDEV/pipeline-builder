@@ -37,8 +37,7 @@ public class UpdateStackRequestHandler extends GithubHandler {
     public String processInput(String string, Map<String, String> headers, Context context)
         throws IOException, URISyntaxException {
 
-        ObjectMapper mapper = JsonUtils.newJsonParser();
-        UpdateStackRequest request = mapper.readValue(string, UpdateStackRequest.class);
+        UpdateStackRequest request = parseRequest(string);
         String securityToken = headers.get(API_KEY_HEADER);
         checkAuthorization(securityToken);
         if (request.getAction().equals(Action.CREATE)) {
@@ -55,6 +54,11 @@ public class UpdateStackRequestHandler extends GithubHandler {
         String requestJson = objectMapper.writeValueAsString(request);
         return requestJson;
 
+    }
+
+    private UpdateStackRequest parseRequest(String string) throws IOException {
+        ObjectMapper mapper = JsonUtils.newJsonParser();
+        return mapper.readValue(string, UpdateStackRequest.class);
     }
 
     private void checkAuthorization(String securityToken) throws IOException {

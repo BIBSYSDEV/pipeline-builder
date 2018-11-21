@@ -33,8 +33,8 @@ public class GithubHandlerTest {
     }
 
 
-    @Test()
-    public void handleRequest_correctSignature_UnauthorizedException2()
+    @Test
+    public void handleRequest_correctSignature_someMessage()
         throws IOException, URISyntaxException {
         GithubHandler githubHandler = getGithubHandlerWithMockSecretsReader();
         Map<String, String> headers = new HashMap<>();
