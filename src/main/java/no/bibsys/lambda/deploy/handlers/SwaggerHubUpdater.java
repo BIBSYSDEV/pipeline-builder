@@ -6,64 +6,50 @@ import java.net.URISyntaxException;
 import java.util.Optional;
 import no.bibsys.apigateway.ApiGatewayApiInfo;
 import no.bibsys.cloudformation.CloudFormationConfigurable;
-import no.bibsys.secrets.SecretsReader;
+import no.bibsys.cloudformation.Stage;
 import no.bibsys.swaggerhub.ApiDocumentationInfo;
 import no.bibsys.swaggerhub.SwaggerDriver;
-import no.bibsys.utils.Environment;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 
 public class SwaggerHubUpdater {
 
+    protected final transient String repository;
+    protected final transient String branch;
 
-    private final transient Environment environment = new Environment();
-
-    protected transient String repository;
-    protected transient String branch;
-    protected transient String swaggerOrganization;
-    protected transient String swaggerHubApiKey;
-    protected transient String apiId;
-    protected transient String apiVersion;
-    protected transient String stage;
-    protected transient String owner;
-
+    private final transient SwaggerHubInfo swaggerHubInfo;
     private final transient AmazonApiGateway apiGateway;
+    private final transient String swaggerApiKey;
+    protected transient Stage stage;
 
 
-    public SwaggerHubUpdater(AmazonApiGateway apiGateway) throws IOException {
-        this.apiGateway=apiGateway;
-        initFields();
-    }
-
-
-    private  void initFields() throws IOException {
-        this.apiId = environment.readEnv("API_ID");
-        this.apiVersion = environment.readEnv("API_VERSION");
-
-        this.owner = environment.readEnv("OWNER");
-        this.branch = environment.readEnv("BRANCH");
-        this.repository = environment.readEnv("REPOSITORY");
-        this.stage = environment.readEnv("STAGE");
-        this.swaggerOrganization = environment.readEnv("SWAGGER_ORG");
-
-        SecretsReader secretsReader = new SecretsReader();
-        this.swaggerHubApiKey = secretsReader.readAuthFromSecrets("swaggerapikey", "swaggerapikey");
-
+    public SwaggerHubUpdater(AmazonApiGateway apiGateway,
+        SwaggerHubInfo swaggerHubInfo,
+        String repository,
+        String branch,
+        Stage stage
+    ) throws IOException {
+        this.apiGateway = apiGateway;
+        this.branch = branch;
+        this.repository = repository;
+        this.stage = stage;
+        this.swaggerHubInfo = swaggerHubInfo;
+        this.swaggerApiKey=swaggerHubInfo.getSwaggerAuth();
     }
 
 
     public int deleteApi() throws URISyntaxException, IOException {
-        SwaggerDriver swaggerDriver = new SwaggerDriver(swaggerHubApiKey, swaggerOrganization,
-            apiId);
+        SwaggerDriver swaggerDriver = new SwaggerDriver(swaggerHubInfo);
         HttpDelete deleteRequest = swaggerDriver
-            .createDeleteApiRequest();
+            .createDeleteApiRequest(swaggerApiKey);
         return swaggerDriver.executeDelete(deleteRequest);
     }
 
 
-    public Optional<String> updateApiDocumentation() throws IOException, URISyntaxException {
-        ApiDocumentationInfo apiDocInfo = constructApiDocumentationInfo();
+    public Optional<String> updateApiDocumentation()
+        throws IOException, URISyntaxException {
+        ApiDocumentationInfo apiDocInfo = constructApiDocumentationInfo(swaggerHubInfo.getApiVersion());
         CloudFormationConfigurable config = new CloudFormationConfigurable(repository, branch);
         Optional<String> jsonOpt = generateApiSpec(apiDocInfo, config);
 
@@ -79,23 +65,21 @@ public class SwaggerHubUpdater {
     }
 
 
-    private ApiDocumentationInfo constructApiDocumentationInfo() {
+    private ApiDocumentationInfo constructApiDocumentationInfo(String apiVersion) {
         ApiDocumentationInfo publishApi = new ApiDocumentationInfo();
-        publishApi.setApiId(apiId);
+        publishApi.setApiId(swaggerHubInfo.getApiId());
         publishApi.setApiVersion(apiVersion);
-        publishApi.setStage(stage);
-        publishApi.setSwaggerOrganization(swaggerOrganization);
-        publishApi.setSwaggetHubApiKey(swaggerHubApiKey);
+        publishApi.setStage(stage.toString());
+        publishApi.setSwaggerOrganization(swaggerHubInfo.getSwaggerOrganization());
+        publishApi.setSwaggetHubApiKey(swaggerApiKey);
 
         return publishApi;
     }
 
 
-
-
     private String readTheUpdatedAPI(String json, ApiDocumentationInfo publishApi)
         throws URISyntaxException, IOException {
-        SwaggerDriver swaggerDriver = newSwaggerDriver(publishApi);
+        SwaggerDriver swaggerDriver = newSwaggerDriver();
         executeUpdate(publishApi, json, swaggerDriver);
         HttpGet getSpecRequest = swaggerDriver
             .getSpecificationVersionRequest(publishApi.getApiVersion());
@@ -103,26 +87,23 @@ public class SwaggerHubUpdater {
     }
 
 
-
-
-
-    private SwaggerDriver newSwaggerDriver(ApiDocumentationInfo publishApi) {
-        return new SwaggerDriver(publishApi.getSwaggetHubApiKey(),
-            publishApi.getSwaggerOrganization(), publishApi.getApiId());
+    private SwaggerDriver newSwaggerDriver()  {
+        return new SwaggerDriver(swaggerHubInfo);
     }
 
     private void executeUpdate(ApiDocumentationInfo publishApi, String json,
         SwaggerDriver swaggerDriver)
         throws URISyntaxException, IOException {
         HttpPost request = swaggerDriver
-            .createUpdateRequest(json, publishApi.getApiVersion());
+            .createUpdateRequest(json, publishApi.getApiVersion(), swaggerApiKey);
         swaggerDriver.executePost(request);
     }
 
     private Optional<String> generateApiSpec(ApiDocumentationInfo publishAPi,
         CloudFormationConfigurable config)
         throws IOException {
-        ApiGatewayApiInfo apiGatewayApiInfo = new ApiGatewayApiInfo(config, publishAPi.getStage(),apiGateway);
+        ApiGatewayApiInfo apiGatewayApiInfo = new ApiGatewayApiInfo(config, publishAPi.getStage(),
+            apiGateway);
         return apiGatewayApiInfo.generateOpenApiNoExtensions();
 
     }

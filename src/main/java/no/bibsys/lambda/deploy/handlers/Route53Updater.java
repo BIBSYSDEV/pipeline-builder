@@ -31,7 +31,6 @@ public class Route53Updater {
     public static final String ZONE_NAME_ENV = "ZONE_NAME";
     public static final String REPOSITORY_NAME_ENV_VAR = "REPOSITORY";
     public static final String BRANCH_NAME_ENV_VAR = "BRANCH";
-    public static final String STAGE_ENV = "STAGE";
     public static final String CERTIFICATE_ARN="REGIONAL_CERTIFICATE_ARN";
 
     private final transient String zoneName;

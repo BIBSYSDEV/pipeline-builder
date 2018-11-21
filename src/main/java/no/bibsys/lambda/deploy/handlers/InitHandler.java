@@ -31,11 +31,12 @@ public class InitHandler extends CodePipelineFunctionHandlerTemplate<SimpleRespo
         String zoneName= environment.readEnv(Route53Updater.ZONE_NAME_ENV);
         String repository= environment.readEnv(Route53Updater.REPOSITORY_NAME_ENV_VAR);
         String branch= environment.readEnv(Route53Updater.BRANCH_NAME_ENV_VAR);
-        Stage stage=Stage.fromString(environment.readEnv(Route53Updater.STAGE_ENV));
+        Stage stage=Stage.currentStage();
         String certificateArn= environment.readEnv(Route53Updater.CERTIFICATE_ARN);
 
 
-        ResourceInitializer initializer=new ResourceInitializer(zoneName,repository,branch,stage,certificateArn);
+        ResourceInitializer initializer=new ResourceInitializer(zoneName,repository,branch,
+            new SwaggerHubInfo(environment),stage,certificateArn);
         initializer.initializeStacks();
 
         return new SimpleResponse("OK");

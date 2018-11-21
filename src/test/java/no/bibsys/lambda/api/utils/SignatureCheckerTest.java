@@ -19,15 +19,8 @@ import org.mockito.stubbing.Answer;
 
 public class SignatureCheckerTest {
 
-    Environment environment = Mockito.mock(Environment.class);
 
-    @Before
-    public void init() {
-        when(environment.readEnvOpt(anyString())).thenAnswer((Answer<String>) invocation -> {
-            String input = invocation.getArgument(0);
-            return input;
-        });
-    }
+
 
     @Test
     public void verifySecurityToken_secretValueAndBody_sha1Signature()
@@ -40,7 +33,8 @@ public class SignatureCheckerTest {
 
         String expectedSignature = header.replaceFirst("sha1=", "");
 
-        SignatureChecker signatureChecker = new SignatureChecker(environment);
+
+        SignatureChecker signatureChecker = new SignatureChecker("secretName","SECRETKEY");
         byte[] actualSignatureBytes = signatureChecker
             .calculateExpectedSignature(requestBody, secretKey);
         String actualSignature = Hex.encodeHexString(actualSignatureBytes);

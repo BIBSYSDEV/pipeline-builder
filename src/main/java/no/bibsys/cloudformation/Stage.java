@@ -5,11 +5,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import no.bibsys.utils.Environment;
 
 public enum Stage {
 
     TEST,FINAL;
 
+
+    public static Stage currentStage(){
+        String stageString= new Environment().readEnv("STAGE");
+        return Stage.fromString(stageString);
+    }
 
 
     @Override

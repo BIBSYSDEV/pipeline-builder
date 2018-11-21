@@ -28,7 +28,7 @@ public abstract class ConfigurationTests extends AmazonRestrictions {
         when(environment.readEnvOpt(anyString())).then(
             (Answer<Optional<String>>) invocation -> Optional
                 .ofNullable(invocation.getArgument(0)));
-        githubConf = new GithubConf(repoOwner, repoName, environment);
+        githubConf = new GithubConf(repoOwner, repoName);
         this.conf = new PipelineStackConfiguration(githubConf,branchName);
         this.normalizedBranch = conf.getNormalizedBranchName();
         this.projectId = conf.getProjectId();

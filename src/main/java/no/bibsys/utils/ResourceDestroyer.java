@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 import no.bibsys.apigateway.ApiGatewayBasePathMapping;
 import no.bibsys.cloudformation.Stage;
 import no.bibsys.lambda.deploy.constants.NetworkConstants;
+import no.bibsys.lambda.deploy.handlers.SwaggerHubInfo;
 import no.bibsys.lambda.deploy.handlers.SwaggerHubUpdater;
 
 public class ResourceDestroyer {
@@ -14,12 +15,13 @@ public class ResourceDestroyer {
     private final transient SwaggerHubUpdater swaggerHubUpdater;
     private final transient ApiGatewayBasePathMapping apiGatewayBasePathMapping;
 
-    public ResourceDestroyer(Stage stage) throws IOException {
+    public ResourceDestroyer(String repository,String branch, SwaggerHubInfo swaggerHubInfo,Stage stage)
+        throws IOException {
         super();
 
         String domainName = initDomainName(stage);
         AmazonApiGateway client = AmazonApiGatewayClientBuilder.defaultClient();
-        swaggerHubUpdater = new SwaggerHubUpdater(client);
+        swaggerHubUpdater = new SwaggerHubUpdater(client,swaggerHubInfo,repository,branch,stage);
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
         this.apiGatewayBasePathMapping = new ApiGatewayBasePathMapping(apiGateway,domainName,stage );
     }

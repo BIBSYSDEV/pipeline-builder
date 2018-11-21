@@ -23,13 +23,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.cloudformation.Stage;
+import no.bibsys.lambda.deploy.handlers.SwaggerHubInfo;
 
 public class StackWiper {
 
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
 
+
     public StackWiper(PipelineStackConfiguration pipelineStackConfiguration) {
         this.pipelineStackConfiguration = pipelineStackConfiguration;
+
 
 
     }
@@ -98,10 +101,10 @@ public class StackWiper {
     }
 
 
-    public void wipeStacks() throws IOException, URISyntaxException {
+    public void wipeStacks(SwaggerHubInfo swaggerHubInfo) throws IOException, URISyntaxException {
         int invokeStatusCode = invokeDeleteLambdaFunction();
         System.out.println(invokeStatusCode);
-        destroyResources();
+        destroyResources(swaggerHubInfo);
         //Delete buckets first because they cannot be deleted automatically when we delete a Stack
         deleteBuckets();
         deleteStacks();
@@ -109,10 +112,15 @@ public class StackWiper {
     }
 
 
-    private void destroyResources() throws IOException, URISyntaxException {
+    private void destroyResources(SwaggerHubInfo swaggerHubInfo) throws IOException, URISyntaxException {
         List<Stage> stages = Stage.listStages();
+        String repository=pipelineStackConfiguration.getGithubConf().getRepo();
+        String branch=pipelineStackConfiguration.getBranchName();
+
+
         for (Stage stage : stages) {
-            ResourceDestroyer destroyer = new ResourceDestroyer(stage);
+
+            ResourceDestroyer destroyer = new ResourceDestroyer(repository,branch,swaggerHubInfo,stage);
             destroyer.destroy();
         }
     }

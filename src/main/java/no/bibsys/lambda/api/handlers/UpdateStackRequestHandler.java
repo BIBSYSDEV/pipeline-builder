@@ -9,17 +9,26 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import no.bibsys.lambda.api.requests.UpdateStackRequest;
 import no.bibsys.lambda.api.utils.Action;
+import no.bibsys.lambda.deploy.handlers.SwaggerHubInfo;
 import no.bibsys.secrets.SecretsReader;
+import no.bibsys.utils.Environment;
 import no.bibsys.utils.JsonUtils;
 
 public class UpdateStackRequestHandler extends GithubHandler {
 
 
     private final transient SecretsReader secretsReader;
+    private final transient SwaggerHubInfo swaggerHubInfo;
+
+    public UpdateStackRequestHandler(Environment environment){
+        super(environment);
+        this.secretsReader=new SecretsReader();
+        this.swaggerHubInfo=new SwaggerHubInfo(environment);
+    }
+
 
     public UpdateStackRequestHandler(){
-        super();
-        this.secretsReader=new SecretsReader();
+        this(new Environment());
     }
 
 
@@ -32,11 +41,11 @@ public class UpdateStackRequestHandler extends GithubHandler {
         String securityToken = headers.get("api-key");
         checkAuthorization(securityToken);
         if (request.getAction().equals(Action.CREATE)) {
-            createStacks(request);
+            createStacks(request,swaggerHubInfo);
         }
 
         if (request.getAction().equals(Action.DELETE)) {
-            deleteStacks(request);
+            deleteStacks(request,swaggerHubInfo);
         }
 
         System.out.println(request.toString());

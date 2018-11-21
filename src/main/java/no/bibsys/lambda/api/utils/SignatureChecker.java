@@ -9,7 +9,6 @@ import java.security.NoSuchAlgorithmException;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import no.bibsys.secrets.SecretsReader;
-import no.bibsys.utils.Environment;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
@@ -24,14 +23,15 @@ public class SignatureChecker {
 
     public static String SECRET_NAME = "SECRET_NAME";
     public static String SECRET_KEY = "SECRET_KEY";
-    private transient String amazonSecretName;
-    private transient String amazonSecretKey;
-
-    private final transient Environment environment;
+    private transient final String amazonSecretName;
+    private transient final String amazonSecretKey;
 
 
-    public SignatureChecker(Environment environment) {
-        this.environment = environment;
+
+
+    public SignatureChecker(String secretName,String secretKey) {
+        this.amazonSecretName=secretName;
+        this.amazonSecretKey=secretKey;
     }
 
 
@@ -100,7 +100,6 @@ public class SignatureChecker {
 
 
     private String readSecretsKey() throws IOException {
-        initializeAmazonSecrets();
         SecretsReader secretsReader = new SecretsReader();
         String secretValue = secretsReader.readAuthFromSecrets(amazonSecretName, amazonSecretKey);
         return secretValue;
@@ -108,13 +107,7 @@ public class SignatureChecker {
     }
 
 
-    private void initializeAmazonSecrets() {
-        this.amazonSecretName = environment.readEnvOpt(SECRET_NAME)
-            .orElseThrow(
-                () -> new IllegalStateException("Missing env variable:" + SECRET_NAME));
-        this.amazonSecretKey = environment.readEnvOpt(SECRET_KEY)
-            .orElseThrow(() -> new IllegalStateException("Missing env variable:" + SECRET_KEY));
-    }
+
 
 
 }

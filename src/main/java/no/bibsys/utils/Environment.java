@@ -5,7 +5,7 @@ import java.util.Optional;
 
 public class Environment {
 
-    public static String  STAGE_ENV="STAGE";
+
 
 
     public Optional<String> readEnvOpt(String variableName) {

@@ -14,6 +14,7 @@ import no.bibsys.lambda.api.requests.PullRequest;
 import no.bibsys.lambda.api.requests.PushEvent;
 import no.bibsys.lambda.api.requests.RepositoryInfo;
 import no.bibsys.lambda.api.utils.SignatureChecker;
+import no.bibsys.lambda.deploy.handlers.SwaggerHubInfo;
 import no.bibsys.lambda.deploy.handlers.templates.ApiGatewayHandlerTemplate;
 import no.bibsys.utils.Environment;
 import org.slf4j.Logger;
@@ -21,13 +22,26 @@ import org.slf4j.LoggerFactory;
 
 public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
-    private transient SignatureChecker signatureChecker;
     private final transient static Logger logger = LoggerFactory.getLogger(GithubHandler.class);
-    private transient Environment environment;
+    private final transient SwaggerHubInfo swaggerHubInfo;
+    private transient SignatureChecker signatureChecker;
+
+
 
     public GithubHandler() {
+        this(new Environment());
+
+    }
+
+    public GithubHandler(Environment environment) {
         super(String.class);
-        init();
+
+        String secretName = environment.readEnv(SignatureChecker.SECRET_NAME);
+        String secretKey = environment.readEnv(SignatureChecker.SECRET_KEY);
+        signatureChecker = new SignatureChecker(secretName, secretKey);
+        swaggerHubInfo = new SwaggerHubInfo(environment);
+
+
     }
 
     @Override
@@ -45,14 +59,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     }
 
 
-    private void init() {
-        if (environment == null) {
-            environment = new Environment();
-        }
 
-        signatureChecker = new SignatureChecker(environment);
-
-    }
 
     private String processGitEvent(String request) throws IOException, URISyntaxException {
         Optional<RepositoryInfo> gitEventOpt = parseEvent(request);
@@ -69,7 +76,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     }
 
 
-    private String processPushEvent(PushEvent pushEvent)  {
+    private String processPushEvent(PushEvent pushEvent) {
         return pushEvent.toString();
 
     }
@@ -79,11 +86,11 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
         throws IOException, URISyntaxException {
         if (pullRequest.getAction().equals(PullRequest.ACTION_OPEN)
             || pullRequest.getAction().equals(PullRequest.ACTION_REOPEN)) {
-            createStacks(pullRequest);
+            createStacks(pullRequest, swaggerHubInfo);
         }
 
         if (pullRequest.getAction().equals(PullRequest.ACTION_CLOSE)) {
-            deleteStacks(pullRequest);
+            deleteStacks(pullRequest, swaggerHubInfo);
         }
 
         System.out.println(pullRequest.toString());
@@ -104,33 +111,23 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     }
 
 
-    protected void deleteStacks(RepositoryInfo repositoryInfo)
+    protected void deleteStacks(RepositoryInfo repositoryInfo, SwaggerHubInfo swaggerHubInfo)
         throws IOException, URISyntaxException {
-        GitInfo gitInfo = new GithubConf(repositoryInfo.getOwner(), repositoryInfo.getRepository(),
-            new Environment());
+        GitInfo gitInfo = new GithubConf(repositoryInfo.getOwner(), repositoryInfo.getRepository());
+
         Application application = new Application(gitInfo, repositoryInfo.getBranch());
-        application.wipeStacks();
+        application.wipeStacks(swaggerHubInfo);
     }
 
-    protected void createStacks(RepositoryInfo repositoryInfo)
+    protected void createStacks(RepositoryInfo repositoryInfo, SwaggerHubInfo swaggerHubInfo)
         throws IOException, URISyntaxException {
-        GitInfo gitInfo = new GithubConf(repositoryInfo.getOwner(), repositoryInfo.getRepository(),
-            new Environment());
+        GitInfo gitInfo = new GithubConf(repositoryInfo.getOwner(), repositoryInfo.getRepository());
         Application application = new Application(gitInfo, repositoryInfo.getBranch());
-        application.createStacks();
+        application.createStacks(swaggerHubInfo);
     }
 
 
 
-
-
-
-
-
-
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
-    }
 
 
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import no.bibsys.Application;
 import no.bibsys.git.github.GithubConf;
+import no.bibsys.lambda.deploy.handlers.SwaggerHubInfo;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -14,27 +15,27 @@ public class PipelineTest {
 
     private String repoName = "authority-registry-infrastructure";
     private String repoOwner = "BIBSYSDEV";
-    private String swaggerApiKey = "";
+    private SwaggerHubInfo swaggerHubInfo=new SwaggerHubInfo("small-api","1.0","axthosarouris");
 
 
     @Test
     @Ignore
     public void createStacks() throws IOException, URISyntaxException {
         Application application = initApplication();
-        application.createStacks();
+        application.createStacks( swaggerHubInfo);
     }
 
     @Test
     @Ignore
     public void deleteStacks() throws IOException, URISyntaxException {
         Application application = initApplication();
-        application.wipeStacks();
+        application.wipeStacks(swaggerHubInfo);
 
     }
 
 
     private Application initApplication() throws IOException {
-        GithubConf githubConf = new GithubConf(repoOwner, repoName, new Environment());
+        GithubConf githubConf = new GithubConf(repoOwner, repoName);
         return new Application(githubConf, branchName);
     }
 

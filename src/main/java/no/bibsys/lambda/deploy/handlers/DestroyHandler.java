@@ -12,9 +12,9 @@ import no.bibsys.utils.ResourceDestroyer;
 
 public class DestroyHandler extends CodePipelineFunctionHandlerTemplate<SimpleResponse> {
 
-    Environment environment;
+    private final transient Environment environment;
 
-    public DestroyHandler(Environment environment) throws IOException {
+    public DestroyHandler(Environment environment)  {
         super();
         this.environment=environment;
 
@@ -24,8 +24,11 @@ public class DestroyHandler extends CodePipelineFunctionHandlerTemplate<SimpleRe
     protected SimpleResponse processInput(DeployEvent input, String apiGatewayInputString,
         Context context)
         throws IOException, URISyntaxException {
-        Stage stage = Stage.fromString(environment.readEnv(Route53Updater.STAGE_ENV));
-        ResourceDestroyer resourceDestroyer=new ResourceDestroyer(stage);
+        Stage stage = Stage.currentStage();
+        String repository=environment.readEnv("REPOSITORY");
+        String branch=environment.readEnv("BRANCH");
+        SwaggerHubInfo swaggerHubInfo=new SwaggerHubInfo(environment);
+        ResourceDestroyer resourceDestroyer=new ResourceDestroyer(repository,branch,swaggerHubInfo,stage);
         resourceDestroyer.destroy();
 
         return new SimpleResponse("OK");

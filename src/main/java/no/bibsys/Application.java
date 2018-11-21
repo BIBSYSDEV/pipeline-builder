@@ -7,11 +7,13 @@ import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.git.github.GitInfo;
 import no.bibsys.git.github.GithubConf;
 import no.bibsys.lambda.api.utils.Action;
+import no.bibsys.lambda.deploy.handlers.SwaggerHubInfo;
 import no.bibsys.utils.Environment;
 import no.bibsys.utils.StackBuilder;
 import no.bibsys.utils.StackWiper;
 
 public class Application {
+
 
     private final transient StackWiper wiper;
 
@@ -22,12 +24,14 @@ public class Application {
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
 
 
+
     public Application(GitInfo gitInfo, String branch) {
 
         this.pipelineStackConfiguration = new PipelineStackConfiguration(gitInfo, branch);
         this.repoOwner = gitInfo.getOwner();
         this.repoName = gitInfo.getOwner();
         this.branch =branch;
+
         wiper = new StackWiper(pipelineStackConfiguration);
         checkNulls();
 
@@ -35,13 +39,13 @@ public class Application {
 
     public static void run(String repoOwner, String repository, String branch, String action)
         throws IOException, URISyntaxException {
-        GitInfo gitInfo = new GithubConf(repoOwner, repository, new Environment());
-
+        GitInfo gitInfo = new GithubConf(repoOwner, repository);
+        Environment environment=new Environment();
         Application application = new Application(gitInfo,branch);
         if (action.equals(Action.CREATE)) {
-            application.createStacks();
+            application.createStacks(new SwaggerHubInfo(environment));
         } else if (action.equals(Action.DELETE)) {
-            application.wipeStacks();
+            application.wipeStacks(new SwaggerHubInfo(environment));
         }
 
 
@@ -57,9 +61,12 @@ public class Application {
         String action = System.getProperty("action");
         StringBuilder message = new StringBuilder(100);
         message.append("System property \"action\" is not set\n")
-            .append("Valid values: create,delete,update-role");
+            .append("Valid values: create,delete");
         Preconditions.checkNotNull(action, message.toString());
-
+        String apiId=System.getProperty("apiId");
+        Preconditions.checkNotNull(apiId,"System property apiId is not set");
+        String swaggerOrg=System.getProperty("swaggerOrg");
+        Preconditions.checkNotNull(swaggerOrg,"System property swaggerOrg is not set");
         Application.run(repoOwner, repository, branch, action);
 
     }
@@ -68,16 +75,16 @@ public class Application {
         return pipelineStackConfiguration;
     }
 
-    public void createStacks() throws IOException, URISyntaxException {
+    public void createStacks(SwaggerHubInfo swaggerHubInfo) throws IOException, URISyntaxException {
         StackBuilder stackBuilder = new StackBuilder(wiper, pipelineStackConfiguration);
-        stackBuilder.createStacks();
+        stackBuilder.createStacks(swaggerHubInfo);
     }
 
 
 
-    public void wipeStacks() throws IOException, URISyntaxException {
+    public void wipeStacks(SwaggerHubInfo swaggerHubInfo) throws IOException, URISyntaxException {
         checkNulls();
-        wiper.wipeStacks();
+        wiper.wipeStacks(swaggerHubInfo);
 
     }
 

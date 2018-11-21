@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Optional;
+import no.bibsys.lambda.deploy.handlers.SwaggerHubInfo;
 
 
 public class SwaggerHubUrlFormatter {
@@ -11,23 +12,14 @@ public class SwaggerHubUrlFormatter {
 
     private final transient URI requestURL;
 
-    /**
-     *
-     *
-     * @param organization The SwaggerHub organization or account name
-     * @param apiId The id of the api
-     * @param apiVersion The version of the API documentation. Can be {@code null} if the
-     *                   intended action is for the whole API
-     * @param requestParameters Map of request parameters as defined by the SwaggerHub documentation
-     * @throws URISyntaxException
-     */
+
     public SwaggerHubUrlFormatter(
-        String organization,
-        String apiId,
-        String apiVersion,
+       SwaggerHubInfo swaggerHubInfo,
+        boolean includeApiVersion,
         Map<String, String> requestParameters)
         throws URISyntaxException {
-        this.requestURL = urlFormatter(apiUri(organization,apiId,apiVersion),requestParameters);
+
+        this.requestURL = urlFormatter(apiUri(swaggerHubInfo,includeApiVersion),requestParameters);
 
     }
 
@@ -39,14 +31,14 @@ public class SwaggerHubUrlFormatter {
 
 
 
-    private URI apiUri(String organization,String apiId,String version) throws URISyntaxException {
-        if (version != null && version.length() > 0) {
+    private URI apiUri(SwaggerHubInfo info,boolean includeApiVersion) throws URISyntaxException {
+        if (includeApiVersion) {
             return new URI(String
-                .format("https://api.swaggerhub.com/apis/%s/%s/%s", organization, apiId,
-                    version));
+                .format("https://api.swaggerhub.com/apis/%s/%s/%s", info.getSwaggerOrganization(), info.getApiId(),
+                    info.getApiVersion()));
         } else {
             return new URI(
-                String.format("https://api.swaggerhub.com/apis/%s/%s", organization, apiId));
+                String.format("https://api.swaggerhub.com/apis/%s/%s", info.getSwaggerOrganization(), info.getApiId()));
         }
 
     }

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.cloudformation.Stage;
+import no.bibsys.lambda.deploy.handlers.SwaggerHubInfo;
 
 public class StackBuilder {
 
@@ -29,9 +30,9 @@ public class StackBuilder {
     }
 
 
-    public void createStacks()
+    public void createStacks(SwaggerHubInfo swaggerHubInfo)
         throws IOException, URISyntaxException {
-        stackWiper.wipeStacks();
+        stackWiper.wipeStacks(swaggerHubInfo);
         createPipelineStack(pipelineStackConfiguration);
     }
 
