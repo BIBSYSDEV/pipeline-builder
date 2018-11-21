@@ -14,6 +14,11 @@ public class DestroyHandler extends CodePipelineFunctionHandlerTemplate<SimpleRe
 
     private final transient Environment environment;
 
+    public DestroyHandler(){
+        this(new Environment());
+    }
+
+
     public DestroyHandler(Environment environment)  {
         super();
         this.environment=environment;
