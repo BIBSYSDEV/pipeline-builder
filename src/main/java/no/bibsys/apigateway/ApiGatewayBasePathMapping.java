@@ -41,8 +41,9 @@ public class ApiGatewayBasePathMapping {
 
 
     public CreateBasePathMappingResult createBasePath(RestApi restApi, String certifcateArn) {
-        checkAndCreateCustomDomainName(certifcateArn);
         deleteBasePathMappings();
+        checkAndCreateCustomDomainName(certifcateArn);
+
         CreateBasePathMappingRequest createBasePathMappingRequest = newBasePathMappingRequest(
             restApi.getId());
 
