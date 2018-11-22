@@ -39,6 +39,8 @@ public class ResourceInitializer {
             .map(result -> result.getChangeInfo().getStatus());
         StringBuilder output = new StringBuilder(20);
         output.append("Swagger:");
+
+        swaggerHubUpdater.deleteApi();
         Optional<String> swaggerUpdateResult = swaggerHubUpdater.updateApiDocumentation();
         swaggerUpdateResult.ifPresent(s -> output.append(s));
         output.append("\nRoute53:");
