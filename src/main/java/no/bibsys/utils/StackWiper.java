@@ -121,7 +121,6 @@ public class StackWiper {
 
 
         for (Stage stage : stages) {
-
             ResourceDestroyer destroyer = new ResourceDestroyer(networkZoneName, repository, branch,
                 swaggerHubInfo, stage);
             destroyer.destroy();

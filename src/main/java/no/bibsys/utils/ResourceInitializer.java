@@ -35,9 +35,10 @@ public class ResourceInitializer {
 
         System.out.println("Lambda function started");
         System.out.println("Updating Route 53");
-        ChangeResourceRecordSetsResult route53UpdateResult = route53Updater
+        Optional<ChangeResourceRecordSetsResult> route53UpdateResult = route53Updater
             .updateServerUrl(certificateArn);
-        String route53Status = route53UpdateResult.getChangeInfo().getStatus();
+        String route53Status = route53UpdateResult.map(result -> result.getChangeInfo().getStatus())
+            .orElse("Server not updated");
         Route53Updater testPhaseRoute53Updater = route53Updater.copy(Stage.TEST);
         testPhaseRoute53Updater.deleteServerUrl();
 

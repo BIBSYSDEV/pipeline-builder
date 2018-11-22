@@ -16,6 +16,7 @@ import com.amazonaws.services.route53.model.ResourceRecord;
 import com.amazonaws.services.route53.model.ResourceRecordSet;
 import com.google.common.base.Preconditions;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import no.bibsys.apigateway.ApiGatewayApiInfo;
 import no.bibsys.apigateway.ApiGatewayBasePathMapping;
@@ -74,31 +75,33 @@ public class Route53Updater {
     }
 
 
-    public ChangeResourceRecordSetsResult updateServerUrl(String certificateArn) {
+    public Optional<ChangeResourceRecordSetsResult> updateServerUrl(String certificateArn) {
         RestApi restApi = apiGatewayApiInfo.findRestApi()
             .orElseThrow(() -> new NotFoundException("GatewayApi or GatewayApi stage not found"));
         apiGatewayBasePathMapping.createBasePath(restApi, certificateArn);
 
-        String targetDomainName = apiGatewayBasePathMapping.getTargeDomainName();
-        return route53Client.changeResourceRecordSets(updateRecordSetsRequest(targetDomainName));
+        Optional<String> targetDomainName = apiGatewayBasePathMapping.getTargeDomainName();
+        return targetDomainName.map(domainName ->
+            route53Client.changeResourceRecordSets(updateRecordSetsRequest(domainName)));
+
 
     }
 
 
-    public ChangeResourceRecordSetsResult deleteServerUrl() {
+    public Optional<ChangeResourceRecordSetsResult> deleteServerUrl() {
 
         try {
             apiGatewayBasePathMapping.deleteBasePathMappings();
-            String targetDomainName = apiGatewayBasePathMapping.getTargeDomainName();
-            return route53Client
-                .changeResourceRecordSets(deleteRecordSetsRequest(targetDomainName));
+            Optional<String> targetDomainName = apiGatewayBasePathMapping.getTargeDomainName();
+            return targetDomainName.map(domainName -> route53Client
+                .changeResourceRecordSets(deleteRecordSetsRequest(domainName)));
         } catch (NotFoundException e) {
             if (log.isWarnEnabled()) {
                 log.warn("Domain Name not found:" + apiGatewayBasePathMapping.getTargeDomainName());
             }
 
         }
-        return null;
+        return Optional.empty();
     }
 
 

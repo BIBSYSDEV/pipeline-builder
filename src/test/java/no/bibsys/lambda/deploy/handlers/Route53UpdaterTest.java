@@ -103,7 +103,7 @@ public class Route53UpdaterTest {
         Route53Updater updater = new Route53Updater(zoneName, repository, branch, Stage.TEST,
             AmazonApiGatewayClientBuilder.defaultClient());
 
-        ChangeResourceRecordSetsResult result = updater.updateServerUrl(certificateArn);
+        Optional<ChangeResourceRecordSetsResult> result = updater.updateServerUrl(certificateArn);
 
         assertThat(result, is(not(equalTo(Optional.empty()))));
 //        assertThat(result.get().getSdkHttpMetadata().getHttpStatusCode(), is(equalTo(200)));
