@@ -262,6 +262,8 @@ Resources:
           - lambda:InvokeFunction
           - codepipeline:PutJobFailureResult
           - codepipeline:PutJobSuccessResult
+          - route53:ListHostedZones
+          - route53:ChangeResourceRecordSets
           - apigateway:*
           Effect: Allow
           Resource: "*"
