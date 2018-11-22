@@ -48,8 +48,6 @@ public class ApiGatewayBasePathMapping {
             restApi.getId());
 
         return apiGatewayClient.createBasePathMapping(createBasePathMappingRequest);
-
-
     }
 
 
