@@ -19,10 +19,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import no.bibsys.cloudformation.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ApiGatewayBasePathMapping {
 
-
+    private static final Logger log = LoggerFactory.getLogger(ApiGatewayBasePathMapping.class);
     private final transient AmazonApiGateway apiGatewayClient;
     private final transient String domainName;
     private final transient Stage stage;
@@ -34,7 +36,7 @@ public class ApiGatewayBasePathMapping {
         Stage stage) {
         this.apiGatewayClient = apiGatewayClient;
         this.stage = stage;
-        this.domainName = stage.equals(Stage.FINAL)? domainName: "test."+domainName;
+        this.domainName = domainName;
 
     }
 
@@ -57,7 +59,12 @@ public class ApiGatewayBasePathMapping {
         executeDeleteRequests(deleteRequests);
         DeleteDomainNameRequest deleteDomainNameRequest = new DeleteDomainNameRequest()
             .withDomainName(domainName);
-        apiGatewayClient.deleteDomainName(deleteDomainNameRequest);
+
+        try {
+            apiGatewayClient.deleteDomainName(deleteDomainNameRequest);
+        } catch (NotFoundException e) {
+            log.warn("Custom domain name not found");
+        }
 
     }
 

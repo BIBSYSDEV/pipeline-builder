@@ -23,7 +23,7 @@ public class ApiGatewayBasePathMappingTest {
             .newBasePathMappingRequest("restApi");
 
         assertThat(request.getRestApiId(), is(equalTo("restApi")));
-        assertThat(request.getDomainName(), is(equalTo("test." + domainName)));
+        assertThat(request.getDomainName(), is(equalTo(domainName)));
         assertThat(request.getStage(), is(equalTo(Stage.TEST.toString())));
     }
 

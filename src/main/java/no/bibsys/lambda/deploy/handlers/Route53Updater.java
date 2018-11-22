@@ -22,14 +22,16 @@ import no.bibsys.apigateway.ApiGatewayBasePathMapping;
 import no.bibsys.cloudformation.CloudFormationConfigurable;
 import no.bibsys.cloudformation.Stage;
 import no.bibsys.lambda.deploy.constants.NetworkConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Route53Updater {
 
     public static final String ZONE_NAME_ENV = "ZONE_NAME";
     public static final String REPOSITORY_NAME_ENV_VAR = "REPOSITORY";
     public static final String BRANCH_NAME_ENV_VAR = "BRANCH";
-    public static final String CERTIFICATE_ARN="REGIONAL_CERTIFICATE_ARN";
-
+    public static final String CERTIFICATE_ARN = "REGIONAL_CERTIFICATE_ARN";
+    private static final Logger log = LoggerFactory.getLogger(Route53Updater.class);
     private final transient String zoneName;
     private final transient String repository;
     private final transient String branch;
@@ -50,20 +52,17 @@ public class Route53Updater {
         Stage stage,
         AmazonApiGateway apiGatewayClient) {
 
-        NetworkConstants networkConstants=new NetworkConstants(stage);
+        NetworkConstants networkConstants = new NetworkConstants(stage);
         this.repository = repository;
         this.recordSetName = networkConstants.getRecordSetName();
         this.branch = branch;
         this.apiGatewayClient = apiGatewayClient;
         this.zoneName = zonName;
 
-
-
-
         this.route53Client = AmazonRoute53ClientBuilder.defaultClient();
         CloudFormationConfigurable conf = new CloudFormationConfigurable(repository, branch);
         this.apiGatewayApiInfo = new ApiGatewayApiInfo(conf, stage.toString(), apiGatewayClient);
-        this.apiGatewayBasePathMapping =  new ApiGatewayBasePathMapping(
+        this.apiGatewayBasePathMapping = new ApiGatewayBasePathMapping(
             apiGatewayClient,
             networkConstants.getDomainName(),
             stage);
@@ -78,7 +77,7 @@ public class Route53Updater {
     public ChangeResourceRecordSetsResult updateServerUrl(String certificateArn) {
         RestApi restApi = apiGatewayApiInfo.findRestApi()
             .orElseThrow(() -> new NotFoundException("GatewayApi or GatewayApi stage not found"));
-         apiGatewayBasePathMapping.createBasePath(restApi,certificateArn);
+        apiGatewayBasePathMapping.createBasePath(restApi, certificateArn);
 
         String targetDomainName = apiGatewayBasePathMapping.getTargeDomainName();
         return route53Client.changeResourceRecordSets(updateRecordSetsRequest(targetDomainName));
@@ -88,9 +87,18 @@ public class Route53Updater {
 
     public ChangeResourceRecordSetsResult deleteServerUrl() {
 
-        apiGatewayBasePathMapping.deleteBasePathMappings();
-        String targetDomainName = apiGatewayBasePathMapping.getTargeDomainName();
-        return route53Client.changeResourceRecordSets(deleteRecordSetsRequest(targetDomainName));
+        try {
+            apiGatewayBasePathMapping.deleteBasePathMappings();
+            String targetDomainName = apiGatewayBasePathMapping.getTargeDomainName();
+            return route53Client
+                .changeResourceRecordSets(deleteRecordSetsRequest(targetDomainName));
+        } catch (NotFoundException e) {
+            if (log.isWarnEnabled()) {
+                log.warn("Domain Name not found:" + apiGatewayBasePathMapping.getTargeDomainName());
+            }
+
+        }
+        return null;
     }
 
 
@@ -145,8 +153,6 @@ public class Route53Updater {
     public void setRoute53Client(AmazonRoute53 route53Client) {
         this.route53Client = route53Client;
     }
-
-
 
 
     public ApiGatewayBasePathMapping getApiGatewayBasePathMapping() {

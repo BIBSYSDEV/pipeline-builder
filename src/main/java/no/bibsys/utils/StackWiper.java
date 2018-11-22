@@ -113,7 +113,7 @@ public class StackWiper {
     }
 
 
-    private void destroyResources(SwaggerHubInfo swaggerHubInfo, String netowrkZoneName)
+    private void destroyResources(SwaggerHubInfo swaggerHubInfo, String networkZoneName)
         throws IOException, URISyntaxException {
         List<Stage> stages = Stage.listStages();
         String repository=pipelineStackConfiguration.getGithubConf().getRepo();
@@ -122,7 +122,7 @@ public class StackWiper {
 
         for (Stage stage : stages) {
 
-            ResourceDestroyer destroyer = new ResourceDestroyer(netowrkZoneName, repository, branch,
+            ResourceDestroyer destroyer = new ResourceDestroyer(networkZoneName, repository, branch,
                 swaggerHubInfo, stage);
             destroyer.destroy();
         }
