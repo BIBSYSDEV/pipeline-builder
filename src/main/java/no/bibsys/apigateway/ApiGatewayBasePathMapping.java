@@ -74,7 +74,7 @@ public class ApiGatewayBasePathMapping {
     }
 
 
-    public Optional<String> getTargeDomainName() throws NotFoundException {
+    public Optional<String> getTargetDomainName() throws NotFoundException {
         try {
             String targetname = apiGatewayClient
                 .getDomainName(new GetDomainNameRequest().withDomainName(domainName))

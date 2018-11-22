@@ -80,7 +80,7 @@ public class Route53Updater {
             .orElseThrow(() -> new NotFoundException("GatewayApi or GatewayApi stage not found"));
         apiGatewayBasePathMapping.createBasePath(restApi, certificateArn);
 
-        Optional<String> targetDomainName = apiGatewayBasePathMapping.getTargeDomainName();
+        Optional<String> targetDomainName = apiGatewayBasePathMapping.getTargetDomainName();
         return targetDomainName.map(domainName ->
             route53Client.changeResourceRecordSets(updateRecordSetsRequest(domainName)));
 
@@ -91,13 +91,15 @@ public class Route53Updater {
     public Optional<ChangeResourceRecordSetsResult> deleteServerUrl() {
 
         try {
+            Optional<String> targetDomainName = apiGatewayBasePathMapping.getTargetDomainName();
             apiGatewayBasePathMapping.deleteBasePathMappings();
-            Optional<String> targetDomainName = apiGatewayBasePathMapping.getTargeDomainName();
+
             return targetDomainName.map(domainName -> route53Client
                 .changeResourceRecordSets(deleteRecordSetsRequest(domainName)));
         } catch (NotFoundException e) {
             if (log.isWarnEnabled()) {
-                log.warn("Domain Name not found:" + apiGatewayBasePathMapping.getTargeDomainName());
+                log.warn(
+                    "Domain Name not found:" + apiGatewayBasePathMapping.getTargetDomainName());
             }
 
         }
