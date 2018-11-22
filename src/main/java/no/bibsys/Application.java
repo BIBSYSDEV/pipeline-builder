@@ -64,8 +64,7 @@ public class Application {
         message.append("System property \"action\" is not set\n")
             .append("Valid values: create,delete");
         Preconditions.checkNotNull(action, message.toString());
-        String apiId=System.getProperty("apiId");
-        Preconditions.checkNotNull(apiId,"System property apiId is not set");
+
         String swaggerOrg=System.getProperty("swaggerOrg");
         Preconditions.checkNotNull(swaggerOrg,"System property swaggerOrg is not set");
         String networkZoneName = System.getProperty("networkZoneName");
