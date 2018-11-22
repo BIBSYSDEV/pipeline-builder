@@ -30,7 +30,6 @@ public class ApiGatewayBasePathMapping {
     private final transient Stage stage;
 
 
-
     public ApiGatewayBasePathMapping(AmazonApiGateway apiGatewayClient,
         String domainName,
         Stage stage) {
@@ -41,7 +40,7 @@ public class ApiGatewayBasePathMapping {
     }
 
 
-    public CreateBasePathMappingResult createBasePath(RestApi restApi,String certifcateArn) {
+    public CreateBasePathMappingResult createBasePath(RestApi restApi, String certifcateArn) {
         checkAndCreateCustomDomainName(certifcateArn);
         deleteBasePathMappings();
         CreateBasePathMappingRequest createBasePathMappingRequest = newBasePathMappingRequest(
@@ -55,12 +54,12 @@ public class ApiGatewayBasePathMapping {
 
     public void deleteBasePathMappings() {
         System.out.println("Deleting old basepath Mappings");
-        List<DeleteBasePathMappingRequest> deleteRequests = executeDeleteRequests();
-        executeDeleteRequests(deleteRequests);
-        DeleteDomainNameRequest deleteDomainNameRequest = new DeleteDomainNameRequest()
-            .withDomainName(domainName);
 
         try {
+            List<DeleteBasePathMappingRequest> deleteRequests = createDeleteRequests();
+            executeDeleteRequests(deleteRequests);
+            DeleteDomainNameRequest deleteDomainNameRequest = new DeleteDomainNameRequest()
+                .withDomainName(domainName);
             apiGatewayClient.deleteDomainName(deleteDomainNameRequest);
         } catch (NotFoundException e) {
             log.warn("Custom domain name not found");
@@ -71,7 +70,7 @@ public class ApiGatewayBasePathMapping {
 
     private void checkAndCreateCustomDomainName(String certifcateArn) {
         if (!domainExists(this.apiGatewayClient)) {
-            createDomainName(this.apiGatewayClient,certifcateArn);
+            createDomainName(this.apiGatewayClient, certifcateArn);
         }
     }
 
@@ -101,22 +100,20 @@ public class ApiGatewayBasePathMapping {
         deleteRequests.forEach(apiGatewayClient::deleteBasePathMapping);
     }
 
-    private List<DeleteBasePathMappingRequest> executeDeleteRequests() {
+    private List<DeleteBasePathMappingRequest> createDeleteRequests() {
         GetBasePathMappingsRequest listBasePathsRequest = new GetBasePathMappingsRequest()
             .withDomainName(domainName);
-        try{
+        try {
             Optional<List<BasePathMapping>> items = Optional
                 .ofNullable(apiGatewayClient.getBasePathMappings(listBasePathsRequest).getItems());
             List<DeleteBasePathMappingRequest> result = items
                 .map(list -> list.stream().map(this::newDeleteBasePathRequest)
                     .collect(Collectors.toList())).orElse(Collections.emptyList());
             return result;
-        }
-        catch(NotFoundException e){
+        } catch (NotFoundException e) {
             e.printStackTrace();
             return Collections.emptyList();
         }
-
 
 
     }
