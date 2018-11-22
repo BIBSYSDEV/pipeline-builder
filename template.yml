@@ -251,6 +251,7 @@ Resources:
           REPOSITORY: 'authority-registry-infrastructure'
           STAGE: !Ref Stage
           SWAGGER_ORG: 'axthosarouris'
+          ZONE_NAME_ENV: 'aws.unit.no.'
           REGIONAL_CERTIFICATE_ARN: '{{resolve:ssm:infrastructure-entitydata-certificate-arn:1}}'
 
       Policies:

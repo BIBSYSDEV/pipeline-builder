@@ -4,26 +4,24 @@ import com.amazonaws.services.apigateway.AmazonApiGateway;
 import com.amazonaws.services.apigateway.AmazonApiGatewayClientBuilder;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import no.bibsys.apigateway.ApiGatewayBasePathMapping;
 import no.bibsys.cloudformation.Stage;
-import no.bibsys.lambda.deploy.constants.NetworkConstants;
+import no.bibsys.lambda.deploy.handlers.Route53Updater;
 import no.bibsys.lambda.deploy.handlers.SwaggerHubInfo;
 import no.bibsys.lambda.deploy.handlers.SwaggerHubUpdater;
 
 public class ResourceDestroyer {
 
     private final transient SwaggerHubUpdater swaggerHubUpdater;
-    private final transient ApiGatewayBasePathMapping apiGatewayBasePathMapping;
+    private final transient Route53Updater route53Updater;
 
-    public ResourceDestroyer(String repository,String branch, SwaggerHubInfo swaggerHubInfo,Stage stage)
+    public ResourceDestroyer(String zoneName, String repository, String branch,
+        SwaggerHubInfo swaggerHubInfo, Stage stage)
         throws IOException {
         super();
-
-        String domainName = new NetworkConstants(stage).getDomainName();
         AmazonApiGateway client = AmazonApiGatewayClientBuilder.defaultClient();
         swaggerHubUpdater = new SwaggerHubUpdater(client,swaggerHubInfo,repository,branch,stage);
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
-        this.apiGatewayBasePathMapping = new ApiGatewayBasePathMapping(apiGateway,domainName,stage );
+        route53Updater = new Route53Updater(zoneName, repository, branch, stage, apiGateway);
     }
 
 
@@ -31,7 +29,9 @@ public class ResourceDestroyer {
         throws IOException, URISyntaxException {
 
         int response = swaggerHubUpdater.deleteApi();
-        apiGatewayBasePathMapping.deleteBasePathMappings();
+
+        this.route53Updater.deleteServerUrl();
+
 
         System.out.println("Swagger response" + response);
 

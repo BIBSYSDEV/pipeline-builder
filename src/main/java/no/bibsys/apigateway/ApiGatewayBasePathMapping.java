@@ -6,6 +6,7 @@ import com.amazonaws.services.apigateway.model.CreateBasePathMappingRequest;
 import com.amazonaws.services.apigateway.model.CreateBasePathMappingResult;
 import com.amazonaws.services.apigateway.model.CreateDomainNameRequest;
 import com.amazonaws.services.apigateway.model.DeleteBasePathMappingRequest;
+import com.amazonaws.services.apigateway.model.DeleteDomainNameRequest;
 import com.amazonaws.services.apigateway.model.EndpointConfiguration;
 import com.amazonaws.services.apigateway.model.EndpointType;
 import com.amazonaws.services.apigateway.model.GetBasePathMappingsRequest;
@@ -54,6 +55,10 @@ public class ApiGatewayBasePathMapping {
         System.out.println("Deleting old basepath Mappings");
         List<DeleteBasePathMappingRequest> deleteRequests = executeDeleteRequests();
         executeDeleteRequests(deleteRequests);
+        DeleteDomainNameRequest deleteDomainNameRequest = new DeleteDomainNameRequest()
+            .withDomainName(domainName);
+        apiGatewayClient.deleteDomainName(deleteDomainNameRequest);
+
     }
 
 
@@ -110,6 +115,7 @@ public class ApiGatewayBasePathMapping {
 
 
     private void createDomainName(AmazonApiGateway client, String certificateArn) {
+
         CreateDomainNameRequest createDomainNameRequest =
             new CreateDomainNameRequest().withRegionalCertificateArn(certificateArn)
                 .withDomainName(domainName)

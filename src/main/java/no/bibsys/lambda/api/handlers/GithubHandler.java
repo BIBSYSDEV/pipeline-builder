@@ -14,6 +14,7 @@ import no.bibsys.lambda.api.requests.PullRequest;
 import no.bibsys.lambda.api.requests.PushEvent;
 import no.bibsys.lambda.api.requests.RepositoryInfo;
 import no.bibsys.lambda.api.utils.SignatureChecker;
+import no.bibsys.lambda.deploy.handlers.Route53Updater;
 import no.bibsys.lambda.deploy.handlers.SwaggerHubInfo;
 import no.bibsys.lambda.deploy.handlers.templates.ApiGatewayHandlerTemplate;
 import no.bibsys.utils.Environment;
@@ -24,6 +25,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
     private final transient static Logger logger = LoggerFactory.getLogger(GithubHandler.class);
     private final transient SwaggerHubInfo swaggerHubInfo;
+    protected final transient String networkZoneName;
 
 
     private transient SignatureChecker signatureChecker;
@@ -40,6 +42,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
         String secretName = environment.readEnv(SignatureChecker.AWS_SECRET_NAME);
         String secretKey = environment.readEnv(SignatureChecker.AWS_SECRET_KEY);
+        this.networkZoneName = environment.readEnv(Route53Updater.ZONE_NAME_ENV);
 
         signatureChecker = new SignatureChecker(secretName, secretKey);
         swaggerHubInfo = new SwaggerHubInfo(environment);
@@ -53,6 +56,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
         String webhookSecurityToken = headers.get("X-Hub-Signature");
         boolean verified = signatureChecker.verifySecurityToken(webhookSecurityToken, request);
+
         if (verified) {
             return processGitEvent(request);
         } else {
@@ -117,14 +121,14 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
         GitInfo gitInfo = new GithubConf(repositoryInfo.getOwner(), repositoryInfo.getRepository());
 
         Application application = new Application(gitInfo, repositoryInfo.getBranch());
-        application.wipeStacks(swaggerHubInfo);
+        application.wipeStacks(swaggerHubInfo, networkZoneName);
     }
 
     protected void createStacks(RepositoryInfo repositoryInfo, SwaggerHubInfo swaggerHubInfo)
         throws IOException, URISyntaxException {
         GitInfo gitInfo = new GithubConf(repositoryInfo.getOwner(), repositoryInfo.getRepository());
         Application application = new Application(gitInfo, repositoryInfo.getBranch());
-        application.createStacks(swaggerHubInfo);
+        application.createStacks(swaggerHubInfo, networkZoneName);
     }
 
 

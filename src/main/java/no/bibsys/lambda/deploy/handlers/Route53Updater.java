@@ -15,13 +15,10 @@ import com.amazonaws.services.route53.model.RRType;
 import com.amazonaws.services.route53.model.ResourceRecord;
 import com.amazonaws.services.route53.model.ResourceRecordSet;
 import com.google.common.base.Preconditions;
-import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import no.bibsys.apigateway.ApiGatewayApiInfo;
 import no.bibsys.apigateway.ApiGatewayBasePathMapping;
-import no.bibsys.apigateway.ServerInfo;
 import no.bibsys.cloudformation.CloudFormationConfigurable;
 import no.bibsys.cloudformation.Stage;
 import no.bibsys.lambda.deploy.constants.NetworkConstants;
@@ -34,12 +31,16 @@ public class Route53Updater {
     public static final String CERTIFICATE_ARN="REGIONAL_CERTIFICATE_ARN";
 
     private final transient String zoneName;
+    private final transient String repository;
+    private final transient String branch;
     private final transient ApiGatewayApiInfo apiGatewayApiInfo;
-    private final transient String certificateArn;
+    private final transient AmazonApiGateway apiGatewayClient;
 
 
     private final transient ApiGatewayBasePathMapping apiGatewayBasePathMapping;
     private transient final String recordSetName;
+
+
     private transient AmazonRoute53 route53Client;
 
 
@@ -47,15 +48,16 @@ public class Route53Updater {
         String repository,
         String branch,
         Stage stage,
-        String regionalCertificateArn,
         AmazonApiGateway apiGatewayClient) {
 
         NetworkConstants networkConstants=new NetworkConstants(stage);
-
+        this.repository = repository;
         this.recordSetName = networkConstants.getRecordSetName();
+        this.branch = branch;
+        this.apiGatewayClient = apiGatewayClient;
         this.zoneName = zonName;
 
-        this.certificateArn=regionalCertificateArn;
+
 
 
         this.route53Client = AmazonRoute53ClientBuilder.defaultClient();
@@ -68,37 +70,31 @@ public class Route53Updater {
     }
 
 
-    public Optional<ChangeResourceRecordSetsResult> updateServerUrl() throws IOException {
+    public Route53Updater copy(Stage stage) {
+        return new Route53Updater(zoneName, repository, branch, stage, apiGatewayClient);
+    }
+
+
+    public ChangeResourceRecordSetsResult updateServerUrl(String certificateArn) {
         RestApi restApi = apiGatewayApiInfo.findRestApi()
             .orElseThrow(() -> new NotFoundException("GatewayApi or GatewayApi stage not found"));
-
          apiGatewayBasePathMapping.createBasePath(restApi,certificateArn);
 
         String targetDomainName = apiGatewayBasePathMapping.getTargeDomainName();
-        return updateRoute53CanonicalName(targetDomainName);
+        return route53Client.changeResourceRecordSets(updateRecordSetsRequest(targetDomainName));
 
     }
 
-    private Optional<ChangeResourceRecordSetsResult> updateRoute53CanonicalName(
-        String targetDomainName)
-        throws IOException {
-        Optional<ServerInfo> serverInfo = getServerInfo();
 
-        Optional<ChangeResourceRecordSetsRequest> updateRequest = serverInfo
-            .map(info -> updateRecordSetsRequest(targetDomainName));
+    public ChangeResourceRecordSetsResult deleteServerUrl() {
 
-        Optional<ChangeResourceRecordSetsResult> result = updateRequest
-            .map(r -> route53Client.changeResourceRecordSets(r));
-        return result;
+        apiGatewayBasePathMapping.deleteBasePathMappings();
+        String targetDomainName = apiGatewayBasePathMapping.getTargeDomainName();
+        return route53Client.changeResourceRecordSets(deleteRecordSetsRequest(targetDomainName));
     }
 
 
-    private Optional<ServerInfo> getServerInfo() throws IOException {
-        return apiGatewayApiInfo.readServerInfo();
-    }
-
-
-    public HostedZone getHostedZone() {
+    private HostedZone getHostedZone() {
         List<HostedZone> hostedZones = route53Client.listHostedZones().getHostedZones().stream()
             .filter(zone -> zone.getName().equals(zoneName))
             .collect(Collectors.toList());
@@ -109,20 +105,30 @@ public class Route53Updater {
     }
 
 
+    private ChangeResourceRecordSetsRequest deleteRecordSetsRequest(String serverUrl) {
+        String hostZoneId = getHostedZone().getId();
+        ResourceRecordSet recordSet = createRecordSet(serverUrl);
+        Change change = createChange(recordSet, ChangeAction.DELETE);
+        ChangeResourceRecordSetsRequest request = new ChangeResourceRecordSetsRequest()
+            .withChangeBatch(new ChangeBatch().withChanges(change)).withHostedZoneId(hostZoneId);
+        return request;
+    }
+
+
     private ChangeResourceRecordSetsRequest updateRecordSetsRequest(String serverUrl) {
         String hostedZoneId = getHostedZone().getId();
 
         ResourceRecordSet recordSet = createRecordSet(serverUrl);
-        Change change = createChange(recordSet);
+        Change change = createChange(recordSet, ChangeAction.UPSERT);
         ChangeBatch changeBatch = new ChangeBatch().withChanges(change);
         ChangeResourceRecordSetsRequest request = new ChangeResourceRecordSetsRequest();
         request.withChangeBatch(changeBatch).withHostedZoneId(hostedZoneId);
         return request;
     }
 
-    private Change createChange(ResourceRecordSet recordSet) {
+    private Change createChange(ResourceRecordSet recordSet, ChangeAction changeAction) {
         Change change = new Change();
-        change.withAction(ChangeAction.UPSERT)
+        change.withAction(changeAction)
             .withResourceRecordSet(recordSet);
         return change;
     }

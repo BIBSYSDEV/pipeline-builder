@@ -16,13 +16,15 @@ public class ResourceInitializer {
 
     private transient final SwaggerHubUpdater swaggerHubUpdater;
     private final transient Route53Updater route53Updater;
+    private final transient String certificateArn;
 
     public ResourceInitializer(String zoneName,String repository, String branch, SwaggerHubInfo swaggerHubInfo,
         Stage stage,String certificateArn) throws IOException {
         super();
         AmazonApiGateway apiGateway= AmazonApiGatewayClientBuilder.defaultClient();
         this.swaggerHubUpdater = new SwaggerHubUpdater(apiGateway,swaggerHubInfo,repository,branch,stage);
-        this.route53Updater = new Route53Updater(zoneName,repository,branch,stage,certificateArn,apiGateway);
+        this.route53Updater = new Route53Updater(zoneName, repository, branch, stage, apiGateway);
+        this.certificateArn = certificateArn;
     }
 
 
@@ -33,18 +35,20 @@ public class ResourceInitializer {
 
         System.out.println("Lambda function started");
         System.out.println("Updating Route 53");
-        Optional<ChangeResourceRecordSetsResult> route53UpdateResult = route53Updater
-            .updateServerUrl();
-        Optional<String> route53Status = route53UpdateResult
-            .map(result -> result.getChangeInfo().getStatus());
+        ChangeResourceRecordSetsResult route53UpdateResult = route53Updater
+            .updateServerUrl(certificateArn);
+        String route53Status = route53UpdateResult.getChangeInfo().getStatus();
+        Route53Updater testPhaseRoute53Updater = route53Updater.copy(Stage.TEST);
+        testPhaseRoute53Updater.deleteServerUrl();
+
         StringBuilder output = new StringBuilder(20);
         output.append("Swagger:");
 
         swaggerHubUpdater.deleteApi();
         Optional<String> swaggerUpdateResult = swaggerHubUpdater.updateApiDocumentation();
         swaggerUpdateResult.ifPresent(s -> output.append(s));
-        output.append("\nRoute53:");
-        route53Status.ifPresent(s -> output.append(s));
+        output.append("\nRoute53:").append(route53Status);
+
 
         return new SimpleResponse(output.toString());
 

@@ -1,22 +1,26 @@
 #!/usr/bin/env python
 
-import sys
 import subprocess
+import sys
 
 REPOSITORY = "repository"
 BRANCH = "branch"
 ACTION = "action"
 OWNER = "owner"
+SWAGGER_ORG = "swaggerOrg"
+ZONE_NAME = "networkZoneName"
 
 
 class Script:
 
-    def __init__(self, owner, repository, branch, action):
+  def __init__(self, owner, repository, branch, action, swaggerorg, zoneName):
         self._parameters = dict()
         self._parameters[OWNER] = owner
         self._parameters[REPOSITORY] = repository
         self._parameters[BRANCH] = branch
         self._parameters[ACTION] = action
+        self._parameters[SWAGGER_ORG] = swaggerorg
+        self._parameters[ZONE_NAME] = zoneName
 
     def _formSystemProperties(self):
         items = self._parameters.items()
@@ -46,6 +50,8 @@ class Script:
             - repository:\t Github repository
             - branch:\t\t Github branch
             - action:\t\t "create" or "delete"
+            - swaggerOrg:\t\t "axthosarouris"
+            - zoneName:\t\t "aws.unit.no"
         """
 
 

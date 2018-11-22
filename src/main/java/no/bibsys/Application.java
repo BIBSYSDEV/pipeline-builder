@@ -37,15 +37,16 @@ public class Application {
 
     }
 
-    public static void run(String repoOwner, String repository, String branch, String action)
+    public static void run(String repoOwner, String repository, String branch, String action,
+        String networkZoneName)
         throws IOException, URISyntaxException {
         GitInfo gitInfo = new GithubConf(repoOwner, repository);
         Environment environment=new Environment();
         Application application = new Application(gitInfo,branch);
         if (action.equals(Action.CREATE)) {
-            application.createStacks(new SwaggerHubInfo(environment));
+            application.createStacks(new SwaggerHubInfo(environment), networkZoneName);
         } else if (action.equals(Action.DELETE)) {
-            application.wipeStacks(new SwaggerHubInfo(environment));
+            application.wipeStacks(new SwaggerHubInfo(environment), networkZoneName);
         }
 
 
@@ -67,7 +68,9 @@ public class Application {
         Preconditions.checkNotNull(apiId,"System property apiId is not set");
         String swaggerOrg=System.getProperty("swaggerOrg");
         Preconditions.checkNotNull(swaggerOrg,"System property swaggerOrg is not set");
-        Application.run(repoOwner, repository, branch, action);
+        String networkZoneName = System.getProperty("networkZoneName");
+        Preconditions.checkNotNull(networkZoneName, "System property networkZoneName is not set");
+        Application.run(repoOwner, repository, branch, action, networkZoneName);
 
     }
 
@@ -75,16 +78,17 @@ public class Application {
         return pipelineStackConfiguration;
     }
 
-    public void createStacks(SwaggerHubInfo swaggerHubInfo) throws IOException, URISyntaxException {
+    public void createStacks(SwaggerHubInfo swaggerHubInfo, String networkZoneName)
+        throws IOException, URISyntaxException {
         StackBuilder stackBuilder = new StackBuilder(wiper, pipelineStackConfiguration);
-        stackBuilder.createStacks(swaggerHubInfo);
+        stackBuilder.createStacks(swaggerHubInfo, networkZoneName);
     }
 
 
-
-    public void wipeStacks(SwaggerHubInfo swaggerHubInfo) throws IOException, URISyntaxException {
+    public void wipeStacks(SwaggerHubInfo swaggerHubInfo, String networkZoneName)
+        throws IOException, URISyntaxException {
         checkNulls();
-        wiper.wipeStacks(swaggerHubInfo);
+        wiper.wipeStacks(swaggerHubInfo, networkZoneName);
 
     }
 

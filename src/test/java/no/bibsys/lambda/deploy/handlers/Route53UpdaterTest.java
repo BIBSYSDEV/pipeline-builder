@@ -47,7 +47,7 @@ public class Route53UpdaterTest {
             .withHostedZones(new HostedZone().withId("ZoneId").withName(zoneName)));
 
         route53Updater = new Route53Updater(zoneName, "Repository", "Branch", Stage.TEST,
-            "certificateArn", apiGateway);
+            apiGateway);
         route53Updater.setRoute53Client(client);
 
     }
@@ -85,6 +85,8 @@ public class Route53UpdaterTest {
         assertThat(change.getAction(), is(equalTo(ChangeAction.UPSERT.toString())));
         assertThat(change.getResourceRecordSet().getType(), is(equalTo(RRType.CNAME.toString())));
         assertThat(change.getResourceRecordSet().getName(), CoreMatchers.startsWith("test."));
+        assertThat(change.getResourceRecordSet().getName(),
+            not(CoreMatchers.startsWith("test.test.")));
         assertThat(change.getResourceRecordSet().getTTL(), is(equalTo(300L)));
     }
 
@@ -99,9 +101,9 @@ public class Route53UpdaterTest {
         String certificateArn = "arn:aws:acm:eu-west-1:933878624978:certificate/b163e7df-2e12-4abf-ae91-7a8bbd19fb9a";
 
         Route53Updater updater = new Route53Updater(zoneName, repository, branch, Stage.TEST,
-            certificateArn,AmazonApiGatewayClientBuilder.defaultClient());
+            AmazonApiGatewayClientBuilder.defaultClient());
 
-        Optional<ChangeResourceRecordSetsResult> result = updater.updateServerUrl();
+        ChangeResourceRecordSetsResult result = updater.updateServerUrl(certificateArn);
 
         assertThat(result, is(not(equalTo(Optional.empty()))));
 //        assertThat(result.get().getSdkHttpMetadata().getHttpStatusCode(), is(equalTo(200)));

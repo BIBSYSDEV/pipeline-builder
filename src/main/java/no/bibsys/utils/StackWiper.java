@@ -101,10 +101,11 @@ public class StackWiper {
     }
 
 
-    public void wipeStacks(SwaggerHubInfo swaggerHubInfo) throws IOException, URISyntaxException {
+    public void wipeStacks(SwaggerHubInfo swaggerHubInfo, String networkZoneName)
+        throws IOException, URISyntaxException {
         int invokeStatusCode = invokeDeleteLambdaFunction();
         System.out.println(invokeStatusCode);
-        destroyResources(swaggerHubInfo);
+        destroyResources(swaggerHubInfo, networkZoneName);
         //Delete buckets first because they cannot be deleted automatically when we delete a Stack
         deleteBuckets();
         deleteStacks();
@@ -112,7 +113,8 @@ public class StackWiper {
     }
 
 
-    private void destroyResources(SwaggerHubInfo swaggerHubInfo) throws IOException, URISyntaxException {
+    private void destroyResources(SwaggerHubInfo swaggerHubInfo, String netowrkZoneName)
+        throws IOException, URISyntaxException {
         List<Stage> stages = Stage.listStages();
         String repository=pipelineStackConfiguration.getGithubConf().getRepo();
         String branch=pipelineStackConfiguration.getBranchName();
@@ -120,7 +122,8 @@ public class StackWiper {
 
         for (Stage stage : stages) {
 
-            ResourceDestroyer destroyer = new ResourceDestroyer(repository,branch,swaggerHubInfo,stage);
+            ResourceDestroyer destroyer = new ResourceDestroyer(netowrkZoneName, repository, branch,
+                swaggerHubInfo, stage);
             destroyer.destroy();
         }
     }

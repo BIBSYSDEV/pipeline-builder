@@ -30,9 +30,9 @@ public class StackBuilder {
     }
 
 
-    public void createStacks(SwaggerHubInfo swaggerHubInfo)
+    public void createStacks(SwaggerHubInfo swaggerHubInfo, String networkZoneName)
         throws IOException, URISyntaxException {
-        stackWiper.wipeStacks(swaggerHubInfo);
+        stackWiper.wipeStacks(swaggerHubInfo, networkZoneName);
         createPipelineStack(pipelineStackConfiguration);
     }
 

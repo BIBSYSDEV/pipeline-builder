@@ -30,10 +30,12 @@ public class DestroyHandler extends CodePipelineFunctionHandlerTemplate<SimpleRe
         Context context)
         throws IOException, URISyntaxException {
         Stage stage = Stage.currentStage();
+        String zoneName = environment.readEnv(Route53Updater.ZONE_NAME_ENV);
         String repository=environment.readEnv("REPOSITORY");
         String branch=environment.readEnv("BRANCH");
         SwaggerHubInfo swaggerHubInfo=new SwaggerHubInfo(environment);
-        ResourceDestroyer resourceDestroyer=new ResourceDestroyer(repository,branch,swaggerHubInfo,stage);
+        ResourceDestroyer resourceDestroyer = new ResourceDestroyer(zoneName, repository, branch,
+            swaggerHubInfo, stage);
         resourceDestroyer.destroy();
 
         return new SimpleResponse("OK");

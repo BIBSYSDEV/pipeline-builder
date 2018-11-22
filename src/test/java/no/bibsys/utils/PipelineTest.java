@@ -12,7 +12,6 @@ public class PipelineTest {
 
 
     private String branchName = "autreg-52-update-route53-dynamically";
-
     private String repoName = "authority-registry-infrastructure";
     private String repoOwner = "BIBSYSDEV";
     private SwaggerHubInfo swaggerHubInfo=new SwaggerHubInfo("small-api","1.0","axthosarouris");
@@ -22,14 +21,14 @@ public class PipelineTest {
     @Ignore
     public void createStacks() throws IOException, URISyntaxException {
         Application application = initApplication();
-        application.createStacks( swaggerHubInfo);
+        application.createStacks(swaggerHubInfo, "aws.unit.no.");
     }
 
     @Test
     @Ignore
     public void deleteStacks() throws IOException, URISyntaxException {
         Application application = initApplication();
-        application.wipeStacks(swaggerHubInfo);
+        application.wipeStacks(swaggerHubInfo, "aws.unit.no.");
 
     }
 
