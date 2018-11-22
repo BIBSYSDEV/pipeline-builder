@@ -35,17 +35,18 @@ public class ResourceInitializer {
 
         System.out.println("Lambda function started");
         System.out.println("Updating Route 53");
+
+        deletePreviousResources();
+
         Optional<ChangeResourceRecordSetsResult> route53UpdateResult = route53Updater
             .updateServerUrl(certificateArn);
         String route53Status = route53UpdateResult.map(result -> result.getChangeInfo().getStatus())
             .orElse("Server not updated");
-        Route53Updater testPhaseRoute53Updater = route53Updater.copy(Stage.TEST);
-        testPhaseRoute53Updater.deleteServerUrl();
 
         StringBuilder output = new StringBuilder(20);
         output.append("Swagger:");
 
-        swaggerHubUpdater.deleteApi();
+
         Optional<String> swaggerUpdateResult = swaggerHubUpdater.updateApiDocumentation();
         swaggerUpdateResult.ifPresent(s -> output.append(s));
         output.append("\nRoute53:").append(route53Status);
@@ -53,6 +54,12 @@ public class ResourceInitializer {
 
         return new SimpleResponse(output.toString());
 
+    }
+
+    private void deletePreviousResources() throws URISyntaxException, IOException {
+        Route53Updater testPhaseRoute53Updater = route53Updater.copy(Stage.TEST);
+        testPhaseRoute53Updater.deleteServerUrl();
+        swaggerHubUpdater.deleteApi();
     }
 
 
