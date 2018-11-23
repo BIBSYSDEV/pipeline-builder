@@ -1,16 +1,19 @@
 package no.bibsys.handler;
 
-import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import org.apache.http.client.methods.HttpDelete;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.amazonaws.services.lambda.runtime.Context;
 import no.bibsys.handler.requests.buildevents.BuildEvent;
 import no.bibsys.handler.responses.SimpleResponse;
 import no.bibsys.handler.templates.SwaggerHubEditor;
 import no.bibsys.swaggerhub.SwaggerDriver;
-import org.apache.http.client.methods.HttpDelete;
 
 public class DestroyHandler extends SwaggerHubEditor {
 
+    private final static Logger logger = LoggerFactory.getLogger(DestroyHandler.class);
 
     @Override
     protected SimpleResponse processInput(BuildEvent input, String apiGatewayInputString,
@@ -23,7 +26,7 @@ public class DestroyHandler extends SwaggerHubEditor {
             .createDeleteApiRequest();
         Integer response = swaggerDriver.executeDelete(deleteRequest);
 
-        System.out.println(response);
+        logger.info(String.valueOf(response));
         return new SimpleResponse(response.toString());
 
     }

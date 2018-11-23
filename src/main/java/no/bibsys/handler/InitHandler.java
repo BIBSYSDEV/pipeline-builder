@@ -13,15 +13,18 @@ import no.bibsys.handler.templates.SwaggerHubEditor;
 import no.bibsys.swaggerhub.SwaggerDriver;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InitHandler extends SwaggerHubEditor {
 
+    private final static Logger logger = LoggerFactory.getLogger(InitHandler.class);
 
     @Override
     public SimpleResponse processInput(BuildEvent input, String apiGatewayMessage, Context context)
         throws IOException, URISyntaxException {
 
-        System.out.println("Lambda function started");
+        logger.info("Lambda function started");
         initFields();
 
         ApiDocumentationInfo publishApi = newPublishApi();
@@ -30,7 +33,7 @@ public class InitHandler extends SwaggerHubEditor {
             , publishApi.getBranch());
         Optional<String> jsonOpt = generateApiSpec(publishApi, config);
 
-        System.out.println(jsonOpt.toString());
+        logger.info(jsonOpt.toString());
 
         if(jsonOpt.isPresent()){
             String response = readTheUpdatedAPI(jsonOpt.get(),publishApi);

@@ -23,6 +23,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     private final transient static Logger logger = LoggerFactory.getLogger(GithubHandler.class);
     private transient Environment environment;
 
+    
     public GithubHandler() {
         super(String.class);
         init();
@@ -83,7 +84,6 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
             deleteStacks(pullRequest);
         }
 
-        System.out.println(pullRequest.toString());
         logger.info(pullRequest.toString());
 
         return pullRequest.toString();
