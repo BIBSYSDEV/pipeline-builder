@@ -1,5 +1,11 @@
 package no.bibsys.handler.templates;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.amazonaws.services.codepipeline.AWSCodePipeline;
 import com.amazonaws.services.codepipeline.AWSCodePipelineClientBuilder;
 import com.amazonaws.services.codepipeline.model.ExecutionDetails;
@@ -7,13 +13,6 @@ import com.amazonaws.services.codepipeline.model.FailureDetails;
 import com.amazonaws.services.codepipeline.model.FailureType;
 import com.amazonaws.services.codepipeline.model.PutJobFailureResultRequest;
 import com.amazonaws.services.codepipeline.model.PutJobSuccessResultRequest;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import no.bibsys.cloudformation.CloudFormationConfigurable;
 import no.bibsys.handler.requests.buildevents.BuildEvent;
 import no.bibsys.handler.requests.buildevents.BuildEventBuilder;
 import no.bibsys.handler.requests.buildevents.CodePipelineEvent;
