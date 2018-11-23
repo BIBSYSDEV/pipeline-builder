@@ -12,7 +12,6 @@ import java.util.Optional;
 
 public class ApiMessageParser<T> {
 
-//    private static final Logger logger = LogManager.getLogger(ApiMessageParser.class);
 private final transient ObjectMapper mapper = JsonUtils.newJsonParser();
 
     public Map<String, String> getHeadersFromJson(String inputString) throws IOException {

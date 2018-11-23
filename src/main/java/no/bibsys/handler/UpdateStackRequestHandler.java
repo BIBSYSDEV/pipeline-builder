@@ -1,16 +1,19 @@
 package no.bibsys.handler;
 
 
-import com.amazonaws.services.lambda.runtime.Context;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import no.bibsys.handler.requests.Action;
 import no.bibsys.handler.requests.CustomBuildRequest;
 import no.bibsys.utils.JsonUtils;
 
 public class UpdateStackRequestHandler extends GithubHandler {
 
+    private final static Logger logger = LoggerFactory.getLogger(UpdateStackRequestHandler.class);
 
     @Override
     public String processInput(String string, Map<String, String> headers, Context context)
@@ -27,7 +30,7 @@ public class UpdateStackRequestHandler extends GithubHandler {
             deleteStacks(request);
         }
 
-        System.out.println(request.toString());
+        logger.info(request.toString());
 
         ObjectMapper objectMapper = new ObjectMapper();
         String requestJson = objectMapper.writeValueAsString(request);

@@ -64,8 +64,8 @@ public class SignatureChecker {
         byte[] expectedSigature = calculateExpectedSignature(body, webhookSecret);
 
         String expectedSignatureString = new String(Hex.encodeHex(expectedSigature));
-        System.out.println("signagtureHeader:" + signatureHeader);
-        System.out.println("ExpectedSignagure:" + expectedSignatureString);
+        logger.info("signagtureHeader:" + signatureHeader);
+        logger.info("ExpectedSignagure:" + expectedSignatureString);
         return MessageDigest.isEqual(signature, expectedSigature);
     }
 
