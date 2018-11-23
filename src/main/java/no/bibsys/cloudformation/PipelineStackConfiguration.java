@@ -36,6 +36,7 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
         this.codeBuildConfiguration = new CodeBuildConfiguration(gitInfo.getRepo(), branch);
     }
 
+
     private PipelineConfiguration initPipelineConfiguration(String repository, String branch) {
         return new PipelineConfiguration(repository, branch);
     }
@@ -91,7 +92,6 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
     public GitInfo getGithubConf() {
         return githubConf;
     }
-
 
 
 }

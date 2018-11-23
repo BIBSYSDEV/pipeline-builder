@@ -3,8 +3,7 @@ package no.bibsys.apigateway;
 import com.amazonaws.services.apigateway.AmazonApiGateway;
 import com.amazonaws.services.apigateway.model.GetExportRequest;
 import com.amazonaws.services.apigateway.model.GetExportResult;
-import com.amazonaws.services.apigateway.model.GetRestApisRequest;
-import com.amazonaws.services.apigateway.model.RestApi;
+import com.amazonaws.services.apigateway.model.NotFoundException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -13,26 +12,25 @@ import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import no.bibsys.cloudformation.CloudFormationConfigurable;
 import no.bibsys.utils.IoUtils;
 import no.bibsys.utils.JsonUtils;
 
 public class ApiGatewayApiInfo {
 
 
-    private final transient CloudFormationConfigurable config;
+
     private final transient String stage;
     private final transient AmazonApiGateway client;
+    private final transient String restApiId;
 
-    public ApiGatewayApiInfo(CloudFormationConfigurable config, String stage,
-        AmazonApiGateway apiGatewayClient) {
-        this.config = config;
+    public ApiGatewayApiInfo(String stage, AmazonApiGateway apiGatewayClient, String restApiId) {
+
         this.stage = stage;
         Preconditions.checkNotNull(stage);
         this.client = apiGatewayClient;
+        this.restApiId = restApiId;
     }
 
 
@@ -61,6 +59,15 @@ public class ApiGatewayApiInfo {
     }
 
 
+    /**
+     * We desire a richer OpenApi documentation than the one that Amazon currently provides. So we
+     * read the server address from Api Gateway and we inject the information to the custom OpenApi
+     * specification.
+     *
+     * @param openApiTemplate Custom OpenApi specification
+     * @param serverInfo Server URL and URL path variables  as produced by ApiGateway
+     * @return A Swagger documentation with the correct Server URL
+     */
     private String injectServerInfo(String openApiTemplate, ServerInfo serverInfo)
         throws IOException {
 
@@ -86,12 +93,8 @@ public class ApiGatewayApiInfo {
     private Optional<JsonNode> readOpenApiSpecFromAmazon(Map<String, String> requestParameters)
         throws IOException {
 
-        Optional<RestApi> apiOpt = findRestApi();
-
-        if (apiOpt.isPresent()) {
-            RestApi api = apiOpt.get();
-
-            GetExportRequest request = new GetExportRequest().withRestApiId(api.getId())
+        try{
+            GetExportRequest request = new GetExportRequest().withRestApiId(restApiId)
                 .withStageName(stage).withExportType(ApiGatewayConstants.OPEN_API_3)
                 .withParameters(requestParameters);
             GetExportResult result = client
@@ -101,9 +104,9 @@ public class ApiGatewayApiInfo {
             return Optional.ofNullable(parser.readTree(swaggerFile));
 
         }
-
-        return Optional.empty();
-
+        catch(NotFoundException e) {
+            return Optional.empty();
+        }
 
     }
 
@@ -124,16 +127,8 @@ public class ApiGatewayApiInfo {
         return apiStage;
     }
 
-    public Optional<RestApi> findRestApi() {
-        List<RestApi> apiList = client
-            .getRestApis(new GetRestApisRequest().withLimit(100)).getItems();
 
-        return apiList.stream()
-            .filter(api -> api.getName().contains(config.getProjectId()))
-            .filter(api -> api.getName().contains(config.getNormalizedBranchName()))
-            .filter(api -> api.getName().contains(stage))
-            .findFirst();
-    }
+
 
 
     private String readOpenApiTemplate() throws IOException {

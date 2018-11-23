@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
 import no.bibsys.apigateway.ApiGatewayApiInfo;
-import no.bibsys.cloudformation.CloudFormationConfigurable;
 import no.bibsys.cloudformation.Stage;
 import no.bibsys.swaggerhub.ApiDocumentationInfo;
 import no.bibsys.swaggerhub.SwaggerDriver;
@@ -15,24 +14,21 @@ import org.apache.http.client.methods.HttpPost;
 
 public class SwaggerHubUpdater {
 
-    protected final transient String repository;
-    protected final transient String branch;
+
 
     private final transient SwaggerHubInfo swaggerHubInfo;
     private final transient AmazonApiGateway apiGateway;
     private final transient String swaggerApiKey;
+    private final transient String apiGatewayRestApiId;
     protected transient Stage stage;
 
 
-    public SwaggerHubUpdater(AmazonApiGateway apiGateway,
+    public SwaggerHubUpdater(AmazonApiGateway apiGateway, String apiGatewayRestApiId,
         SwaggerHubInfo swaggerHubInfo,
-        String repository,
-        String branch,
         Stage stage
     ) throws IOException {
         this.apiGateway = apiGateway;
-        this.branch = branch;
-        this.repository = repository;
+        this.apiGatewayRestApiId = apiGatewayRestApiId;
         this.stage = stage;
         this.swaggerHubInfo = swaggerHubInfo;
         this.swaggerApiKey=swaggerHubInfo.getSwaggerAuth();
@@ -50,8 +46,8 @@ public class SwaggerHubUpdater {
     public Optional<String> updateApiDocumentation()
         throws IOException, URISyntaxException {
         ApiDocumentationInfo apiDocInfo = constructApiDocumentationInfo(swaggerHubInfo.getApiVersion());
-        CloudFormationConfigurable config = new CloudFormationConfigurable(repository, branch);
-        Optional<String> jsonOpt = generateApiSpec(apiDocInfo, config);
+
+        Optional<String> jsonOpt = generateApiSpec(apiDocInfo);
 
         System.out.println(jsonOpt.toString());
 
@@ -99,11 +95,13 @@ public class SwaggerHubUpdater {
         swaggerDriver.executePost(request);
     }
 
-    private Optional<String> generateApiSpec(ApiDocumentationInfo publishAPi,
-        CloudFormationConfigurable config)
+    private Optional<String> generateApiSpec(ApiDocumentationInfo apiDocumentationInfo)
         throws IOException {
-        ApiGatewayApiInfo apiGatewayApiInfo = new ApiGatewayApiInfo(config, publishAPi.getStage(),
-            apiGateway);
+        ApiGatewayApiInfo apiGatewayApiInfo = new ApiGatewayApiInfo(
+            apiDocumentationInfo.getStage(),
+            apiGateway,
+            apiGatewayRestApiId
+        );
         return apiGatewayApiInfo.generateOpenApiNoExtensions();
 
     }

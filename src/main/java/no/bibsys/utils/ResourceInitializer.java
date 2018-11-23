@@ -6,9 +6,13 @@ import com.amazonaws.services.route53.model.ChangeResourceRecordSetsResult;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
+import no.bibsys.cloudformation.PipelineConfiguration;
+import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.cloudformation.Stage;
+import no.bibsys.cloudformation.helpers.ResourceType;
+import no.bibsys.cloudformation.helpers.StackResources;
+import no.bibsys.git.github.GitInfo;
 import no.bibsys.lambda.deploy.handlers.Route53Updater;
-import no.bibsys.lambda.deploy.handlers.SwaggerHubInfo;
 import no.bibsys.lambda.deploy.handlers.SwaggerHubUpdater;
 import no.bibsys.lambda.responses.SimpleResponse;
 
@@ -18,17 +22,33 @@ public class ResourceInitializer {
     private final transient Route53Updater route53Updater;
     private final transient String certificateArn;
 
-    public ResourceInitializer(String zoneName,String repository, String branch, SwaggerHubInfo swaggerHubInfo,
-        Stage stage,String certificateArn) throws IOException {
+    public ResourceInitializer(String zoneName, GitInfo gitInfo, String branch, Stage stage,
+        String certificateArn) throws IOException {
         super();
-        AmazonApiGateway apiGateway= AmazonApiGatewayClientBuilder.defaultClient();
-        this.swaggerHubUpdater = new SwaggerHubUpdater(apiGateway,swaggerHubInfo,repository,branch,stage);
-        this.route53Updater = new Route53Updater(zoneName, repository, branch, stage, apiGateway);
+        AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
+        PipelineStackConfiguration pipelineStackConfiguration = new PipelineStackConfiguration(
+            gitInfo, branch);
+
+//        this.swaggerHubUpdater = new SwaggerHubUpdater(apiGateway, gitInfo.getRepo(), branch,
+//            stage);
+        this.route53Updater = new Route53Updater(zoneName, gitInfo.getRepo(), branch, stage,
+            apiGateway);
         this.certificateArn = certificateArn;
     }
 
 
+    private Optional<String> findRestApi(GitInfo gitInfo, String branch, Stage stage) {
+        PipelineConfiguration pipelineConfiguration = new PipelineConfiguration(
+            gitInfo.getRepo(), branch);
+        String stackName = pipelineConfiguration.getCurrentServiceStackName(stage);
+        StackResources stackResources = new StackResources(stackName);
+        Optional<String> restApiId = stackResources
+            .getResources(ResourceType.REST_API).stream()
+            .map(resource -> resource.getPhysicalResourceId())
+            .findAny();
+        return restApiId;
 
+    }
 
     public SimpleResponse initializeStacks()
         throws IOException, URISyntaxException {
@@ -46,11 +66,9 @@ public class ResourceInitializer {
         StringBuilder output = new StringBuilder(20);
         output.append("Swagger:");
 
-
         Optional<String> swaggerUpdateResult = swaggerHubUpdater.updateApiDocumentation();
         swaggerUpdateResult.ifPresent(s -> output.append(s));
         output.append("\nRoute53:").append(route53Status);
-
 
         return new SimpleResponse(output.toString());
 
