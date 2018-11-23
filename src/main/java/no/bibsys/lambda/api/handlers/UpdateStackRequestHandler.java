@@ -51,7 +51,7 @@ public class UpdateStackRequestHandler extends GithubHandler {
 
         System.out.println(request.toString());
 
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = JsonUtils.newJsonParser();
         String requestJson = objectMapper.writeValueAsString(request);
         return requestJson;
 
