@@ -3,6 +3,18 @@
 import subprocess
 import sys
 
+# Example: for https://github.com/BIBSYSDEV/authority-registry-infrastructure/
+#   repository: authority-registry-infrastructure
+#   owner: BIBSYSDEV
+#   branch: github branch
+#   action: create or delete
+#
+#  Example: https://app.swaggerhub.com/apis/axthosarouris/small-api/1.0-oas3
+#   swaggerOrg: SwaggerHub account or organization in this account (axthosarouris)
+#
+#
+#   networkZoneName: Amazon Route53 Hosted Zone name
+
 REPOSITORY = "repository"
 BRANCH = "branch"
 ACTION = "action"
@@ -51,8 +63,8 @@ class Script:
             - repository:\t Github repository
             - branch:\t\t Github branch
             - action:\t\t "create" or "delete"
-            - swaggerOrg:\t "axthosarouris"
-            - zoneName:\t "aws.unit.no"
+            - swaggerOrg:\t SwaggerHub account or organization in this account (axthosarouris)
+            - zoneName:\t Amazon Route53 Hosted Zone name("aws.unit.no")
         """
 
 
