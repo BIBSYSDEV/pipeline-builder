@@ -21,14 +21,14 @@ public class PipelineTest {
     @Ignore
     public void createStacks() throws IOException, URISyntaxException {
         Application application = initApplication();
-        application.createStacks(swaggerHubInfo, "aws.unit.no.");
+        application.createStacks();
     }
 
     @Test
     @Ignore
     public void deleteStacks() throws IOException, URISyntaxException {
         Application application = initApplication();
-        application.wipeStacks(swaggerHubInfo, "aws.unit.no.");
+        application.wipeStacks();
 
     }
 

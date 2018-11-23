@@ -15,7 +15,6 @@ import no.bibsys.lambda.api.requests.PushEvent;
 import no.bibsys.lambda.api.requests.RepositoryInfo;
 import no.bibsys.lambda.api.utils.SignatureChecker;
 import no.bibsys.lambda.deploy.handlers.Route53Updater;
-import no.bibsys.lambda.deploy.handlers.SwaggerHubInfo;
 import no.bibsys.lambda.deploy.handlers.templates.ApiGatewayHandlerTemplate;
 import no.bibsys.utils.Environment;
 import org.slf4j.Logger;
@@ -24,7 +23,6 @@ import org.slf4j.LoggerFactory;
 public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
     private final transient static Logger logger = LoggerFactory.getLogger(GithubHandler.class);
-    private final transient SwaggerHubInfo swaggerHubInfo;
     protected final transient String networkZoneName;
 
 
@@ -45,7 +43,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
         this.networkZoneName = environment.readEnv(Route53Updater.ZONE_NAME_ENV);
 
         signatureChecker = new SignatureChecker(secretName, secretKey);
-        swaggerHubInfo = new SwaggerHubInfo(environment);
+
 
 
     }
@@ -91,11 +89,11 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
         throws IOException, URISyntaxException {
         if (pullRequest.getAction().equals(PullRequest.ACTION_OPEN)
             || pullRequest.getAction().equals(PullRequest.ACTION_REOPEN)) {
-            createStacks(pullRequest, swaggerHubInfo);
+            createStacks(pullRequest);
         }
 
         if (pullRequest.getAction().equals(PullRequest.ACTION_CLOSE)) {
-            deleteStacks(pullRequest, swaggerHubInfo);
+            deleteStacks(pullRequest);
         }
 
         System.out.println(pullRequest.toString());
@@ -116,19 +114,18 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     }
 
 
-    protected void deleteStacks(RepositoryInfo repositoryInfo, SwaggerHubInfo swaggerHubInfo)
-        throws IOException, URISyntaxException {
+    protected void deleteStacks(RepositoryInfo repositoryInfo) {
         GitInfo gitInfo = new GithubConf(repositoryInfo.getOwner(), repositoryInfo.getRepository());
 
         Application application = new Application(gitInfo, repositoryInfo.getBranch());
-        application.wipeStacks(swaggerHubInfo, networkZoneName);
+        application.wipeStacks();
     }
 
-    protected void createStacks(RepositoryInfo repositoryInfo, SwaggerHubInfo swaggerHubInfo)
-        throws IOException, URISyntaxException {
+    protected void createStacks(RepositoryInfo repositoryInfo)
+        throws IOException {
         GitInfo gitInfo = new GithubConf(repositoryInfo.getOwner(), repositoryInfo.getRepository());
         Application application = new Application(gitInfo, repositoryInfo.getBranch());
-        application.createStacks(swaggerHubInfo, networkZoneName);
+        application.createStacks();
     }
 
 

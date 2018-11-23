@@ -6,13 +6,11 @@ import com.amazonaws.services.cloudformation.model.Capability;
 import com.amazonaws.services.cloudformation.model.CreateStackRequest;
 import com.amazonaws.services.cloudformation.model.Parameter;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.cloudformation.Stage;
-import no.bibsys.lambda.deploy.handlers.SwaggerHubInfo;
 
 public class StackBuilder {
 
@@ -30,9 +28,8 @@ public class StackBuilder {
     }
 
 
-    public void createStacks(SwaggerHubInfo swaggerHubInfo, String networkZoneName)
-        throws IOException, URISyntaxException {
-        stackWiper.wipeStacks(swaggerHubInfo, networkZoneName);
+    public void createStacks() throws IOException {
+        stackWiper.wipeStacks();
         createPipelineStack(pipelineStackConfiguration);
     }
 
