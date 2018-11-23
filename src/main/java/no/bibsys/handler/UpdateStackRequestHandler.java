@@ -13,7 +13,7 @@ import no.bibsys.utils.JsonUtils;
 
 public class UpdateStackRequestHandler extends GithubHandler {
 
-    private final static Logger logger = LoggerFactory.getLogger(GithubHandler.class);
+    private final static Logger logger = LoggerFactory.getLogger(UpdateStackRequestHandler.class);
 
     @Override
     public String processInput(String string, Map<String, String> headers, Context context)

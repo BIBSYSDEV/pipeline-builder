@@ -28,7 +28,7 @@ import no.bibsys.cloudformation.Stage;
 public class StackWiper {
 
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
-    private final static Logger logger = LoggerFactory.getLogger(CloudFormationConfigurable.class);
+    private final static Logger logger = LoggerFactory.getLogger(StackWiper.class);
     
     public StackWiper(PipelineStackConfiguration pipelineStackConfiguration) {
         this.pipelineStackConfiguration = pipelineStackConfiguration;

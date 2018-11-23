@@ -21,7 +21,7 @@ import no.bibsys.handler.requests.buildevents.CodePipelineEvent;
 public abstract class CodePipelineFunctionHandlerTemplate<O> extends HandlerTemplate<BuildEvent, O> {
 
     private final transient AWSCodePipeline pipeline = AWSCodePipelineClientBuilder.defaultClient();
-    private final static Logger logger = LoggerFactory.getLogger(CloudFormationConfigurable.class);
+    private final static Logger logger = LoggerFactory.getLogger(CodePipelineFunctionHandlerTemplate.class);
     
     public CodePipelineFunctionHandlerTemplate() {
         super(BuildEvent.class);
