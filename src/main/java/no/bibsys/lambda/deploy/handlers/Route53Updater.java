@@ -26,8 +26,18 @@ import org.slf4j.LoggerFactory;
 
 public class Route53Updater {
 
+
+    /**
+     * Environment variable for reading the ROUTE 53 Hosted Zone name.
+     */
     public static final String ZONE_NAME_ENV = "ZONE_NAME";
+
+    /**
+     * ARN of a regional certificate stored in the AWS Certficate Manager
+     */
     public static final String CERTIFICATE_ARN = "REGIONAL_CERTIFICATE_ARN";
+
+
     private static final Logger log = LoggerFactory.getLogger(Route53Updater.class);
     private final transient String zoneName;
     private final transient GitInfo gitInfo;

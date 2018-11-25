@@ -14,13 +14,17 @@ import no.bibsys.utils.JsonUtils;
 
 public class UpdateStackRequestHandler extends GithubHandler {
 
+    private static final String SSM_SECRET_NAME = "infrastructure";
+    private static final String SSM_SECRET_KEY = "buildbranch";
+
 
     private transient SecretsReader secretsReader;
     private static final String API_KEY_HEADER="api-key";
 
+
     public UpdateStackRequestHandler(Environment environment){
         super(environment);
-        this.secretsReader = new SecretsReader("infrastructure", "buildbranch");
+        this.secretsReader = new SecretsReader(SSM_SECRET_NAME, SSM_SECRET_KEY);
     }
 
 
