@@ -228,6 +228,7 @@ Resources:
           - route53:ListHostedZones
           - route53:ChangeResourceRecordSets
           - apigateway:*
+          - cloudformation:DescribeStackResources
 
           Effect: Allow
           Resource: "*"
