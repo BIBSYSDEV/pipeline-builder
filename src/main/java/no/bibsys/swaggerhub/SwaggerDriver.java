@@ -38,7 +38,13 @@ public class SwaggerDriver {
     }
 
 
-    public HttpGet getSpecificationVersionRequest(String apiKey)
+    /**
+     * It retrieves the OpenAPI specification stored in SwaggerHub for the API specified in the
+     * {@code swaggerHubInfo} field.
+     *
+     * @return The OpenAPI specification stored in SwaggerHub for a specific API.
+     */
+    public HttpGet getSpecificationRequest(String apiKey)
         throws URISyntaxException {
         SwaggerHubUrlFormatter swaggerHubUrlFormatter =new SwaggerHubUrlFormatter(swaggerHubInfo,
             true,

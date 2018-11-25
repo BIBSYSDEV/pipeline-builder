@@ -90,7 +90,7 @@ public class SwaggerHubUpdater {
         SwaggerDriver swaggerDriver = newSwaggerDriver();
         executeUpdate(publishApi, json, swaggerDriver);
         HttpGet getSpecRequest = swaggerDriver
-            .getSpecificationVersionRequest(publishApi.getApiVersion());
+            .getSpecificationRequest(publishApi.getApiVersion());
         return swaggerDriver.executeGet(getSpecRequest);
     }
 

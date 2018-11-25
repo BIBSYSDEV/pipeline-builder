@@ -9,7 +9,7 @@ import no.bibsys.lambda.deploy.handlers.SwaggerHubInfo;
 
 public class SwaggerHubUrlFormatter {
 
-
+    private final static String SWAGGERHUB_RESTAPI_URL = "https://api.swaggerhub.com/apis";
     private final transient URI requestURL;
 
 
@@ -34,11 +34,13 @@ public class SwaggerHubUrlFormatter {
     private URI apiUri(SwaggerHubInfo info,boolean includeApiVersion) throws URISyntaxException {
         if (includeApiVersion) {
             return new URI(String
-                .format("https://api.swaggerhub.com/apis/%s/%s/%s", info.getSwaggerOrganization(), info.getApiId(),
+                .format("%s/%s/%s/%s", SWAGGERHUB_RESTAPI_URL, info.getSwaggerOrganization(),
+                    info.getApiId(),
                     info.getApiVersion()));
         } else {
             return new URI(
-                String.format("https://api.swaggerhub.com/apis/%s/%s", info.getSwaggerOrganization(), info.getApiId()));
+                String.format("%S/%s/%s", SWAGGERHUB_RESTAPI_URL, info.getSwaggerOrganization(),
+                    info.getApiId()));
         }
 
     }

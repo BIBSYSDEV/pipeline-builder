@@ -13,6 +13,16 @@ import no.bibsys.lambda.deploy.handlers.SwaggerHubInfo;
 import no.bibsys.lambda.deploy.handlers.SwaggerHubUpdater;
 import no.bibsys.lambda.responses.SimpleResponse;
 
+
+/**
+ * It is called after the creation of a CloudFormation Stack in order to create resources that do
+ * not belong to the Stack. These resources can be inside or outside AWS. It is usually called
+ * thought a handler of a Lambda function (see {@link no.bibsys.lambda.deploy.handlers.InitHandler}).
+ *
+ *
+ * Currently it stores the API specification to SwaggerHub and creates all Route53 and ApiGateway
+ * configurations related to attaching the branch's RestApi to a static url.
+ */
 public class ResourceInitializer extends ResourceManager {
 
     private transient final SwaggerHubUpdater swaggerHubUpdater;

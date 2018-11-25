@@ -10,6 +10,19 @@ import no.bibsys.lambda.deploy.handlers.Route53Updater;
 import no.bibsys.lambda.deploy.handlers.SwaggerHubInfo;
 import no.bibsys.lambda.deploy.handlers.SwaggerHubUpdater;
 
+
+/**
+ * Opposite functionality of the ResourceInitializer. It is called before the deletion of a
+ * CloudFormation Stack in order to disconnect the Stack with resources that do not belong to the
+ * stack (either inside or outside AWS). It also deletes the disconnected resources. It is usually
+ * called thought a handler of a Lambda function (see {@link no.bibsys.lambda.deploy.handlers.DestroyHandler}).
+ *
+ *
+ *
+ * Currently it deletes the API from SwaggerHub and all Route53 and ApiGateway configurations
+ * related to attaching the branch's RestApi to a static url.
+ */
+
 public class ResourceDestroyer extends ResourceManager {
 
     private final transient SwaggerHubUpdater swaggerHubUpdater;
@@ -37,15 +50,10 @@ public class ResourceDestroyer extends ResourceManager {
 
         this.route53Updater.deleteServerUrl();
 
-
         System.out.println("Swagger response" + response);
 
 
     }
-
-
-
-
 
 
 }
