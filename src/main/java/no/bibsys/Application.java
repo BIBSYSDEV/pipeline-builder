@@ -2,7 +2,6 @@ package no.bibsys;
 
 import com.google.common.base.Preconditions;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.git.github.GitInfo;
 import no.bibsys.git.github.GithubConf;
@@ -22,24 +21,23 @@ public class Application {
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
 
 
-    public Application(GitInfo gitInfo, String branch) {
+    public Application(GitInfo gitInfo) {
 
-        this.pipelineStackConfiguration = new PipelineStackConfiguration(gitInfo, branch);
+        this.pipelineStackConfiguration = new PipelineStackConfiguration(gitInfo);
         this.repoOwner = gitInfo.getOwner();
         this.repoName = gitInfo.getOwner();
-        this.branch = branch;
+        this.branch = gitInfo.getBranch();
 
         wiper = new StackWiper(pipelineStackConfiguration);
         checkNulls();
 
     }
 
-    public static void run(String repoOwner, String repository, String branch, String action,
-        String networkZoneName)
-        throws IOException, URISyntaxException {
-        GitInfo gitInfo = new GithubConf(repoOwner, repository);
+    public static void run(String repoOwner, String repository, String branch, String action)
+        throws IOException {
+        GitInfo gitInfo = new GithubConf(repoOwner, repository, branch);
 
-        Application application = new Application(gitInfo, branch);
+        Application application = new Application(gitInfo);
         if (action.equals(Action.CREATE)) {
             application.createStacks();
         } else if (action.equals(Action.DELETE)) {
@@ -49,7 +47,7 @@ public class Application {
 
     }
 
-    public static void main(String args[]) throws IOException, URISyntaxException {
+    public static void main(String args[]) throws IOException {
         String repoOwner = System.getProperty("owner");
         Preconditions.checkNotNull(repoOwner, "System property \"owner\" is not set");
         String repository = System.getProperty("repository");
@@ -64,9 +62,8 @@ public class Application {
 
         String swaggerOrg = System.getProperty("swaggerOrg");
         Preconditions.checkNotNull(swaggerOrg, "System property swaggerOrg is not set");
-        String networkZoneName = System.getProperty("networkZoneName");
-        Preconditions.checkNotNull(networkZoneName, "System property networkZoneName is not set");
-        Application.run(repoOwner, repository, branch, action, networkZoneName);
+
+        Application.run(repoOwner, repository, branch, action);
 
     }
 

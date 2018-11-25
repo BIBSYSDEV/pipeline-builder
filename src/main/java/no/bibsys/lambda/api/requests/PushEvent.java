@@ -6,9 +6,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+import no.bibsys.git.github.GitInfo;
+import no.bibsys.git.github.GitInfoImpl;
 import no.bibsys.utils.JsonUtils;
 
-public final class PushEvent extends RepositoryInfo {
+public final class PushEvent extends GitInfoImpl {
 
 
     public PushEvent() {
@@ -24,7 +26,7 @@ public final class PushEvent extends RepositoryInfo {
     }
 
 
-    public static Optional<RepositoryInfo> create(String json) throws IOException {
+    public static Optional<GitInfo> create(String json) throws IOException {
         ObjectMapper mapper = JsonUtils.newJsonParser();
         JsonNode root = mapper.readValue(json, JsonNode.class);
         if (root.has("pusher")) {

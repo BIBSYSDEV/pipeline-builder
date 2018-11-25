@@ -6,9 +6,10 @@ import static no.bibsys.lambda.api.utils.Action.DELETE;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.common.base.Preconditions;
+import no.bibsys.git.github.GitInfoImpl;
 
 @JsonInclude(Include.NON_NULL)
-public final class UpdateStackRequest extends RepositoryInfo {
+public final class UpdateStackRequest extends GitInfoImpl {
 
 
     private String action;

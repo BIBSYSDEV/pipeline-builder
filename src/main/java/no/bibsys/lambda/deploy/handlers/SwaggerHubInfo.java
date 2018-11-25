@@ -7,6 +7,11 @@ import no.bibsys.utils.Environment;
 public class SwaggerHubInfo {
 
 
+    public static String API_ID_ENV = "API_ID";
+    public static String API_VERSION = "API_VERSION";
+    public static String SWAGGER_ORG = "SWAGGER_ORG";
+
+
     private final transient String apiId;
     private final transient String apiVersion;
     private final transient String swaggerOrganization;

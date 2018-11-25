@@ -12,7 +12,6 @@ import com.amazonaws.services.apigateway.model.EndpointType;
 import com.amazonaws.services.apigateway.model.GetBasePathMappingsRequest;
 import com.amazonaws.services.apigateway.model.GetDomainNameRequest;
 import com.amazonaws.services.apigateway.model.NotFoundException;
-import com.amazonaws.services.apigateway.model.RestApi;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Collections;
 import java.util.List;
@@ -40,12 +39,13 @@ public class ApiGatewayBasePathMapping {
     }
 
 
-    public CreateBasePathMappingResult createBasePath(RestApi restApi, String certifcateArn) {
+    public CreateBasePathMappingResult createBasePath(String apiGatewayRestApiId,
+        String certifcateArn) {
         deleteBasePathMappings();
         checkAndCreateCustomDomainName(certifcateArn);
 
         CreateBasePathMappingRequest createBasePathMappingRequest = newBasePathMappingRequest(
-            restApi.getId());
+            apiGatewayRestApiId);
 
         return apiGatewayClient.createBasePathMapping(createBasePathMappingRequest);
     }

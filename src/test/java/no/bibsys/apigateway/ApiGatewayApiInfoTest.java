@@ -6,16 +6,19 @@ import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 
 import com.amazonaws.services.apigateway.AmazonApiGateway;
+import com.amazonaws.services.kms.model.NotFoundException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
-import no.bibsys.cloudformation.CloudFormationConfigurable;
+import no.bibsys.cloudformation.PipelineConfiguration;
+import no.bibsys.cloudformation.helpers.ResourceType;
+import no.bibsys.cloudformation.helpers.StackResources;
+import no.bibsys.git.github.GitInfo;
+import no.bibsys.git.github.GithubConf;
+import no.bibsys.utils.Environment;
 import no.bibsys.utils.IntegrationTest;
 import no.bibsys.utils.JsonUtils;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mockito.Mockito;
@@ -42,8 +45,7 @@ public class ApiGatewayApiInfoTest {
 
     @Test
     @Category(IntegrationTest.class)
-    public void generateOpenApiNoExtensions_existingAPIGatewayEndpoint_OpenAPI3Version()
-        throws IOException {
+    public void generateOpenApiNoExtensions_existingAPIGatewayEndpoint_OpenAPI3Version() {
 
         Optional<String> openApiVersion = openApiVersion(root);
         assertThat(openApiVersion.isPresent(), is(equalTo(true)));
@@ -71,18 +73,22 @@ public class ApiGatewayApiInfoTest {
     }
 
     private Optional<String> generateOpenApiSpec() throws IOException {
-        CloudFormationConfigurable conf = buildConfiguration();
-        ApiGatewayApiInfo apiGatewayApiInfo = new ApiGatewayApiInfo(conf, "test",apiGateway);
+
+        String restApiId = restApiId();
+        ApiGatewayApiInfo apiGatewayApiInfo = new ApiGatewayApiInfo("test", apiGateway, restApiId);
         return apiGatewayApiInfo.generateOpenApiNoExtensions();
     }
 
-    private CloudFormationConfigurable buildConfiguration() throws IOException {
-        Repository repo = FileRepositoryBuilder.create(new File(".", ".git"));
-        String branch = repo.getBranch();
+    private String restApiId() {
+        GitInfo gitIfo = new GithubConf(new Environment());
+        PipelineConfiguration pipelineConfiguration = new PipelineConfiguration(
+            gitIfo.getRepository(), gitIfo.getBranch());
+        String stackName = pipelineConfiguration.getTestServiceStack();
+        StackResources stackResources = new StackResources(stackName);
 
-        return new CloudFormationConfigurable(
-            "authority-registry-infrastructure", branch) {
-        };
+        String result = stackResources.getResourceIds(ResourceType.REST_API).stream().findAny()
+            .orElseThrow(() -> new NotFoundException("RestApi not Found for stack:" + stackName));
+        return result;
     }
 
 

@@ -2,20 +2,33 @@ package no.bibsys.git.github;
 
 import java.io.IOException;
 import no.bibsys.secrets.SecretsReader;
+import no.bibsys.utils.Environment;
 
 public class GithubConf implements GitInfo {
+
+    public static final String REPO_OWNER = "OWNER";
+    public static final String REPOSITORY = "REPOSITORY";
+    public static final String BRANCH = "BRANCH";
 
     public static String AWS_SECRET_NAME = "github";
     public static String AWS_SECRET_KEY = "read_from_github";
     private final transient String owner;
     private final transient String repo;
+    private final transient String branch;
 
 
+    public GithubConf(Environment environment) {
+        this.owner = environment.readEnv(REPO_OWNER);
+        this.repo = environment.readEnv(REPOSITORY);
+        this.branch = environment.readEnv(BRANCH);
+
+    }
 
 
-    public GithubConf(String owner, String repo)  {
+    public GithubConf(String owner, String repo, String branch) {
         this.owner = initOwner(owner);
         this.repo = initRepo(repo);
+        this.branch = branch;
 
     }
 
@@ -26,7 +39,7 @@ public class GithubConf implements GitInfo {
     }
 
     @Override
-    public String getRepo() {
+    public String getRepository() {
         return repo;
     }
 
@@ -34,6 +47,12 @@ public class GithubConf implements GitInfo {
     public String getOauth() throws IOException {
         SecretsReader secretsReader = new SecretsReader(AWS_SECRET_NAME, AWS_SECRET_KEY);
         return secretsReader.readSecret();
+    }
+
+
+    @Override
+    public String getBranch() {
+        return branch;
     }
 
 

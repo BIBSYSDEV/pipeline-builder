@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.amazonaws.services.apigateway.AmazonApiGateway;
 import com.amazonaws.services.apigateway.AmazonApiGatewayClientBuilder;
+import com.amazonaws.services.kms.model.NotFoundException;
 import com.amazonaws.services.route53.AmazonRoute53;
 import com.amazonaws.services.route53.model.Change;
 import com.amazonaws.services.route53.model.ChangeAction;
@@ -22,7 +23,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Optional;
 import no.bibsys.apigateway.ServerInfo;
+import no.bibsys.cloudformation.PipelineConfiguration;
 import no.bibsys.cloudformation.Stage;
+import no.bibsys.cloudformation.helpers.ResourceType;
+import no.bibsys.cloudformation.helpers.StackResources;
+import no.bibsys.git.github.GitInfo;
+import no.bibsys.git.github.GitInfoImpl;
 import no.bibsys.utils.IntegrationTest;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -45,14 +51,12 @@ public class Route53UpdaterTest {
         AmazonRoute53 client = Mockito.mock(AmazonRoute53.class);
         when(client.listHostedZones()).thenReturn(new ListHostedZonesResult()
             .withHostedZones(new HostedZone().withId("ZoneId").withName(zoneName)));
-
-        route53Updater = new Route53Updater(zoneName, "Repository", "Branch", Stage.TEST,
+        GitInfo gitInfo = new GitInfoImpl("owner", "repository", "branch");
+        route53Updater = new Route53Updater(zoneName, gitInfo, Stage.TEST, "apiGatewarRestApiId",
             apiGateway);
         route53Updater.setRoute53Client(client);
 
     }
-
-
 
 
     @Test
@@ -100,7 +104,14 @@ public class Route53UpdaterTest {
         String branch = extractLocalBranch();
         String certificateArn = "arn:aws:acm:eu-west-1:933878624978:certificate/b163e7df-2e12-4abf-ae91-7a8bbd19fb9a";
 
-        Route53Updater updater = new Route53Updater(zoneName, repository, branch, Stage.TEST,
+        GitInfoImpl gitInfo = new GitInfoImpl(null, repository, branch);
+
+        PipelineConfiguration pipelineConfiguration = new PipelineConfiguration(repository, branch);
+        StackResources stackResources = new StackResources(
+            pipelineConfiguration.getTestServiceStack());
+        String restApiId = stackResources.getResourceIds(ResourceType.REST_API).
+            stream().findAny().orElseThrow(() -> new NotFoundException("Could not find a RestAPi"));
+        Route53Updater updater = new Route53Updater(zoneName, gitInfo, Stage.TEST, restApiId,
             AmazonApiGatewayClientBuilder.defaultClient());
 
         Optional<ChangeResourceRecordSetsResult> result = updater.updateServerUrl(certificateArn);

@@ -7,6 +7,7 @@ import com.amazonaws.services.cloudformation.model.DescribeStackResourcesResult;
 import com.amazonaws.services.cloudformation.model.StackResource;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class StackResources {
 
@@ -18,14 +19,25 @@ public class StackResources {
     }
 
 
-    public List<StackResource> getResources(ResourceType resourceType) {
+    private Stream<StackResource> getResourcesStream(ResourceType resourceType) {
         AmazonCloudFormation client = AmazonCloudFormationClientBuilder.defaultClient();
-        DescribeStackResourcesResult resutl = client
+        DescribeStackResourcesResult result = client
             .describeStackResources(new DescribeStackResourcesRequest().withStackName(stackName));
-        return resutl.getStackResources().stream()
-            .filter(resource -> resource.getResourceType().equals(resourceType.toString()))
-            .collect(Collectors.toList());
+        return result.getStackResources().stream()
+            .filter(resource -> resource.getResourceType().equals(resourceType.toString()));
 
     }
+
+
+    public List<StackResource> getResources(ResourceType resourceType) {
+        return getResourcesStream(resourceType).collect(Collectors.toList());
+    }
+
+
+    public List<String> getResourceIds(ResourceType resourceType) {
+        return getResourcesStream(resourceType).map(StackResource::getPhysicalResourceId)
+            .collect(Collectors.toList());
+    }
+
 
 }

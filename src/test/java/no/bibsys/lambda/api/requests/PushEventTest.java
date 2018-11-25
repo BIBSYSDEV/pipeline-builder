@@ -7,8 +7,7 @@ import static org.hamcrest.junit.MatcherAssert.assertThat;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Optional;
-import no.bibsys.lambda.api.requests.PushEvent;
-import no.bibsys.lambda.api.requests.RepositoryInfo;
+import no.bibsys.git.github.GitInfo;
 import no.bibsys.utils.IoUtils;
 import org.junit.Test;
 
@@ -50,7 +49,7 @@ public class PushEventTest {
     @Test
     public void create_otherEvent_emptyOption() throws IOException {
         String json=IoUtils.resourceAsString(Paths.get("requests","pullrequest.json"));
-        Optional<RepositoryInfo> event = PushEvent.create(json);
+        Optional<GitInfo> event = PushEvent.create(json);
         assertThat(event.isPresent(),is(equalTo(false)));
     }
 

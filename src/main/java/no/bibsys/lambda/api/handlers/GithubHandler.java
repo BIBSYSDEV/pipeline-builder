@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.Optional;
 import no.bibsys.Application;
 import no.bibsys.git.github.GitInfo;
+import no.bibsys.git.github.GitInfoImpl;
 import no.bibsys.git.github.GithubConf;
 import no.bibsys.lambda.api.requests.PullRequest;
 import no.bibsys.lambda.api.requests.PushEvent;
-import no.bibsys.lambda.api.requests.RepositoryInfo;
 import no.bibsys.lambda.api.utils.SignatureChecker;
 import no.bibsys.lambda.deploy.handlers.Route53Updater;
 import no.bibsys.lambda.deploy.handlers.templates.ApiGatewayHandlerTemplate;
@@ -65,10 +65,10 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
 
     private String processGitEvent(String request) throws IOException, URISyntaxException {
-        Optional<RepositoryInfo> gitEventOpt = parseEvent(request);
+        Optional<GitInfo> gitEventOpt = parseEvent(request);
         String response = "No action";
         if (gitEventOpt.isPresent()) {
-            RepositoryInfo repositoryInfo = gitEventOpt.get();
+            GitInfo repositoryInfo = gitEventOpt.get();
             if (repositoryInfo instanceof PullRequest) {
                 response = processPullRequest((PullRequest) repositoryInfo);
             } else if (repositoryInfo instanceof PushEvent) {
@@ -105,8 +105,8 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     }
 
 
-    private Optional<RepositoryInfo> parseEvent(String json) throws IOException {
-        Optional<RepositoryInfo> event = PullRequest.create(json);
+    private Optional<GitInfo> parseEvent(String json) throws IOException {
+        Optional<GitInfo> event = PullRequest.create(json);
         if (!event.isPresent()) {
             event = PushEvent.create(json);
         }
@@ -114,17 +114,20 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     }
 
 
-    protected void deleteStacks(RepositoryInfo repositoryInfo) {
-        GitInfo gitInfo = new GithubConf(repositoryInfo.getOwner(), repositoryInfo.getRepository());
+    protected void deleteStacks(GitInfoImpl repositoryInfo) {
+        GitInfo gitInfo = new GithubConf(repositoryInfo.getOwner(),
+            repositoryInfo.getRepository(),
+            repositoryInfo.getBranch());
 
-        Application application = new Application(gitInfo, repositoryInfo.getBranch());
+        Application application = new Application(gitInfo);
         application.wipeStacks();
     }
 
-    protected void createStacks(RepositoryInfo repositoryInfo)
+    protected void createStacks(GitInfoImpl repositoryInfo)
         throws IOException {
-        GitInfo gitInfo = new GithubConf(repositoryInfo.getOwner(), repositoryInfo.getRepository());
-        Application application = new Application(gitInfo, repositoryInfo.getBranch());
+        GitInfo gitInfo = new GithubConf(repositoryInfo.getOwner(), repositoryInfo.getRepository(),
+            repositoryInfo.getBranch());
+        Application application = new Application(gitInfo);
         application.createStacks();
     }
 

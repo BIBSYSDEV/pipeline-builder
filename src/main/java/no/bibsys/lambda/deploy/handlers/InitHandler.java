@@ -4,6 +4,8 @@ import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import no.bibsys.cloudformation.Stage;
+import no.bibsys.git.github.GitInfo;
+import no.bibsys.git.github.GithubConf;
 import no.bibsys.lambda.deploy.handlers.templates.CodePipelineFunctionHandlerTemplate;
 import no.bibsys.lambda.deploy.requests.DeployEvent;
 import no.bibsys.lambda.responses.SimpleResponse;
@@ -29,14 +31,16 @@ public class InitHandler extends CodePipelineFunctionHandlerTemplate<SimpleRespo
 
 
         String zoneName= environment.readEnv(Route53Updater.ZONE_NAME_ENV);
-        String repository= environment.readEnv(Route53Updater.REPOSITORY_NAME_ENV_VAR);
-        String branch= environment.readEnv(Route53Updater.BRANCH_NAME_ENV_VAR);
+        String repoOwner = environment.readEnv(GithubConf.REPO_OWNER);
+        String repository = environment.readEnv(GithubConf.REPOSITORY);
+        String branch = environment.readEnv(GithubConf.BRANCH);
         Stage stage=Stage.currentStage();
         String certificateArn= environment.readEnv(Route53Updater.CERTIFICATE_ARN);
 
-
-        ResourceInitializer initializer=new ResourceInitializer(zoneName,repository,branch,
-            new SwaggerHubInfo(environment),stage,certificateArn);
+        GitInfo gitInfo = new GithubConf(repoOwner, repository, branch);
+        SwaggerHubInfo swaggerHubInfo = new SwaggerHubInfo(environment);
+        ResourceInitializer initializer = new ResourceInitializer(zoneName, gitInfo, swaggerHubInfo,
+            stage, certificateArn);
         initializer.initializeStacks();
 
         return new SimpleResponse("OK");

@@ -7,9 +7,11 @@ public interface GitInfo {
 
      String getOwner() ;
 
-    String getRepo() ;
+    String getRepository();
 
     String getOauth() throws IOException;
+
+    String getBranch();
 
 
 }

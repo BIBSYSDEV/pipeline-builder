@@ -5,21 +5,16 @@ public enum ResourceType {
     REST_API;
 
 
+    public static String REST_API_RESOURCE_TYPE = "AWS::ApiGateway::RestApi";
+
     @Override
     public String toString() {
-
-        switch (this) {
-            case REST_API:
-                return "AWS::ApiGateway::RestApi";
-
+        if (this.equals(REST_API)) {
+            return REST_API_RESOURCE_TYPE;
+        } else {
+            throw new IllegalStateException("Unexpected ResourceType:" + this.name());
         }
 
-    }
-
-
-    @Override
-    public String name() {
-        return toString();
 
     }
 

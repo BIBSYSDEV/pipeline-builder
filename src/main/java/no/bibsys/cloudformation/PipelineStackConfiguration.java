@@ -24,16 +24,18 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
     private final transient CodeBuildConfiguration codeBuildConfiguration;
 
 
-    public PipelineStackConfiguration(GitInfo gitInfo, String branch)  {
-        super(gitInfo.getRepo(), branch);
+    public PipelineStackConfiguration(GitInfo gitInfo) {
+        super(gitInfo.getRepository(), gitInfo.getBranch());
         this.githubConf = gitInfo;
         this.pipelineStackName = initPipelineStackName();
         this.bucketName = initBucketName();
         this.createStackRoleName = initCreateStackRole();
         this.pipelineRoleName = initPipelineRoleName();
 
-        this.pipelineConfiguration = initPipelineConfiguration(gitInfo.getRepo(),branch);
-        this.codeBuildConfiguration = new CodeBuildConfiguration(gitInfo.getRepo(), branch);
+        this.pipelineConfiguration = initPipelineConfiguration(gitInfo.getRepository(),
+            gitInfo.getBranch());
+        this.codeBuildConfiguration = new CodeBuildConfiguration(gitInfo.getRepository(),
+            gitInfo.getBranch());
     }
 
 

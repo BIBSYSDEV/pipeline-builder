@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Optional;
+import no.bibsys.git.github.GitInfo;
+import no.bibsys.git.github.GitInfoImpl;
 import no.bibsys.utils.JsonUtils;
 
-public final class PullRequest extends RepositoryInfo {
+public final class PullRequest extends GitInfoImpl {
 
     public static final String ACTION_OPEN = "opened";
     public static final String ACTION_REOPEN = "reopened";
@@ -20,7 +22,7 @@ public final class PullRequest extends RepositoryInfo {
         super();
     }
 
-    private PullRequest(JsonNode root) throws IOException {
+    private PullRequest(JsonNode root) {
         super();
         this.setOwner(root.get("repository").get("owner").get("login").asText());
         this.setRepository(root.get("repository").get("name").asText());
@@ -29,7 +31,7 @@ public final class PullRequest extends RepositoryInfo {
 
     }
 
-    public static Optional<RepositoryInfo> create(String jsonString) throws IOException {
+    public static Optional<GitInfo> create(String jsonString) throws IOException {
         ObjectMapper mapper = JsonUtils.newJsonParser();
         JsonNode root = mapper.readTree(jsonString);
 
