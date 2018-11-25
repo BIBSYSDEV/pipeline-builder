@@ -16,7 +16,7 @@ public abstract class ConfigurationTests extends AmazonRestrictions {
 
     protected final String normalizedBranch;
     protected final String projectId;
-    protected String branchName = "AUTREG-49_Delete_tables_from_DynamoDB_after_testing";
+    protected String branchName = "AUTREG-49_This_is_purposefully_and_meticulously_looong";
     protected String repoOwner = "OWNER";
     protected String repoName = "REPOSITORY_NAME_ENV_VAR";
     protected PipelineStackConfiguration conf;
