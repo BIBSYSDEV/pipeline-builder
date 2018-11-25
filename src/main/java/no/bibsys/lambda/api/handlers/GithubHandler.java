@@ -30,6 +30,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
 
 
+    
     public GithubHandler() {
         this(new Environment());
 
@@ -96,7 +97,6 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
             deleteStacks(pullRequest);
         }
 
-        System.out.println(pullRequest.toString());
         logger.info(pullRequest.toString());
 
         return pullRequest.toString();

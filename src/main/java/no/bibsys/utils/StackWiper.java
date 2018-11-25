@@ -23,11 +23,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.cloudformation.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StackWiper {
 
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
 
+
+    private final static Logger logger = LoggerFactory.getLogger(StackWiper.class);
 
     public StackWiper(PipelineStackConfiguration pipelineStackConfiguration) {
         this.pipelineStackConfiguration = pipelineStackConfiguration;
@@ -70,8 +74,7 @@ public class StackWiper {
             InvokeResult invokeResult = lambda.invoke(request);
             return invokeResult.getStatusCode();
         } catch (ResourceNotFoundException e) {
-            System.out
-                .println(String.format("Function %s could not be found", destroyFunctionName));
+            logger.error(String.format("Function %s could not be found", destroyFunctionName));
         }
 
         return -1;
