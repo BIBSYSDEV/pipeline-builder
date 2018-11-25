@@ -117,7 +117,6 @@ public class Route53UpdaterTest {
         Optional<ChangeResourceRecordSetsResult> result = updater.updateServerUrl(certificateArn);
 
         assertThat(result, is(not(equalTo(Optional.empty()))));
-//        assertThat(result.get().getSdkHttpMetadata().getHttpStatusCode(), is(equalTo(200)));
 
     }
 
