@@ -7,9 +7,22 @@ import no.bibsys.utils.Environment;
 public class SwaggerHubInfo {
 
 
-    public static String API_ID_ENV = "API_ID";
-    public static String API_VERSION = "API_VERSION";
-    public static String SWAGGER_ORG = "SWAGGER_ORG";
+    /**
+     * The API id in SwaggerHub
+     */
+    private static String API_ID_ENV = "API_ID";
+
+    /**
+     * The version of the API in SwaggerHub. This is the version of the API we deploy (e.g. 1.0,
+     * 1.0a). Not the version of the standard we use for the API specification (e.g. oas3);
+     */
+
+    private static String API_VERSION = "API_VERSION";
+
+    /**
+     * The account name or the organization name to which this API belongs'
+     */
+    private static String SWAGGER_ORG = "SWAGGER_ORG";
 
 
     private final transient String apiId;
@@ -18,9 +31,9 @@ public class SwaggerHubInfo {
 
 
     public SwaggerHubInfo(Environment environment) {
-        this.apiId = environment.readEnvOpt("API_ID").orElse("simple-api");
-        this.apiVersion = environment.readEnvOpt("API_VERSION").orElse("1.0");
-        this.swaggerOrganization = environment.readEnvOpt("SWAGGER_ORG").orElse("axthosarouris");
+        this.apiId = environment.readEnv(API_ID_ENV);
+        this.apiVersion = environment.readEnv(API_VERSION);
+        this.swaggerOrganization = environment.readEnv(SWAGGER_ORG);
 
     }
 
