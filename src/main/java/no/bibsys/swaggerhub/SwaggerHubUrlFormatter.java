@@ -39,7 +39,7 @@ public class SwaggerHubUrlFormatter {
                     info.getApiVersion()));
         } else {
             return new URI(
-                String.format("%S/%s/%s", SWAGGERHUB_RESTAPI_URL, info.getSwaggerOrganization(),
+                String.format("%s/%s/%s", SWAGGERHUB_RESTAPI_URL, info.getSwaggerOrganization(),
                     info.getApiId()));
         }
 
