@@ -12,8 +12,11 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 
-public class SwaggerHubUpdater {
+/**
+ * Updates the OpenApi specification stored in SwaggerHub for a specific ApiGateway API.
+ */
 
+public class SwaggerHubUpdater {
 
 
     private final transient SwaggerHubInfo swaggerHubInfo;
@@ -21,7 +24,6 @@ public class SwaggerHubUpdater {
     private final transient String swaggerApiKey;
     private final transient String apiGatewayRestApiId;
     protected transient Stage stage;
-
 
     public SwaggerHubUpdater(AmazonApiGateway apiGateway, String apiGatewayRestApiId,
         SwaggerHubInfo swaggerHubInfo,
@@ -35,6 +37,11 @@ public class SwaggerHubUpdater {
     }
 
 
+    /**
+     * Deletes the whole API documentation from SwaggerHub.
+     *
+     * @return Sucess of Failure code the delete request
+     */
     public int deleteApi() throws URISyntaxException, IOException {
         SwaggerDriver swaggerDriver = new SwaggerDriver(swaggerHubInfo);
         HttpDelete deleteRequest = swaggerDriver
@@ -42,6 +49,11 @@ public class SwaggerHubUpdater {
         return swaggerDriver.executeDelete(deleteRequest);
     }
 
+    /**
+     * Updates the API documentation in SwaggerHub.
+     *
+     * @return The body of the HTTP response for the update query
+     */
 
     public Optional<String> updateApiDocumentation()
         throws IOException, URISyntaxException {

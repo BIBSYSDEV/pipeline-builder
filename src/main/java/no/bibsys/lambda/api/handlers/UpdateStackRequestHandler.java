@@ -14,8 +14,8 @@ import no.bibsys.utils.JsonUtils;
 
 public class UpdateStackRequestHandler extends GithubHandler {
 
-    private static final String SSM_SECRET_NAME = "infrastructure";
-    private static final String SSM_SECRET_KEY = "buildbranch";
+    private static final String AWS_SECRET_NAME = "infrastructure";
+    private static final String AWS_SECRET_KEY = "buildbranch";
 
 
     private transient SecretsReader secretsReader;
@@ -24,7 +24,7 @@ public class UpdateStackRequestHandler extends GithubHandler {
 
     public UpdateStackRequestHandler(Environment environment){
         super(environment);
-        this.secretsReader = new SecretsReader(SSM_SECRET_NAME, SSM_SECRET_KEY);
+        this.secretsReader = new SecretsReader(AWS_SECRET_NAME, AWS_SECRET_KEY);
     }
 
 

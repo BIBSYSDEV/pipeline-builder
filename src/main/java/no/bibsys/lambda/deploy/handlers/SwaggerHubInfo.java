@@ -25,8 +25,8 @@ public class SwaggerHubInfo {
     private static String SWAGGER_ORG = "SWAGGER_ORG";
 
 
-    private static String SSM_SECRET_NAME = "swaggerapikey";
-    private static String SSM_SECRET_KEY = "swaggerapikey";
+    private static String AWS_SECRET_NAME = "swaggerapikey";
+    private static String AWS_SECRET_KEY = "swaggerapikey";
 
     private final transient String apiId;
     private final transient String apiVersion;
@@ -70,7 +70,7 @@ public class SwaggerHubInfo {
 
     public String getSwaggerAuth() throws IOException {
 
-        SecretsReader secretsReader = new SecretsReader(SSM_SECRET_NAME, SSM_SECRET_KEY);
+        SecretsReader secretsReader = new SecretsReader(AWS_SECRET_NAME, AWS_SECRET_KEY);
         return secretsReader.readSecret();
 
     }

@@ -13,6 +13,11 @@ import no.bibsys.utils.JsonUtils;
 
 public class SecretsReader {
 
+    /**
+     * Class for reading secrets from Amazon. It reads secrets from the AWS Secrets Manager and not
+     * encrypted parameters from  AWS SSM (System Manager).
+     */
+
 
     private final transient AWSSecretsManager client;
     private final transient String secretName;
