@@ -40,16 +40,16 @@ public class SwaggerHubUrlFormatter {
                 .format("%s/%s/%s/%s", SWAGGERHUB_RESTAPI_URL, info.getSwaggerOrganization(),
                     info.getApiId(),
                     info.getApiVersion()));
-            if (logger.isInfoEnabled()) {
-                logger.info("SwaggerHub URL:{}", uri);
+            if (logger.isErrorEnabled()) {
+                logger.error("SwaggerHub URL:{}", uri);
             }
             return uri;
         } else {
             URI uri = new URI(
                 String.format("%s/%s/%s", SWAGGERHUB_RESTAPI_URL, info.getSwaggerOrganization(),
                     info.getApiId()));
-            if (logger.isInfoEnabled()) {
-                logger.info("SwaggerHub URL:{}", uri);
+            if (logger.isErrorEnabled()) {
+                logger.error("SwaggerHub URL:{}", uri);
             }
             return uri;
         }
