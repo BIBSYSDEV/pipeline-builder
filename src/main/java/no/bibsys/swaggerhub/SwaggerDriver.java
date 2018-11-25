@@ -17,9 +17,13 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SwaggerDriver {
 
+
+    private final static Logger logger = LoggerFactory.getLogger(SwaggerDriver.class);
     private final transient SwaggerHubInfo swaggerHubInfo;
 
 
@@ -79,7 +83,12 @@ public class SwaggerDriver {
     private int executeUpdate(HttpUriRequest request) throws IOException {
         CloseableHttpClient client = newRestClient();
         CloseableHttpResponse response = client.execute(request);
-        return response.getStatusLine().getStatusCode();
+        int result = response.getStatusLine().getStatusCode();
+        if (logger.isInfoEnabled()) {
+            logger.info("SwaggerHubUpdateResultCode:{}", result);
+        }
+
+        return result;
     }
 
 

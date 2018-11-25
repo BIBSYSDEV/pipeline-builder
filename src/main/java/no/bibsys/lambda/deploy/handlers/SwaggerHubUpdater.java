@@ -11,6 +11,8 @@ import no.bibsys.swaggerhub.SwaggerDriver;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Updates the OpenApi specification stored in SwaggerHub for a specific ApiGateway API.
@@ -19,6 +21,7 @@ import org.apache.http.client.methods.HttpPost;
 public class SwaggerHubUpdater {
 
 
+    private final static Logger logger = LoggerFactory.getLogger(SwaggerHubUpdater.class);
     private final transient SwaggerHubInfo swaggerHubInfo;
     private final transient AmazonApiGateway apiGateway;
     private final transient String swaggerApiKey;
@@ -64,7 +67,10 @@ public class SwaggerHubUpdater {
         System.out.println(jsonOpt.toString());
 
         if (jsonOpt.isPresent()) {
-            String response = readTheUpdatedAPI(jsonOpt.get(), apiDocInfo);
+            logger.debug("Found json API");
+            SwaggerDriver swaggerDriver = newSwaggerDriver();
+            executeUpdate(apiDocInfo, jsonOpt.get(), swaggerDriver);
+            String response = readTheUpdatedAPI(apiDocInfo, swaggerDriver);
             return Optional.of(response);
         } else {
             return Optional.empty();
@@ -85,10 +91,9 @@ public class SwaggerHubUpdater {
     }
 
 
-    private String readTheUpdatedAPI(String json, ApiDocumentationInfo publishApi)
+    private String readTheUpdatedAPI(ApiDocumentationInfo publishApi, SwaggerDriver swaggerDriver)
         throws URISyntaxException, IOException {
-        SwaggerDriver swaggerDriver = newSwaggerDriver();
-        executeUpdate(publishApi, json, swaggerDriver);
+
         HttpGet getSpecRequest = swaggerDriver
             .getSpecificationRequest(publishApi.getApiVersion());
         return swaggerDriver.executeGet(getSpecRequest);
@@ -99,12 +104,14 @@ public class SwaggerHubUpdater {
         return new SwaggerDriver(swaggerHubInfo);
     }
 
-    private void executeUpdate(ApiDocumentationInfo publishApi, String json,
+    private void executeUpdate(ApiDocumentationInfo apiDocumentationInfo, String json,
         SwaggerDriver swaggerDriver)
         throws URISyntaxException, IOException {
         HttpPost request = swaggerDriver
-            .createUpdateRequest(json, publishApi.getApiVersion(), swaggerApiKey);
+            .createUpdateRequest(json, apiDocumentationInfo.getApiVersion(), swaggerApiKey);
         swaggerDriver.executePost(request);
+
+
     }
 
     private Optional<String> generateApiSpec(ApiDocumentationInfo apiDocumentationInfo)
