@@ -11,6 +11,8 @@ import no.bibsys.swaggerhub.SwaggerDriver;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Updates the OpenApi specification stored in SwaggerHub for a specific ApiGateway API.
@@ -19,6 +21,7 @@ import org.apache.http.client.methods.HttpPost;
 public class SwaggerHubUpdater {
 
 
+    private final Logger logger = LoggerFactory.getLogger(SwaggerHubUpdater.class);
     private final transient SwaggerHubInfo swaggerHubInfo;
     private final transient AmazonApiGateway apiGateway;
     private final transient String swaggerApiKey;
@@ -61,7 +64,10 @@ public class SwaggerHubUpdater {
 
         Optional<String> jsonOpt = generateApiSpec(apiDocInfo);
 
-        System.out.println(jsonOpt.toString());
+        if (logger.isDebugEnabled()) {
+            logger.debug(jsonOpt.toString());
+        }
+
 
         if (jsonOpt.isPresent()) {
             String response = readTheUpdatedAPI(jsonOpt.get(), apiDocInfo);

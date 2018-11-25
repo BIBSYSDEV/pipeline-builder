@@ -12,6 +12,8 @@ import no.bibsys.lambda.deploy.handlers.Route53Updater;
 import no.bibsys.lambda.deploy.handlers.SwaggerHubInfo;
 import no.bibsys.lambda.deploy.handlers.SwaggerHubUpdater;
 import no.bibsys.lambda.responses.SimpleResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -25,9 +27,12 @@ import no.bibsys.lambda.responses.SimpleResponse;
  */
 public class ResourceInitializer extends ResourceManager {
 
+    private final Logger logger = LoggerFactory.getLogger(ResourceInitializer.class);
+
     private transient final SwaggerHubUpdater swaggerHubUpdater;
     private final transient Route53Updater route53Updater;
     private final transient String certificateArn;
+
 
     public ResourceInitializer(String zoneName,
         GitInfo gitInfo,
@@ -50,8 +55,11 @@ public class ResourceInitializer extends ResourceManager {
     public SimpleResponse initializeStacks()
         throws IOException, URISyntaxException {
 
-        System.out.println("Lambda function started");
-        System.out.println("Updating Route 53");
+        if (logger.isInfoEnabled()) {
+            logger.info("Lambda function started");
+            logger.info("Updating Route 53");
+        }
+
 
         deletePreviousResources();
 
@@ -63,6 +71,9 @@ public class ResourceInitializer extends ResourceManager {
         StringBuilder output = new StringBuilder(20);
         output.append("Swagger:");
 
+        if (logger.isInfoEnabled()) {
+            logger.info("SwaggerUpdate started");
+        }
         Optional<String> swaggerUpdateResult = swaggerHubUpdater.updateApiDocumentation();
         swaggerUpdateResult.ifPresent(s -> output.append(s));
         output.append("\nRoute53:").append(route53Status);

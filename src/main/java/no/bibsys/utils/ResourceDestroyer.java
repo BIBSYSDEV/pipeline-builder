@@ -9,6 +9,8 @@ import no.bibsys.git.github.GitInfo;
 import no.bibsys.lambda.deploy.handlers.Route53Updater;
 import no.bibsys.lambda.deploy.handlers.SwaggerHubInfo;
 import no.bibsys.lambda.deploy.handlers.SwaggerHubUpdater;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -25,6 +27,8 @@ import no.bibsys.lambda.deploy.handlers.SwaggerHubUpdater;
 
 public class ResourceDestroyer extends ResourceManager {
 
+
+    private final static Logger logger = LoggerFactory.getLogger(ResourceDestroyer.class);
     private final transient SwaggerHubUpdater swaggerHubUpdater;
     private final transient Route53Updater route53Updater;
 
@@ -50,7 +54,7 @@ public class ResourceDestroyer extends ResourceManager {
 
         this.route53Updater.deleteServerUrl();
 
-        System.out.println("Swagger response" + response);
+        logger.info("Swagger response:{}", response);
 
 
     }

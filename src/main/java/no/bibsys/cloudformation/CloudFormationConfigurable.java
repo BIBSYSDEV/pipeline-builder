@@ -2,8 +2,12 @@ package no.bibsys.cloudformation;
 
 
 import no.bibsys.utils.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public   class CloudFormationConfigurable {
+
+    private final static Logger logger = LoggerFactory.getLogger(CloudFormationConfigurable.class);
 
     public final static int NORMALIZED_BRANCH_MAX_LENGTH = 25;
     public final static transient int MAX_BRANCH_WORD_LENGTH = 5;
@@ -24,7 +28,9 @@ public   class CloudFormationConfigurable {
     private String initProjectId(String repositoryName) {
         String projectName = stringUtils
             .shortNormalizedString(repositoryName, MAX_PROJECT_WORD_LENGTH);
-        System.out.println("PROJECT NAME IS:" + projectName);
+        if (logger.isInfoEnabled()) {
+            logger.info("PROJECT NAME IS:{}", projectName);
+        }
         return projectName;
     }
 

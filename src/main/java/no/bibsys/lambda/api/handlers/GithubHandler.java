@@ -29,7 +29,6 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     private transient SignatureChecker signatureChecker;
 
 
-
     public GithubHandler() {
         this(new Environment());
 
@@ -43,7 +42,6 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
         this.networkZoneName = environment.readEnv(Route53Updater.ZONE_NAME_ENV);
 
         signatureChecker = new SignatureChecker(secretName, secretKey);
-
 
 
     }
@@ -96,8 +94,9 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
             deleteStacks(pullRequest);
         }
 
-        System.out.println(pullRequest.toString());
-        logger.info(pullRequest.toString());
+        if (logger.isInfoEnabled()) {
+            logger.info(pullRequest.toString());
+        }
 
         return pullRequest.toString();
 

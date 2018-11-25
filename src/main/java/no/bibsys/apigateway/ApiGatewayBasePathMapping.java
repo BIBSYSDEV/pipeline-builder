@@ -52,7 +52,9 @@ public class ApiGatewayBasePathMapping {
 
 
     public void deleteBasePathMappings() {
-        System.out.println("Deleting old basepath Mappings");
+        if (log.isInfoEnabled()) {
+            log.info("Deleting old basepath Mappings");
+        }
 
         try {
             List<DeleteBasePathMappingRequest> deleteRequests = createDeleteRequests();

@@ -11,12 +11,17 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Optional;
+import no.bibsys.lambda.deploy.requests.CodePipelineEvent;
 import no.bibsys.lambda.deploy.requests.DeployEvent;
 import no.bibsys.lambda.deploy.requests.DeployEventBuilder;
-import no.bibsys.lambda.deploy.requests.CodePipelineEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class CodePipelineFunctionHandlerTemplate<O> extends
     HandlerTemplate<DeployEvent, O> {
+
+    private final static Logger logger = LoggerFactory
+        .getLogger(CodePipelineFunctionHandlerTemplate.class);
 
     private final transient AWSCodePipeline pipeline = AWSCodePipelineClientBuilder.defaultClient();
 
@@ -36,8 +41,6 @@ public abstract class CodePipelineFunctionHandlerTemplate<O> extends
         String outputString = objectMapper.writeValueAsString(output);
 
         writeOutput(outputString);
-        System.out.println(input.getClass().getName());
-        System.out.println(input instanceof CodePipelineEvent);
 
         if (isPipelineEvent(input)) {
             sendSuccessToCodePipeline((CodePipelineEvent) input,
@@ -46,8 +49,6 @@ public abstract class CodePipelineFunctionHandlerTemplate<O> extends
         }
 
     }
-
-
 
 
     @Override
@@ -61,8 +62,6 @@ public abstract class CodePipelineFunctionHandlerTemplate<O> extends
     }
 
 
-
-
     private void writeOutput(String outputString) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream))) {
             writer.write(outputString);
@@ -70,14 +69,14 @@ public abstract class CodePipelineFunctionHandlerTemplate<O> extends
 
 
     }
+
     private void sendSuccessToCodePipeline(CodePipelineEvent input, String outputString) {
-        System.out.println("sending success");
         CodePipelineEvent codePipelineEvent = input;
         PutJobSuccessResultRequest success = new PutJobSuccessResultRequest();
         success.withJobId(codePipelineEvent.getId())
             .withExecutionDetails(new ExecutionDetails().withSummary(outputString));
         pipeline.putJobSuccessResult(success);
-        System.out.println("sent success");
+
     }
 
     private void sendFailureToCodePipeline(CodePipelineEvent input, String outputString) {
@@ -93,9 +92,6 @@ public abstract class CodePipelineFunctionHandlerTemplate<O> extends
         return buildEvent instanceof CodePipelineEvent;
 
     }
-
-
-
 
 
 }
