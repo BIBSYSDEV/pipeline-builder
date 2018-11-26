@@ -30,7 +30,7 @@ paths:
               owner: BIBSYSDEV
               action: create
         required: true
-  /githubhook:
+  /github:
     post:
       operationId: githubhook
       responses:
