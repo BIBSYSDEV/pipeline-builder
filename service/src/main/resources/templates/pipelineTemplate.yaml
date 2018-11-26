@@ -273,6 +273,10 @@ Resources:
       ArtifactStore:
         Type: S3
         Location: !Ref PipelineBucketname
+      DisableInboundStageTransitions:
+        - Reason: "Do not go to production"
+          StageName: ProdStack
+
       Stages:
       - Name: Github_pull
         Actions:
