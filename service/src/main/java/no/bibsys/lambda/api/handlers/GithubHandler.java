@@ -11,11 +11,11 @@ import no.bibsys.Application;
 import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.git.github.GitInfoImpl;
 import no.bibsys.aws.git.github.GithubConf;
+import no.bibsys.aws.secrets.SignatureChecker;
+import no.bibsys.aws.tools.Environment;
 import no.bibsys.lambda.api.requests.PullRequest;
 import no.bibsys.lambda.api.requests.PushEvent;
-import no.bibsys.lambda.api.utils.SignatureChecker;
 import no.bibsys.lambda.deploy.handlers.templates.ApiGatewayHandlerTemplate;
-import no.bibsys.aws.tools.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

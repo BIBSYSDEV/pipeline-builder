@@ -11,8 +11,8 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import no.bibsys.aws.secrets.SecretsReader;
+import no.bibsys.aws.secrets.SignatureChecker;
 import no.bibsys.aws.tools.Environment;
-import no.bibsys.lambda.api.utils.SignatureChecker;
 import org.junit.Test;
 import org.mockito.Mockito;
 
