@@ -7,8 +7,8 @@ import java.net.URISyntaxException;
 import no.bibsys.aws.cloudformation.Stage;
 import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.lambda.deploy.handlers.SwaggerHubUpdater;
-import no.bibsys.aws.route53.NetworkInfo;
 import no.bibsys.aws.route53.Route53Updater;
+import no.bibsys.aws.route53.StaticUrlInfo;
 import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
 import no.bibsys.aws.utils.network.NetworkConstants;
 
@@ -40,9 +40,9 @@ public class ResourceDestroyer extends ResourceManager {
         swaggerHubUpdater = new SwaggerHubUpdater(client, apiGatewayRestApiId, swaggerHubInfo,
             stage);
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
-        NetworkInfo networkInfo = NetworkInfo
+        StaticUrlInfo staticUrlINfo = StaticUrlInfo
             .create(stage, zoneName, NetworkConstants.RECORD_SET_NAME);
-        route53Updater = new Route53Updater(networkInfo, gitInfo, stage, apiGatewayRestApiId,
+        route53Updater = new Route53Updater(staticUrlINfo, gitInfo, stage, apiGatewayRestApiId,
             apiGateway);
     }
 

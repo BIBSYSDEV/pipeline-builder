@@ -19,8 +19,10 @@ import no.bibsys.aws.tools.IoUtils;
 import no.bibsys.aws.tools.JsonUtils;
 
 
+/**
+ * Retrives Information regarding a specific AWS ApiGateway API
+ */
 public class ApiGatewayApiInfo {
-
 
 
     private final transient Stage stage;
@@ -105,8 +107,7 @@ public class ApiGatewayApiInfo {
             ObjectMapper parser = JsonUtils.newJsonParser();
             return Optional.ofNullable(parser.readTree(swaggerFile));
 
-        }
-        catch(NotFoundException e) {
+        } catch(NotFoundException e) {
             return Optional.empty();
         }
 
@@ -128,9 +129,6 @@ public class ApiGatewayApiInfo {
             .map(deflt -> deflt.asText());
         return apiStage;
     }
-
-
-
 
 
     private String readOpenApiTemplate() throws IOException {

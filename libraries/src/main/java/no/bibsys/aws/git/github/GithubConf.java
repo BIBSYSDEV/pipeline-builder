@@ -4,6 +4,25 @@ import java.io.IOException;
 import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.tools.Environment;
 
+/**
+ * Helper class for containing the necessary details for retrieving information from a Github
+ * repository
+ *
+ * Terms:
+ * <ul>
+ * <li>owner: The owner of the repository </li>
+ * <li>repository: The name of the repository</li>
+ * <li>branch: Branch we are interested in</li>
+ * </ul>
+ * <p>
+ * Example: <br/> https://github.com/BIBSYSDEV/authority-registry-infrastructure/
+ * <ul>
+ * <li>owner:BIBSYSDEV</li>
+ * <li>repository:authority-registry-infrastructure</li>
+ * </ul>
+ * </p>
+ */
+
 public class GithubConf implements GitInfo {
 
     public static final String REPO_OWNER = "OWNER";
@@ -63,8 +82,6 @@ public class GithubConf implements GitInfo {
     private String initOwner(String owner) {
         return owner;
     }
-
-
 
 
 }

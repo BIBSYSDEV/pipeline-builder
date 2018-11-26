@@ -39,7 +39,7 @@ public class Route53Updater {
 
 
     private static final Logger log = LoggerFactory.getLogger(Route53Updater.class);
-    private final transient NetworkInfo networkInfo;
+    private final transient StaticUrlInfo staticUrlINfo;
 
     private final transient GitInfo gitInfo;
     private final transient String apiGatewayRestApiId;
@@ -52,13 +52,13 @@ public class Route53Updater {
     private transient AmazonRoute53 route53Client;
 
 
-    public Route53Updater(NetworkInfo networkInfo,
+    public Route53Updater(StaticUrlInfo staticUrlINfo,
         GitInfo gitInfo,
         Stage stage,
         String apiGatewayRestApiId,
         AmazonApiGateway apiGatewayClient) {
 
-        this.networkInfo = networkInfo;
+        this.staticUrlINfo = staticUrlINfo;
         this.gitInfo = gitInfo;
         this.apiGatewayClient = apiGatewayClient;
 
@@ -67,13 +67,13 @@ public class Route53Updater {
 
         this.apiGatewayBasePathMapping = new ApiGatewayBasePathMapping(
             apiGatewayClient,
-            networkInfo.getDomainName(),
+            staticUrlINfo.getDomainName(),
             stage);
     }
 
 
     public Route53Updater copy(Stage stage) {
-        return new Route53Updater(networkInfo, gitInfo, stage, apiGatewayRestApiId,
+        return new Route53Updater(staticUrlINfo, gitInfo, stage, apiGatewayRestApiId,
             apiGatewayClient);
     }
 
@@ -111,10 +111,10 @@ public class Route53Updater {
 
     private HostedZone getHostedZone() {
         List<HostedZone> hostedZones = route53Client.listHostedZones().getHostedZones().stream()
-            .filter(zone -> zone.getName().equals(networkInfo.getZoneName()))
+            .filter(zone -> zone.getName().equals(staticUrlINfo.getZoneName()))
             .collect(Collectors.toList());
         Preconditions.checkArgument(hostedZones.size() == 1,
-            "There should exist exactly one hosted zone with the name " + networkInfo
+            "There should exist exactly one hosted zone with the name " + staticUrlINfo
                 .getZoneName());
         return hostedZones.get(0);
 
@@ -152,7 +152,7 @@ public class Route53Updater {
 
     private ResourceRecordSet createRecordSet(String serverUrl) {
         ResourceRecordSet recordSet = new ResourceRecordSet()
-            .withName(networkInfo.getRecordSetName()).withType(
+            .withName(staticUrlINfo.getRecordSetName()).withType(
             RRType.CNAME)
             .withTTL(300L)
             .withResourceRecords(new ResourceRecord().withValue(serverUrl));

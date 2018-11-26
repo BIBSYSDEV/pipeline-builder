@@ -2,7 +2,8 @@ package no.bibsys.aws.tools;
 
 import java.util.regex.Pattern;
 
-public class AmazonRestrictions {
+
+public class AmazonNamingRestrictions {
 
     protected final static StringUtils stringUtils = new StringUtils();
     protected final static String amazonRegEx = "[a-zA-Z][-a-zA-Z0-9]*";

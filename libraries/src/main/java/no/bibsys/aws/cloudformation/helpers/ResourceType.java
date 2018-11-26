@@ -1,5 +1,9 @@
 package no.bibsys.aws.cloudformation.helpers;
 
+
+/**
+ * Incomplete Enumeration of useful CloudFormation resource types
+ */
 public enum ResourceType {
 
     REST_API;

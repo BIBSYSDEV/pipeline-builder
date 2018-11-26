@@ -29,8 +29,8 @@ import no.bibsys.aws.cloudformation.helpers.ResourceType;
 import no.bibsys.aws.cloudformation.helpers.StackResources;
 import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.git.github.GitInfoImpl;
-import no.bibsys.aws.route53.NetworkInfo;
 import no.bibsys.aws.route53.Route53Updater;
+import no.bibsys.aws.route53.StaticUrlInfo;
 import no.bibsys.aws.utils.network.NetworkConstants;
 import no.bibsys.utils.IntegrationTest;
 import org.eclipse.jgit.lib.Repository;
@@ -55,8 +55,10 @@ public class Route53UpdaterTest {
         when(client.listHostedZones()).thenReturn(new ListHostedZonesResult()
             .withHostedZones(new HostedZone().withId("ZoneId").withName(zoneName)));
         GitInfo gitInfo = new GitInfoImpl("owner", "repository", "branch");
-        NetworkInfo networkInfo = NetworkInfo.create(Stage.TEST, zoneName, "some.url.goes.here.");
-        route53Updater = new Route53Updater(networkInfo, gitInfo, Stage.TEST, "apiGatewarRestApiId",
+        StaticUrlInfo staticUrlINfo = StaticUrlInfo
+            .create(Stage.TEST, zoneName, "some.url.goes.here.");
+        route53Updater = new Route53Updater(staticUrlINfo, gitInfo, Stage.TEST,
+            "apiGatewarRestApiId",
             apiGateway);
         route53Updater.setRoute53Client(client);
 
@@ -116,9 +118,9 @@ public class Route53UpdaterTest {
             pipelineConfiguration.getTestServiceStack());
         String restApiId = stackResources.getResourceIds(ResourceType.REST_API).
             stream().findAny().orElseThrow(() -> new NotFoundException("Could not find a RestAPi"));
-        NetworkInfo networkInfo = NetworkInfo
+        StaticUrlInfo staticUrlINfo = StaticUrlInfo
             .create(Stage.TEST, zoneName, NetworkConstants.RECORD_SET_NAME);
-        Route53Updater updater = new Route53Updater(networkInfo, gitInfo, Stage.TEST, restApiId,
+        Route53Updater updater = new Route53Updater(staticUrlINfo, gitInfo, Stage.TEST, restApiId,
             AmazonApiGatewayClientBuilder.defaultClient());
 
         Optional<ChangeResourceRecordSetsResult> result = updater.updateServerUrl(certificateArn);

@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+
+/**
+ * It retrieves the Resources of a CloudFormation stack
+ */
 public class StackResources {
 
 
@@ -34,6 +38,12 @@ public class StackResources {
     }
 
 
+    /**
+     *
+     *
+     * @param resourceType the {@link ResourceType}
+     * @return A list with the Physical Resource ids of resources with the specified resource type
+     */
     public List<String> getResourceIds(ResourceType resourceType) {
         return getResourcesStream(resourceType).map(StackResource::getPhysicalResourceId)
             .collect(Collectors.toList());

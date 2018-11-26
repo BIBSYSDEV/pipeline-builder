@@ -7,7 +7,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import java.util.regex.Matcher;
 import org.junit.Test;
 
-public class StringUtilsTest extends AmazonRestrictions {
+public class StringUtilsTest extends AmazonNamingRestrictions {
 
 
     @Test

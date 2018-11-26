@@ -7,6 +7,15 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 import no.bibsys.aws.tools.Environment;
 
+
+/**
+ * Deployment stage:
+ * <ul>
+ * <li>Test: for running tests</li>
+ * <li>Final: Production or production-like</li>
+ *
+ * </ul>
+ */
 public enum Stage {
 
     TEST,FINAL;
@@ -43,8 +52,6 @@ public enum Stage {
         stages.add(FINAL);
         return stages;
     }
-
-
 
 
 }

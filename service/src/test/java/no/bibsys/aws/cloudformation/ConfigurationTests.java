@@ -6,12 +6,12 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.Optional;
 import no.bibsys.aws.git.github.GithubConf;
-import no.bibsys.aws.tools.AmazonRestrictions;
+import no.bibsys.aws.tools.AmazonNamingRestrictions;
 import no.bibsys.aws.tools.Environment;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
-public abstract class ConfigurationTests extends AmazonRestrictions {
+public abstract class ConfigurationTests extends AmazonNamingRestrictions {
 
 
     protected final String normalizedBranch;

@@ -12,7 +12,6 @@ import com.amazonaws.services.apigateway.model.EndpointType;
 import com.amazonaws.services.apigateway.model.GetBasePathMappingsRequest;
 import com.amazonaws.services.apigateway.model.GetDomainNameRequest;
 import com.amazonaws.services.apigateway.model.NotFoundException;
-
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Collections;
 import java.util.List;
@@ -21,6 +20,11 @@ import java.util.stream.Collectors;
 import no.bibsys.aws.cloudformation.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+
+/**
+ * Class for creating base path mappings  for API Gateway Custom Domain Names.
+ */
 
 public class ApiGatewayBasePathMapping {
 
