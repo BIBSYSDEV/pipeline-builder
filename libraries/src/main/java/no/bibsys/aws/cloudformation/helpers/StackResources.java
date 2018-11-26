@@ -1,4 +1,4 @@
-package no.bibsys.cloudformation.helpers;
+package no.bibsys.aws.cloudformation.helpers;
 
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;

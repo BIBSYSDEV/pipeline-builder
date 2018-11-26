@@ -1,4 +1,4 @@
-package no.bibsys.cloudformation;
+package no.bibsys.aws.cloudformation;
 
 public class PipelineConfiguration extends CloudFormationConfigurable {
 

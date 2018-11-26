@@ -1,9 +1,9 @@
-package no.bibsys.cloudformation;
+package no.bibsys.aws.cloudformation;
 
 
+import no.bibsys.aws.tools.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import no.bibsys.utils.StringUtils;
 
 public class CloudFormationConfigurable {
 

@@ -1,6 +1,6 @@
-package no.bibsys.cloudformation;
+package no.bibsys.aws.cloudformation;
 
-import no.bibsys.git.github.GitInfo;
+import no.bibsys.aws.git.github.GitInfo;
 
 public class PipelineStackConfiguration extends CloudFormationConfigurable {
 

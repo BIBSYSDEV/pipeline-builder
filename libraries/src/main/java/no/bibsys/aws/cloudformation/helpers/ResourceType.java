@@ -1,4 +1,4 @@
-package no.bibsys.cloudformation.helpers;
+package no.bibsys.aws.cloudformation.helpers;
 
 public enum ResourceType {
 

@@ -1,11 +1,11 @@
-package no.bibsys.cloudformation;
+package no.bibsys.aws.cloudformation;
 
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import no.bibsys.utils.Environment;
+import no.bibsys.aws.tools.Environment;
 
 public enum Stage {
 
