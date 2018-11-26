@@ -10,7 +10,7 @@ import org.junit.Test;
 public class PipelineTest {
 
 
-    private String branchName = "autreg-52-update-route53-dynamically";
+    private String branchName = "autreg-88";
     private String repoName = "authority-registry-infrastructure";
     private String repoOwner = "BIBSYSDEV";
 

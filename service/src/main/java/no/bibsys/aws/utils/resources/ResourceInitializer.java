@@ -1,4 +1,4 @@
-package no.bibsys.aws.utils;
+package no.bibsys.aws.utils.resources;
 
 import com.amazonaws.services.apigateway.AmazonApiGateway;
 import com.amazonaws.services.apigateway.AmazonApiGatewayClientBuilder;
@@ -8,10 +8,12 @@ import java.net.URISyntaxException;
 import java.util.Optional;
 import no.bibsys.aws.cloudformation.Stage;
 import no.bibsys.aws.git.github.GitInfo;
-import no.bibsys.aws.lambda.deploy.handlers.Route53Updater;
-import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
 import no.bibsys.aws.lambda.deploy.handlers.SwaggerHubUpdater;
 import no.bibsys.aws.lambda.responses.SimpleResponse;
+import no.bibsys.aws.route53.NetworkInfo;
+import no.bibsys.aws.route53.Route53Updater;
+import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
+import no.bibsys.aws.utils.network.NetworkConstants;
 
 
 /**
@@ -41,7 +43,9 @@ public class ResourceInitializer extends ResourceManager {
         this.swaggerHubUpdater = new SwaggerHubUpdater(apiGateway, apiGatewayRestApi,
             swaggerHubInfo,
             stage);
-        this.route53Updater = new Route53Updater(zoneName, gitInfo, stage, apiGatewayRestApi,
+        NetworkInfo networkInfo = NetworkInfo
+            .create(stage, zoneName, NetworkConstants.RECORD_SET_NAME);
+        this.route53Updater = new Route53Updater(networkInfo, gitInfo, stage, apiGatewayRestApi,
             apiGateway);
         this.certificateArn = certificateArn;
     }

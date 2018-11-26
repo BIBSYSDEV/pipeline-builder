@@ -6,8 +6,8 @@ import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.lambda.api.utils.Action;
-import no.bibsys.aws.utils.StackBuilder;
-import no.bibsys.aws.utils.StackWiper;
+import no.bibsys.aws.utils.stacks.StackBuilder;
+import no.bibsys.aws.utils.stacks.StackWiper;
 
 public class Application {
 

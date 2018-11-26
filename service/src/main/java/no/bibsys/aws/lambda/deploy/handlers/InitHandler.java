@@ -6,12 +6,13 @@ import java.net.URISyntaxException;
 import no.bibsys.aws.cloudformation.Stage;
 import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.git.github.GithubConf;
-import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
-import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.lambda.deploy.handlers.templates.CodePipelineFunctionHandlerTemplate;
 import no.bibsys.aws.lambda.deploy.requests.DeployEvent;
 import no.bibsys.aws.lambda.responses.SimpleResponse;
-import no.bibsys.aws.utils.ResourceInitializer;
+import no.bibsys.aws.route53.Route53Updater;
+import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
+import no.bibsys.aws.tools.Environment;
+import no.bibsys.aws.utils.resources.ResourceInitializer;
 
 public class InitHandler extends CodePipelineFunctionHandlerTemplate<SimpleResponse> {
 

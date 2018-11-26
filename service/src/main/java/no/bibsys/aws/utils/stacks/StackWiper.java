@@ -1,4 +1,4 @@
-package no.bibsys.aws.utils;
+package no.bibsys.aws.utils.stacks;
 
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;

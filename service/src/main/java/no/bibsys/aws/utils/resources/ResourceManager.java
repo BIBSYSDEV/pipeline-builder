@@ -1,4 +1,4 @@
-package no.bibsys.aws.utils;
+package no.bibsys.aws.utils.resources;
 
 import com.amazonaws.services.kms.model.NotFoundException;
 import java.util.Optional;

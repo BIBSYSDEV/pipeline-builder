@@ -29,6 +29,9 @@ import no.bibsys.aws.cloudformation.helpers.ResourceType;
 import no.bibsys.aws.cloudformation.helpers.StackResources;
 import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.git.github.GitInfoImpl;
+import no.bibsys.aws.route53.NetworkInfo;
+import no.bibsys.aws.route53.Route53Updater;
+import no.bibsys.aws.utils.network.NetworkConstants;
 import no.bibsys.utils.IntegrationTest;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -52,7 +55,8 @@ public class Route53UpdaterTest {
         when(client.listHostedZones()).thenReturn(new ListHostedZonesResult()
             .withHostedZones(new HostedZone().withId("ZoneId").withName(zoneName)));
         GitInfo gitInfo = new GitInfoImpl("owner", "repository", "branch");
-        route53Updater = new Route53Updater(zoneName, gitInfo, Stage.TEST, "apiGatewarRestApiId",
+        NetworkInfo networkInfo = NetworkInfo.create(Stage.TEST, zoneName, "some.url.goes.here.");
+        route53Updater = new Route53Updater(networkInfo, gitInfo, Stage.TEST, "apiGatewarRestApiId",
             apiGateway);
         route53Updater.setRoute53Client(client);
 
@@ -82,8 +86,9 @@ public class Route53UpdaterTest {
             .getDeclaredMethod("updateRecordSetsRequest", String.class);
         ServerInfo serverInfo = new ServerInfo("SERVERURL", Stage.TEST.toString());
         method.setAccessible(true);
-        ChangeResourceRecordSetsRequest request = (ChangeResourceRecordSetsRequest) method
-            .invoke(route53Updater, serverInfo.serverAddress());
+        ChangeResourceRecordSetsRequest request = route53Updater
+            .updateRecordSetsRequest(serverInfo.getServerUrl());
+
         Change change = request.getChangeBatch().getChanges().get(0);
 
         assertThat(change.getAction(), is(equalTo(ChangeAction.UPSERT.toString())));
@@ -111,7 +116,9 @@ public class Route53UpdaterTest {
             pipelineConfiguration.getTestServiceStack());
         String restApiId = stackResources.getResourceIds(ResourceType.REST_API).
             stream().findAny().orElseThrow(() -> new NotFoundException("Could not find a RestAPi"));
-        Route53Updater updater = new Route53Updater(zoneName, gitInfo, Stage.TEST, restApiId,
+        NetworkInfo networkInfo = NetworkInfo
+            .create(Stage.TEST, zoneName, NetworkConstants.RECORD_SET_NAME);
+        Route53Updater updater = new Route53Updater(networkInfo, gitInfo, Stage.TEST, restApiId,
             AmazonApiGatewayClientBuilder.defaultClient());
 
         Optional<ChangeResourceRecordSetsResult> result = updater.updateServerUrl(certificateArn);

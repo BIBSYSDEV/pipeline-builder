@@ -1,4 +1,4 @@
-package no.bibsys.aws.utils;
+package no.bibsys.aws.utils.stacks;
 
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
@@ -9,9 +9,9 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import no.bibsys.aws.tools.IoUtils;
 import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.cloudformation.Stage;
+import no.bibsys.aws.tools.IoUtils;
 
 public class StackBuilder {
 

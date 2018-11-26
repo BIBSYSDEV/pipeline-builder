@@ -1,4 +1,4 @@
-package no.bibsys.aws.utils;
+package no.bibsys.aws.utils.resources;
 
 import com.amazonaws.services.apigateway.AmazonApiGateway;
 import com.amazonaws.services.apigateway.AmazonApiGatewayClientBuilder;
@@ -6,9 +6,11 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import no.bibsys.aws.cloudformation.Stage;
 import no.bibsys.aws.git.github.GitInfo;
-import no.bibsys.aws.lambda.deploy.handlers.Route53Updater;
-import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
 import no.bibsys.aws.lambda.deploy.handlers.SwaggerHubUpdater;
+import no.bibsys.aws.route53.NetworkInfo;
+import no.bibsys.aws.route53.Route53Updater;
+import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
+import no.bibsys.aws.utils.network.NetworkConstants;
 
 
 /**
@@ -38,7 +40,9 @@ public class ResourceDestroyer extends ResourceManager {
         swaggerHubUpdater = new SwaggerHubUpdater(client, apiGatewayRestApiId, swaggerHubInfo,
             stage);
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
-        route53Updater = new Route53Updater(zoneName, gitInfo, stage, apiGatewayRestApiId,
+        NetworkInfo networkInfo = NetworkInfo
+            .create(stage, zoneName, NetworkConstants.RECORD_SET_NAME);
+        route53Updater = new Route53Updater(networkInfo, gitInfo, stage, apiGatewayRestApiId,
             apiGateway);
     }
 

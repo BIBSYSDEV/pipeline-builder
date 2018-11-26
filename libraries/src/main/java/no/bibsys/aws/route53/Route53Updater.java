@@ -1,4 +1,4 @@
-package no.bibsys.aws.lambda.deploy.handlers;
+package no.bibsys.aws.route53;
 
 import com.amazonaws.services.apigateway.AmazonApiGateway;
 import com.amazonaws.services.kms.model.NotFoundException;
@@ -13,6 +13,7 @@ import com.amazonaws.services.route53.model.HostedZone;
 import com.amazonaws.services.route53.model.RRType;
 import com.amazonaws.services.route53.model.ResourceRecord;
 import com.amazonaws.services.route53.model.ResourceRecordSet;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +21,6 @@ import java.util.stream.Collectors;
 import no.bibsys.aws.apigateway.ApiGatewayBasePathMapping;
 import no.bibsys.aws.cloudformation.Stage;
 import no.bibsys.aws.git.github.GitInfo;
-import no.bibsys.aws.lambda.deploy.constants.NetworkConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,43 +39,42 @@ public class Route53Updater {
 
 
     private static final Logger log = LoggerFactory.getLogger(Route53Updater.class);
-    private final transient String zoneName;
+    private final transient NetworkInfo networkInfo;
+
     private final transient GitInfo gitInfo;
     private final transient String apiGatewayRestApiId;
     private final transient AmazonApiGateway apiGatewayClient;
 
 
     private final transient ApiGatewayBasePathMapping apiGatewayBasePathMapping;
-    private transient final String recordSetName;
 
 
     private transient AmazonRoute53 route53Client;
 
 
-    public Route53Updater(String zonName,
+    public Route53Updater(NetworkInfo networkInfo,
         GitInfo gitInfo,
         Stage stage,
         String apiGatewayRestApiId,
         AmazonApiGateway apiGatewayClient) {
 
-        NetworkConstants networkConstants = new NetworkConstants(stage);
+        this.networkInfo = networkInfo;
         this.gitInfo = gitInfo;
-        this.recordSetName = networkConstants.getRecordSetName();
         this.apiGatewayClient = apiGatewayClient;
-        this.zoneName = zonName;
 
         this.route53Client = AmazonRoute53ClientBuilder.defaultClient();
         this.apiGatewayRestApiId = apiGatewayRestApiId;
 
         this.apiGatewayBasePathMapping = new ApiGatewayBasePathMapping(
             apiGatewayClient,
-            networkConstants.getDomainName(),
+            networkInfo.getDomainName(),
             stage);
     }
 
 
     public Route53Updater copy(Stage stage) {
-        return new Route53Updater(zoneName, gitInfo, stage, apiGatewayRestApiId, apiGatewayClient);
+        return new Route53Updater(networkInfo, gitInfo, stage, apiGatewayRestApiId,
+            apiGatewayClient);
     }
 
 
@@ -112,10 +111,11 @@ public class Route53Updater {
 
     private HostedZone getHostedZone() {
         List<HostedZone> hostedZones = route53Client.listHostedZones().getHostedZones().stream()
-            .filter(zone -> zone.getName().equals(zoneName))
+            .filter(zone -> zone.getName().equals(networkInfo.getZoneName()))
             .collect(Collectors.toList());
         Preconditions.checkArgument(hostedZones.size() == 1,
-            "There should exist exactly one hosted zone with the name " + zoneName);
+            "There should exist exactly one hosted zone with the name " + networkInfo
+                .getZoneName());
         return hostedZones.get(0);
 
     }
@@ -131,7 +131,8 @@ public class Route53Updater {
     }
 
 
-    private ChangeResourceRecordSetsRequest updateRecordSetsRequest(String serverUrl) {
+    @VisibleForTesting
+    public ChangeResourceRecordSetsRequest updateRecordSetsRequest(String serverUrl) {
         String hostedZoneId = getHostedZone().getId();
 
         ResourceRecordSet recordSet = createRecordSet(serverUrl);
@@ -150,7 +151,8 @@ public class Route53Updater {
     }
 
     private ResourceRecordSet createRecordSet(String serverUrl) {
-        ResourceRecordSet recordSet = new ResourceRecordSet().withName(recordSetName).withType(
+        ResourceRecordSet recordSet = new ResourceRecordSet()
+            .withName(networkInfo.getRecordSetName()).withType(
             RRType.CNAME)
             .withTTL(300L)
             .withResourceRecords(new ResourceRecord().withValue(serverUrl));
