@@ -2,7 +2,7 @@ package no.bibsys.utils;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import no.bibsys.Application;
+import no.bibsys.aws.Application;
 import no.bibsys.aws.git.github.GithubConf;
 import org.junit.Ignore;
 import org.junit.Test;

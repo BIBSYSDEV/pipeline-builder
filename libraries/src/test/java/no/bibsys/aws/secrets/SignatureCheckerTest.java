@@ -19,9 +19,9 @@ public class SignatureCheckerTest {
     public void verifySecurityToken_secretValueAndBody_sha1Signature()
         throws IOException {
         String requestBody = IoUtils
-            .resourceAsString(Paths.get("requests", "sha_test_githubEvent.json"));
+            .resourceAsString(Paths.get("github", "sha_test_githubEvent.json"));
         String header = IoUtils
-            .resourceAsString(Paths.get("requests", "sha_test_github_header.txt"));
+            .resourceAsString(Paths.get("github", "sha_test_github_header.txt"));
         String secretKey = "SECRETKEY";
 
         String expectedSignature = header.replaceFirst("sha1=", "");
