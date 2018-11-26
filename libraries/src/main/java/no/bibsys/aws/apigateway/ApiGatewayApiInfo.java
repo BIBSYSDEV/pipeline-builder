@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import no.bibsys.aws.cloudformation.Stage;
 import no.bibsys.aws.tools.IoUtils;
 import no.bibsys.aws.tools.JsonUtils;
 
@@ -22,11 +23,11 @@ public class ApiGatewayApiInfo {
 
 
 
-    private final transient String stage;
+    private final transient Stage stage;
     private final transient AmazonApiGateway client;
     private final transient String restApiId;
 
-    public ApiGatewayApiInfo(String stage, AmazonApiGateway apiGatewayClient, String restApiId) {
+    public ApiGatewayApiInfo(Stage stage, AmazonApiGateway apiGatewayClient, String restApiId) {
 
         this.stage = stage;
         Preconditions.checkNotNull(stage);
@@ -96,7 +97,7 @@ public class ApiGatewayApiInfo {
 
         try{
             GetExportRequest request = new GetExportRequest().withRestApiId(restApiId)
-                .withStageName(stage).withExportType(ApiGatewayConstants.OPEN_API_3)
+                .withStageName(stage.toString()).withExportType(ApiGatewayConstants.OPEN_API_3)
                 .withParameters(requestParameters);
             GetExportResult result = client
                 .getExport(request);

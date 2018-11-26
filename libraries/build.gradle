@@ -22,12 +22,7 @@ dependencies {
     // useful java libraries
     compile group: 'com.google.guava', name: 'guava', version: '27.0-jre'
 
-    //libraries for testing
-    testCompile group: 'org.hamcrest', name: 'hamcrest-junit', version: '2.0.0.0'
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.23.0'
-    //JUnit should be the same version as spring
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-
+   
 
     compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.6'
 
@@ -35,4 +30,18 @@ dependencies {
 
     compile ('io.symphonia:lambda-logging:1.0.3')
 
+}
+
+
+test {
+    useJUnit {
+        excludeCategories 'no.bibsys.aws.tools.IntegrationTest'
+        excludeCategories 'no.bibsys.aws.tools.DoNotRunTest'
+    }
+}
+
+task amazonTest(type: Test){
+    useJUnit{
+        includeCategories 'no.bibsys.utils.IntegrationTest'
+    }
 }

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Optional;
+import no.bibsys.aws.cloudformation.Stage;
 import no.bibsys.aws.cloudformation.helpers.ResourceType;
 import no.bibsys.aws.cloudformation.helpers.StackResources;
 import no.bibsys.aws.tools.Environment;
@@ -79,7 +80,7 @@ public class ApiGatewayApiInfoTest {
     private Optional<String> generateOpenApiSpec(String stackName) throws IOException {
 
         String restApiId = restApiId(stackName);
-        ApiGatewayApiInfo apiGatewayApiInfo = new ApiGatewayApiInfo("test", apiGateway, restApiId);
+        ApiGatewayApiInfo apiGatewayApiInfo = new ApiGatewayApiInfo(Stage.TEST, apiGateway, restApiId);
         return apiGatewayApiInfo.generateOpenApiNoExtensions();
     }
 

@@ -1,0 +1,12 @@
+dependencies{
+    compile project (":libraries")
+}
+
+
+
+test {
+    useJUnit {
+        excludeCategories 'no.bibsys.utils.IntegrationTest'
+        excludeCategories 'no.bibsys.utils.DoNotRunTest'
+    }
+}
