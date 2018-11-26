@@ -14,7 +14,6 @@ import no.bibsys.git.github.GithubConf;
 import no.bibsys.lambda.api.requests.PullRequest;
 import no.bibsys.lambda.api.requests.PushEvent;
 import no.bibsys.lambda.api.utils.SignatureChecker;
-import no.bibsys.lambda.deploy.handlers.Route53Updater;
 import no.bibsys.lambda.deploy.handlers.templates.ApiGatewayHandlerTemplate;
 import no.bibsys.utils.Environment;
 import org.slf4j.Logger;
@@ -23,7 +22,6 @@ import org.slf4j.LoggerFactory;
 public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
     private final transient static Logger logger = LoggerFactory.getLogger(GithubHandler.class);
-    protected final transient String networkZoneName;
 
 
     private transient SignatureChecker signatureChecker;
@@ -41,7 +39,6 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
         String secretName = environment.readEnv(SignatureChecker.AWS_SECRET_NAME);
         String secretKey = environment.readEnv(SignatureChecker.AWS_SECRET_KEY);
-        this.networkZoneName = environment.readEnv(Route53Updater.ZONE_NAME_ENV);
 
         signatureChecker = new SignatureChecker(secretName, secretKey);
 
