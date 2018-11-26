@@ -1,9 +1,5 @@
 package no.bibsys.utils;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
 import com.amazonaws.services.cloudformation.model.DeleteStackRequest;
@@ -21,16 +17,26 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ListVersionsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.VersionListing;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.cloudformation.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StackWiper {
 
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
+
+
     private final static Logger logger = LoggerFactory.getLogger(StackWiper.class);
-    
+
     public StackWiper(PipelineStackConfiguration pipelineStackConfiguration) {
         this.pipelineStackConfiguration = pipelineStackConfiguration;
+
+
     }
 
 
@@ -55,13 +61,13 @@ public class StackWiper {
     }
 
 
-    private Integer invokeDeleteLambdaFunction() {
+    private Integer invokeDeleteLambdaFunction(Stage stage) {
         String destroyFunctionName = null;
         try {
             AWSLambda lambda = AWSLambdaClientBuilder.defaultClient();
             destroyFunctionName = pipelineStackConfiguration.getPipelineConfiguration()
                 .getDestroyLambdaFunctionName();
-            destroyFunctionName = String.join("-", destroyFunctionName, Stage.FINAL.toString());
+            destroyFunctionName = String.join("-", destroyFunctionName, stage.toString());
             InvokeRequest request = new InvokeRequest();
             request.withInvocationType(InvocationType.RequestResponse)
                 .withFunctionName(destroyFunctionName);
@@ -97,8 +103,16 @@ public class StackWiper {
 
 
     public void wipeStacks() {
-        int invokeStatusCode = invokeDeleteLambdaFunction();
-        logger.info(String.valueOf(invokeStatusCode));
+
+        Map<Stage, Integer> statusCodes = Stage.listStages()
+            .stream()
+            .map(stage -> new SimpleEntry<>(stage, invokeDeleteLambdaFunction(stage)))
+            .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
+
+        statusCodes.entrySet().stream()
+            .map(entry -> String.format("%s->%s", entry.getKey(), entry.getValue()))
+            .forEach(System.out::println);
+
         //Delete buckets first because they cannot be deleted automatically when we delete a Stack
         deleteBuckets();
         deleteStacks();

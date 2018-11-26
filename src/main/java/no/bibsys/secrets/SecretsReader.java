@@ -13,24 +13,36 @@ import no.bibsys.utils.JsonUtils;
 
 public class SecretsReader {
 
+    /**
+     * Class for reading secrets from Amazon. It reads secrets from the AWS Secrets Manager and not
+     * encrypted parameters from  AWS SSM (System Manager).
+     */
+
 
     private final transient AWSSecretsManager client;
+    private final transient String secretName;
+    private final transient String secretKey;
 
-    public SecretsReader(AWSSecretsManager client){
+    public SecretsReader(AWSSecretsManager client, String secretName, String secretKey) {
         this.client=client;
+        this.secretKey = secretKey;
+        this.secretName = secretName;
     }
 
 
-    public SecretsReader(){
-        this.client=AWSSecretsManagerClientBuilder.standard()
+    public SecretsReader(String secretName, String secretKey) {
+        this(AWSSecretsManagerClientBuilder.standard()
             .withRegion(Region.EU_Ireland.toString())
-            .build();
+                .build(),
+            secretName,
+            secretKey);
+
     }
 
 
-    public String readAuthFromSecrets(String secretName,String secretKey) throws IOException {
+    public String readSecret() throws IOException {
         ObjectMapper mapper = JsonUtils.newJsonParser();
-        Optional<GetSecretValueResult> getSecretValueResult = readAuthKey(client,secretName);
+        Optional<GetSecretValueResult> getSecretValueResult = readAuthKey();
 
         if (getSecretValueResult.map(result -> result.getSecretString()).isPresent()) {
             String secret = getSecretValueResult.get().getSecretString();
@@ -42,7 +54,7 @@ public class SecretsReader {
     }
 
 
-    private Optional<GetSecretValueResult> readAuthKey(AWSSecretsManager client,String secretName) {
+    private Optional<GetSecretValueResult> readAuthKey() {
         GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest()
             .withSecretId(secretName);
         Optional<GetSecretValueResult> getSecretValueResult = Optional.empty();

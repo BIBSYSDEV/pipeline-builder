@@ -18,6 +18,7 @@ Parameters:
     Type:  String
 
 
+
 Resources:
   RestApi:
     DependsOn:
@@ -31,7 +32,7 @@ Resources:
   GithubHook:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: no.bibsys.handler.GithubHandler::handleRequest
+      Handler: no.bibsys.lambda.api.handlers.GithubHandler::handleRequest
       Runtime: java8
       CodeUri: build/libs/pipeline-fat.jar
       MemorySize:  1500
@@ -116,7 +117,7 @@ Resources:
   BuildBranch:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: no.bibsys.handler.UpdateStackRequestHandler::handleRequest
+      Handler: no.bibsys.lambda.api.handlers.UpdateStackRequestHandler::handleRequest
       Runtime: java8
       CodeUri: build/libs/pipeline-fat.jar
       MemorySize:  1500
@@ -200,7 +201,7 @@ Resources:
     DependsOn:
       - RestApi
     Properties:
-      Handler: no.bibsys.handler.InitHandler::handleRequest
+      Handler: no.bibsys.lambda.deploy.handlers.InitHandler::handleRequest
       FunctionName: !Ref InitFunctionName
       Runtime: java8
       Environment:
@@ -212,7 +213,8 @@ Resources:
           REPOSITORY: 'authority-registry-infrastructure'
           STAGE: !Ref Stage
           SWAGGER_ORG: 'axthosarouris'
-
+          ZONE_NAME: 'aws.unit.no.'
+          REGIONAL_CERTIFICATE_ARN: '{{resolve:ssm:infrastructure-entitydata-certificate-arn:1}}'
       CodeUri: build/libs/pipeline-fat.jar
       Policies:
         Version: '2012-10-17'
@@ -223,6 +225,11 @@ Resources:
           - codepipeline:PutJobFailureResult
           - codepipeline:PutJobSuccessResult
           - apigateway:*
+          - route53:ListHostedZones
+          - route53:ChangeResourceRecordSets
+          - apigateway:*
+          - cloudformation:DescribeStackResources
+
           Effect: Allow
           Resource: "*"
       MemorySize: 1500
@@ -232,7 +239,7 @@ Resources:
     DependsOn:
     - RestApi
     Properties:
-      Handler: no.bibsys.handler.DestroyHandler::handleRequest
+      Handler: no.bibsys.lambda.deploy.handlers.DestroyHandler::handleRequest
       FunctionName: !Ref DestroyFunctionName
       Runtime: java8
       CodeUri: build/libs/pipeline-fat.jar
@@ -245,6 +252,9 @@ Resources:
           REPOSITORY: 'authority-registry-infrastructure'
           STAGE: !Ref Stage
           SWAGGER_ORG: 'axthosarouris'
+          ZONE_NAME: 'aws.unit.no.'
+          REGIONAL_CERTIFICATE_ARN: '{{resolve:ssm:infrastructure-entitydata-certificate-arn:1}}'
+
       Policies:
         Version: '2012-10-17'
         Statement:
@@ -253,10 +263,11 @@ Resources:
           - lambda:InvokeFunction
           - codepipeline:PutJobFailureResult
           - codepipeline:PutJobSuccessResult
+          - route53:ListHostedZones
+          - route53:ChangeResourceRecordSets
           - apigateway:*
+          - cloudformation:DescribeStackResources
           Effect: Allow
           Resource: "*"
       MemorySize: 1500
       Timeout: 900
-
-

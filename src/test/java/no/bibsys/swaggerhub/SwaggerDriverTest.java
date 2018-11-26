@@ -6,8 +6,10 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.junit.MatcherAssert.assertThat;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import no.bibsys.lambda.deploy.handlers.SwaggerHubInfo;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
 import org.junit.Test;
@@ -19,7 +21,11 @@ public class SwaggerDriverTest {
     private final transient String apiId="api-id";
     private final transient String apiKey="ApIKeY";
     private final transient String apiVersion="2.1";
-    private final transient SwaggerDriver driver=new SwaggerDriver(apiKey,organization,apiId);
+    private final transient SwaggerDriver driver;
+
+    public SwaggerDriverTest() throws IOException {
+        this.driver=new SwaggerDriver(new SwaggerHubInfo(apiId,apiVersion,organization));
+    }
 
 
     @Test
@@ -98,17 +104,17 @@ public class SwaggerDriverTest {
 
 
     private HttpDelete deleteApiRequest() throws URISyntaxException {
-        return driver.createDeleteApiRequest();
+        return driver.createDeleteApiRequest(apiKey);
     }
 
     private HttpDelete deleteVersionRequest() throws URISyntaxException {
-        return driver.createDeleteVersionRequest(apiVersion);
+        return driver.createDeleteVersionRequest(apiKey);
     }
 
 
     private HttpPost postRequest() throws URISyntaxException {
         return driver
-            .createUpdateRequest("jsonString", apiVersion);
+            .createUpdateRequest("jsonString", apiVersion, apiKey);
     }
 
 

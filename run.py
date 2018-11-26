@@ -1,26 +1,43 @@
 #!/usr/bin/env python
 
-import sys
 import subprocess
+import sys
+
+# Example: for https://github.com/BIBSYSDEV/authority-registry-infrastructure/
+#   repository: authority-registry-infrastructure
+#   owner: BIBSYSDEV
+#   branch: github branch
+#   action: create or delete
+#
+#  Example: https://app.swaggerhub.com/apis/axthosarouris/small-api/1.0-oas3
+#   swaggerOrg: SwaggerHub account or organization in this account (axthosarouris)
+#
+#
+#   networkZoneName: Amazon Route53 Hosted Zone name
 
 REPOSITORY = "repository"
 BRANCH = "branch"
 ACTION = "action"
 OWNER = "owner"
+SWAGGER_ORG = "swaggerOrg"
+ZONE_NAME = "networkZoneName"
 
 
 class Script:
 
-    def __init__(self, owner, repository, branch, action):
+    def __init__(self, owner, repository, branch, action, swaggerorg, zoneName):
         self._parameters = dict()
         self._parameters[OWNER] = owner
         self._parameters[REPOSITORY] = repository
         self._parameters[BRANCH] = branch
         self._parameters[ACTION] = action
+        self._parameters[SWAGGER_ORG] = swaggerorg
+        self._parameters[ZONE_NAME] = zoneName
 
     def _formSystemProperties(self):
         items = self._parameters.items()
-        system_properties = [self._dictEntryToSystemProperty(entry) for entry in items]
+        system_properties = [self._dictEntryToSystemProperty(entry) for entry in
+                             items]
         return system_properties
 
     def _executeCommand(self, systemProperties):
@@ -46,19 +63,23 @@ class Script:
             - repository:\t Github repository
             - branch:\t\t Github branch
             - action:\t\t "create" or "delete"
+            - swaggerOrg:\t SwaggerHub account or organization in this account (axthosarouris)
+            - zoneName:\t Amazon Route53 Hosted Zone name("aws.unit.no")
         """
 
 
 def main():
-    if len(sys.argv) != 5:
-        script = Script(None, None, None, None)
+    if len(sys.argv) != 7:
+        script = Script(None, None, None, None, None, None)
         print(script.help())
     else:
         owner = sys.argv[1]
         repository = sys.argv[2]
         branch = sys.argv[3]
         action = sys.argv[4]
-        script = Script(owner, repository, branch, action)
+        swaggerOrg = sys.argv[5]
+        zoneName = sys.argv[6]
+        script = Script(owner, repository, branch, action, swaggerOrg, zoneName)
         script.run()
 
 

@@ -16,9 +16,9 @@ public abstract class ConfigurationTests extends AmazonRestrictions {
 
     protected final String normalizedBranch;
     protected final String projectId;
-    protected String branchName = "AUTREG-49_Delete_tables_from_DynamoDB_after_testing";
+    protected String branchName = "AUTREG-49_This_is_purposefully_and_meticulously_looong";
     protected String repoOwner = "OWNER";
-    protected String repoName = "REPOSITORY_NAME";
+    protected String repoName = "REPOSITORY_NAME_ENV_VAR";
     protected PipelineStackConfiguration conf;
     protected GithubConf githubConf;
 
@@ -28,8 +28,8 @@ public abstract class ConfigurationTests extends AmazonRestrictions {
         when(environment.readEnvOpt(anyString())).then(
             (Answer<Optional<String>>) invocation -> Optional
                 .ofNullable(invocation.getArgument(0)));
-        githubConf = new GithubConf(repoOwner, repoName, environment);
-        this.conf = new PipelineStackConfiguration(githubConf,branchName);
+        githubConf = new GithubConf(repoOwner, repoName, branchName);
+        this.conf = new PipelineStackConfiguration(githubConf);
         this.normalizedBranch = conf.getNormalizedBranchName();
         this.projectId = conf.getProjectId();
     }

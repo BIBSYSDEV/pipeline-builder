@@ -76,4 +76,16 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
     }
 
 
+    public String getCurrentServiceStackName(Stage stage) {
+        if (stage.equals(Stage.FINAL)) {
+            return getFinalServiceStack();
+        } else if (stage.equals(Stage.TEST)) {
+            return getTestServiceStack();
+        } else {
+            throw new IllegalStateException("Invalid Stage:" + stage.name());
+        }
+
+    }
+
+
 }

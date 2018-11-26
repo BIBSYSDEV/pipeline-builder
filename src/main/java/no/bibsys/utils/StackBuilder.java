@@ -28,8 +28,7 @@ public class StackBuilder {
     }
 
 
-    public void createStacks()
-        throws IOException {
+    public void createStacks() throws IOException {
         stackWiper.wipeStacks();
         createPipelineStack(pipelineStackConfiguration);
     }
@@ -58,7 +57,7 @@ public class StackBuilder {
         parameters.add(
             newParameter("GithubOwner", pipelineStack.getGithubConf().getOwner()));
         parameters
-            .add(newParameter("GithubRepo", pipelineStack.getGithubConf().getRepo()));
+            .add(newParameter("GithubRepo", pipelineStack.getGithubConf().getRepository()));
         parameters.add(newParameter("GithubAuth", pipelineStack.getGithubConf().getOauth()));
 
         parameters.add(newParameter("PipelineName",

@@ -1,14 +1,17 @@
 package no.bibsys.git.github;
 
-public interface GitInfo {
+import java.io.IOException;
 
+public interface GitInfo {
 
 
      String getOwner() ;
 
-    String getRepo() ;
+    String getRepository();
 
-    String getOauth() ;
+    String getOauth() throws IOException;
+
+    String getBranch();
 
 
 }

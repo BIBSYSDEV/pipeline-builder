@@ -5,12 +5,12 @@ import java.io.IOException;
 import no.bibsys.cloudformation.PipelineStackConfiguration;
 import no.bibsys.git.github.GitInfo;
 import no.bibsys.git.github.GithubConf;
-import no.bibsys.handler.requests.Action;
-import no.bibsys.utils.Environment;
+import no.bibsys.lambda.api.utils.Action;
 import no.bibsys.utils.StackBuilder;
 import no.bibsys.utils.StackWiper;
 
 public class Application {
+
 
     private final transient StackWiper wiper;
 
@@ -21,13 +21,13 @@ public class Application {
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
 
 
-    public Application(GitInfo gitInfo, String branch) {
+    public Application(GitInfo gitInfo) {
 
-        GitInfo githubConf = gitInfo;
-        this.pipelineStackConfiguration = new PipelineStackConfiguration(githubConf,branch);
-        this.repoOwner = githubConf.getOwner();
-        this.repoName = githubConf.getOwner();
-        this.branch =branch;
+        this.pipelineStackConfiguration = new PipelineStackConfiguration(gitInfo);
+        this.repoOwner = gitInfo.getOwner();
+        this.repoName = gitInfo.getOwner();
+        this.branch = gitInfo.getBranch();
+
         wiper = new StackWiper(pipelineStackConfiguration);
         checkNulls();
 
@@ -35,9 +35,9 @@ public class Application {
 
     public static void run(String repoOwner, String repository, String branch, String action)
         throws IOException {
-        GitInfo gitInfo = new GithubConf(repoOwner, repository, new Environment());
+        GitInfo gitInfo = new GithubConf(repoOwner, repository, branch);
 
-        Application application = new Application(gitInfo,branch);
+        Application application = new Application(gitInfo);
         if (action.equals(Action.CREATE)) {
             application.createStacks();
         } else if (action.equals(Action.DELETE)) {
@@ -57,8 +57,11 @@ public class Application {
         String action = System.getProperty("action");
         StringBuilder message = new StringBuilder(100);
         message.append("System property \"action\" is not set\n")
-            .append("Valid values: create,delete,update-role");
+            .append("Valid values: create,delete");
         Preconditions.checkNotNull(action, message.toString());
+
+        String swaggerOrg = System.getProperty("swaggerOrg");
+        Preconditions.checkNotNull(swaggerOrg, "System property swaggerOrg is not set");
 
         Application.run(repoOwner, repository, branch, action);
 
@@ -68,11 +71,11 @@ public class Application {
         return pipelineStackConfiguration;
     }
 
-    public void createStacks() throws IOException {
+    public void createStacks()
+        throws IOException {
         StackBuilder stackBuilder = new StackBuilder(wiper, pipelineStackConfiguration);
         stackBuilder.createStacks();
     }
-
 
 
     public void wipeStacks() {
