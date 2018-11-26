@@ -1,28 +1,5 @@
-plugins {
-    id 'java'
-    id 'base'
-    id 'com.github.johnrengelman.shadow' version '2.0.4'
-    id 'checkstyle'
-    id 'pmd'
-}
-
-
-
-wrapper {
-    distributionType = Wrapper.DistributionType.ALL
-    gradleVersion = "4.10.1"
-}
-
-
-task fatJar {
-    println "Creating fat jars"
-}
-
-
 dependencies {
-
-    compile project(":libraries")
-
+    
     compile group: 'com.amazonaws', name: 'aws-java-sdk-acm', version: '1.11.+'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-api-gateway', version: '1.11.+'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-cloudformation', version: '1.11.+'
@@ -50,75 +27,12 @@ dependencies {
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.23.0'
     //JUnit should be the same version as spring
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    
-    
+
+
     compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.6'
 
     compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '5.1.+'
-    
-    compile ('io.symphonia:lambda-logging:1.0.3')   
-    
-}
 
-
-subprojects{
-    repositories {
-        mavenCentral()
-
-    }
-    apply plugin: 'java'
-    apply plugin: 'base'
-    apply plugin: 'checkstyle'
-    apply plugin: 'pmd'
-
-
-    pmd {
-        toolVersion = "6.7.0"
-        ruleSetConfig = rootProject.resources.text.fromFile('config/pmd/potential-future-pmd.xml')
-        ruleSets = []
-        ignoreFailures = false
-    }
-
-
-    checkstyle {
-        configFile = rootProject.resources.text.fromFile('config/checkstyle/google_checks.xml').asFile()
-        showViolations = true
-        toolVersion '8.12'
-    }
-
-    tasks.withType(Checkstyle) {
-        reports {
-            xml.enabled false
-            html.enabled true
-            html.stylesheet rootProject.resources.text.fromFile('config/checkstyle/checkstyle-simple.xsl')
-        }
-    }
-
-    shadowJar {
-        archiveName = "${baseName}-fat.jar"
-        exclude('org.apache.tomcat.embed:*')
-    }
-    task fatJar(dependsOn: shadowJar) {}
+    compile ('io.symphonia:lambda-logging:1.0.3')
 
 }
-
-
-
-
-
-test {
-    useJUnit {
-        excludeCategories 'no.bibsys.utils.IntegrationTest'
-        excludeCategories 'no.bibsys.utils.DoNotRunTest'
-    }
-}
-
-task amazonTest(type: Test){
-    useJUnit{
-        includeCategories 'no.bibsys.utils.IntegrationTest' 
-    }
-}
-
-
-
-
