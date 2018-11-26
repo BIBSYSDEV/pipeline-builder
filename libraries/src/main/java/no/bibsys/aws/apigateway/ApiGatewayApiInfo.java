@@ -1,4 +1,4 @@
-package no.bibsys.apigateway;
+package no.bibsys.aws.apigateway;
 
 import com.amazonaws.services.apigateway.AmazonApiGateway;
 import com.amazonaws.services.apigateway.model.GetExportRequest;
@@ -14,8 +14,9 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import no.bibsys.utils.IoUtils;
-import no.bibsys.utils.JsonUtils;
+import no.bibsys.aws.tools.IoUtils;
+import no.bibsys.aws.tools.JsonUtils;
+
 
 public class ApiGatewayApiInfo {
 

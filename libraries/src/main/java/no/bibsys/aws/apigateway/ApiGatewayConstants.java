@@ -1,4 +1,4 @@
-package no.bibsys.apigateway;
+package no.bibsys.aws.apigateway;
 
 public class ApiGatewayConstants {
 

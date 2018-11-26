@@ -1,4 +1,4 @@
-package no.bibsys.apigateway;
+package no.bibsys.aws.apigateway;
 
 import com.amazonaws.services.apigateway.AmazonApiGateway;
 import com.amazonaws.services.apigateway.model.BasePathMapping;
@@ -12,12 +12,12 @@ import com.amazonaws.services.apigateway.model.EndpointType;
 import com.amazonaws.services.apigateway.model.GetBasePathMappingsRequest;
 import com.amazonaws.services.apigateway.model.GetDomainNameRequest;
 import com.amazonaws.services.apigateway.model.NotFoundException;
+import com.amazonaws.services.apigateway.model.Stage;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import no.bibsys.cloudformation.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
