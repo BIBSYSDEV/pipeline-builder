@@ -1,4 +1,4 @@
-package no.bibsys.utils;
+package no.bibsys.aws.tools;
 
 import java.io.BufferedReader;
 import java.io.IOException;

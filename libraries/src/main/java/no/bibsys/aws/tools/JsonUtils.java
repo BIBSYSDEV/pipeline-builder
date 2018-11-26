@@ -1,4 +1,4 @@
-package no.bibsys.utils;
+package no.bibsys.aws.tools;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser.Feature;

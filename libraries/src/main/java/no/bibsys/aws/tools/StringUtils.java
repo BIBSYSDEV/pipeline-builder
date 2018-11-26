@@ -1,4 +1,4 @@
-package no.bibsys.utils;
+package no.bibsys.aws.tools;
 
 import java.util.Arrays;
 import java.util.List;

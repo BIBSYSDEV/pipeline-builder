@@ -1,4 +1,4 @@
-package no.bibsys.swaggerhub;
+package no.bibsys.aws.swaggerhub;
 
 public final class ApiDocumentationInfo {
 

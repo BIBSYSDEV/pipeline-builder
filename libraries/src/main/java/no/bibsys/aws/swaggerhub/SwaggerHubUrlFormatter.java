@@ -1,10 +1,9 @@
-package no.bibsys.swaggerhub;
+package no.bibsys.aws.swaggerhub;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Optional;
-import no.bibsys.lambda.deploy.handlers.SwaggerHubInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

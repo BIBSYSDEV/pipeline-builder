@@ -1,4 +1,4 @@
-package no.bibsys.swaggerhub;
+package no.bibsys.aws.swaggerhub;
 
 import java.io.IOException;
 import java.net.URI;
@@ -7,8 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import no.bibsys.lambda.deploy.handlers.SwaggerHubInfo;
-import no.bibsys.utils.IoUtils;
+import no.bibsys.aws.tools.IoUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;

@@ -1,4 +1,4 @@
-package no.bibsys.secrets;
+package no.bibsys.aws.secrets;
 
 import com.amazonaws.services.s3.model.Region;
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
@@ -9,7 +9,7 @@ import com.amazonaws.services.secretsmanager.model.InvalidRequestException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Optional;
-import no.bibsys.utils.JsonUtils;
+import no.bibsys.aws.tools.JsonUtils;
 
 public class SecretsReader {
 

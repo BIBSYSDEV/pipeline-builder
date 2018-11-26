@@ -1,4 +1,4 @@
-package no.bibsys.utils;
+package no.bibsys.aws.tools;
 
 import com.google.common.base.Preconditions;
 import java.util.Optional;

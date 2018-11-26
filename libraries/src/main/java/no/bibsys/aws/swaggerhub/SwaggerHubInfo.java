@@ -1,8 +1,8 @@
-package no.bibsys.lambda.deploy.handlers;
+package no.bibsys.aws.swaggerhub;
 
 import java.io.IOException;
-import no.bibsys.secrets.SecretsReader;
-import no.bibsys.utils.Environment;
+import no.bibsys.aws.secrets.SecretsReader;
+import no.bibsys.aws.tools.Environment;
 
 public class SwaggerHubInfo {
 
