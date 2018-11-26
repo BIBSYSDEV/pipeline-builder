@@ -1,4 +1,4 @@
-package no.bibsys.lambda.api.utils;
+package no.bibsys.aws.secrets;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;

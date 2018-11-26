@@ -1,4 +1,4 @@
-package no.bibsys.lambda.api.utils;
+package no.bibsys.aws.secrets;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
@@ -8,13 +8,37 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import no.bibsys.aws.secrets.SecretsReader;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * SignatureChecker uses a secret key and the body of the request to generate a validation
+ * signature. It expects the client not to send the api-key, but to send a sha1 hash value of the
+ * concatenation of the secret value and the request body. In short it works as follows:
+ * <p>
+ * <b>Input:</b>
+ * <ul>
+ * <li>{@code secret}: Secret value stored in AWS Secret Manager </li>
+ * <li>{@code request-body} : The request body sent by a (REST) client</li>
+ * <li>{@code client-signature}: An sha1 hash value for the concatenation of  the {@code secret}
+ * and the {@code request-body} </li>
+ * </ul>
+ * <br/>
+ * <b>Output:</b>
+ * <ul>
+ * <li>true if the client's signature matches the signature calculated by {@link
+ * SignatureChecker}</li>
+ * <li>false if the client's signature does not  matche the signature calculated by {@link
+ * SignatureChecker}</li>
+ * </ul>
+ *
+ *
+ * This class is used mainly to decode the Signature sent by Github webhooks.
+ *
+ * </p>
+ */
 public class SignatureChecker {
 
     private static final String SIGNATURE_PREFIX = "sha1=";
@@ -27,8 +51,7 @@ public class SignatureChecker {
     private transient SecretsReader secretsReader;
 
 
-
-    public SignatureChecker(String secretName,String secretKey) {
+    public SignatureChecker(String secretName, String secretKey) {
         secretsReader = new SecretsReader(secretName, secretKey);
     }
 
@@ -106,7 +129,6 @@ public class SignatureChecker {
     public void setSecretsReader(SecretsReader secretsReader) {
         this.secretsReader = secretsReader;
     }
-
 
 
 }
