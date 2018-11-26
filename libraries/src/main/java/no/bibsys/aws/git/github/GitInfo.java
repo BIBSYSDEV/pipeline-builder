@@ -1,4 +1,4 @@
-package no.bibsys.git.github;
+package no.bibsys.aws.git.github;
 
 import java.io.IOException;
 

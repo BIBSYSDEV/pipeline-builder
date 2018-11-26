@@ -1,8 +1,8 @@
-package no.bibsys.git.github;
+package no.bibsys.aws.git.github;
 
 import java.io.IOException;
-import no.bibsys.secrets.SecretsReader;
-import no.bibsys.utils.Environment;
+import no.bibsys.aws.secrets.SecretsReader;
+import no.bibsys.aws.tools.Environment;
 
 public class GithubConf implements GitInfo {
 
