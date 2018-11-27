@@ -14,13 +14,10 @@ wrapper {
 }
 
 
-task fatJar {
-    println "Creating fat jars"
-}
+
 
 
 dependencies {
-
     compile project(":service")
 
     
@@ -82,7 +79,7 @@ subprojects{
         exclude('org.apache.tomcat.embed:*')
     
     }
-    task fatJar(dependsOn: shadowJar) {}
+   
 
 }
 
