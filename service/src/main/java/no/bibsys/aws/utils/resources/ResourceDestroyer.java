@@ -18,11 +18,9 @@ import no.bibsys.aws.utils.network.NetworkConstants;
  * order to disconnect the Stack with resources that do not belong to the stack (either inside or outside AWS). It also
  * deletes the disconnected resources. It is usually called thought a handler of a Lambda function (see
  * {@link no.bibsys.aws.lambda.deploy.handlers.DestroyHandler}).
- *
- *
- *
- * Currently it deletes the API from SwaggerHub and all Route53 and ApiGateway configurations related to attaching the
+ *<p>Currently it deletes the API from SwaggerHub and all Route53 and ApiGateway configurations related to attaching the
  * branch's RestApi to a static url.
+ *</p>
  */
 
 public class ResourceDestroyer extends ResourceManager {

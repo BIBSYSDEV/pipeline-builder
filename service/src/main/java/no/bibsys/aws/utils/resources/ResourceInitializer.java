@@ -18,12 +18,14 @@ import no.bibsys.aws.utils.network.NetworkConstants;
 
 /**
  * It is called after the creation of a CloudFormation Stack in order to create resources that do not belong to the
- * Stack. These resources can be inside or outside AWS. It is usually called thought a handler of a Lambda function (see
+ * Stack. These resources can be inside or outside AWS.
+ * <br/>
+ * It is usually called thought a handler of a Lambda function (see
  * {@link no.bibsys.aws.lambda.deploy.handlers.InitHandler}).
- *
- *
- * Currently it stores the API specification to SwaggerHub and creates all Route53 and ApiGateway configurations related
+ * <p>Currently it stores the API specification to SwaggerHub and creates all Route53 and ApiGateway
+ * <br/>configurations related
  * to attaching the branch's RestApi to a static url.
+ * </p>
  */
 public class ResourceInitializer extends ResourceManager {
 
