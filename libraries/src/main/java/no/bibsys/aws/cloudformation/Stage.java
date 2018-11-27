@@ -9,11 +9,11 @@ import no.bibsys.aws.tools.Environment;
 
 
 /**
+ * Enumeration of Deployment stages.
  * Deployment stage:
  * <ul>
  * <li>Test: for running tests</li>
  * <li>Final: Production or production-like</li>
- *
  * </ul>
  */
 public enum Stage {
@@ -26,13 +26,6 @@ public enum Stage {
         return Stage.fromString(stageString);
     }
 
-
-    @Override
-    public String toString() {
-        return this.name().toLowerCase(Locale.getDefault());
-    }
-
-
     public static Stage fromString(String stage) {
         if (stage.equalsIgnoreCase(FINAL.name())) {
             return FINAL;
@@ -40,10 +33,10 @@ public enum Stage {
             return TEST;
         } else {
             throw new IllegalArgumentException("Allowed stages:"
-                    + String.join(",", listStages().stream().map(st -> st.toString()).collect(Collectors.toList())));
+                + String.join(",",
+                listStages().stream().map(st -> st.toString()).collect(Collectors.toList())));
         }
     }
-
 
     public static List<Stage> listStages() {
 
@@ -51,6 +44,11 @@ public enum Stage {
         stages.add(TEST);
         stages.add(FINAL);
         return stages;
+    }
+
+    @Override
+    public String toString() {
+        return this.name().toLowerCase(Locale.getDefault());
     }
 
 

@@ -9,7 +9,7 @@ public class StringUtils {
 
 
     /**
-     * Lowercases the input string, replaces underscores with dashes
+     * Lowercases the input string, replaces underscores with dashes.
      *
      * @param input The string to be normalized
      * @return The normalized String
@@ -23,7 +23,7 @@ public class StringUtils {
 
     /**
      * Lowercases the input string, replaces underscores with dashes, and truncates each word (string between two
-     * dashes) to {@code maxWordLength}
+     * dashes) to {@code maxWordLength}.
      *
      * @param input The string to be normalized
      * @param maxWorldLength max number of characters between two dashes

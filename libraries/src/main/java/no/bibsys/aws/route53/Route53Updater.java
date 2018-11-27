@@ -33,7 +33,7 @@ public class Route53Updater {
     public static final String ZONE_NAME_ENV = "ZONE_NAME";
 
     /**
-     * ARN of a regional certificate stored in the AWS Certficate Manager
+     * ARN of a regional certificate stored in the AWS Certficate Manager.
      */
     public static final String CERTIFICATE_ARN = "REGIONAL_CERTIFICATE_ARN";
 

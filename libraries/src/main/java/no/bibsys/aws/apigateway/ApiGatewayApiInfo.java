@@ -20,7 +20,7 @@ import no.bibsys.aws.tools.JsonUtils;
 
 
 /**
- * Retrives Information regarding a specific AWS ApiGateway API
+ * Retrieves Information regarding a specific AWS ApiGateway API.
  */
 public class ApiGatewayApiInfo {
 

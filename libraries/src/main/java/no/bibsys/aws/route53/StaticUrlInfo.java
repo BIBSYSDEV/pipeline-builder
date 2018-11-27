@@ -4,19 +4,16 @@ import no.bibsys.aws.cloudformation.Stage;
 
 
 /**
- * Information for creating a mapping of a dynamic API Gateway url to a static url
- *
- * Terms:
- *
+ * Information for creating a mapping of a dynamic API Gateway url to a static url.
+ *<p>Terms:
  * <ul>
  * <li>Zone name: The name of the Route53 Hosted Zone</li>
  * <li>Record set name: The name of a CNAME RecordSet in the Route53 Hosted Zone</li>
  * <li>Domain name: The Name of an API Gateway Custom-Domain-Entry</li>
- *
  * </ul>
- *
  * The Record set name and the Domain entry must be identical with the exception that the Record set name ends with a
  * fullstop (.) while the Domain entry does not.
+ * </p>
  */
 public final class StaticUrlInfo {
 

@@ -3,9 +3,9 @@ package no.bibsys.aws.git.github;
 import java.io.IOException;
 
 /**
- * Interface for Helper classes containing the necessary details for retrieving information from a Git repository
+ * Interface for Helper classes containing the necessary details for retrieving information from a Git repository.
  *
- * Terms:
+ * <p>Terms:
  * <ul>
  * <li>owner: The owner of the repository</li>
  * <li>repository: The name of the repository</li>
@@ -19,7 +19,8 @@ import java.io.IOException;
  * <li>repository:authority-registry-infrastructure</li>
  * </ul>
  * </p>
- */
+ * </p>
+ **/
 
 
 public interface GitInfo {

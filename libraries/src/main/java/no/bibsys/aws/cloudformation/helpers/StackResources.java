@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 
 
 /**
- * It retrieves the Resources of a CloudFormation stack
+ * It retrieves the Resources of a CloudFormation stack.
  */
 public class StackResources {
 
@@ -39,7 +39,7 @@ public class StackResources {
 
 
     /**
-     *
+     *  Lists the physical ids of the resources for a specific {@link ResourceType}.
      *
      * @param resourceType the {@link ResourceType}
      * @return A list with the Physical Resource ids of resources with the specified resource type

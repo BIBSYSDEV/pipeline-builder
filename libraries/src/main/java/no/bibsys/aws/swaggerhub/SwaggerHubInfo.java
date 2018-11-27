@@ -8,7 +8,7 @@ public class SwaggerHubInfo {
 
 
     /**
-     * The API id in SwaggerHub
+     * The API id in SwaggerHub.
      */
     private static String API_ID_ENV = "API_ID";
 
@@ -20,7 +20,7 @@ public class SwaggerHubInfo {
     private static String API_VERSION = "API_VERSION";
 
     /**
-     * The account name or the organization name to which this API belongs'
+     * The account name or the organization name to which this API belongs.
      */
     private static String SWAGGER_ORG = "SWAGGER_ORG";
 
@@ -33,6 +33,11 @@ public class SwaggerHubInfo {
     private final transient String swaggerOrganization;
 
 
+    /**
+     * SwaggerHub constructor with the use of {@link Environment}.
+     *
+     * @param environment an instance of {@link Environment}.
+     */
     public SwaggerHubInfo(Environment environment) {
         this.apiId = environment.readEnv(API_ID_ENV);
         this.apiVersion = environment.readEnv(API_VERSION);
@@ -42,6 +47,7 @@ public class SwaggerHubInfo {
 
 
     /**
+     *  SwaggerHub constructor without the use of {@link Environment}.
      * @param apiId The id of the api
      * @param apiVersion The version of the API documentation. Can be {@code null} if the intended action is for the
      *        whole API
