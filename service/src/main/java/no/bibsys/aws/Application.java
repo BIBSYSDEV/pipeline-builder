@@ -58,9 +58,6 @@ public class Application {
         message.append("System property \"action\" is not set\n").append("Valid values: create,delete");
         Preconditions.checkNotNull(action, message.toString());
 
-        String swaggerOrg = System.getProperty("swaggerOrg");
-        Preconditions.checkNotNull(swaggerOrg, "System property swaggerOrg is not set");
-
         Application.run(repoOwner, repository, branch, action);
 
     }
