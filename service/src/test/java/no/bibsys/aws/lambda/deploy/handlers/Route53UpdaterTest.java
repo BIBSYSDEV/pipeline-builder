@@ -42,8 +42,6 @@ import org.mockito.Mockito;
 public class Route53UpdaterTest {
 
 
-    private final transient String zoneName = "ZoneName";
-
     private final transient Route53Updater route53Updater;
 
     private final transient AmazonApiGateway apiGateway = Mockito.mock(AmazonApiGateway.class);
@@ -51,8 +49,10 @@ public class Route53UpdaterTest {
     public Route53UpdaterTest() {
 
         AmazonRoute53 client = Mockito.mock(AmazonRoute53.class);
+        String zoneName = "ZoneName";
         when(client.listHostedZones()).thenReturn(
-                new ListHostedZonesResult().withHostedZones(new HostedZone().withId("ZoneId").withName(zoneName)));
+                new ListHostedZonesResult().withHostedZones(new HostedZone().withId("ZoneId").withName(
+                    zoneName)));
         GitInfo gitInfo = new GitInfoImpl("owner", "repository", "branch");
         StaticUrlInfo staticUrlINfo = StaticUrlInfo.create(Stage.TEST, zoneName, "some.url.goes.here.");
         route53Updater = new Route53Updater(staticUrlINfo, gitInfo, Stage.TEST, "apiGatewarRestApiId", apiGateway);

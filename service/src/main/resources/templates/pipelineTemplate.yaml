@@ -235,7 +235,16 @@ Resources:
           - Effect: Allow
             Action:
             - 'ssm:GetParameters'
+            - codepipeline:DisableStageTransition
             Resource: '*'
+      - PolicyName: pipelineHandling
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Actrion:
+                - 'codepipeline:DisableStageTransition'
+              Resource: '*'
   CodeBuildProject:
     DependsOn:
     - S3Bucket
