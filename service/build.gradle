@@ -1,5 +1,5 @@
 dependencies{
-    compile project (":libraries")
+    compile 'no.bibsys.aws:aws-build-tools:+'
 }
 
 

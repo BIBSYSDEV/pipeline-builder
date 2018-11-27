@@ -21,7 +21,6 @@ task fatJar {
 
 dependencies {
 
-    compile project(":libraries")
     compile project(":service")
 
     
@@ -33,15 +32,14 @@ allprojects{
     repositories {
         mavenCentral()
 
+        maven { url "https://dl.bintray.com/orestis-unit/aws-build-tools" }
+
     }
 }
 
 
 subprojects{
     
-    
-    apply plugin: 'java'
-    apply plugin: 'base'
     apply plugin: 'checkstyle'
     apply plugin: 'pmd'
 
@@ -79,11 +77,10 @@ subprojects{
 
     
     
-    
-
     shadowJar {
         archiveName = "${baseName}-fat.jar"
         exclude('org.apache.tomcat.embed:*')
+    
     }
     task fatJar(dependsOn: shadowJar) {}
 
