@@ -9,23 +9,20 @@ import sys
 #   branch: github branch
 #   action: create or delete
 #
-#  Example: https://app.swaggerhub.com/apis/axthosarouris/small-api/1.0-oas3
-#   swaggerOrg: SwaggerHub account or organization in this account (axthosarouris)
+
 #
 #
-#   networkZoneName: Amazon Route53 Hosted Zone name
+
 
 REPOSITORY = "repository"
 BRANCH = "branch"
 ACTION = "action"
 OWNER = "owner"
-SWAGGER_ORG = "swaggerOrg"
-ZONE_NAME = "networkZoneName"
 
 
 class Script:
 
-    def __init__(self, owner, repository, branch, action, swaggerorg, zoneName):
+  def __init__(self, owner, repository, branch, action):
         self._parameters = dict()
         self._parameters[OWNER] = owner
         self._parameters[REPOSITORY] = repository
@@ -63,23 +60,20 @@ class Script:
             - repository:\t Github repository
             - branch:\t\t Github branch
             - action:\t\t "create" or "delete"
-            - swaggerOrg:\t SwaggerHub account or organization in this account (axthosarouris)
-            - zoneName:\t Amazon Route53 Hosted Zone name("aws.unit.no")
         """
 
 
 def main():
     if len(sys.argv) != 7:
-        script = Script(None, None, None, None, None, None)
+      script = Script(None, None, None, None)
         print(script.help())
     else:
         owner = sys.argv[1]
         repository = sys.argv[2]
         branch = sys.argv[3]
         action = sys.argv[4]
-        swaggerOrg = sys.argv[5]
-        zoneName = sys.argv[6]
-        script = Script(owner, repository, branch, action, swaggerOrg, zoneName)
+
+        script = Script(owner, repository, branch, action)
         script.run()
 
 
