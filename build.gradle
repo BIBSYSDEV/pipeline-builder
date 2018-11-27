@@ -7,104 +7,89 @@ plugins {
 }
 
 
-apply plugin: 'java'
-//apply plugin: 'base'
-
-apply plugin: 'checkstyle'
-
-
-repositories {
-    mavenCentral()
-
-}
 
 wrapper {
     distributionType = Wrapper.DistributionType.ALL
     gradleVersion = "4.10.1"
 }
 
-pmd {
-    toolVersion = "6.7.0"
-    ruleSetConfig = rootProject.resources.text.fromFile('config/pmd/potential-future-pmd.xml')
-    ruleSets = []
-    ignoreFailures = false
+
+task fatJar {
+    println "Creating fat jars"
 }
-
-
-checkstyle {
-    configFile = rootProject.resources.text.fromFile('config/checkstyle/google_checks.xml').asFile()
-    showViolations = true
-    toolVersion '8.12'
-}
-
-tasks.withType(Checkstyle) {
-    reports {
-        xml.enabled false
-        html.enabled true
-        html.stylesheet rootProject.resources.text.fromFile('config/checkstyle/checkstyle-simple.xsl')
-    }
-}
-
-
 
 
 dependencies {
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-acm', version: '1.11.+'
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-api-gateway', version: '1.11.+'
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-cloudformation', version: '1.11.+'
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-codebuild', version: '1.11.+'
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-codepipeline', version: '1.11.+'
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: '1.11.+'
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-lambda', version: '1.11.+'
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-iam', version: '1.11.+'
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-route53', version: '1.11.+'
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-secretsmanager', version: '1.11.+'
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-ssm', version: '1.11.+'
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.+'
-    // For reading and deleting logs (application functionality)
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-logs', version: '1.11.+'
-    compile group: 'com.amazonaws', name: 'aws-lambda-java-core', version: '+'
 
-    //this should be the same version as the one used by amazon
-    compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.6.0'
+    compile project(":service")
 
-    // useful java libraries
-    compile group: 'com.google.guava', name: 'guava', version: '27.0-jre'
-
-    //libraries for testing
-    testCompile group: 'org.hamcrest', name: 'hamcrest-junit', version: '2.0.0.0'
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.23.0'
-    //JUnit should be the same version as spring
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    
-    
-    compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.6'
-
-    compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '5.1.+'
-    
-    compile ('io.symphonia:lambda-logging:1.0.3')   
     
 }
 
+allprojects{
+    apply plugin: 'java'
+    apply plugin: 'base'
+    repositories {
+        mavenCentral()
 
-shadowJar {
-    archiveName = "${baseName}-fat.jar"
-    exclude('org.apache.tomcat.embed:*')
-}
+        maven { url "https://dl.bintray.com/orestis-unit/aws-build-tools" }
 
-
-test {
-    useJUnit {
-        excludeCategories 'no.bibsys.utils.IntegrationTest'
-        excludeCategories 'no.bibsys.utils.DoNotRunTest'
     }
 }
 
-task amazonTest(type: Test){
-    useJUnit{
-        includeCategories 'no.bibsys.utils.IntegrationTest' 
+
+subprojects{
+    
+    apply plugin: 'checkstyle'
+    apply plugin: 'pmd'
+
+    dependencies{
+        //libraries for testing
+        testCompile group: 'org.hamcrest', name: 'hamcrest-junit', version: '2.0.0.0'
+        testCompile group: 'org.mockito', name: 'mockito-core', version: '2.23.0'
+        testCompile group: 'junit', name: 'junit', version: '4.12'
+
     }
+    
+
+    pmd {
+        toolVersion = "6.7.0"
+        ruleSetConfig = rootProject.resources.text.fromFile('config/pmd/potential-future-pmd.xml')
+        ruleSets = []
+        ignoreFailures = false
+    }
+
+
+    checkstyle {
+        configFile = rootProject.resources.text.fromFile('config/checkstyle/google_checks.xml').asFile()
+        showViolations = true
+        toolVersion '8.12'
+    }
+
+    tasks.withType(Checkstyle) {
+        reports {
+            xml.enabled false
+            html.enabled true
+            html.stylesheet rootProject.resources.text.fromFile('config/checkstyle/checkstyle-simple.xsl')
+        }
+    }
+
+
+    
+    
+    shadowJar {
+        archiveName = "${baseName}-fat.jar"
+        exclude('org.apache.tomcat.embed:*')
+    
+    }
+    task fatJar(dependsOn: shadowJar) {}
+
 }
+
+
+
+
+
 
 
 

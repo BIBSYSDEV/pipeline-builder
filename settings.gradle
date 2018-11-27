@@ -1,1 +1,3 @@
-rootProject.name = 'pipeline'
+rootProject.name = 'authority-registry-infrastructure'
+include 'service'
+

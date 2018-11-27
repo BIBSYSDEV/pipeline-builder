@@ -1,0 +1,12 @@
+dependencies{
+    compile 'no.bibsys.aws:aws-build-tools:+'
+}
+
+
+
+test {
+    useJUnit {
+        excludeCategories 'no.bibsys.utils.IntegrationTest'
+        excludeCategories 'no.bibsys.utils.DoNotRunTest'
+    }
+}

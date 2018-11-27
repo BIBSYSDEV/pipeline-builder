@@ -42,7 +42,7 @@
       <property name="allowNonPrintableEscapes" value="true"/>
     </module>
     <module name="LineLength">
-      <property name="max" value="100"/>
+      <property name="max" value="120"/>
       <property name="ignorePattern"
         value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
     </module>
@@ -187,7 +187,7 @@
     </module>
     <module name="AbbreviationAsWordInName">
       <property name="ignoreFinal" value="false"/>
-      <property name="allowedAbbreviationLength" value="1"/>
+      <property name="allowedAbbreviationLength" value="3"/>
     </module>
     <module name="OverloadMethodsDeclarationOrder"/>
     <module name="VariableDeclarationUsageDistance"/>
@@ -206,12 +206,12 @@
     <!--<property name="separatedStaticGroups" value="true"/>-->
     <!--</module>-->
 
-    <module name="ImportOrder">
-      <property name="ordered" value="true"/>
-      <property name="separated" value="false"/>
-      <property name="option" value="top"/>
-      <property name="sortStaticImportsAlphabetically" value="true"/>
-    </module>
+<!--     <module name="ImportOrder"> -->
+<!--       <property name="ordered" value="true"/> -->
+<!--       <property name="separated" value="false"/> -->
+<!--       <property name="option" value="top"/> -->
+<!--       <property name="sortStaticImportsAlphabetically" value="true"/> -->
+<!--     </module> -->
 
 
     <module name="MethodParamPad"/>
