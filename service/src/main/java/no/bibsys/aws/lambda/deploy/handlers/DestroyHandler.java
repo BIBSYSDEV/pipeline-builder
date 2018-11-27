@@ -18,29 +18,27 @@ public class DestroyHandler extends CodePipelineFunctionHandlerTemplate<SimpleRe
 
     private final transient Environment environment;
 
-    public DestroyHandler(){
+    public DestroyHandler() {
         this(new Environment());
     }
 
 
-    public DestroyHandler(Environment environment)  {
+    public DestroyHandler(Environment environment) {
         super();
-        this.environment=environment;
+        this.environment = environment;
 
     }
 
     @Override
-    protected SimpleResponse processInput(DeployEvent input, String apiGatewayInputString,
-        Context context)
-        throws IOException, URISyntaxException {
+    protected SimpleResponse processInput(DeployEvent input, String apiGatewayInputString, Context context)
+            throws IOException, URISyntaxException {
         Stage stage = Stage.currentStage();
         String zoneName = environment.readEnv(Route53Updater.ZONE_NAME_ENV);
 
         GitInfo gitInfo = new GithubConf(environment);
-        SwaggerHubInfo swaggerHubInfo=new SwaggerHubInfo(environment);
+        SwaggerHubInfo swaggerHubInfo = new SwaggerHubInfo(environment);
 
-        ResourceDestroyer resourceDestroyer = new ResourceDestroyer(zoneName, gitInfo,
-            swaggerHubInfo, stage);
+        ResourceDestroyer resourceDestroyer = new ResourceDestroyer(zoneName, gitInfo, swaggerHubInfo, stage);
         resourceDestroyer.destroy();
 
         return new SimpleResponse("OK");

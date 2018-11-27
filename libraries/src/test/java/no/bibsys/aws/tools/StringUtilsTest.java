@@ -3,7 +3,6 @@ package no.bibsys.aws.tools;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
-
 import java.util.regex.Matcher;
 import org.junit.Test;
 

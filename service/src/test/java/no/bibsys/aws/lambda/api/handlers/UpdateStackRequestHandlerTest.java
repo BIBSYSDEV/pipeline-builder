@@ -1,7 +1,6 @@
 package no.bibsys.aws.lambda.api.handlers;
 
 import static org.mockito.Mockito.when;
-
 import com.amazonaws.services.apigateway.model.UnauthorizedException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
@@ -18,8 +17,7 @@ import org.mockito.Mockito;
 public class UpdateStackRequestHandlerTest {
 
     private final transient Environment environment = Mockito.mock(Environment.class);
-    private final UpdateStackRequest request = new UpdateStackRequest("OWNER", "REPO", "BRAnCH",
-        "create");
+    private final UpdateStackRequest request = new UpdateStackRequest("OWNER", "REPO", "BRAnCH", "create");
     private final String requestJson;
 
     public UpdateStackRequestHandlerTest() throws JsonProcessingException {
@@ -27,8 +25,7 @@ public class UpdateStackRequestHandlerTest {
     }
 
     @Test(expected = UnauthorizedException.class)
-    public void handleRequest_falseSignature_UnauthorizedException()
-        throws IOException, URISyntaxException {
+    public void handleRequest_falseSignature_UnauthorizedException() throws IOException, URISyntaxException {
         UpdateStackRequestHandler handler = newHandlerWithMockSecretsReader();
         Map<String, String> headers = new HashMap<>();
         headers.put("api-key", "wrongValue");

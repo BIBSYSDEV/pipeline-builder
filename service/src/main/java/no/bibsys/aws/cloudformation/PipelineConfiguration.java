@@ -24,15 +24,15 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
         this.pipelineName = initializePipelineName();
 
         initLambdaFunctionName = initInitLambdaFunction();
-        destroyLambdaFunctionName= initDestroyLambdaFunction();
+        destroyLambdaFunctionName = initDestroyLambdaFunction();
     }
 
     private String initDestroyLambdaFunction() {
-         return format(projectId,normalizedBranchName,"destroy-function");
+        return format(projectId, normalizedBranchName, "destroy-function");
     }
 
     private String initInitLambdaFunction() {
-        return format(projectId,normalizedBranchName,"init-function");
+        return format(projectId, normalizedBranchName, "init-function");
     }
 
 

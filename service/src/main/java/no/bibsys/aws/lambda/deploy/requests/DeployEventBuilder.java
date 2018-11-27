@@ -9,15 +9,14 @@ public final class DeployEventBuilder {
 
 
     private DeployEventBuilder() {
-        throw new IllegalStateException(this.getClass().getName()+ " should not be initialized");
+        throw new IllegalStateException(this.getClass().getName() + " should not be initialized");
     }
 
 
     public static DeployEvent create(String eventJsonString) throws IOException {
-        if ( eventJsonString != null && !eventJsonString.isEmpty()) {
+        if (eventJsonString != null && !eventJsonString.isEmpty()) {
             return readEventFromString(eventJsonString);
-        }
-        else{
+        } else {
             return new GenericEvent();
         }
 
@@ -30,15 +29,13 @@ public final class DeployEventBuilder {
         if (isCodePipelineEvent(root)) {
             String id = root.get("CodePipeline.job").get("id").asText();
             return new CodePipelineEvent(id);
-        }
-        else{
+        } else {
             return new GenericEvent();
         }
     }
 
     private static boolean isCodePipelineEvent(JsonNode root) {
-        return root.has("CodePipeline.job") &&
-            root.get("CodePipeline.job").has("id");
+        return root.has("CodePipeline.job") && root.get("CodePipeline.job").has("id");
     }
 
 

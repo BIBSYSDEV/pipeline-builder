@@ -21,22 +21,20 @@ import org.slf4j.LoggerFactory;
 public class SwaggerHubUpdater {
 
 
-    private final static Logger logger = LoggerFactory.getLogger(SwaggerHubUpdater.class);
+    private static final Logger logger = LoggerFactory.getLogger(SwaggerHubUpdater.class);
     private final transient SwaggerHubInfo swaggerHubInfo;
     private final transient AmazonApiGateway apiGateway;
     private final transient String swaggerApiKey;
     private final transient String apiGatewayRestApiId;
     protected transient Stage stage;
 
-    public SwaggerHubUpdater(AmazonApiGateway apiGateway, String apiGatewayRestApiId,
-        SwaggerHubInfo swaggerHubInfo,
-        Stage stage
-    ) throws IOException {
+    public SwaggerHubUpdater(AmazonApiGateway apiGateway, String apiGatewayRestApiId, SwaggerHubInfo swaggerHubInfo,
+            Stage stage) throws IOException {
         this.apiGateway = apiGateway;
         this.apiGatewayRestApiId = apiGatewayRestApiId;
         this.stage = stage;
         this.swaggerHubInfo = swaggerHubInfo;
-        this.swaggerApiKey=swaggerHubInfo.getSwaggerAuth();
+        this.swaggerApiKey = swaggerHubInfo.getSwaggerAuth();
     }
 
 
@@ -47,8 +45,7 @@ public class SwaggerHubUpdater {
      */
     public int deleteApi() throws URISyntaxException, IOException {
         SwaggerDriver swaggerDriver = new SwaggerDriver(swaggerHubInfo);
-        HttpDelete deleteRequest = swaggerDriver
-            .createDeleteApiRequest(swaggerApiKey);
+        HttpDelete deleteRequest = swaggerDriver.createDeleteApiRequest(swaggerApiKey);
         return swaggerDriver.executeDelete(deleteRequest);
     }
 
@@ -58,8 +55,7 @@ public class SwaggerHubUpdater {
      * @return The body of the HTTP response for the update query
      */
 
-    public Optional<String> updateApiDocumentation()
-        throws IOException, URISyntaxException {
+    public Optional<String> updateApiDocumentation() throws IOException, URISyntaxException {
 
 
         Optional<String> jsonOpt = generateApiSpec();
@@ -80,38 +76,26 @@ public class SwaggerHubUpdater {
 
 
 
+    private String readTheUpdatedAPI(SwaggerDriver swaggerDriver) throws URISyntaxException, IOException {
 
-
-    private String readTheUpdatedAPI(SwaggerDriver swaggerDriver)
-        throws URISyntaxException, IOException {
-
-        HttpGet getSpecRequest = swaggerDriver
-            .getSpecificationRequest(swaggerHubInfo.getApiVersion());
+        HttpGet getSpecRequest = swaggerDriver.getSpecificationRequest(swaggerHubInfo.getApiVersion());
         return swaggerDriver.executeGet(getSpecRequest);
     }
 
 
-    private SwaggerDriver newSwaggerDriver()  {
+    private SwaggerDriver newSwaggerDriver() {
         return new SwaggerDriver(swaggerHubInfo);
     }
 
-    private void executeUpdate( String json,
-        SwaggerDriver swaggerDriver)
-        throws URISyntaxException, IOException {
-        HttpPost request = swaggerDriver
-            .createUpdateRequest(json, swaggerHubInfo.getApiVersion(), swaggerApiKey);
+    private void executeUpdate(String json, SwaggerDriver swaggerDriver) throws URISyntaxException, IOException {
+        HttpPost request = swaggerDriver.createUpdateRequest(json, swaggerHubInfo.getApiVersion(), swaggerApiKey);
         swaggerDriver.executePost(request);
 
 
     }
 
-    private Optional<String> generateApiSpec()
-        throws IOException {
-        ApiGatewayApiInfo apiGatewayApiInfo = new ApiGatewayApiInfo(
-            stage,
-            apiGateway,
-            apiGatewayRestApiId
-        );
+    private Optional<String> generateApiSpec() throws IOException {
+        ApiGatewayApiInfo apiGatewayApiInfo = new ApiGatewayApiInfo(stage, apiGateway, apiGatewayRestApiId);
         return apiGatewayApiInfo.generateOpenApiNoExtensions();
 
     }

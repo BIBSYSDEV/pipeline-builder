@@ -4,7 +4,6 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
-
 import com.amazonaws.services.apigateway.AmazonApiGateway;
 import com.amazonaws.services.kms.model.NotFoundException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -89,7 +88,7 @@ public class ApiGatewayApiInfoTest {
         StackResources stackResources = new StackResources(stackName);
 
         String result = stackResources.getResourceIds(ResourceType.REST_API).stream().findAny()
-            .orElseThrow(() -> new NotFoundException("RestApi not Found for stack:" + stackName));
+                .orElseThrow(() -> new NotFoundException("RestApi not Found for stack:" + stackName));
         return result;
     }
 

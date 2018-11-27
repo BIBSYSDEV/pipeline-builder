@@ -33,8 +33,7 @@ public class Application {
 
     }
 
-    public static void run(String repoOwner, String repository, String branch, String action)
-        throws IOException {
+    public static void run(String repoOwner, String repository, String branch, String action) throws IOException {
         GitInfo gitInfo = new GithubConf(repoOwner, repository, branch);
 
         Application application = new Application(gitInfo);
@@ -47,7 +46,7 @@ public class Application {
 
     }
 
-    public static void main(String args[]) throws IOException {
+    public static void main(String... args) throws IOException {
         String repoOwner = System.getProperty("owner");
         Preconditions.checkNotNull(repoOwner, "System property \"owner\" is not set");
         String repository = System.getProperty("repository");
@@ -56,8 +55,7 @@ public class Application {
         Preconditions.checkNotNull(branch, "System property \"branch\" is not set");
         String action = System.getProperty("action");
         StringBuilder message = new StringBuilder(100);
-        message.append("System property \"action\" is not set\n")
-            .append("Valid values: create,delete");
+        message.append("System property \"action\" is not set\n").append("Valid values: create,delete");
         Preconditions.checkNotNull(action, message.toString());
 
         String swaggerOrg = System.getProperty("swaggerOrg");
@@ -71,8 +69,7 @@ public class Application {
         return pipelineStackConfiguration;
     }
 
-    public void createStacks()
-        throws IOException {
+    public void createStacks() throws IOException {
         StackBuilder stackBuilder = new StackBuilder(wiper, pipelineStackConfiguration);
         stackBuilder.createStacks();
     }

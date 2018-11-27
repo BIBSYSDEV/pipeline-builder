@@ -11,18 +11,16 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Optional;
-
 import no.bibsys.aws.lambda.deploy.requests.CodePipelineEvent;
 import no.bibsys.aws.lambda.deploy.requests.DeployEvent;
 import no.bibsys.aws.lambda.deploy.requests.DeployEventBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class CodePipelineFunctionHandlerTemplate<O> extends
-    HandlerTemplate<DeployEvent, O> {
+public abstract class CodePipelineFunctionHandlerTemplate<O> extends HandlerTemplate<DeployEvent, O> {
 
     private final transient AWSCodePipeline pipeline = AWSCodePipelineClientBuilder.defaultClient();
-    private final static Logger logger = LoggerFactory.getLogger(CodePipelineFunctionHandlerTemplate.class);
+    private static final Logger logger = LoggerFactory.getLogger(CodePipelineFunctionHandlerTemplate.class);
 
     public CodePipelineFunctionHandlerTemplate() {
         super(DeployEvent.class);
@@ -44,26 +42,22 @@ public abstract class CodePipelineFunctionHandlerTemplate<O> extends
         logger.info(String.valueOf(input instanceof CodePipelineEvent));
 
         if (isPipelineEvent(input)) {
-            sendSuccessToCodePipeline((CodePipelineEvent) input,
-                outputString);
+            sendSuccessToCodePipeline((CodePipelineEvent) input, outputString);
 
         }
 
     }
-
 
 
 
     @Override
     protected void writeFailure(DeployEvent input, Throwable error) throws IOException {
-        String outputString = Optional.ofNullable(error.getMessage())
-            .orElse("Unknown error. Check stacktrace.");
+        String outputString = Optional.ofNullable(error.getMessage()).orElse("Unknown error. Check stacktrace.");
         if (isPipelineEvent(input)) {
             sendFailureToCodePipeline((CodePipelineEvent) input, outputString);
         }
         writeOutput(outputString);
     }
-
 
 
 
@@ -74,21 +68,21 @@ public abstract class CodePipelineFunctionHandlerTemplate<O> extends
 
 
     }
+
     private void sendSuccessToCodePipeline(CodePipelineEvent input, String outputString) {
         logger.info("sending success");
         CodePipelineEvent codePipelineEvent = input;
         PutJobSuccessResultRequest success = new PutJobSuccessResultRequest();
         success.withJobId(codePipelineEvent.getId())
-            .withExecutionDetails(new ExecutionDetails().withSummary(outputString));
+                .withExecutionDetails(new ExecutionDetails().withSummary(outputString));
         pipeline.putJobSuccessResult(success);
         logger.info("sent success");
     }
 
     private void sendFailureToCodePipeline(CodePipelineEvent input, String outputString) {
-        FailureDetails failureDetails = new FailureDetails().withMessage(outputString)
-            .withType(FailureType.JobFailed);
-        PutJobFailureResultRequest failure = new PutJobFailureResultRequest()
-            .withJobId(input.getId()).withFailureDetails(failureDetails);
+        FailureDetails failureDetails = new FailureDetails().withMessage(outputString).withType(FailureType.JobFailed);
+        PutJobFailureResultRequest failure =
+                new PutJobFailureResultRequest().withJobId(input.getId()).withFailureDetails(failureDetails);
         pipeline.putJobFailureResult(failure);
     }
 
@@ -97,8 +91,6 @@ public abstract class CodePipelineFunctionHandlerTemplate<O> extends
         return buildEvent instanceof CodePipelineEvent;
 
     }
-
-
 
 
 

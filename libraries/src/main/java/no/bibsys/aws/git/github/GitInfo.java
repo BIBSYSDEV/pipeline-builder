@@ -3,17 +3,17 @@ package no.bibsys.aws.git.github;
 import java.io.IOException;
 
 /**
- * Interface for Helper classes  containing the necessary details for retrieving information from a
- * Git repository
+ * Interface for Helper classes containing the necessary details for retrieving information from a Git repository
  *
  * Terms:
  * <ul>
- * <li>owner: The owner of the repository </li>
+ * <li>owner: The owner of the repository</li>
  * <li>repository: The name of the repository</li>
  * <li>branch: Branch we are interested in</li>
  * </ul>
  * <p>
- * Example: <br/> https://github.com/BIBSYSDEV/authority-registry-infrastructure/
+ * Example: <br/>
+ * https://github.com/BIBSYSDEV/authority-registry-infrastructure/
  * <ul>
  * <li>owner:BIBSYSDEV</li>
  * <li>repository:authority-registry-infrastructure</li>
@@ -25,7 +25,7 @@ import java.io.IOException;
 public interface GitInfo {
 
 
-    String getOwner() ;
+    String getOwner();
 
     String getRepository();
 

@@ -1,19 +1,15 @@
 package no.bibsys.aws.tools;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
-
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import no.bibsys.aws.tools.IoUtils;
 import org.junit.Test;
 
 public class IoUtilsTest {
@@ -48,8 +44,7 @@ public class IoUtilsTest {
 
 
     @Test
-    public void linesfromResource_removeMultipleWhiteSpaces_StringwithoutMultipleWhitespaces()
-        throws IOException {
+    public void linesfromResource_removeMultipleWhiteSpaces_StringwithoutMultipleWhitespaces() throws IOException {
         String content = IoUtils.resourceAsString(path);
         String trimmed = IoUtils.removeMultipleWhiteSpaces(content);
 

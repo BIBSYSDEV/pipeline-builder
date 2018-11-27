@@ -6,8 +6,8 @@ public final class Action {
     public static final String CREATE = "create";
     public static final String DELETE = "delete";
 
-    private Action(){
-        throw  new IllegalStateException("Action class should not be initialized");
+    private Action() {
+        throw new IllegalStateException("Action class should not be initialized");
     }
 
 

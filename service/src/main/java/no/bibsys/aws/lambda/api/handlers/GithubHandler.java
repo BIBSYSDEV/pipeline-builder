@@ -21,14 +21,13 @@ import org.slf4j.LoggerFactory;
 
 public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
-    private final transient static Logger logger = LoggerFactory.getLogger(GithubHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(GithubHandler.class);
 
 
     private transient SignatureChecker signatureChecker;
 
 
 
-    
     public GithubHandler() {
         this(new Environment());
 
@@ -48,7 +47,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
     @Override
     public String processInput(String request, Map<String, String> headers, Context context)
-        throws IOException, URISyntaxException {
+            throws IOException, URISyntaxException {
 
         String webhookSecurityToken = headers.get("X-Hub-Signature");
         boolean verified = signatureChecker.verifySecurityToken(webhookSecurityToken, request);
@@ -83,10 +82,9 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     }
 
 
-    private String processPullRequest(PullRequest pullRequest)
-        throws IOException, URISyntaxException {
+    private String processPullRequest(PullRequest pullRequest) throws IOException, URISyntaxException {
         if (pullRequest.getAction().equals(PullRequest.ACTION_OPEN)
-            || pullRequest.getAction().equals(PullRequest.ACTION_REOPEN)) {
+                || pullRequest.getAction().equals(PullRequest.ACTION_REOPEN)) {
             createStacks(pullRequest);
         }
 
@@ -112,18 +110,16 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
 
     protected void deleteStacks(GitInfoImpl repositoryInfo) {
-        GitInfo gitInfo = new GithubConf(repositoryInfo.getOwner(),
-            repositoryInfo.getRepository(),
-            repositoryInfo.getBranch());
+        GitInfo gitInfo =
+                new GithubConf(repositoryInfo.getOwner(), repositoryInfo.getRepository(), repositoryInfo.getBranch());
 
         Application application = new Application(gitInfo);
         application.wipeStacks();
     }
 
-    protected void createStacks(GitInfoImpl repositoryInfo)
-        throws IOException {
-        GitInfo gitInfo = new GithubConf(repositoryInfo.getOwner(), repositoryInfo.getRepository(),
-            repositoryInfo.getBranch());
+    protected void createStacks(GitInfoImpl repositoryInfo) throws IOException {
+        GitInfo gitInfo =
+                new GithubConf(repositoryInfo.getOwner(), repositoryInfo.getRepository(), repositoryInfo.getBranch());
         Application application = new Application(gitInfo);
         application.createStacks();
     }

@@ -15,11 +15,9 @@ public class GatewayResponse {
     private int statusCode;
 
 
-    public GatewayResponse() {
-    }
+    public GatewayResponse() {}
 
-    public GatewayResponse(final String body, final Map<String, String> headers,
-        final int statusCode) {
+    public GatewayResponse(final String body, final Map<String, String> headers, final int statusCode) {
         this.statusCode = statusCode;
         this.body = body;
         this.headers = Collections.unmodifiableMap(new HashMap<>(headers));

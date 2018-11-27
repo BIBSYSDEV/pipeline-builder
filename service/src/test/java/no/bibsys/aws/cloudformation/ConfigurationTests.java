@@ -2,7 +2,6 @@ package no.bibsys.aws.cloudformation;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
-
 import java.io.IOException;
 import java.util.Optional;
 import no.bibsys.aws.git.github.GithubConf;
@@ -25,9 +24,8 @@ public abstract class ConfigurationTests extends AmazonNamingRestrictions {
 
     public ConfigurationTests() throws IOException {
         Environment environment = Mockito.mock(Environment.class);
-        when(environment.readEnvOpt(anyString())).then(
-            (Answer<Optional<String>>) invocation -> Optional
-                .ofNullable(invocation.getArgument(0)));
+        when(environment.readEnvOpt(anyString()))
+                .then((Answer<Optional<String>>) invocation -> Optional.ofNullable(invocation.getArgument(0)));
         githubConf = new GithubConf(repoOwner, repoName, branchName);
         this.conf = new PipelineStackConfiguration(githubConf);
         this.normalizedBranch = conf.getNormalizedBranchName();

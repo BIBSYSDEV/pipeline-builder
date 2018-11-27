@@ -52,11 +52,8 @@ public class Route53Updater {
     private transient AmazonRoute53 route53Client;
 
 
-    public Route53Updater(StaticUrlInfo staticUrlINfo,
-        GitInfo gitInfo,
-        Stage stage,
-        String apiGatewayRestApiId,
-        AmazonApiGateway apiGatewayClient) {
+    public Route53Updater(StaticUrlInfo staticUrlINfo, GitInfo gitInfo, Stage stage, String apiGatewayRestApiId,
+            AmazonApiGateway apiGatewayClient) {
 
         this.staticUrlINfo = staticUrlINfo;
         this.gitInfo = gitInfo;
@@ -65,16 +62,13 @@ public class Route53Updater {
         this.route53Client = AmazonRoute53ClientBuilder.defaultClient();
         this.apiGatewayRestApiId = apiGatewayRestApiId;
 
-        this.apiGatewayBasePathMapping = new ApiGatewayBasePathMapping(
-            apiGatewayClient,
-            staticUrlINfo.getDomainName(),
-            stage);
+        this.apiGatewayBasePathMapping =
+                new ApiGatewayBasePathMapping(apiGatewayClient, staticUrlINfo.getDomainName(), stage);
     }
 
 
     public Route53Updater copy(Stage stage) {
-        return new Route53Updater(staticUrlINfo, gitInfo, stage, apiGatewayRestApiId,
-            apiGatewayClient);
+        return new Route53Updater(staticUrlINfo, gitInfo, stage, apiGatewayRestApiId, apiGatewayClient);
     }
 
 
@@ -83,8 +77,8 @@ public class Route53Updater {
         apiGatewayBasePathMapping.createBasePath(apiGatewayRestApiId, certificateArn);
 
         Optional<String> targetDomainName = apiGatewayBasePathMapping.getTargetDomainName();
-        return targetDomainName.map(domainName ->
-            route53Client.changeResourceRecordSets(updateRecordSetsRequest(domainName)));
+        return targetDomainName
+                .map(domainName -> route53Client.changeResourceRecordSets(updateRecordSetsRequest(domainName)));
 
 
     }
@@ -96,12 +90,11 @@ public class Route53Updater {
             Optional<String> targetDomainName = apiGatewayBasePathMapping.getTargetDomainName();
             apiGatewayBasePathMapping.deleteBasePathMappings();
 
-            return targetDomainName.map(domainName -> route53Client
-                .changeResourceRecordSets(deleteRecordSetsRequest(domainName)));
+            return targetDomainName
+                    .map(domainName -> route53Client.changeResourceRecordSets(deleteRecordSetsRequest(domainName)));
         } catch (NotFoundException e) {
             if (log.isWarnEnabled()) {
-                log.warn(
-                    "Domain Name not found:" + apiGatewayBasePathMapping.getTargetDomainName());
+                log.warn("Domain Name not found:" + apiGatewayBasePathMapping.getTargetDomainName());
             }
 
         }
@@ -111,11 +104,9 @@ public class Route53Updater {
 
     private HostedZone getHostedZone() {
         List<HostedZone> hostedZones = route53Client.listHostedZones().getHostedZones().stream()
-            .filter(zone -> zone.getName().equals(staticUrlINfo.getZoneName()))
-            .collect(Collectors.toList());
+                .filter(zone -> zone.getName().equals(staticUrlINfo.getZoneName())).collect(Collectors.toList());
         Preconditions.checkArgument(hostedZones.size() == 1,
-            "There should exist exactly one hosted zone with the name " + staticUrlINfo
-                .getZoneName());
+                "There should exist exactly one hosted zone with the name " + staticUrlINfo.getZoneName());
         return hostedZones.get(0);
 
     }
@@ -126,7 +117,7 @@ public class Route53Updater {
         ResourceRecordSet recordSet = createRecordSet(serverUrl);
         Change change = createChange(recordSet, ChangeAction.DELETE);
         ChangeResourceRecordSetsRequest request = new ChangeResourceRecordSetsRequest()
-            .withChangeBatch(new ChangeBatch().withChanges(change)).withHostedZoneId(hostZoneId);
+                .withChangeBatch(new ChangeBatch().withChanges(change)).withHostedZoneId(hostZoneId);
         return request;
     }
 
@@ -145,17 +136,13 @@ public class Route53Updater {
 
     private Change createChange(ResourceRecordSet recordSet, ChangeAction changeAction) {
         Change change = new Change();
-        change.withAction(changeAction)
-            .withResourceRecordSet(recordSet);
+        change.withAction(changeAction).withResourceRecordSet(recordSet);
         return change;
     }
 
     private ResourceRecordSet createRecordSet(String serverUrl) {
-        ResourceRecordSet recordSet = new ResourceRecordSet()
-            .withName(staticUrlINfo.getRecordSetName()).withType(
-            RRType.CNAME)
-            .withTTL(300L)
-            .withResourceRecords(new ResourceRecord().withValue(serverUrl));
+        ResourceRecordSet recordSet = new ResourceRecordSet().withName(staticUrlINfo.getRecordSetName())
+                .withType(RRType.CNAME).withTTL(300L).withResourceRecords(new ResourceRecord().withValue(serverUrl));
         return recordSet;
     }
 

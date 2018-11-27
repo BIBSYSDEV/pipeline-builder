@@ -3,7 +3,6 @@ package no.bibsys.aws.apigateway;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
-
 import com.amazonaws.services.apigateway.model.CreateBasePathMappingRequest;
 import no.bibsys.aws.cloudformation.Stage;
 import org.junit.Test;
@@ -15,12 +14,10 @@ public class ApiGatewayBasePathMappingTest {
     @Test
     public void newBasePathMappingRequest_restApiIdTestStage_CreateBasePathMappingRequestWithRestApi() {
 
-        ApiGatewayBasePathMapping apiGatewayBasePathMapping = new ApiGatewayBasePathMapping(null,
-            domainName,
-            Stage.TEST);
+        ApiGatewayBasePathMapping apiGatewayBasePathMapping =
+                new ApiGatewayBasePathMapping(null, domainName, Stage.TEST);
 
-        CreateBasePathMappingRequest request = apiGatewayBasePathMapping
-            .newBasePathMappingRequest("restApi");
+        CreateBasePathMappingRequest request = apiGatewayBasePathMapping.newBasePathMappingRequest("restApi");
 
         assertThat(request.getRestApiId(), is(equalTo("restApi")));
         assertThat(request.getDomainName(), is(equalTo(domainName)));
@@ -31,12 +28,10 @@ public class ApiGatewayBasePathMappingTest {
     @Test
     public void newBasePathMappingRequest_restApiIdFinalStage_CreateBasePathMappingRequestWithRestApi() {
         String domainName = "domain.name.";
-        ApiGatewayBasePathMapping apiGatewayBasePathMapping = new ApiGatewayBasePathMapping(null,
-            domainName,
-            Stage.FINAL);
+        ApiGatewayBasePathMapping apiGatewayBasePathMapping =
+                new ApiGatewayBasePathMapping(null, domainName, Stage.FINAL);
 
-        CreateBasePathMappingRequest request = apiGatewayBasePathMapping
-            .newBasePathMappingRequest("restApi");
+        CreateBasePathMappingRequest request = apiGatewayBasePathMapping.newBasePathMappingRequest("restApi");
 
         assertThat(request.getRestApiId(), is(equalTo("restApi")));
         assertThat(request.getDomainName(), is(equalTo(domainName)));

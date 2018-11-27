@@ -6,8 +6,7 @@ public class SimpleResponse {
     private String message;
 
 
-    public SimpleResponse() {
-    }
+    public SimpleResponse() {}
 
 
 

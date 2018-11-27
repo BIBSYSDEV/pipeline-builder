@@ -19,23 +19,22 @@ public class UpdateStackRequestHandler extends GithubHandler {
 
 
     private transient SecretsReader secretsReader;
-    private static final String API_KEY_HEADER="api-key";
+    private static final String API_KEY_HEADER = "api-key";
 
 
-    public UpdateStackRequestHandler(Environment environment){
+    public UpdateStackRequestHandler(Environment environment) {
         super(environment);
         this.secretsReader = new SecretsReader(AWS_SECRET_NAME, AWS_SECRET_KEY);
     }
 
 
-    public UpdateStackRequestHandler(){
+    public UpdateStackRequestHandler() {
         this(new Environment());
     }
 
 
     @Override
-    public String processInput(String string, Map<String, String> headers, Context context)
-        throws IOException {
+    public String processInput(String string, Map<String, String> headers, Context context) throws IOException {
 
         String securityToken = headers.get(API_KEY_HEADER);
         checkAuthorization(securityToken);
@@ -65,8 +64,8 @@ public class UpdateStackRequestHandler extends GithubHandler {
     private void checkAuthorization(String securityToken) throws IOException {
 
         String secret = secretsReader.readSecret();
-        if(!secret.equals(securityToken)){
-             throw new UnauthorizedException("Wrong API key signature");
+        if (!secret.equals(securityToken)) {
+            throw new UnauthorizedException("Wrong API key signature");
         }
     }
 

@@ -14,7 +14,7 @@ public final class IoUtils {
 
 
 
-    private IoUtils(){
+    private IoUtils() {
         throw new IllegalStateException("IoUtils should not be initialized");
     }
 
@@ -24,9 +24,9 @@ public final class IoUtils {
     }
 
 
-    public static  String streamToString(InputStream stream) throws IOException {
+    public static String streamToString(InputStream stream) throws IOException {
         BufferedReader reader = new BufferedReader(newInputStreamReader(stream));
-        List<String> lines=new ArrayList<>();
+        List<String> lines = new ArrayList<>();
         String line = reader.readLine();
         while (line != null) {
             lines.add(line);
@@ -47,9 +47,8 @@ public final class IoUtils {
     }
 
 
-    public static  List<String> linesfromResource(Path path) throws IOException {
-        BufferedReader reader = new BufferedReader(
-            newInputStreamReader(inputStreamFromResources(path)));
+    public static List<String> linesfromResource(Path path) throws IOException {
+        BufferedReader reader = new BufferedReader(newInputStreamReader(inputStreamFromResources(path)));
         List<String> lines = new ArrayList<>();
         String line = reader.readLine();
         while (line != null) {
@@ -59,7 +58,7 @@ public final class IoUtils {
         return lines;
     }
 
-    public static  String resourceAsString(Path path) throws IOException {
+    public static String resourceAsString(Path path) throws IOException {
         List<String> lines = linesfromResource(path);
         String result = String.join("\n", lines);
         return result;

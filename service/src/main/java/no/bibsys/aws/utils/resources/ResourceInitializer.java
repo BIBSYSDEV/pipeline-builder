@@ -17,52 +17,43 @@ import no.bibsys.aws.utils.network.NetworkConstants;
 
 
 /**
- * It is called after the creation of a CloudFormation Stack in order to create resources that do
- * not belong to the Stack. These resources can be inside or outside AWS. It is usually called
- * thought a handler of a Lambda function (see {@link no.bibsys.aws.lambda.deploy.handlers.InitHandler}).
+ * It is called after the creation of a CloudFormation Stack in order to create resources that do not belong to the
+ * Stack. These resources can be inside or outside AWS. It is usually called thought a handler of a Lambda function (see
+ * {@link no.bibsys.aws.lambda.deploy.handlers.InitHandler}).
  *
  *
- * Currently it stores the API specification to SwaggerHub and creates all Route53 and ApiGateway
- * configurations related to attaching the branch's RestApi to a static url.
+ * Currently it stores the API specification to SwaggerHub and creates all Route53 and ApiGateway configurations related
+ * to attaching the branch's RestApi to a static url.
  */
 public class ResourceInitializer extends ResourceManager {
 
-    private transient final SwaggerHubUpdater swaggerHubUpdater;
+    private final transient SwaggerHubUpdater swaggerHubUpdater;
     private final transient Route53Updater route53Updater;
     private final transient String certificateArn;
 
-    public ResourceInitializer(String zoneName,
-        GitInfo gitInfo,
-        SwaggerHubInfo swaggerHubInfo,
-        Stage stage,
-        String certificateArn) throws IOException {
+    public ResourceInitializer(String zoneName, GitInfo gitInfo, SwaggerHubInfo swaggerHubInfo, Stage stage,
+            String certificateArn) throws IOException {
         super();
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
         String apiGatewayRestApi = findRestApi(gitInfo, stage);
 
-        this.swaggerHubUpdater = new SwaggerHubUpdater(apiGateway, apiGatewayRestApi,
-            swaggerHubInfo,
-            stage);
-        StaticUrlInfo staticUrlINfo = StaticUrlInfo
-            .create(stage, zoneName, NetworkConstants.RECORD_SET_NAME);
-        this.route53Updater = new Route53Updater(staticUrlINfo, gitInfo, stage, apiGatewayRestApi,
-            apiGateway);
+        this.swaggerHubUpdater = new SwaggerHubUpdater(apiGateway, apiGatewayRestApi, swaggerHubInfo, stage);
+        StaticUrlInfo staticUrlINfo = StaticUrlInfo.create(stage, zoneName, NetworkConstants.RECORD_SET_NAME);
+        this.route53Updater = new Route53Updater(staticUrlINfo, gitInfo, stage, apiGatewayRestApi, apiGateway);
         this.certificateArn = certificateArn;
     }
 
 
-    public SimpleResponse initializeStacks()
-        throws IOException, URISyntaxException {
+    public SimpleResponse initializeStacks() throws IOException, URISyntaxException {
 
         System.out.println("Lambda function started");
         System.out.println("Updating Route 53");
 
         deletePreviousResources();
 
-        Optional<ChangeResourceRecordSetsResult> route53UpdateResult = route53Updater
-            .updateServerUrl(certificateArn);
-        String route53Status = route53UpdateResult.map(result -> result.getChangeInfo().getStatus())
-            .orElse("Server not updated");
+        Optional<ChangeResourceRecordSetsResult> route53UpdateResult = route53Updater.updateServerUrl(certificateArn);
+        String route53Status =
+                route53UpdateResult.map(result -> result.getChangeInfo().getStatus()).orElse("Server not updated");
 
         StringBuilder output = new StringBuilder(20);
         output.append("Swagger:");

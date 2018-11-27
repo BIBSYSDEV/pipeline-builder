@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNot.not;
-
 import java.io.IOException;
 import java.util.regex.Matcher;
 import org.junit.Test;
@@ -14,8 +13,7 @@ import org.junit.Test;
 public class PipelineStackConfigurationTests extends ConfigurationTests {
 
 
-    public PipelineStackConfigurationTests() throws IOException {
-    }
+    public PipelineStackConfigurationTests() throws IOException {}
 
     @Test
     public void initPipelineStackName_projectIdAndNormalizedBranch_containsProjectId() {
@@ -46,7 +44,6 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
 
 
 
-
     @Test
     public void initPipelineRole_projectIdAndNormalizedBranch_containsNormalizedBranch() {
         assertThat(conf.getPipelineRoleName(), containsString(normalizedBranch));
@@ -56,18 +53,18 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
 
     @Test
     public void initPipelineRole_projectIdAndNormalizedBranch_noLongerThan64chars() {
-        assertThat(conf.getPipelineRoleName().length(), is(not(greaterThan(
-            PipelineStackConfiguration.MAX_ROLENAME_SIZE))));
+        assertThat(conf.getPipelineRoleName().length(),
+                is(not(greaterThan(PipelineStackConfiguration.MAX_ROLENAME_SIZE))));
 
     }
 
 
     @Test
     public void initStackRoleName_projectIdAndNormalizedBranch_noLongerThan64chars() {
-        assertThat(conf.getCreateStackRoleName().length(), is(not(greaterThan(PipelineStackConfiguration.MAX_ROLENAME_SIZE))));
+        assertThat(conf.getCreateStackRoleName().length(),
+                is(not(greaterThan(PipelineStackConfiguration.MAX_ROLENAME_SIZE))));
 
     }
-
 
 
 

@@ -64,26 +64,23 @@ public class ApiGatewayApiInfo {
 
 
     /**
-     * We desire a richer OpenApi documentation than the one that Amazon currently provides. So we
-     * read the server address from Api Gateway and we inject the information to the custom OpenApi
-     * specification.
+     * We desire a richer OpenApi documentation than the one that Amazon currently provides. So we read the server
+     * address from Api Gateway and we inject the information to the custom OpenApi specification.
      *
      * @param openApiTemplate Custom OpenApi specification
-     * @param serverInfo Server URL and URL path variables  as produced by ApiGateway
+     * @param serverInfo Server URL and URL path variables as produced by ApiGateway
      * @return A Swagger documentation with the correct Server URL
      */
-    private String injectServerInfo(String openApiTemplate, ServerInfo serverInfo)
-        throws IOException {
+    private String injectServerInfo(String openApiTemplate, ServerInfo serverInfo) throws IOException {
 
-        String replacedSever = openApiTemplate
-            .replace("<SERVER_PLACEHOLDER>", serverInfo.getServerUrl());
+        String replacedSever = openApiTemplate.replace("<SERVER_PLACEHOLDER>", serverInfo.getServerUrl());
         if (serverInfo.getStage() != null) {
             return replacedSever.replace("<STAGE_PLACEHOLDER>", serverInfo.getStage());
         } else {
             ObjectMapper yamlParser = JsonUtils.newYamlParser();
             ObjectNode root = (ObjectNode) yamlParser.readTree(replacedSever);
-            ArrayNode servers=(ArrayNode) root.get("servers");
-            ObjectNode server=(ObjectNode)servers.get(0);
+            ArrayNode servers = (ArrayNode) root.get("servers");
+            ObjectNode server = (ObjectNode) servers.get(0);
             server.remove("variables");
             String removedVariables = yamlParser.writeValueAsString(root);
             return removedVariables;
@@ -94,20 +91,17 @@ public class ApiGatewayApiInfo {
     }
 
 
-    private Optional<JsonNode> readOpenApiSpecFromAmazon(Map<String, String> requestParameters)
-        throws IOException {
+    private Optional<JsonNode> readOpenApiSpecFromAmazon(Map<String, String> requestParameters) throws IOException {
 
-        try{
-            GetExportRequest request = new GetExportRequest().withRestApiId(restApiId)
-                .withStageName(stage.toString()).withExportType(ApiGatewayConstants.OPEN_API_3)
-                .withParameters(requestParameters);
-            GetExportResult result = client
-                .getExport(request);
+        try {
+            GetExportRequest request = new GetExportRequest().withRestApiId(restApiId).withStageName(stage.toString())
+                    .withExportType(ApiGatewayConstants.OPEN_API_3).withParameters(requestParameters);
+            GetExportResult result = client.getExport(request);
             String swaggerFile = new String(result.getBody().array());
             ObjectMapper parser = JsonUtils.newJsonParser();
             return Optional.ofNullable(parser.readTree(swaggerFile));
 
-        } catch(NotFoundException e) {
+        } catch (NotFoundException e) {
             return Optional.empty();
         }
 
@@ -123,10 +117,8 @@ public class ApiGatewayApiInfo {
     }
 
     private Optional<String> getStageVariable(JsonNode serversNode) {
-        Optional<String> apiStage = Optional.ofNullable(serversNode.get("variables"))
-            .map(var -> var.get("basePath"))
-            .map(basePath -> basePath.get("default"))
-            .map(deflt -> deflt.asText());
+        Optional<String> apiStage = Optional.ofNullable(serversNode.get("variables")).map(var -> var.get("basePath"))
+                .map(basePath -> basePath.get("default")).map(deflt -> deflt.asText());
         return apiStage;
     }
 

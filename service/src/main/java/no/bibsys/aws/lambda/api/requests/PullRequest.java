@@ -15,10 +15,10 @@ public final class PullRequest extends GitInfoImpl {
     public static final String ACTION_CLOSE = "closed";
 
 
-    private  String action;
+    private String action;
 
 
-    public PullRequest(){
+    public PullRequest() {
         super();
     }
 
@@ -27,7 +27,7 @@ public final class PullRequest extends GitInfoImpl {
         this.setOwner(root.get("repository").get("owner").get("login").asText());
         this.setRepository(root.get("repository").get("name").asText());
         this.setBranch(root.get("pull_request").get("head").get("ref").asText());
-        this.action=root.get("action").asText();
+        this.action = root.get("action").asText();
 
     }
 
@@ -44,19 +44,13 @@ public final class PullRequest extends GitInfoImpl {
 
 
 
-
-
     public String getAction() {
         return action;
     }
 
-    public void setAction(String action){
-        this.action=action;
+    public void setAction(String action) {
+        this.action = action;
     }
-
-
-
-
 
 
 

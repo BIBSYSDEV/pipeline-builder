@@ -7,15 +7,15 @@ import org.slf4j.LoggerFactory;
 
 public class CloudFormationConfigurable {
 
-    public final static int NORMALIZED_BRANCH_MAX_LENGTH = 25;
-    public final static transient int MAX_BRANCH_WORD_LENGTH = 5;
-    public final static transient int MAX_PROJECT_WORD_LENGTH = 3;
+    public static final int NORMALIZED_BRANCH_MAX_LENGTH = 25;
+    public static final int MAX_BRANCH_WORD_LENGTH = 5;
+    public static final int MAX_PROJECT_WORD_LENGTH = 3;
 
     protected final transient String projectId;
     protected final transient String normalizedBranchName;
     private final transient StringUtils stringUtils = new StringUtils();
     private final transient String branchName;
-    private final static Logger logger = LoggerFactory.getLogger(CloudFormationConfigurable.class);
+    private static final Logger logger = LoggerFactory.getLogger(CloudFormationConfigurable.class);
 
     public CloudFormationConfigurable(String repositoryName, String branchName) {
         this.projectId = initProjectId(repositoryName);
@@ -24,8 +24,7 @@ public class CloudFormationConfigurable {
     }
 
     private String initProjectId(String repositoryName) {
-        String projectName = stringUtils
-            .shortNormalizedString(repositoryName, MAX_PROJECT_WORD_LENGTH);
+        String projectName = stringUtils.shortNormalizedString(repositoryName, MAX_PROJECT_WORD_LENGTH);
         logger.info("PROJECT NAME IS:" + projectName);
         return projectName;
     }

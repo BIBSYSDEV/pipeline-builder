@@ -10,19 +10,15 @@ import org.slf4j.LoggerFactory;
 
 public class SwaggerHubUrlFormatter {
 
-    private final static Logger logger = LoggerFactory.getLogger(SwaggerHubUrlFormatter.class);
-    private final static String SWAGGERHUB_RESTAPI_URL = "https://api.swaggerhub.com/apis";
+    private static final Logger logger = LoggerFactory.getLogger(SwaggerHubUrlFormatter.class);
+    private static final String SWAGGERHUB_RESTAPI_URL = "https://api.swaggerhub.com/apis";
     private final transient URI requestURL;
 
 
-    public SwaggerHubUrlFormatter(
-        SwaggerHubInfo swaggerHubInfo,
-        boolean includeApiVersion,
-        Map<String, String> requestParameters)
-        throws URISyntaxException {
+    public SwaggerHubUrlFormatter(SwaggerHubInfo swaggerHubInfo, boolean includeApiVersion,
+            Map<String, String> requestParameters) throws URISyntaxException {
 
-        this.requestURL = urlFormatter(apiUri(swaggerHubInfo, includeApiVersion),
-            requestParameters);
+        this.requestURL = urlFormatter(apiUri(swaggerHubInfo, includeApiVersion), requestParameters);
 
     }
 
@@ -35,18 +31,15 @@ public class SwaggerHubUrlFormatter {
     private URI apiUri(SwaggerHubInfo info, boolean includeApiVersion) throws URISyntaxException {
         if (includeApiVersion) {
 
-            URI uri = new URI(String
-                .format("%s/%s/%s/%s", SWAGGERHUB_RESTAPI_URL, info.getSwaggerOrganization(),
-                    info.getApiId(),
-                    info.getApiVersion()));
+            URI uri = new URI(String.format("%s/%s/%s/%s", SWAGGERHUB_RESTAPI_URL, info.getSwaggerOrganization(),
+                    info.getApiId(), info.getApiVersion()));
             if (logger.isErrorEnabled()) {
                 logger.error("SwaggerHub URL:{}", uri);
             }
             return uri;
         } else {
             URI uri = new URI(
-                String.format("%s/%s/%s", SWAGGERHUB_RESTAPI_URL, info.getSwaggerOrganization(),
-                    info.getApiId()));
+                    String.format("%s/%s/%s", SWAGGERHUB_RESTAPI_URL, info.getSwaggerOrganization(), info.getApiId()));
             if (logger.isErrorEnabled()) {
                 logger.error("SwaggerHub URL:{}", uri);
             }
@@ -60,7 +53,7 @@ public class SwaggerHubUrlFormatter {
 
         Optional<String> parameterOpt = joinParametersToString(requestParameters);
 
-        //remove the last slash if there is any
+        // remove the last slash if there is any
         String host = apiAddress.toString().replaceAll("/$", "");
         if (parameterOpt.isPresent()) {
             String parametersString = parameterOpt.get();
@@ -75,10 +68,8 @@ public class SwaggerHubUrlFormatter {
 
 
     private Optional<String> joinParametersToString(Map<String, String> parameters) {
-        return parameters.entrySet()
-            .stream()
-            .map(entry -> String.format("%s=%s", entry.getKey(), entry.getValue()))
-            .reduce((str1, str2) -> String.join("&", str1, str2));
+        return parameters.entrySet().stream().map(entry -> String.format("%s=%s", entry.getKey(), entry.getValue()))
+                .reduce((str1, str2) -> String.join("&", str1, str2));
     }
 
 

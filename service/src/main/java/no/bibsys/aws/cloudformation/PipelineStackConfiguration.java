@@ -5,7 +5,7 @@ import no.bibsys.aws.git.github.GitInfo;
 public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
 
-    public final static Integer MAX_ROLENAME_SIZE=64;
+    public static final Integer MAX_ROLENAME_SIZE = 64;
     private final transient String pipelineStackName;
 
     // Role for creating the stack of the pipeline
@@ -15,7 +15,7 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
     private final transient String pipelineRoleName;
 
     private final transient String bucketName;
-//    private final transient GithubConf githubConf;
+    // private final transient GithubConf githubConf;
 
 
     private final GitInfo githubConf;
@@ -32,10 +32,8 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
         this.createStackRoleName = initCreateStackRole();
         this.pipelineRoleName = initPipelineRoleName();
 
-        this.pipelineConfiguration = initPipelineConfiguration(gitInfo.getRepository(),
-            gitInfo.getBranch());
-        this.codeBuildConfiguration = new CodeBuildConfiguration(gitInfo.getRepository(),
-            gitInfo.getBranch());
+        this.pipelineConfiguration = initPipelineConfiguration(gitInfo.getRepository(), gitInfo.getBranch());
+        this.codeBuildConfiguration = new CodeBuildConfiguration(gitInfo.getRepository(), gitInfo.getBranch());
     }
 
 

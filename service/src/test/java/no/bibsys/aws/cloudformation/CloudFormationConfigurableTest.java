@@ -6,7 +6,6 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -31,7 +30,7 @@ public class CloudFormationConfigurableTest extends ConfigurationTests {
     @Test
     public void initNormalizedBranchName_branchName_normalizedBranchNameUnderSpecifiedLength() {
         assertThat(conf.getNormalizedBranchName().length(),
-            is(not(greaterThan(CloudFormationConfigurable.NORMALIZED_BRANCH_MAX_LENGTH))));
+                is(not(greaterThan(CloudFormationConfigurable.NORMALIZED_BRANCH_MAX_LENGTH))));
     }
 
 
@@ -50,8 +49,7 @@ public class CloudFormationConfigurableTest extends ConfigurationTests {
 
         String[] tokens = projectId.split("-");
         Arrays.stream(tokens).forEach(token -> {
-            assertThat(token.length(),
-                is(not(greaterThan(CloudFormationConfigurable.MAX_PROJECT_WORD_LENGTH))));
+            assertThat(token.length(), is(not(greaterThan(CloudFormationConfigurable.MAX_PROJECT_WORD_LENGTH))));
         });
 
     }

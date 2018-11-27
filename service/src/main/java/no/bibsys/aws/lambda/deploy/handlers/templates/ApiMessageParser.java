@@ -13,13 +13,12 @@ import no.bibsys.aws.tools.JsonUtils;
 
 public class ApiMessageParser<T> {
 
-private final transient ObjectMapper mapper = JsonUtils.newJsonParser();
+    private final transient ObjectMapper mapper = JsonUtils.newJsonParser();
 
     public Map<String, String> getHeadersFromJson(String inputString) throws IOException {
         JsonNode root = mapper.readTree(new StringReader(inputString));
         JsonNode headers = root.get("headers");
-        Map<String, String> headersMap = (Map<String, String>) mapper
-            .convertValue(headers, Map.class);
+        Map<String, String> headersMap = (Map<String, String>) mapper.convertValue(headers, Map.class);
         return headersMap;
 
     }
@@ -27,8 +26,7 @@ private final transient ObjectMapper mapper = JsonUtils.newJsonParser();
 
     public T getBodyElementFromJson(String inputString, Class<T> tclass) throws IOException {
 
-        Optional<JsonNode> tree = Optional
-            .ofNullable(mapper.readTree(new StringReader(inputString)));
+        Optional<JsonNode> tree = Optional.ofNullable(mapper.readTree(new StringReader(inputString)));
         JsonNode body = tree.map(node -> node.get("body")).orElse(null);
 
         if (tclass.equals(String.class)) {

@@ -5,17 +5,17 @@ import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.tools.Environment;
 
 /**
- * Helper class for containing the necessary details for retrieving information from a Github
- * repository
+ * Helper class for containing the necessary details for retrieving information from a Github repository
  *
  * Terms:
  * <ul>
- * <li>owner: The owner of the repository </li>
+ * <li>owner: The owner of the repository</li>
  * <li>repository: The name of the repository</li>
  * <li>branch: Branch we are interested in</li>
  * </ul>
  * <p>
- * Example: <br/> https://github.com/BIBSYSDEV/authority-registry-infrastructure/
+ * Example: <br/>
+ * https://github.com/BIBSYSDEV/authority-registry-infrastructure/
  * <ul>
  * <li>owner:BIBSYSDEV</li>
  * <li>repository:authority-registry-infrastructure</li>

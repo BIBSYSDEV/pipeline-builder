@@ -13,8 +13,8 @@ public class SwaggerHubInfo {
     private static String API_ID_ENV = "API_ID";
 
     /**
-     * The version of the API in SwaggerHub. This is the version of the API we deploy (e.g. 1.0,
-     * 1.0a). Not the version of the standard we use for the API specification (e.g. oas3);
+     * The version of the API in SwaggerHub. This is the version of the API we deploy (e.g. 1.0, 1.0a). Not the version
+     * of the standard we use for the API specification (e.g. oas3);
      */
 
     private static String API_VERSION = "API_VERSION";
@@ -43,8 +43,8 @@ public class SwaggerHubInfo {
 
     /**
      * @param apiId The id of the api
-     * @param apiVersion The version of the API documentation. Can be {@code null} if the intended
-     * action is for the whole API
+     * @param apiVersion The version of the API documentation. Can be {@code null} if the intended action is for the
+     *        whole API
      * @param swaggerOrganization The SwaggerHub organization or account name
      */
 

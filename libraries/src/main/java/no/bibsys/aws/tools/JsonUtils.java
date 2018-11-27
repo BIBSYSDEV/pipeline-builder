@@ -15,16 +15,15 @@ public final class JsonUtils {
     }
 
     public static ObjectMapper newJsonParser() {
-        JsonFactory jsonFactory = new JsonFactory()
-            .configure(Feature.ALLOW_COMMENTS, true)
-            .configure(Feature.ALLOW_YAML_COMMENTS, true);
+        JsonFactory jsonFactory =
+                new JsonFactory().configure(Feature.ALLOW_COMMENTS, true).configure(Feature.ALLOW_YAML_COMMENTS, true);
         return new ObjectMapper(jsonFactory);
     }
 
 
 
-    public static ObjectMapper newYamlParser(){
-        YAMLFactory factory=new YAMLFactory();
+    public static ObjectMapper newYamlParser() {
+        YAMLFactory factory = new YAMLFactory();
         return new ObjectMapper(factory);
     }
 
@@ -33,7 +32,7 @@ public final class JsonUtils {
     public static String yamlToJson(String yaml) throws IOException {
         ObjectMapper yamlParser = newYamlParser();
         JsonNode root = yamlParser.readTree(yaml);
-        ObjectMapper jsonParser=newJsonParser();
+        ObjectMapper jsonParser = newJsonParser();
         return jsonParser.writeValueAsString(root);
 
     }

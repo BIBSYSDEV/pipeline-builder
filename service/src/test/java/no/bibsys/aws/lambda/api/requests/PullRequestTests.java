@@ -3,7 +3,6 @@ package no.bibsys.aws.lambda.api.requests;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
-
 import java.io.IOException;
 import java.nio.file.Paths;
 import no.bibsys.aws.tools.IoUtils;
@@ -17,10 +16,10 @@ public class PullRequestTests {
 
     public PullRequestTests() throws IOException {
         pullRequestString = IoUtils.resourceAsString(Paths.get("github", "pullrequest.json"));
-        pullRequest =  (PullRequest) PullRequest.create(pullRequestString).get();
+        pullRequest = (PullRequest) PullRequest.create(pullRequestString).get();
     }
 
-    //Assert that PullRequest ...
+    // Assert that PullRequest ...
 
     @Test
     public void create_githubPullRequestJson_validAction() {

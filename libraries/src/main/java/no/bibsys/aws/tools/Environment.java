@@ -7,10 +7,8 @@ public class Environment {
 
 
 
-
     public Optional<String> readEnvOpt(String variableName) {
-        return Optional.ofNullable(System.getenv().get(variableName))
-             .filter(value->!value.isEmpty());
+        return Optional.ofNullable(System.getenv().get(variableName)).filter(value -> !value.isEmpty());
 
 
     }

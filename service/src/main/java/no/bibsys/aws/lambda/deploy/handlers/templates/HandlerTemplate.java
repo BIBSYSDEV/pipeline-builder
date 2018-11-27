@@ -11,23 +11,23 @@ import java.net.URISyntaxException;
 import no.bibsys.aws.tools.IoUtils;
 
 /**
- * Template  for making it easier to use a POJO Lambda handler. The Amazon template RequestHandler
- * does not behave well with ApiGateway.
+ * Template for making it easier to use a POJO Lambda handler. The Amazon template RequestHandler does not behave well
+ * with ApiGateway.
  *
  * <p>
- * Each class extending the HandlerTemplate should  implement the following methods:
+ * Each class extending the HandlerTemplate should implement the following methods:
  * </p>
  *
- *  <p>
- *      <ul>
- *      <li>Method {@code parseInput} parses an {@code InputStream} into an object of class {@code <I>}</li>.
- *      <li>Method {@code processInput} processes an {@code  <I>}  into class {@code <O>}</li>.
- *      <li>Method {@code writeOutput} writes a success message in the {@code OutputStream}</li>.
- *      <li>Method {@code writeFailure} writes a failure message in the {@code OutputStream}</li>.
- *      </ul>
+ * <p>
+ * <ul>
+ * <li>Method {@code parseInput} parses an {@code InputStream} into an object of class {@code <I>}</li>.
+ * <li>Method {@code processInput} processes an {@code  <I>} into class {@code <O>}</li>.
+ * <li>Method {@code writeOutput} writes a success message in the {@code OutputStream}</li>.
+ * <li>Method {@code writeFailure} writes a failure message in the {@code OutputStream}</li>.
+ * </ul>
  *
  *
- *  </p>
+ * </p>
  *
  *
  * @param <I> Input class
@@ -58,34 +58,32 @@ public abstract class HandlerTemplate<I, O> implements RequestStreamHandler {
     protected abstract I parseInput(String inputString) throws IOException;
 
     protected abstract O processInput(I inputObject, String apiGatewayQuery, Context context)
-        throws IOException, URISyntaxException;
+            throws IOException, URISyntaxException;
 
-    protected abstract void writeOutput(I
-        input, O output) throws IOException;
+    protected abstract void writeOutput(I input, O output) throws IOException;
 
 
-    protected  abstract void writeFailure(I input,Throwable exception) throws IOException;
+    protected abstract void writeFailure(I input, Throwable exception) throws IOException;
 
 
     @Override
-    public void handleRequest(InputStream input, OutputStream output, Context context)
-        throws IOException {
+    public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
         init(output, context);
         String inputString = IoUtils.streamToString(input);
         I inputObject = parseInput(inputString);
         O response = null;
         try {
             response = processInput(inputObject, inputString, context);
-            writeOutput(inputObject,response);
+            writeOutput(inputObject, response);
         } catch (Exception e) {
             logger.log(e.getMessage());
             e.printStackTrace();
-            writeFailure(inputObject,e);
+            writeFailure(inputObject, e);
         }
     }
 
 
-    protected Class<I> getIClass(){
+    protected Class<I> getIClass() {
         return iclass;
     }
 

@@ -25,10 +25,10 @@ public class StackResources {
 
     private Stream<StackResource> getResourcesStream(ResourceType resourceType) {
         AmazonCloudFormation client = AmazonCloudFormationClientBuilder.defaultClient();
-        DescribeStackResourcesResult result = client
-            .describeStackResources(new DescribeStackResourcesRequest().withStackName(stackName));
+        DescribeStackResourcesResult result =
+                client.describeStackResources(new DescribeStackResourcesRequest().withStackName(stackName));
         return result.getStackResources().stream()
-            .filter(resource -> resource.getResourceType().equals(resourceType.toString()));
+                .filter(resource -> resource.getResourceType().equals(resourceType.toString()));
 
     }
 
@@ -45,8 +45,7 @@ public class StackResources {
      * @return A list with the Physical Resource ids of resources with the specified resource type
      */
     public List<String> getResourceIds(ResourceType resourceType) {
-        return getResourcesStream(resourceType).map(StackResource::getPhysicalResourceId)
-            .collect(Collectors.toList());
+        return getResourcesStream(resourceType).map(StackResource::getPhysicalResourceId).collect(Collectors.toList());
     }
 
 

@@ -29,36 +29,25 @@ public class InitHandler extends CodePipelineFunctionHandlerTemplate<SimpleRespo
 
     @Override
     public SimpleResponse processInput(DeployEvent input, String apiGatewayMessage, Context context)
-        throws IOException, URISyntaxException {
+            throws IOException, URISyntaxException {
 
 
-        String zoneName= environment.readEnv(Route53Updater.ZONE_NAME_ENV);
+        String zoneName = environment.readEnv(Route53Updater.ZONE_NAME_ENV);
         String repoOwner = environment.readEnv(GithubConf.REPO_OWNER);
         String repository = environment.readEnv(GithubConf.REPOSITORY);
         String branch = environment.readEnv(GithubConf.BRANCH);
-        Stage stage=Stage.currentStage();
-        String certificateArn= environment.readEnv(Route53Updater.CERTIFICATE_ARN);
+        Stage stage = Stage.currentStage();
+        String certificateArn = environment.readEnv(Route53Updater.CERTIFICATE_ARN);
 
         GitInfo gitInfo = new GithubConf(repoOwner, repository, branch);
         SwaggerHubInfo swaggerHubInfo = new SwaggerHubInfo(environment);
-        ResourceInitializer initializer = new ResourceInitializer(zoneName, gitInfo, swaggerHubInfo,
-            stage, certificateArn);
+        ResourceInitializer initializer =
+                new ResourceInitializer(zoneName, gitInfo, swaggerHubInfo, stage, certificateArn);
         initializer.initializeStacks();
 
         return new SimpleResponse("OK");
 
     }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

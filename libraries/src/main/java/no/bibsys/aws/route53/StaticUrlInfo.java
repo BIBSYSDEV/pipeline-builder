@@ -15,8 +15,8 @@ import no.bibsys.aws.cloudformation.Stage;
  *
  * </ul>
  *
- * The Record set name and the Domain entry must be identical with the exception that the Record set
- * name ends with a fullstop (.) while the Domain entry does not.
+ * The Record set name and the Domain entry must be identical with the exception that the Record set name ends with a
+ * fullstop (.) while the Domain entry does not.
  */
 public final class StaticUrlInfo {
 

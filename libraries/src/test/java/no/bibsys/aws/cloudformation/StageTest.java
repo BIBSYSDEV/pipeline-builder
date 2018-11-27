@@ -5,7 +5,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
-
 import java.util.List;
 import no.bibsys.aws.cloudformation.Stage;
 import org.junit.Test;
@@ -16,7 +15,6 @@ public class StageTest {
     @Test
     public void fromString_test_TestStage() {
         Stage s1 = Stage.fromString("test");
-        Stage s2 = Stage.fromString("TEST");
         assertThat(s1, is(equalTo(Stage.TEST)));
     }
 
@@ -24,7 +22,6 @@ public class StageTest {
     @Test
     public void fromString_final_FinalStage() {
         Stage s1 = Stage.fromString("final");
-        Stage s2 = Stage.fromString("FINAL");
         assertThat(s1, is(equalTo(Stage.FINAL)));
     }
 

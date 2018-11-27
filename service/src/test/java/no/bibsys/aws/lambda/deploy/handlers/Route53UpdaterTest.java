@@ -5,7 +5,6 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
-
 import com.amazonaws.services.apigateway.AmazonApiGateway;
 import com.amazonaws.services.apigateway.AmazonApiGatewayClientBuilder;
 import com.amazonaws.services.kms.model.NotFoundException;
@@ -52,14 +51,11 @@ public class Route53UpdaterTest {
     public Route53UpdaterTest() {
 
         AmazonRoute53 client = Mockito.mock(AmazonRoute53.class);
-        when(client.listHostedZones()).thenReturn(new ListHostedZonesResult()
-            .withHostedZones(new HostedZone().withId("ZoneId").withName(zoneName)));
+        when(client.listHostedZones()).thenReturn(
+                new ListHostedZonesResult().withHostedZones(new HostedZone().withId("ZoneId").withName(zoneName)));
         GitInfo gitInfo = new GitInfoImpl("owner", "repository", "branch");
-        StaticUrlInfo staticUrlINfo = StaticUrlInfo
-            .create(Stage.TEST, zoneName, "some.url.goes.here.");
-        route53Updater = new Route53Updater(staticUrlINfo, gitInfo, Stage.TEST,
-            "apiGatewarRestApiId",
-            apiGateway);
+        StaticUrlInfo staticUrlINfo = StaticUrlInfo.create(Stage.TEST, zoneName, "some.url.goes.here.");
+        route53Updater = new Route53Updater(staticUrlINfo, gitInfo, Stage.TEST, "apiGatewarRestApiId", apiGateway);
         route53Updater.setRoute53Client(client);
 
     }
@@ -67,14 +63,13 @@ public class Route53UpdaterTest {
 
     @Test
     public void updateRecorsrSetsRequest_ServerInfo_changeBatchWithOneChange()
-        throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
-        Method method = Route53Updater.class
-            .getDeclaredMethod("updateRecordSetsRequest", String.class);
+        Method method = Route53Updater.class.getDeclaredMethod("updateRecordSetsRequest", String.class);
         method.setAccessible(true);
         ServerInfo serverInfo = new ServerInfo("SERVER_URL", Stage.FINAL.toString());
-        ChangeResourceRecordSetsRequest request = (ChangeResourceRecordSetsRequest) method
-            .invoke(route53Updater, serverInfo.serverAddress());
+        ChangeResourceRecordSetsRequest request =
+                (ChangeResourceRecordSetsRequest) method.invoke(route53Updater, serverInfo.serverAddress());
         assertThat(request.getChangeBatch().getChanges().size(), is(equalTo(1)));
 
     }
@@ -82,22 +77,19 @@ public class Route53UpdaterTest {
 
     @Test
     public void updateRecorsrSetsRequest_ServerInfo_ChangeWithChangeActionUpsert()
-        throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
-        Method method = Route53Updater.class
-            .getDeclaredMethod("updateRecordSetsRequest", String.class);
+        Method method = Route53Updater.class.getDeclaredMethod("updateRecordSetsRequest", String.class);
         ServerInfo serverInfo = new ServerInfo("SERVERURL", Stage.TEST.toString());
         method.setAccessible(true);
-        ChangeResourceRecordSetsRequest request = route53Updater
-            .updateRecordSetsRequest(serverInfo.getServerUrl());
+        ChangeResourceRecordSetsRequest request = route53Updater.updateRecordSetsRequest(serverInfo.getServerUrl());
 
         Change change = request.getChangeBatch().getChanges().get(0);
 
         assertThat(change.getAction(), is(equalTo(ChangeAction.UPSERT.toString())));
         assertThat(change.getResourceRecordSet().getType(), is(equalTo(RRType.CNAME.toString())));
         assertThat(change.getResourceRecordSet().getName(), CoreMatchers.startsWith("test."));
-        assertThat(change.getResourceRecordSet().getName(),
-            not(CoreMatchers.startsWith("test.test.")));
+        assertThat(change.getResourceRecordSet().getName(), not(CoreMatchers.startsWith("test.test.")));
         assertThat(change.getResourceRecordSet().getTTL(), is(equalTo(300L)));
     }
 
@@ -114,14 +106,12 @@ public class Route53UpdaterTest {
         GitInfoImpl gitInfo = new GitInfoImpl(null, repository, branch);
 
         PipelineConfiguration pipelineConfiguration = new PipelineConfiguration(repository, branch);
-        StackResources stackResources = new StackResources(
-            pipelineConfiguration.getTestServiceStack());
-        String restApiId = stackResources.getResourceIds(ResourceType.REST_API).
-            stream().findAny().orElseThrow(() -> new NotFoundException("Could not find a RestAPi"));
-        StaticUrlInfo staticUrlINfo = StaticUrlInfo
-            .create(Stage.TEST, zoneName, NetworkConstants.RECORD_SET_NAME);
+        StackResources stackResources = new StackResources(pipelineConfiguration.getTestServiceStack());
+        String restApiId = stackResources.getResourceIds(ResourceType.REST_API).stream().findAny()
+                .orElseThrow(() -> new NotFoundException("Could not find a RestAPi"));
+        StaticUrlInfo staticUrlINfo = StaticUrlInfo.create(Stage.TEST, zoneName, NetworkConstants.RECORD_SET_NAME);
         Route53Updater updater = new Route53Updater(staticUrlINfo, gitInfo, Stage.TEST, restApiId,
-            AmazonApiGatewayClientBuilder.defaultClient());
+                AmazonApiGatewayClientBuilder.defaultClient());
 
         Optional<ChangeResourceRecordSetsResult> result = updater.updateServerUrl(certificateArn);
 

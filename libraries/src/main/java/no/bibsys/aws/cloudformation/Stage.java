@@ -18,17 +18,17 @@ import no.bibsys.aws.tools.Environment;
  */
 public enum Stage {
 
-    TEST,FINAL;
+    TEST, FINAL;
 
 
-    public static Stage currentStage(){
-        String stageString= new Environment().readEnv("STAGE");
+    public static Stage currentStage() {
+        String stageString = new Environment().readEnv("STAGE");
         return Stage.fromString(stageString);
     }
 
 
     @Override
-    public String toString(){
+    public String toString() {
         return this.name().toLowerCase(Locale.getDefault());
     }
 
@@ -39,8 +39,8 @@ public enum Stage {
         } else if (stage.equalsIgnoreCase(TEST.name())) {
             return TEST;
         } else {
-            throw new IllegalArgumentException("Allowed stages:"+String.join(",",
-                listStages().stream().map(st->st.toString()).collect(Collectors.toList())));
+            throw new IllegalArgumentException("Allowed stages:"
+                    + String.join(",", listStages().stream().map(st -> st.toString()).collect(Collectors.toList())));
         }
     }
 
