@@ -28,8 +28,6 @@ class Script:
         self._parameters[REPOSITORY] = repository
         self._parameters[BRANCH] = branch
         self._parameters[ACTION] = action
-        self._parameters[SWAGGER_ORG] = swaggerorg
-        self._parameters[ZONE_NAME] = zoneName
 
     def _formSystemProperties(self):
         items = self._parameters.items()
@@ -39,7 +37,7 @@ class Script:
 
     def _executeCommand(self, systemProperties):
         command = ["java", "-classpath", "build/libs/pipeline-fat.jar"]
-        command = command + systemProperties + ["no.bibsys.Application"]
+        command = command + systemProperties + ["no.bibsys.aws.Application"]
 
         subprocess.check_call(command)
 
@@ -64,15 +62,14 @@ class Script:
 
 
 def main():
-    if len(sys.argv) != 7:
-      script = Script(None, None, None, None)
+  if len(sys.argv) != 5:
+    script = Script(None, None, None, None)
         print(script.help())
     else:
         owner = sys.argv[1]
         repository = sys.argv[2]
         branch = sys.argv[3]
         action = sys.argv[4]
-
         script = Script(owner, repository, branch, action)
         script.run()
 
