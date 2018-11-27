@@ -1,3 +1,3 @@
 #!/bin/sh
 
-./gradlew --parallel  build fatJar
+./gradlew --parallel  build shadowJar
