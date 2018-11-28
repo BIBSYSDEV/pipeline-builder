@@ -2,8 +2,10 @@ package no.bibsys.aws.utils.resources;
 
 import com.amazonaws.services.apigateway.AmazonApiGateway;
 import com.amazonaws.services.apigateway.AmazonApiGatewayClientBuilder;
+import com.amazonaws.services.route53.model.ChangeResourceRecordSetsRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Optional;
 import no.bibsys.aws.cloudformation.Stage;
 import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.lambda.deploy.handlers.SwaggerHubUpdater;
@@ -44,8 +46,9 @@ public class ResourceDestroyer extends ResourceManager {
     public void destroy() throws IOException, URISyntaxException {
 
         int response = swaggerHubUpdater.deleteApi();
-
-        this.route53Updater.deleteServerUrl();
+        Optional<ChangeResourceRecordSetsRequest> request = this.route53Updater
+            .createDeleteRequest();
+        request.ifPresent(route53Updater::executeRequest);
 
         System.out.println("Swagger response" + response);
 
