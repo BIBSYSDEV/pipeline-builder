@@ -48,7 +48,7 @@ public class ResourceDestroyer extends ResourceManager {
         int response = swaggerHubUpdater.deleteApi();
         Optional<ChangeResourceRecordSetsRequest> request = this.route53Updater
             .createDeleteRequest();
-        request.ifPresent(route53Updater::executeRequest);
+        request.ifPresent(route53Updater::executeDeleteRequest);
 
         System.out.println("Swagger response" + response);
 

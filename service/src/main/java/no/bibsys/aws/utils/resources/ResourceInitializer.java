@@ -57,10 +57,10 @@ public class ResourceInitializer extends ResourceManager {
         deletePreviousResources();
 
         Optional<ChangeResourceRecordSetsRequest> requestOpt = route53Updater
-            .createUpdateRequest(certificateArn);
+            .createUpdateRequest();
 
         Optional<ChangeResourceRecordSetsResult> route53UpdateResult = requestOpt.map(
-            route53Updater::executeRequest);
+            req -> route53Updater.executeUpdateRequest(req, certificateArn));
 
         String route53Status =
             route53UpdateResult.map(result -> result.getChangeInfo().getStatus())
@@ -81,7 +81,7 @@ public class ResourceInitializer extends ResourceManager {
         Route53Updater testPhaseRoute53Updater = route53Updater.copy(Stage.TEST);
         Optional<ChangeResourceRecordSetsRequest> request = testPhaseRoute53Updater
             .createDeleteRequest();
-        request.ifPresent(route53Updater::executeRequest);
+        request.ifPresent(route53Updater::executeDeleteRequest);
         swaggerHubUpdater.deleteApi();
     }
 
