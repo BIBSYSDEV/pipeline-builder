@@ -9,14 +9,22 @@ import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.lambda.events.DeployEvent;
 import no.bibsys.aws.lambda.handlers.templates.CodePipelineFunctionHandlerTemplate;
 import no.bibsys.aws.lambda.responses.SimpleResponse;
-import no.bibsys.aws.route53.Route53Updater;
 import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.utils.resources.ResourceDestroyer;
 
 public class DestroyHandler extends CodePipelineFunctionHandlerTemplate<SimpleResponse> {
 
+
+    /**
+     * Environment variable for reading the ROUTE 53 Hosted Zone name.
+     */
+    public static final String ZONE_NAME_ENV = "ZONE_NAME";
+
+
+
     private final transient Environment environment;
+
 
     public DestroyHandler() {
         this(new Environment());
@@ -33,7 +41,7 @@ public class DestroyHandler extends CodePipelineFunctionHandlerTemplate<SimpleRe
     protected SimpleResponse processInput(DeployEvent input, String apiGatewayInputString, Context context)
             throws IOException, URISyntaxException {
         Stage stage = Stage.currentStage();
-        String zoneName = environment.readEnv(Route53Updater.ZONE_NAME_ENV);
+        String zoneName = environment.readEnv(ZONE_NAME_ENV);
 
         GitInfo gitInfo = new GithubConf(environment);
         SwaggerHubInfo swaggerHubInfo = new SwaggerHubInfo(environment);
