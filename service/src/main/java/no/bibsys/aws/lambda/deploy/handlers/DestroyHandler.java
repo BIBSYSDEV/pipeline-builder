@@ -4,8 +4,6 @@ import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import no.bibsys.aws.cloudformation.Stage;
-import no.bibsys.aws.git.github.GitInfo;
-import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.lambda.events.DeployEvent;
 import no.bibsys.aws.lambda.handlers.templates.CodePipelineFunctionHandlerTemplate;
 import no.bibsys.aws.lambda.responses.SimpleResponse;
@@ -20,6 +18,9 @@ public class DestroyHandler extends CodePipelineFunctionHandlerTemplate<SimpleRe
      * Environment variable for reading the ROUTE 53 Hosted Zone name.
      */
     public static final String ZONE_NAME_ENV = "ZONE_NAME";
+
+
+    public static final String STACK_ID = "STACK_ID";
 
 
 
@@ -42,11 +43,11 @@ public class DestroyHandler extends CodePipelineFunctionHandlerTemplate<SimpleRe
             throws IOException, URISyntaxException {
         Stage stage = Stage.currentStage();
         String zoneName = environment.readEnv(ZONE_NAME_ENV);
+        String stackId=environment.readEnv(STACK_ID);
 
-        GitInfo gitInfo = new GithubConf(environment);
         SwaggerHubInfo swaggerHubInfo = new SwaggerHubInfo(environment);
 
-        ResourceDestroyer resourceDestroyer = new ResourceDestroyer(zoneName, gitInfo, swaggerHubInfo, stage);
+        ResourceDestroyer resourceDestroyer = new ResourceDestroyer(zoneName, stackId, swaggerHubInfo, stage);
         resourceDestroyer.destroy();
 
         return new SimpleResponse("OK");

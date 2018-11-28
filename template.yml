@@ -215,6 +215,7 @@ Resources:
           STAGE: !Ref Stage
           SWAGGER_ORG: 'axthosarouris'
           ZONE_NAME: 'aws.unit.no.'
+          STACK_ID: !Ref AWS::StackId
           REGIONAL_CERTIFICATE_ARN: '{{resolve:ssm:infrastructure-entitydata-certificate-arn:1}}'
       CodeUri: build/libs/pipeline-fat.jar
       Policies:
@@ -254,6 +255,7 @@ Resources:
           STAGE: !Ref Stage
           SWAGGER_ORG: 'axthosarouris'
           ZONE_NAME: 'aws.unit.no.'
+          STACK_ID: !Ref AWS::StackId
           REGIONAL_CERTIFICATE_ARN: '{{resolve:ssm:infrastructure-entitydata-certificate-arn:1}}'
 
       Policies:

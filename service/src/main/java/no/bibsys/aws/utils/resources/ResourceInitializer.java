@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
 import no.bibsys.aws.cloudformation.Stage;
-import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.lambda.deploy.handlers.SwaggerHubUpdater;
 import no.bibsys.aws.lambda.responses.SimpleResponse;
 import no.bibsys.aws.route53.Route53Updater;
@@ -32,12 +31,12 @@ public class ResourceInitializer extends ResourceManager {
     private final transient Route53Updater route53Updater;
     private final transient String certificateArn;
 
-    public ResourceInitializer(String zoneName, GitInfo gitInfo, SwaggerHubInfo swaggerHubInfo,
+    public ResourceInitializer(String zoneName, String stackId, SwaggerHubInfo swaggerHubInfo,
         Stage stage,
         String certificateArn) throws IOException {
         super();
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
-        String apiGatewayRestApi = findRestApi(gitInfo, stage);
+        String apiGatewayRestApi = findRestApi(stackId);
 
         this.swaggerHubUpdater = new SwaggerHubUpdater(apiGateway, apiGatewayRestApi,
             swaggerHubInfo, stage);

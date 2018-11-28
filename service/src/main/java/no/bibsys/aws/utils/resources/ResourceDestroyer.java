@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
 import no.bibsys.aws.cloudformation.Stage;
-import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.lambda.deploy.handlers.SwaggerHubUpdater;
 import no.bibsys.aws.route53.Route53Updater;
 import no.bibsys.aws.route53.StaticUrlInfo;
@@ -30,12 +29,12 @@ public class ResourceDestroyer extends ResourceManager {
     private final transient SwaggerHubUpdater swaggerHubUpdater;
     private final transient Route53Updater route53Updater;
 
-    public ResourceDestroyer(String zoneName, GitInfo gitInfo, SwaggerHubInfo swaggerHubInfo, Stage stage)
+    public ResourceDestroyer(String zoneName, String stackId, SwaggerHubInfo swaggerHubInfo, Stage stage)
             throws IOException {
         super();
         AmazonApiGateway client = AmazonApiGatewayClientBuilder.defaultClient();
 
-        String apiGatewayRestApiId = findRestApi(gitInfo, stage);
+        String apiGatewayRestApiId = findRestApi(stackId);
         swaggerHubUpdater = new SwaggerHubUpdater(client, apiGatewayRestApiId, swaggerHubInfo, stage);
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
         StaticUrlInfo staticUrlINfo = new StaticUrlInfo(zoneName, NetworkConstants.RECORD_SET_NAME,
