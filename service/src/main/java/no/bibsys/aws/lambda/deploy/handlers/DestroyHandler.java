@@ -20,7 +20,7 @@ public class DestroyHandler extends CodePipelineFunctionHandlerTemplate<SimpleRe
     public static final String ZONE_NAME_ENV = "ZONE_NAME";
 
 
-    public static final String STACK_ID = "STACK_ID";
+    public static final String STACK_NAME = "STACK_NAME";
 
 
 
@@ -43,11 +43,11 @@ public class DestroyHandler extends CodePipelineFunctionHandlerTemplate<SimpleRe
             throws IOException, URISyntaxException {
         Stage stage = Stage.currentStage();
         String zoneName = environment.readEnv(ZONE_NAME_ENV);
-        String stackId=environment.readEnv(STACK_ID);
+        String stackName=environment.readEnv(STACK_NAME);
 
         SwaggerHubInfo swaggerHubInfo = new SwaggerHubInfo(environment);
 
-        ResourceDestroyer resourceDestroyer = new ResourceDestroyer(zoneName, stackId, swaggerHubInfo, stage);
+        ResourceDestroyer resourceDestroyer = new ResourceDestroyer(zoneName, stackName, swaggerHubInfo, stage);
         resourceDestroyer.destroy();
 
         return new SimpleResponse("OK");

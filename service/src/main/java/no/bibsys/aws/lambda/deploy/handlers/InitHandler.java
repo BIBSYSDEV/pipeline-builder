@@ -26,7 +26,7 @@ public class InitHandler extends CodePipelineFunctionHandlerTemplate<SimpleRespo
     public static final String CERTIFICATE_ARN = "REGIONAL_CERTIFICATE_ARN";
 
 
-    public static final String STACK_ID="STACK_ID";
+    public static final String STACK_NAME ="STACK_NAME";
 
 
 
@@ -43,13 +43,13 @@ public class InitHandler extends CodePipelineFunctionHandlerTemplate<SimpleRespo
             throws IOException, URISyntaxException {
 
         String zoneName = environment.readEnv(ZONE_NAME_ENV);
-        String stackId=environment.readEnv(STACK_ID);
+        String stackName=environment.readEnv(STACK_NAME);
         Stage stage = Stage.currentStage();
         String certificateArn = environment.readEnv(CERTIFICATE_ARN);
 
         SwaggerHubInfo swaggerHubInfo = new SwaggerHubInfo(environment);
         ResourceInitializer initializer =
-                new ResourceInitializer(zoneName, stackId, swaggerHubInfo, stage, certificateArn);
+                new ResourceInitializer(zoneName, stackName, swaggerHubInfo, stage, certificateArn);
         initializer.initializeStacks();
 
         return new SimpleResponse("OK");
