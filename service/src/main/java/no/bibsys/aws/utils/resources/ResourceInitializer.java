@@ -41,10 +41,9 @@ public class ResourceInitializer extends ResourceManager {
 
         this.swaggerHubUpdater = new SwaggerHubUpdater(apiGateway, apiGatewayRestApi,
             swaggerHubInfo, stage);
-        StaticUrlInfo staticUrlINfo = StaticUrlInfo
-            .create(stage, zoneName, NetworkConstants.RECORD_SET_NAME);
-        this.route53Updater = new Route53Updater(staticUrlINfo, gitInfo, stage, apiGatewayRestApi,
-            apiGateway);
+        StaticUrlInfo staticUrlINfo = new StaticUrlInfo(zoneName, NetworkConstants.RECORD_SET_NAME,
+            stage);
+        this.route53Updater = new Route53Updater(staticUrlINfo, apiGatewayRestApi, apiGateway);
         this.certificateArn = certificateArn;
     }
 

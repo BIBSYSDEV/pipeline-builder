@@ -38,8 +38,9 @@ public class ResourceDestroyer extends ResourceManager {
         String apiGatewayRestApiId = findRestApi(gitInfo, stage);
         swaggerHubUpdater = new SwaggerHubUpdater(client, apiGatewayRestApiId, swaggerHubInfo, stage);
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
-        StaticUrlInfo staticUrlINfo = StaticUrlInfo.create(stage, zoneName, NetworkConstants.RECORD_SET_NAME);
-        route53Updater = new Route53Updater(staticUrlINfo, gitInfo, stage, apiGatewayRestApiId, apiGateway);
+        StaticUrlInfo staticUrlINfo = new StaticUrlInfo(zoneName, NetworkConstants.RECORD_SET_NAME,
+            stage);
+        route53Updater = new Route53Updater(staticUrlINfo, apiGatewayRestApiId, apiGateway);
     }
 
 

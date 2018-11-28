@@ -1,6 +1,6 @@
 package no.bibsys.aws.cloudformation;
 
-import no.bibsys.aws.git.github.GitInfo;
+import no.bibsys.aws.git.github.GithubConf;
 
 public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
@@ -18,13 +18,13 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
     // private final transient GithubConf githubConf;
 
 
-    private final GitInfo githubConf;
+    private final GithubConf githubConf;
 
     private final transient PipelineConfiguration pipelineConfiguration;
     private final transient CodeBuildConfiguration codeBuildConfiguration;
 
 
-    public PipelineStackConfiguration(GitInfo gitInfo) {
+    public PipelineStackConfiguration(GithubConf gitInfo) {
         super(gitInfo.getRepository(), gitInfo.getBranch());
         this.githubConf = gitInfo;
         this.pipelineStackName = initPipelineStackName();
@@ -89,7 +89,7 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
         return codeBuildConfiguration;
     }
 
-    public GitInfo getGithubConf() {
+    public GithubConf getGithubConf() {
         return githubConf;
     }
 

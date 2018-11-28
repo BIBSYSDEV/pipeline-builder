@@ -3,7 +3,6 @@ package no.bibsys.aws;
 import com.google.common.base.Preconditions;
 import java.io.IOException;
 import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
-import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.lambda.api.utils.Action;
 import no.bibsys.aws.utils.stacks.StackBuilder;
@@ -17,15 +16,14 @@ public class Application {
 
     private final transient String repoName;
     private final transient String branch;
-    private final transient String repoOwner;
+
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
 
 
-    public Application(GitInfo gitInfo) {
+    public Application(GithubConf gitInfo) {
 
         this.pipelineStackConfiguration = new PipelineStackConfiguration(gitInfo);
-        this.repoOwner = gitInfo.getOwner();
-        this.repoName = gitInfo.getOwner();
+        this.repoName = gitInfo.getRepository();
         this.branch = gitInfo.getBranch();
 
         wiper = new StackWiper(pipelineStackConfiguration);
@@ -34,7 +32,7 @@ public class Application {
     }
 
     public static void run(String repoOwner, String repository, String branch, String action) throws IOException {
-        GitInfo gitInfo = new GithubConf(repoOwner, repository, branch);
+        GithubConf gitInfo = new GithubConf(repoOwner, repository, branch);
 
         Application application = new Application(gitInfo);
         if (action.equals(Action.CREATE)) {
@@ -81,7 +79,7 @@ public class Application {
     private void checkNulls() {
         Preconditions.checkNotNull(repoName);
         Preconditions.checkNotNull(branch);
-        Preconditions.checkNotNull(repoOwner);
+
     }
 
 

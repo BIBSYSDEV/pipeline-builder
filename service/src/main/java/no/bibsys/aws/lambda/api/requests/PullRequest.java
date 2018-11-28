@@ -4,11 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Optional;
-import no.bibsys.aws.git.github.GitInfo;
-import no.bibsys.aws.git.github.GitInfoImpl;
 import no.bibsys.aws.tools.JsonUtils;
 
-public final class PullRequest extends GitInfoImpl {
+public final class PullRequest extends GitEvent {
 
     public static final String ACTION_OPEN = "opened";
     public static final String ACTION_REOPEN = "reopened";
@@ -24,14 +22,14 @@ public final class PullRequest extends GitInfoImpl {
 
     private PullRequest(JsonNode root) {
         super();
-        this.setOwner(root.get("repository").get("owner").get("login").asText());
-        this.setRepository(root.get("repository").get("name").asText());
-        this.setBranch(root.get("pull_request").get("head").get("ref").asText());
+        this.setGitOwner(root.get("repository").get("owner").get("login").asText());
+        this.setGitRepository(root.get("repository").get("name").asText());
+        this.setGitBranch(root.get("pull_request").get("head").get("ref").asText());
         this.action = root.get("action").asText();
 
     }
 
-    public static Optional<GitInfo> create(String jsonString) throws IOException {
+    public static Optional<GitEvent> create(String jsonString) throws IOException {
         ObjectMapper mapper = JsonUtils.newJsonParser();
         JsonNode root = mapper.readTree(jsonString);
 

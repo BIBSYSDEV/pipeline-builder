@@ -8,11 +8,9 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Optional;
 import no.bibsys.aws.Application;
-import no.bibsys.aws.git.github.GitInfo;
-import no.bibsys.aws.git.github.GitInfoImpl;
 import no.bibsys.aws.git.github.GithubConf;
+import no.bibsys.aws.lambda.api.requests.GitEvent;
 import no.bibsys.aws.lambda.api.requests.PullRequest;
-import no.bibsys.aws.lambda.api.requests.PushEvent;
 import no.bibsys.aws.lambda.handlers.templates.ApiGatewayHandlerTemplate;
 import no.bibsys.aws.secrets.SignatureChecker;
 import no.bibsys.aws.tools.Environment;
@@ -62,24 +60,19 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
 
 
     private String processGitEvent(String request) throws IOException, URISyntaxException {
-        Optional<GitInfo> gitEventOpt = parseEvent(request);
+        Optional<GitEvent> gitEventOpt = parseEvent(request);
         String response = "No action";
         if (gitEventOpt.isPresent()) {
-            GitInfo repositoryInfo = gitEventOpt.get();
-            if (repositoryInfo instanceof PullRequest) {
-                response = processPullRequest((PullRequest) repositoryInfo);
-            } else if (repositoryInfo instanceof PushEvent) {
-                response = processPushEvent((PushEvent) repositoryInfo);
+            GitEvent event = gitEventOpt.get();
+            if (event instanceof PullRequest) {
+                response = processPullRequest((PullRequest) event);
             }
         }
         return response;
     }
 
 
-    private String processPushEvent(PushEvent pushEvent) {
-        return pushEvent.toString();
 
-    }
 
 
     private String processPullRequest(PullRequest pullRequest) throws IOException, URISyntaxException {
@@ -100,26 +93,23 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     }
 
 
-    private Optional<GitInfo> parseEvent(String json) throws IOException {
-        Optional<GitInfo> event = PullRequest.create(json);
-        if (!event.isPresent()) {
-            event = PushEvent.create(json);
-        }
+    private Optional<GitEvent> parseEvent(String json) throws IOException {
+        Optional<GitEvent> event = PullRequest.create(json);
         return event;
     }
 
 
-    protected void deleteStacks(GitInfoImpl repositoryInfo) {
-        GitInfo gitInfo =
-                new GithubConf(repositoryInfo.getOwner(), repositoryInfo.getRepository(), repositoryInfo.getBranch());
+    protected void deleteStacks(GitEvent event) {
+        GithubConf gitInfo =
+            new GithubConf(event.getGitOwner(), event.getGitRepository(), event.getGitBranch());
 
         Application application = new Application(gitInfo);
         application.wipeStacks();
     }
 
-    protected void createStacks(GitInfoImpl repositoryInfo) throws IOException {
-        GitInfo gitInfo =
-                new GithubConf(repositoryInfo.getOwner(), repositoryInfo.getRepository(), repositoryInfo.getBranch());
+    protected void createStacks(GitEvent event) throws IOException {
+        GithubConf gitInfo =
+            new GithubConf(event.getGitOwner(), event.getGitRepository(), event.getGitBranch());
         Application application = new Application(gitInfo);
         application.createStacks();
     }
