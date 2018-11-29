@@ -6,13 +6,12 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Map;
-import no.bibsys.aws.secrets.SecretsReader;
-import no.bibsys.aws.tools.Environment;
-import no.bibsys.aws.tools.JsonUtils;
 import no.bibsys.aws.lambda.api.requests.UpdateStackRequest;
 import no.bibsys.aws.lambda.api.utils.Action;
+import no.bibsys.aws.secrets.SecretsReader;
+import no.bibsys.aws.tools.JsonUtils;
 
-public class UpdateStackRequestHandler extends GithubHandler {
+public class UpdateStackRequestHandler extends ApiHandler {
 
     private static final String AWS_SECRET_NAME = "infrastructure";
     private static final String AWS_SECRET_KEY = "buildbranch";
@@ -22,15 +21,13 @@ public class UpdateStackRequestHandler extends GithubHandler {
     private static final String API_KEY_HEADER = "api-key";
 
 
-    public UpdateStackRequestHandler(Environment environment) {
-        super(environment);
+    public UpdateStackRequestHandler() {
+        super();
+
         this.secretsReader = new SecretsReader(AWS_SECRET_NAME, AWS_SECRET_KEY);
     }
 
 
-    public UpdateStackRequestHandler() {
-        this(new Environment());
-    }
 
 
     @Override

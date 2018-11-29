@@ -7,17 +7,14 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Optional;
-import no.bibsys.aws.Application;
-import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.lambda.api.requests.GitEvent;
 import no.bibsys.aws.lambda.api.requests.PullRequest;
-import no.bibsys.aws.lambda.handlers.templates.ApiGatewayHandlerTemplate;
 import no.bibsys.aws.secrets.SignatureChecker;
 import no.bibsys.aws.tools.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
+public class GithubHandler extends ApiHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GithubHandler.class);
 
@@ -32,8 +29,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     }
 
     public GithubHandler(Environment environment) {
-        super(String.class);
-
+        super();
         String secretName = environment.readEnv(SignatureChecker.AWS_SECRET_NAME);
         String secretKey = environment.readEnv(SignatureChecker.AWS_SECRET_KEY);
 
@@ -99,20 +95,7 @@ public class GithubHandler extends ApiGatewayHandlerTemplate<String, String> {
     }
 
 
-    protected void deleteStacks(GitEvent event) {
-        GithubConf gitInfo =
-            new GithubConf(event.getGitOwner(), event.getGitRepository(), event.getGitBranch());
 
-        Application application = new Application(gitInfo);
-        application.wipeStacks();
-    }
-
-    protected void createStacks(GitEvent event) throws IOException {
-        GithubConf gitInfo =
-            new GithubConf(event.getGitOwner(), event.getGitRepository(), event.getGitBranch());
-        Application application = new Application(gitInfo);
-        application.createStacks();
-    }
 
 
     public void setSignatureChecker(SignatureChecker signatureChecker) {

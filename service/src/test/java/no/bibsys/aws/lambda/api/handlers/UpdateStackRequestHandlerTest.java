@@ -35,7 +35,7 @@ public class UpdateStackRequestHandlerTest {
 
 
     private UpdateStackRequestHandler newHandlerWithMockSecretsReader() throws IOException {
-        UpdateStackRequestHandler handler = new UpdateStackRequestHandler(environment);
+        UpdateStackRequestHandler handler = new UpdateStackRequestHandler();
         SecretsReader secretsReader = Mockito.mock(SecretsReader.class);
         when(secretsReader.readSecret()).thenReturn("secretValue");
         handler.setSecretsReader(secretsReader);

@@ -15,8 +15,8 @@ import org.junit.Test;
 public class PipelineTest {
 
 
-    private String branchName = "backup";
-    private String repoName = "authority-registry-infrastructure";
+    private String branchName = "autreg-88-static-url";
+    private String repoName = "authority-registry";
     private String repoOwner = "BIBSYSDEV";
 
 
