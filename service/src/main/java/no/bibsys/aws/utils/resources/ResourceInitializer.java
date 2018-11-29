@@ -31,12 +31,12 @@ public class ResourceInitializer extends ResourceManager {
     private final transient Route53Updater route53Updater;
     private final transient String certificateArn;
 
-    public ResourceInitializer(String zoneName, String stackId, SwaggerHubInfo swaggerHubInfo,
+    public ResourceInitializer(String zoneName, String stackName, SwaggerHubInfo swaggerHubInfo,
         Stage stage,
         String certificateArn) throws IOException {
         super();
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
-        String apiGatewayRestApi = findRestApi(stackId);
+        String apiGatewayRestApi = findRestApi(stackName);
 
         this.swaggerHubUpdater = new SwaggerHubUpdater(apiGateway, apiGatewayRestApi,
             swaggerHubInfo, stage);
