@@ -29,12 +29,12 @@ public class PullRequestTests {
 
     @Test
     public void create_githubPullRequestJson_branchName() {
-        assertThat(pullRequest.getGitBranch(), is(equalTo("changes")));
+        assertThat(pullRequest.getBranch(), is(equalTo("changes")));
     }
 
     @Test
     public void create_githubPullRequestJson_repositoryName() {
-        assertThat(pullRequest.getGitRepository(), is(equalTo("Hello-World")));
+        assertThat(pullRequest.getRepository(), is(equalTo("Hello-World")));
     }
 
 

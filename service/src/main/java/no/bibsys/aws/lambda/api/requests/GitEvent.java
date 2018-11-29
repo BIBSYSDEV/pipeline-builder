@@ -2,43 +2,43 @@ package no.bibsys.aws.lambda.api.requests;
 
 public class GitEvent {
 
-    private String gitOwner;
-    private String gitRepository;
-    private String gitBranch;
+    private String owner;
+    private String repository;
+    private String branch;
 
 
     public GitEvent() {
     }
 
-    public GitEvent(String gitOwner, String gitRepository, String gitBranch) {
-        this.gitOwner = gitOwner;
-        this.gitRepository = gitRepository;
-        this.gitBranch = gitBranch;
+    public GitEvent(String owner, String gitRepository, String gitBranch) {
+        this.owner = owner;
+        this.repository = gitRepository;
+        this.branch = gitBranch;
     }
 
 
-    public String getGitOwner() {
-        return gitOwner;
+    public String getOwner() {
+        return owner;
     }
 
-    public void setGitOwner(String gitOwner) {
-        this.gitOwner = gitOwner;
+    public void setOwner(String pwner) {
+        this.owner = pwner;
     }
 
-    public String getGitRepository() {
-        return gitRepository;
+    public String getRepository() {
+        return repository;
     }
 
-    public void setGitRepository(String gitRepository) {
-        this.gitRepository = gitRepository;
+    public void setRepository(String gitRepository) {
+        this.repository = gitRepository;
     }
 
-    public String getGitBranch() {
-        return gitBranch;
+    public String getBranch() {
+        return branch;
     }
 
-    public void setGitBranch(String gitBranch) {
-        this.gitBranch = gitBranch;
+    public void setBranch(String gitBranch) {
+        this.branch = gitBranch;
     }
 
 }

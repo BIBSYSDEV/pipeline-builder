@@ -20,7 +20,7 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
 
     protected void deleteStacks(GitEvent event) {
         GithubConf gitInfo =
-            new GithubConf(event.getGitOwner(), event.getGitRepository(), event.getGitBranch());
+            new GithubConf(event.getOwner(), event.getRepository(), event.getBranch());
 
         Application application = new Application(gitInfo);
         application.wipeStacks();
@@ -28,7 +28,7 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
 
     protected void createStacks(GitEvent event) throws IOException {
         GithubConf gitInfo =
-            new GithubConf(event.getGitOwner(), event.getGitRepository(), event.getGitBranch());
+            new GithubConf(event.getOwner(), event.getRepository(), event.getBranch());
         Application application = new Application(gitInfo);
         application.createStacks();
     }

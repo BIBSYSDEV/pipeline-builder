@@ -22,9 +22,9 @@ public final class PullRequest extends GitEvent {
 
     private PullRequest(JsonNode root) {
         super();
-        this.setGitOwner(root.get("repository").get("owner").get("login").asText());
-        this.setGitRepository(root.get("repository").get("name").asText());
-        this.setGitBranch(root.get("pull_request").get("head").get("ref").asText());
+        this.setOwner(root.get("repository").get("owner").get("login").asText());
+        this.setRepository(root.get("repository").get("name").asText());
+        this.setBranch(root.get("pull_request").get("head").get("ref").asText());
         this.action = root.get("action").asText();
 
     }
