@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ResourceInitializer extends ResourceManager {
 
-    private final Logger logger = LoggerFactory.getLogger(ResourceInitializer.class);
+    private final static Logger logger = LoggerFactory.getLogger(ResourceInitializer.class);
 
     private final transient SwaggerHubUpdater swaggerHubUpdater;
     private final transient Route53Updater route53Updater;
