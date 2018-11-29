@@ -6,14 +6,17 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Map;
+import no.bibsys.aws.lambda.api.requests.UpdateStackRequest;
+import no.bibsys.aws.lambda.api.utils.Action;
 import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.tools.JsonUtils;
-import no.bibsys.aws.lambda.api.requests.UpdateStackRequest;
-import no.bibsys.aws.lambda.api.utils.Action;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UpdateStackRequestHandler extends GithubHandler {
 
+    private final static Logger logger = LoggerFactory.getLogger(UpdateStackRequest.class);
     private static final String AWS_SECRET_NAME = "infrastructure";
     private static final String AWS_SECRET_KEY = "buildbranch";
 
@@ -48,7 +51,7 @@ public class UpdateStackRequestHandler extends GithubHandler {
             deleteStacks(request);
         }
 
-        System.out.println(request.toString());
+        logger.debug(request.toString());
 
         ObjectMapper objectMapper = JsonUtils.newJsonParser();
         String requestJson = objectMapper.writeValueAsString(request);

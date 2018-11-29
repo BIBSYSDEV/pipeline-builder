@@ -12,6 +12,8 @@ import no.bibsys.aws.route53.Route53Updater;
 import no.bibsys.aws.route53.StaticUrlInfo;
 import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
 import no.bibsys.aws.utils.network.NetworkConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -25,6 +27,9 @@ import no.bibsys.aws.utils.network.NetworkConstants;
  */
 
 public class ResourceDestroyer extends ResourceManager {
+
+    private static final Logger logger = LoggerFactory.getLogger(ResourceDestroyer.class);
+
 
     private final transient SwaggerHubUpdater swaggerHubUpdater;
     private final transient Route53Updater route53Updater;
@@ -50,7 +55,7 @@ public class ResourceDestroyer extends ResourceManager {
             .createDeleteRequest();
         request.ifPresent(route53Updater::executeDeleteRequest);
 
-        System.out.println("Swagger response" + response);
+        logger.debug("Swagger response" + response);
 
 
     }

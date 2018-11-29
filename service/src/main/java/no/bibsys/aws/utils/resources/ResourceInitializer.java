@@ -14,6 +14,8 @@ import no.bibsys.aws.route53.Route53Updater;
 import no.bibsys.aws.route53.StaticUrlInfo;
 import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
 import no.bibsys.aws.utils.network.NetworkConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -27,9 +29,12 @@ import no.bibsys.aws.utils.network.NetworkConstants;
  */
 public class ResourceInitializer extends ResourceManager {
 
+    private final Logger logger = LoggerFactory.getLogger(ResourceInitializer.class);
+
     private final transient SwaggerHubUpdater swaggerHubUpdater;
     private final transient Route53Updater route53Updater;
     private final transient String certificateArn;
+
 
     public ResourceInitializer(String zoneName, String stackName, SwaggerHubInfo swaggerHubInfo,
         Stage stage,
@@ -49,16 +54,16 @@ public class ResourceInitializer extends ResourceManager {
 
     public SimpleResponse initializeStacks() throws IOException, URISyntaxException {
 
-        System.out.println("Lambda function started");
-        System.out.println("Updating Route 53");
+        logger.debug("Lambda function started");
+        logger.debug("Updating Route 53");
 
         deletePreviousResources();
 
         Optional<ChangeResourceRecordSetsRequest> requestOpt = route53Updater
-            .createUpdateRequest();
+            .createUpdateRequest(certificateArn);
 
         Optional<ChangeResourceRecordSetsResult> route53UpdateResult = requestOpt.map(
-            req -> route53Updater.executeUpdateRequest(req, certificateArn));
+            req -> route53Updater.executeUpdateRequest(req));
 
         String route53Status =
             route53UpdateResult.map(result -> result.getChangeInfo().getStatus())
@@ -70,7 +75,7 @@ public class ResourceInitializer extends ResourceManager {
         Optional<String> swaggerUpdateResult = swaggerHubUpdater.updateApiDocumentation();
         swaggerUpdateResult.ifPresent(s -> output.append(s));
         output.append("\nRoute53:").append(route53Status);
-
+        logger.info(output.toString());
         return new SimpleResponse(output.toString());
 
     }
