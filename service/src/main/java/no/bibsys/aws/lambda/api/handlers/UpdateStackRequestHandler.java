@@ -9,10 +9,14 @@ import java.util.Map;
 import no.bibsys.aws.lambda.api.requests.UpdateStackRequest;
 import no.bibsys.aws.lambda.api.utils.Action;
 import no.bibsys.aws.secrets.SecretsReader;
+
 import no.bibsys.aws.tools.JsonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UpdateStackRequestHandler extends ApiHandler {
 
+    private final static Logger logger = LoggerFactory.getLogger(UpdateStackRequest.class);
     private static final String AWS_SECRET_NAME = "infrastructure";
     private static final String AWS_SECRET_KEY = "buildbranch";
 
@@ -45,7 +49,7 @@ public class UpdateStackRequestHandler extends ApiHandler {
             deleteStacks(request);
         }
 
-        System.out.println(request.toString());
+        logger.debug(request.toString());
 
         ObjectMapper objectMapper = JsonUtils.newJsonParser();
         String requestJson = objectMapper.writeValueAsString(request);

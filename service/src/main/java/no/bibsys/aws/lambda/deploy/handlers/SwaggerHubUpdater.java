@@ -60,7 +60,7 @@ public class SwaggerHubUpdater {
 
         Optional<String> jsonOpt = generateApiSpec();
 
-        System.out.println(jsonOpt.toString());
+        logger.debug(jsonOpt.toString());
 
         if (jsonOpt.isPresent()) {
             logger.debug("Found json API");
