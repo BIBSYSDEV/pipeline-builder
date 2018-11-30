@@ -90,7 +90,7 @@ public class SwaggerHubUpdater {
 
     private String readTheUpdatedAPI(SwaggerDriver swaggerDriver) throws URISyntaxException, IOException {
 
-        HttpGet getSpecRequest = swaggerDriver.getSpecificationRequest(swaggerHubInfo.getApiVersion());
+        HttpGet getSpecRequest = swaggerDriver.getSpecificationRequest(swaggerApiKey);
         return swaggerDriver.executeGet(getSpecRequest);
     }
 
@@ -100,7 +100,7 @@ public class SwaggerHubUpdater {
     }
 
     private void executeUpdate(String json, SwaggerDriver swaggerDriver) throws URISyntaxException, IOException {
-        HttpPost request = swaggerDriver.createUpdateRequest(json, swaggerHubInfo.getApiVersion(), swaggerApiKey);
+        HttpPost request = swaggerDriver.createUpdateRequest(json, swaggerApiKey);
         swaggerDriver.executePost(request);
 
 
