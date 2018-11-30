@@ -216,6 +216,7 @@ Resources:
           SWAGGER_ORG: 'axthosarouris'
           ZONE_NAME: 'aws.unit.no.'
           REGIONAL_CERTIFICATE_ARN: '{{resolve:ssm:infrastructure-entitydata-certificate-arn:1}}'
+          STACK_NAME: !Ref AWS::StackName
       CodeUri: build/libs/pipeline-fat.jar
       Policies:
         Version: '2012-10-17'
@@ -255,7 +256,7 @@ Resources:
           SWAGGER_ORG: 'axthosarouris'
           ZONE_NAME: 'aws.unit.no.'
           REGIONAL_CERTIFICATE_ARN: '{{resolve:ssm:infrastructure-entitydata-certificate-arn:1}}'
-
+          STACK_NAME: !Ref AWS::StackName
       Policies:
         Version: '2012-10-17'
         Statement:
