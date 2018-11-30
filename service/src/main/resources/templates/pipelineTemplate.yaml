@@ -275,12 +275,9 @@ Resources:
     DependsOn:
     - S3Bucket
     Type: AWS::CodeBuild::Project
-    Description: CodeBuild project for running Execute tests
+    Description: CodeBuild project for executing tests
     Properties:
       Name: !Ref ExecuteTestsProjectname
-      Artifacts:
-        Name: !Ref CodebuildOutputArtifact
-        Type: CODEPIPELINE
       Source:
         Type: CODEPIPELINE
         BuildSpec: "testspec.yml"
