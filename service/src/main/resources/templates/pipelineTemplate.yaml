@@ -28,7 +28,7 @@ Parameters:
     Type: String
   CodebuildProjectname:
     Type: String
-  CypressTestsProjectname:
+  ExecuteTestsProjectname:
     Type: String
   CodebuildOutputArtifact:
     Type: String
@@ -271,13 +271,13 @@ Resources:
         Location:  !Join ['',[!Ref PipelineBucketname,'/buildcache']]
         Type: S3
 
-  CypressTestsProject:
+  ExecuteTestsProject:
     DependsOn:
     - S3Bucket
     Type: AWS::CodeBuild::Project
-    Description: CodeBuild project for running Cypress tests
+    Description: CodeBuild project for running Execute tests
     Properties:
-      Name: !Ref CypressTestsProjectname
+      Name: !Ref ExecuteTestsProjectname
       Artifacts:
         Name: !Ref CodebuildOutputArtifact
         Type: CODEPIPELINE
@@ -390,7 +390,7 @@ Resources:
           InputArtifacts: []
           OutputArtifacts: []
           RunOrder: 3
-        - Name: CypressTests
+        - Name: ExecuteTests
           ActionTypeId:
             Category: Build
             Owner: AWS
@@ -399,7 +399,7 @@ Resources:
           InputArtifacts:
           - Name: !Ref SourceStageOutputArtifact
           Configuration:
-            ProjectName: !Ref CypressTestsProjectname
+            ProjectName: !Ref ExecuteTestsProjectname
           RunOrder: 4
         - Name: DestroyStack
           ActionTypeId:

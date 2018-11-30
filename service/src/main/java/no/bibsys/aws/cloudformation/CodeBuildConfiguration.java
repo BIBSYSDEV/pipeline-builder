@@ -4,24 +4,24 @@ public class CodeBuildConfiguration extends CloudFormationConfigurable {
 
     private final String buildProjectName;
     private final String outputArtifact;
-    private final String cypressTestsProjectName;
+    private final String executeTestsProjectName;
 
 
 
-    public String getCypressTestsProjectName() {
-        return cypressTestsProjectName;
+    public String getExecuteTestsProjectName() {
+        return executeTestsProjectName;
     }
 
     public CodeBuildConfiguration(String repositoryName, String branchName) {
         super(repositoryName, branchName);
         this.buildProjectName = initBuildProjectName();
         this.outputArtifact = initCodeBuildArtifact();
-        this.cypressTestsProjectName = initCypressTestsProjectName();
+        this.executeTestsProjectName = initExecuteTestsProjectName();
 
     }
 
-    private String initCypressTestsProjectName() {
-        return format(projectId, normalizedBranchName, "cypressTests");
+    private String initExecuteTestsProjectName() {
+        return format(projectId, normalizedBranchName, "executeTests");
     }
 
     private String initCodeBuildArtifact() {

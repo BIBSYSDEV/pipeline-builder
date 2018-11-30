@@ -75,7 +75,7 @@ public class StackBuilder {
                 newParameter("CodebuildProjectname", pipelineStack.getCodeBuildConfiguration().getBuildProjectName()));
 
         parameters.add(
-                newParameter("CypressTestsProjectname", pipelineStack.getCodeBuildConfiguration().getCypressTestsProjectName()));
+                newParameter("ExecuteTestsProjectname", pipelineStack.getCodeBuildConfiguration().getExecuteTestsProjectName()));
 
 
         parameters.add(newParameter("PipelineTestServiceStackName",
