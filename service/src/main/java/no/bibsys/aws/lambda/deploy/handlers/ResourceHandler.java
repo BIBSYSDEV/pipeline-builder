@@ -2,9 +2,12 @@ package no.bibsys.aws.lambda.deploy.handlers;
 
 
 import no.bibsys.aws.cloudformation.Stage;
+import no.bibsys.aws.git.github.BranchInfo;
 import no.bibsys.aws.lambda.EnvironmentConstants;
 import no.bibsys.aws.lambda.handlers.templates.CodePipelineFunctionHandlerTemplate;
 import no.bibsys.aws.lambda.responses.SimpleResponse;
+import no.bibsys.aws.route53.StaticUrlInfo;
+import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
 import no.bibsys.aws.tools.Environment;
 
 public abstract class ResourceHandler extends CodePipelineFunctionHandlerTemplate<SimpleResponse> {
@@ -18,15 +21,17 @@ public abstract class ResourceHandler extends CodePipelineFunctionHandlerTemplat
     protected final transient String zoneName;
 
     protected final transient String applicationUrl;
-
+    protected final  transient String branch;
 
     protected final  transient Environment environment;
+
 
 
     public ResourceHandler(Environment environment) {
         super();
         this.environment = environment;
 
+        this.branch=environment.readEnv(EnvironmentConstants.BRANCH);
         this.applicationUrl = environment.readEnv(EnvironmentConstants.APPLICATION_URL);
 
         this.swagerApiId = environment.readEnv(EnvironmentConstants.SWAGGER_API_ID);
@@ -38,5 +43,25 @@ public abstract class ResourceHandler extends CodePipelineFunctionHandlerTemplat
 
         this.stage = Stage.fromString(environment.readEnv(EnvironmentConstants.STAGE));
 
+    }
+
+
+
+    protected SwaggerHubInfo initializeSwaggerHubInfo() {
+
+        return new SwaggerHubInfo(swagerApiId,swagerApiVersion,swagerApiOwner);
+    }
+
+
+
+    protected StaticUrlInfo initializeStaticUrlInfo(){
+        return  new StaticUrlInfo(zoneName,applicationUrl,stage);
+    }
+
+
+    protected BranchInfo initalizeBranchInfo() {
+        BranchInfo branchInfo=new BranchInfo();
+        branchInfo.setBranch(branch);
+        return branchInfo;
     }
 }

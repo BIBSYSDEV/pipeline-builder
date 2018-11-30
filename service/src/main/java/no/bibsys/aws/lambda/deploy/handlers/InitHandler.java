@@ -5,8 +5,10 @@ import static no.bibsys.aws.lambda.EnvironmentConstants.CERTIFICATE_ARN;
 import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import no.bibsys.aws.git.github.BranchInfo;
 import no.bibsys.aws.lambda.events.DeployEvent;
 import no.bibsys.aws.lambda.responses.SimpleResponse;
+import no.bibsys.aws.route53.StaticUrlInfo;
 import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.utils.resources.ResourceInitializer;
@@ -27,18 +29,19 @@ public class InitHandler extends ResourceHandler{
 
         String certificateArn = environment.readEnv(CERTIFICATE_ARN);
 
-
-
-        SwaggerHubInfo swaggerHubInfo = new SwaggerHubInfo(swagerApiId,swagerApiVersion,swagerApiOwner);
-
-
+        SwaggerHubInfo swaggerHubInfo = initializeSwaggerHubInfo();
+        StaticUrlInfo staticUrlInfo=initializeStaticUrlInfo();
+        BranchInfo branchInfo = initalizeBranchInfo();
         ResourceInitializer initializer =
-                new ResourceInitializer(zoneName, applicationUrl,stackName, swaggerHubInfo, stage, certificateArn);
+                new ResourceInitializer(stackName,staticUrlInfo,certificateArn, swaggerHubInfo,
+                    stage,
+                    branchInfo);
         initializer.initializeStacks();
 
         return new SimpleResponse("OK");
 
     }
+
 
 
 

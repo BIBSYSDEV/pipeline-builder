@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
 import no.bibsys.aws.cloudformation.Stage;
+import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.lambda.deploy.handlers.SwaggerHubUpdater;
 import no.bibsys.aws.lambda.responses.SimpleResponse;
 import no.bibsys.aws.route53.Route53Updater;
@@ -35,20 +36,25 @@ public class ResourceInitializer extends ResourceManager {
     private final transient String certificateArn;
 
 
-    public ResourceInitializer(String zoneName,String applicationUrl,
-        String stackName,
+    public ResourceInitializer(String stackName,
+        StaticUrlInfo staticUrlInfo,
+        String certificateArn,
         SwaggerHubInfo swaggerHubInfo,
         Stage stage,
-        String certificateArn) throws IOException {
+        GitInfo gitInfo
+        ) throws IOException {
         super();
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
         String apiGatewayRestApi = findRestApi(stackName);
 
-        this.swaggerHubUpdater = new SwaggerHubUpdater(apiGateway, apiGatewayRestApi,
-            swaggerHubInfo, stage);
-        StaticUrlInfo staticUrlINfo = new StaticUrlInfo(zoneName, applicationUrl,
-            stage);
-        this.route53Updater = new Route53Updater(staticUrlINfo, apiGatewayRestApi, apiGateway);
+        this.swaggerHubUpdater = new SwaggerHubUpdater(apiGateway
+            , apiGatewayRestApi,
+            swaggerHubInfo,
+            stage,
+            stackName,
+            gitInfo);
+
+        this.route53Updater = new Route53Updater(staticUrlInfo, apiGatewayRestApi, apiGateway);
         this.certificateArn = certificateArn;
     }
 

@@ -6,8 +6,10 @@ import java.net.URISyntaxException;
 import java.util.Optional;
 import no.bibsys.aws.apigateway.ApiGatewayApiInfo;
 import no.bibsys.aws.cloudformation.Stage;
+import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.swaggerhub.SwaggerDriver;
 import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
+import no.bibsys.aws.utils.constants.GitConstants;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -28,16 +30,32 @@ public class SwaggerHubUpdater {
     private final transient String apiGatewayRestApiId;
     protected transient Stage stage;
 
-    public SwaggerHubUpdater(AmazonApiGateway apiGateway, String apiGatewayRestApiId, SwaggerHubInfo swaggerHubInfo,
-            Stage stage) throws IOException {
+    public SwaggerHubUpdater(
+        AmazonApiGateway apiGateway,
+        String apiGatewayRestApiId,
+        SwaggerHubInfo swaggerHubInfo,
+        Stage stage,
+        String stackName,
+        GitInfo gitInfo) throws IOException {
         this.apiGateway = apiGateway;
         this.apiGatewayRestApiId = apiGatewayRestApiId;
         this.stage = stage;
-        this.swaggerHubInfo = swaggerHubInfo;
+        this.swaggerHubInfo = intializeSwaggerHubInfo(swaggerHubInfo,gitInfo,stackName);
         this.swaggerApiKey = swaggerHubInfo.getSwaggerAuth();
     }
 
+    private SwaggerHubInfo intializeSwaggerHubInfo(SwaggerHubInfo swaggerHubInfo, GitInfo gitInfo,String stackName) {
+        String branch=gitInfo.getBranch();
+        if(branch.equalsIgnoreCase(GitConstants.MASTER)){
+            return swaggerHubInfo;
+        }
+        else{
+            String org=swaggerHubInfo.getSwaggerOrganization();
+            String version=swaggerHubInfo.getApiVersion();
+            return new SwaggerHubInfo(stackName,version,org);
+        }
 
+    }
 
 
     public int deleteApiVersion() throws URISyntaxException, IOException {

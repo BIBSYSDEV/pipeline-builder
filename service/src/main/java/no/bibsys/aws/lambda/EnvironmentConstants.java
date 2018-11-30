@@ -33,9 +33,5 @@ public class EnvironmentConstants {
     public static final String SWAGGER_API_OWNER="SWAGGER_API_OWNER";
 
 
-
-
-
-
-
+    public static final String BRANCH = "BRANCH";
 }

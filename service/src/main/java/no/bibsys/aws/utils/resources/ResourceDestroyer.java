@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
 import no.bibsys.aws.cloudformation.Stage;
+import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.lambda.deploy.handlers.SwaggerHubUpdater;
 import no.bibsys.aws.route53.Route53Updater;
 import no.bibsys.aws.route53.StaticUrlInfo;
@@ -16,13 +17,14 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Opposite functionality of the ResourceInitializer. It is called before the deletion of a CloudFormation Stack in
- * order to disconnect the Stack with resources that do not belong to the stack (either inside or outside AWS). It also
- * deletes the disconnected resources. It is usually called thought a handler of a Lambda function (see
- * {@link no.bibsys.aws.lambda.deploy.handlers.DestroyHandler}).
- *<p>Currently it deletes the API from SwaggerHub and all Route53 and ApiGateway configurations related to attaching the
+ * Opposite functionality of the ResourceInitializer. It is called before the deletion of a
+ * CloudFormation Stack in order to disconnect the Stack with resources that do not belong to the
+ * stack (either inside or outside AWS). It also deletes the disconnected resources. It is usually
+ * called thought a handler of a Lambda function (see {@link no.bibsys.aws.lambda.deploy.handlers.DestroyHandler}).
+ * <p>Currently it deletes the API from SwaggerHub and all Route53 and ApiGateway configurations
+ * related to attaching the
  * branch's RestApi to a static url.
- *</p>
+ * </p>
  */
 
 public class ResourceDestroyer extends ResourceManager {
@@ -33,17 +35,26 @@ public class ResourceDestroyer extends ResourceManager {
     private final transient SwaggerHubUpdater swaggerHubUpdater;
     private final transient Route53Updater route53Updater;
 
-    public ResourceDestroyer(String zoneName, String applicationUrl, String stackId, SwaggerHubInfo swaggerHubInfo, Stage stage)
-            throws IOException {
+    public ResourceDestroyer(String stackName,
+        StaticUrlInfo staticUrlInfo,
+        SwaggerHubInfo swaggerHubInfo,
+        Stage stage,
+        GitInfo gitinfo)
+        throws IOException {
         super();
         AmazonApiGateway client = AmazonApiGatewayClientBuilder.defaultClient();
 
-        String apiGatewayRestApiId = findRestApi(stackId);
-        swaggerHubUpdater = new SwaggerHubUpdater(client, apiGatewayRestApiId, swaggerHubInfo, stage);
+        String apiGatewayRestApiId = findRestApi(stackName);
+
+        swaggerHubUpdater = new SwaggerHubUpdater(client,
+            apiGatewayRestApiId,
+            swaggerHubInfo,
+            stage,
+            stackName,
+            gitinfo);
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
-        StaticUrlInfo staticUrlINfo = new StaticUrlInfo(zoneName, applicationUrl,
-            stage);
-        route53Updater = new Route53Updater(staticUrlINfo, apiGatewayRestApiId, apiGateway);
+
+        route53Updater = new Route53Updater(staticUrlInfo, apiGatewayRestApiId, apiGateway);
     }
 
 
