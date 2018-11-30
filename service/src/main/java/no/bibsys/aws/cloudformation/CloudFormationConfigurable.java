@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 public class CloudFormationConfigurable {
 
     public static final int NORMALIZED_BRANCH_MAX_LENGTH = 25;
-    public static final int MAX_BRANCH_WORD_LENGTH = 5;
+    public static final int MAX_BRANCH_WORD_LENGTH = 6;
     public static final int MAX_PROJECT_WORD_LENGTH = 3;
 
     protected final transient String projectId;
