@@ -85,7 +85,7 @@ public class ResourceInitializer extends ResourceManager {
         Optional<ChangeResourceRecordSetsRequest> request = testPhaseRoute53Updater
             .createDeleteRequest();
         request.ifPresent(route53Updater::executeDeleteRequest);
-        swaggerHubUpdater.deleteApi();
+        swaggerHubUpdater.deleteApiVersion();
     }
 
 

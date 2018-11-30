@@ -50,7 +50,7 @@ public class ResourceDestroyer extends ResourceManager {
 
     public void destroy() throws IOException, URISyntaxException {
 
-        int response = swaggerHubUpdater.deleteApi();
+        int response = swaggerHubUpdater.deleteApiVersion();
         Optional<ChangeResourceRecordSetsRequest> request = this.route53Updater
             .createDeleteRequest();
         request.ifPresent(route53Updater::executeDeleteRequest);

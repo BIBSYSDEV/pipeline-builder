@@ -38,10 +38,22 @@ public class SwaggerHubUpdater {
     }
 
 
+
+
+    public int deleteApiVersion() throws URISyntaxException, IOException {
+        SwaggerDriver swaggerDriver=new SwaggerDriver(swaggerHubInfo);
+        HttpDelete deleteRequest = swaggerDriver.createDeleteVersionRequest(swaggerApiKey);
+        int result=swaggerDriver.executeDelete(deleteRequest);
+        return result;
+    }
+
+
+
+
     /**
      * Deletes the whole API documentation from SwaggerHub.
      *
-     * @return Sucess of Failure code the delete request
+     * @return Success of Failure code the delete request
      */
     public int deleteApi() throws URISyntaxException, IOException {
         SwaggerDriver swaggerDriver = new SwaggerDriver(swaggerHubInfo);
