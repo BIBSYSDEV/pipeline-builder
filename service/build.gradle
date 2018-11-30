@@ -1,5 +1,7 @@
+
 dependencies{
-    compile 'no.bibsys.aws:aws-build-tools:2018.11.28.14.04'
+    compile 'no.bibsys.aws:aws-build-tools:2018.11.29.01.30' 
+
 }
 
 

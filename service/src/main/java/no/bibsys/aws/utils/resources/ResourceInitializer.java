@@ -8,13 +8,14 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
 import no.bibsys.aws.cloudformation.Stage;
-import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.lambda.deploy.handlers.SwaggerHubUpdater;
 import no.bibsys.aws.lambda.responses.SimpleResponse;
 import no.bibsys.aws.route53.Route53Updater;
 import no.bibsys.aws.route53.StaticUrlInfo;
 import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
 import no.bibsys.aws.utils.network.NetworkConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -28,39 +29,41 @@ import no.bibsys.aws.utils.network.NetworkConstants;
  */
 public class ResourceInitializer extends ResourceManager {
 
+    private final static Logger logger = LoggerFactory.getLogger(ResourceInitializer.class);
+
     private final transient SwaggerHubUpdater swaggerHubUpdater;
     private final transient Route53Updater route53Updater;
     private final transient String certificateArn;
 
-    public ResourceInitializer(String zoneName, GitInfo gitInfo, SwaggerHubInfo swaggerHubInfo,
+
+    public ResourceInitializer(String zoneName, String stackName, SwaggerHubInfo swaggerHubInfo,
         Stage stage,
         String certificateArn) throws IOException {
         super();
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
-        String apiGatewayRestApi = findRestApi(gitInfo, stage);
+        String apiGatewayRestApi = findRestApi(stackName);
 
         this.swaggerHubUpdater = new SwaggerHubUpdater(apiGateway, apiGatewayRestApi,
             swaggerHubInfo, stage);
-        StaticUrlInfo staticUrlINfo = StaticUrlInfo
-            .create(stage, zoneName, NetworkConstants.RECORD_SET_NAME);
-        this.route53Updater = new Route53Updater(staticUrlINfo, gitInfo, stage, apiGatewayRestApi,
-            apiGateway);
+        StaticUrlInfo staticUrlINfo = new StaticUrlInfo(zoneName, NetworkConstants.RECORD_SET_NAME,
+            stage);
+        this.route53Updater = new Route53Updater(staticUrlINfo, apiGatewayRestApi, apiGateway);
         this.certificateArn = certificateArn;
     }
 
 
     public SimpleResponse initializeStacks() throws IOException, URISyntaxException {
 
-        System.out.println("Lambda function started");
-        System.out.println("Updating Route 53");
+        logger.debug("Lambda function started");
+        logger.debug("Updating Route 53");
 
         deletePreviousResources();
 
         Optional<ChangeResourceRecordSetsRequest> requestOpt = route53Updater
-            .createUpdateRequest();
+            .createUpdateRequest(certificateArn);
 
         Optional<ChangeResourceRecordSetsResult> route53UpdateResult = requestOpt.map(
-            req -> route53Updater.executeUpdateRequest(req, certificateArn));
+            req -> route53Updater.executeUpdateRequest(req));
 
         String route53Status =
             route53UpdateResult.map(result -> result.getChangeInfo().getStatus())
@@ -72,7 +75,7 @@ public class ResourceInitializer extends ResourceManager {
         Optional<String> swaggerUpdateResult = swaggerHubUpdater.updateApiDocumentation();
         swaggerUpdateResult.ifPresent(s -> output.append(s));
         output.append("\nRoute53:").append(route53Status);
-
+        logger.info(output.toString());
         return new SimpleResponse(output.toString());
 
     }

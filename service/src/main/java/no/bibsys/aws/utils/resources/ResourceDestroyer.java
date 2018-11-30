@@ -7,12 +7,13 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
 import no.bibsys.aws.cloudformation.Stage;
-import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.lambda.deploy.handlers.SwaggerHubUpdater;
 import no.bibsys.aws.route53.Route53Updater;
 import no.bibsys.aws.route53.StaticUrlInfo;
 import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
 import no.bibsys.aws.utils.network.NetworkConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -27,19 +28,23 @@ import no.bibsys.aws.utils.network.NetworkConstants;
 
 public class ResourceDestroyer extends ResourceManager {
 
+    private static final Logger logger = LoggerFactory.getLogger(ResourceDestroyer.class);
+
+
     private final transient SwaggerHubUpdater swaggerHubUpdater;
     private final transient Route53Updater route53Updater;
 
-    public ResourceDestroyer(String zoneName, GitInfo gitInfo, SwaggerHubInfo swaggerHubInfo, Stage stage)
+    public ResourceDestroyer(String zoneName, String stackId, SwaggerHubInfo swaggerHubInfo, Stage stage)
             throws IOException {
         super();
         AmazonApiGateway client = AmazonApiGatewayClientBuilder.defaultClient();
 
-        String apiGatewayRestApiId = findRestApi(gitInfo, stage);
+        String apiGatewayRestApiId = findRestApi(stackId);
         swaggerHubUpdater = new SwaggerHubUpdater(client, apiGatewayRestApiId, swaggerHubInfo, stage);
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
-        StaticUrlInfo staticUrlINfo = StaticUrlInfo.create(stage, zoneName, NetworkConstants.RECORD_SET_NAME);
-        route53Updater = new Route53Updater(staticUrlINfo, gitInfo, stage, apiGatewayRestApiId, apiGateway);
+        StaticUrlInfo staticUrlINfo = new StaticUrlInfo(zoneName, NetworkConstants.RECORD_SET_NAME,
+            stage);
+        route53Updater = new Route53Updater(staticUrlINfo, apiGatewayRestApiId, apiGateway);
     }
 
 
@@ -50,7 +55,7 @@ public class ResourceDestroyer extends ResourceManager {
             .createDeleteRequest();
         request.ifPresent(route53Updater::executeDeleteRequest);
 
-        System.out.println("Swagger response" + response);
+        logger.debug("Swagger response" + response);
 
 
     }

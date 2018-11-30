@@ -3,6 +3,7 @@ package no.bibsys.aws.lambda.api.requests;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
+
 import java.io.IOException;
 import java.nio.file.Paths;
 import no.bibsys.aws.tools.IoUtils;

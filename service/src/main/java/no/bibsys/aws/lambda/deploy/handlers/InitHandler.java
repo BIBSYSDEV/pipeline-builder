@@ -4,8 +4,6 @@ import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import no.bibsys.aws.cloudformation.Stage;
-import no.bibsys.aws.git.github.GitInfo;
-import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.lambda.events.DeployEvent;
 import no.bibsys.aws.lambda.handlers.templates.CodePipelineFunctionHandlerTemplate;
 import no.bibsys.aws.lambda.responses.SimpleResponse;
@@ -28,6 +26,9 @@ public class InitHandler extends CodePipelineFunctionHandlerTemplate<SimpleRespo
     public static final String CERTIFICATE_ARN = "REGIONAL_CERTIFICATE_ARN";
 
 
+    public static final String STACK_NAME ="STACK_NAME";
+
+
 
     public InitHandler() throws IOException {
         super();
@@ -42,16 +43,13 @@ public class InitHandler extends CodePipelineFunctionHandlerTemplate<SimpleRespo
             throws IOException, URISyntaxException {
 
         String zoneName = environment.readEnv(ZONE_NAME_ENV);
-        String repoOwner = environment.readEnv(GithubConf.REPO_OWNER);
-        String repository = environment.readEnv(GithubConf.REPOSITORY);
-        String branch = environment.readEnv(GithubConf.BRANCH);
+        String stackName=environment.readEnv(STACK_NAME);
         Stage stage = Stage.currentStage();
         String certificateArn = environment.readEnv(CERTIFICATE_ARN);
 
-        GitInfo gitInfo = new GithubConf(repoOwner, repository, branch);
         SwaggerHubInfo swaggerHubInfo = new SwaggerHubInfo(environment);
         ResourceInitializer initializer =
-                new ResourceInitializer(zoneName, gitInfo, swaggerHubInfo, stage, certificateArn);
+                new ResourceInitializer(zoneName, stackName, swaggerHubInfo, stage, certificateArn);
         initializer.initializeStacks();
 
         return new SimpleResponse("OK");

@@ -1,11 +1,5 @@
 package no.bibsys.aws.utils.stacks;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
 import com.amazonaws.services.cloudformation.model.DeleteStackRequest;
@@ -23,8 +17,14 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ListVersionsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.VersionListing;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.cloudformation.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StackWiper {
 
@@ -103,7 +103,7 @@ public class StackWiper {
                         .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
 
         statusCodes.entrySet().stream().map(entry -> String.format("%s->%s", entry.getKey(), entry.getValue()))
-                .forEach(System.out::println);
+            .forEach(message -> logger.debug("Destroyed Stack status code:", message));
 
         // Delete buckets first because they cannot be deleted automatically when we delete a Stack
         deleteBuckets();

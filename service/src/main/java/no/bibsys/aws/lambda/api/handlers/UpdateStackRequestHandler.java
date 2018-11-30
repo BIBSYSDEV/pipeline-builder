@@ -6,14 +6,17 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Map;
-import no.bibsys.aws.secrets.SecretsReader;
-import no.bibsys.aws.tools.Environment;
-import no.bibsys.aws.tools.JsonUtils;
 import no.bibsys.aws.lambda.api.requests.UpdateStackRequest;
 import no.bibsys.aws.lambda.api.utils.Action;
+import no.bibsys.aws.secrets.SecretsReader;
 
-public class UpdateStackRequestHandler extends GithubHandler {
+import no.bibsys.aws.tools.JsonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+public class UpdateStackRequestHandler extends ApiHandler {
+
+    private final static Logger logger = LoggerFactory.getLogger(UpdateStackRequest.class);
     private static final String AWS_SECRET_NAME = "infrastructure";
     private static final String AWS_SECRET_KEY = "buildbranch";
 
@@ -22,15 +25,13 @@ public class UpdateStackRequestHandler extends GithubHandler {
     private static final String API_KEY_HEADER = "api-key";
 
 
-    public UpdateStackRequestHandler(Environment environment) {
-        super(environment);
+    public UpdateStackRequestHandler() {
+        super();
+
         this.secretsReader = new SecretsReader(AWS_SECRET_NAME, AWS_SECRET_KEY);
     }
 
 
-    public UpdateStackRequestHandler() {
-        this(new Environment());
-    }
 
 
     @Override
@@ -48,7 +49,7 @@ public class UpdateStackRequestHandler extends GithubHandler {
             deleteStacks(request);
         }
 
-        System.out.println(request.toString());
+        logger.debug(request.toString());
 
         ObjectMapper objectMapper = JsonUtils.newJsonParser();
         String requestJson = objectMapper.writeValueAsString(request);

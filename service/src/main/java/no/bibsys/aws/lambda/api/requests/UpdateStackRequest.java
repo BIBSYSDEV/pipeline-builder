@@ -2,13 +2,13 @@ package no.bibsys.aws.lambda.api.requests;
 
 import static no.bibsys.aws.lambda.api.utils.Action.CREATE;
 import static no.bibsys.aws.lambda.api.utils.Action.DELETE;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.common.base.Preconditions;
-import no.bibsys.aws.git.github.GitInfoImpl;
 
 @JsonInclude(Include.NON_NULL)
-public final class UpdateStackRequest extends GitInfoImpl {
+public final class UpdateStackRequest extends GitEvent {
 
 
     private String action;

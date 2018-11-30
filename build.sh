@@ -1,3 +1,3 @@
 #!/bin/sh
 
-./gradlew --parallel --refresh-dependencies build shadowJar
+./gradlew --parallel  build shadowJar
