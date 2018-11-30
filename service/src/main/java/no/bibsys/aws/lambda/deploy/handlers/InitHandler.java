@@ -1,5 +1,10 @@
 package no.bibsys.aws.lambda.deploy.handlers;
 
+import static no.bibsys.aws.lambda.EnvironmentConstants.APPLICATION_URL;
+import static no.bibsys.aws.lambda.EnvironmentConstants.CERTIFICATE_ARN;
+import static no.bibsys.aws.lambda.EnvironmentConstants.STACK_NAME;
+import static no.bibsys.aws.lambda.EnvironmentConstants.ZONE_NAME_ENV;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -15,18 +20,9 @@ public class InitHandler extends CodePipelineFunctionHandlerTemplate<SimpleRespo
 
     private final transient Environment environment;
 
-    /**
-     * Environment variable for reading the ROUTE 53 Hosted Zone name.
-     */
-    public static final String ZONE_NAME_ENV = "ZONE_NAME";
-
-    /**
-     * ARN of a regional certificate stored in the AWS Certficate Manager.
-     */
-    public static final String CERTIFICATE_ARN = "REGIONAL_CERTIFICATE_ARN";
 
 
-    public static final String STACK_NAME ="STACK_NAME";
+
 
 
 
@@ -46,10 +42,12 @@ public class InitHandler extends CodePipelineFunctionHandlerTemplate<SimpleRespo
         String stackName=environment.readEnv(STACK_NAME);
         Stage stage = Stage.currentStage();
         String certificateArn = environment.readEnv(CERTIFICATE_ARN);
+        String applicationUrl=environment.readEnv(APPLICATION_URL);
 
         SwaggerHubInfo swaggerHubInfo = new SwaggerHubInfo(environment);
+
         ResourceInitializer initializer =
-                new ResourceInitializer(zoneName, stackName, swaggerHubInfo, stage, certificateArn);
+                new ResourceInitializer(zoneName, applicationUrl,stackName, swaggerHubInfo, stage, certificateArn);
         initializer.initializeStacks();
 
         return new SimpleResponse("OK");

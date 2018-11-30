@@ -11,7 +11,6 @@ import no.bibsys.aws.lambda.deploy.handlers.SwaggerHubUpdater;
 import no.bibsys.aws.route53.Route53Updater;
 import no.bibsys.aws.route53.StaticUrlInfo;
 import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
-import no.bibsys.aws.utils.network.NetworkConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +33,7 @@ public class ResourceDestroyer extends ResourceManager {
     private final transient SwaggerHubUpdater swaggerHubUpdater;
     private final transient Route53Updater route53Updater;
 
-    public ResourceDestroyer(String zoneName, String stackId, SwaggerHubInfo swaggerHubInfo, Stage stage)
+    public ResourceDestroyer(String zoneName, String applicationUrl, String stackId, SwaggerHubInfo swaggerHubInfo, Stage stage)
             throws IOException {
         super();
         AmazonApiGateway client = AmazonApiGatewayClientBuilder.defaultClient();
@@ -42,7 +41,7 @@ public class ResourceDestroyer extends ResourceManager {
         String apiGatewayRestApiId = findRestApi(stackId);
         swaggerHubUpdater = new SwaggerHubUpdater(client, apiGatewayRestApiId, swaggerHubInfo, stage);
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
-        StaticUrlInfo staticUrlINfo = new StaticUrlInfo(zoneName, NetworkConstants.RECORD_SET_NAME,
+        StaticUrlInfo staticUrlINfo = new StaticUrlInfo(zoneName, applicationUrl,
             stage);
         route53Updater = new Route53Updater(staticUrlINfo, apiGatewayRestApiId, apiGateway);
     }

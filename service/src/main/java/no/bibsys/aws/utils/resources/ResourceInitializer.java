@@ -13,7 +13,6 @@ import no.bibsys.aws.lambda.responses.SimpleResponse;
 import no.bibsys.aws.route53.Route53Updater;
 import no.bibsys.aws.route53.StaticUrlInfo;
 import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
-import no.bibsys.aws.utils.network.NetworkConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +35,9 @@ public class ResourceInitializer extends ResourceManager {
     private final transient String certificateArn;
 
 
-    public ResourceInitializer(String zoneName, String stackName, SwaggerHubInfo swaggerHubInfo,
+    public ResourceInitializer(String zoneName,String applicationUrl,
+        String stackName,
+        SwaggerHubInfo swaggerHubInfo,
         Stage stage,
         String certificateArn) throws IOException {
         super();
@@ -45,7 +46,7 @@ public class ResourceInitializer extends ResourceManager {
 
         this.swaggerHubUpdater = new SwaggerHubUpdater(apiGateway, apiGatewayRestApi,
             swaggerHubInfo, stage);
-        StaticUrlInfo staticUrlINfo = new StaticUrlInfo(zoneName, NetworkConstants.RECORD_SET_NAME,
+        StaticUrlInfo staticUrlINfo = new StaticUrlInfo(zoneName, applicationUrl,
             stage);
         this.route53Updater = new Route53Updater(staticUrlINfo, apiGatewayRestApi, apiGateway);
         this.certificateArn = certificateArn;

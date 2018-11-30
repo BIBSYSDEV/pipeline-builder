@@ -1,5 +1,9 @@
 package no.bibsys.aws.lambda.deploy.handlers;
 
+import static no.bibsys.aws.lambda.EnvironmentConstants.APPLICATION_URL;
+import static no.bibsys.aws.lambda.EnvironmentConstants.STACK_NAME;
+import static no.bibsys.aws.lambda.EnvironmentConstants.ZONE_NAME_ENV;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -12,16 +16,6 @@ import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.utils.resources.ResourceDestroyer;
 
 public class DestroyHandler extends CodePipelineFunctionHandlerTemplate<SimpleResponse> {
-
-
-    /**
-     * Environment variable for reading the ROUTE 53 Hosted Zone name.
-     */
-    public static final String ZONE_NAME_ENV = "ZONE_NAME";
-
-
-    public static final String STACK_NAME = "STACK_NAME";
-
 
 
     private final transient Environment environment;
@@ -39,15 +33,18 @@ public class DestroyHandler extends CodePipelineFunctionHandlerTemplate<SimpleRe
     }
 
     @Override
-    protected SimpleResponse processInput(DeployEvent input, String apiGatewayInputString, Context context)
-            throws IOException, URISyntaxException {
+    protected SimpleResponse processInput(DeployEvent input, String apiGatewayInputString,
+        Context context)
+        throws IOException, URISyntaxException {
         Stage stage = Stage.currentStage();
         String zoneName = environment.readEnv(ZONE_NAME_ENV);
-        String stackName=environment.readEnv(STACK_NAME);
+        String stackName = environment.readEnv(STACK_NAME);
+        String applicationurl = environment.readEnv(APPLICATION_URL);
 
         SwaggerHubInfo swaggerHubInfo = new SwaggerHubInfo(environment);
 
-        ResourceDestroyer resourceDestroyer = new ResourceDestroyer(zoneName, stackName, swaggerHubInfo, stage);
+        ResourceDestroyer resourceDestroyer = new ResourceDestroyer(zoneName, applicationurl,
+            stackName, swaggerHubInfo, stage);
         resourceDestroyer.destroy();
 
         return new SimpleResponse("OK");
