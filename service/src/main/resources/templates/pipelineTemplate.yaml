@@ -28,6 +28,8 @@ Parameters:
     Type: String
   CodebuildProjectname:
     Type: String
+  CypressTestsProjectname:
+    Type: String
   CodebuildOutputArtifact:
     Type: String
   SourceStageOutputArtifact:
@@ -269,6 +271,32 @@ Resources:
         Location:  !Join ['',[!Ref PipelineBucketname,'/buildcache']]
         Type: S3
 
+  CypressTestsProject:
+    DependsOn:
+    - S3Bucket
+    Type: AWS::CodeBuild::Project
+    Description: CodeBuild project for running Cypress tests
+    Properties:
+      Name: !Ref CypressTestsProjectname
+      Artifacts:
+        Name: !Ref CodebuildOutputArtifact
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: "testspec.yml"
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: "aws/codebuild/nodejs:10.1.0"
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+        - Name: S3_BUCKET
+          Type: PLAINTEXT
+          Value: !Ref PipelineBucketname
+      ServiceRole: !GetAtt PipelineRole.Arn
+      Cache:
+        Location:  !Join ['',[!Ref PipelineBucketname,'/buildcache']]
+        Type: S3
+
   Pipeline:
     DependsOn:
     - CodeBuildProject
@@ -362,12 +390,16 @@ Resources:
           InputArtifacts: []
           OutputArtifacts: []
           RunOrder: 3
-        - Name: ManualReview
+        - Name: CypressTests
           ActionTypeId:
-            Category: Approval # TODO: automated function tests
+            Category: Build
             Owner: AWS
-            Provider: Manual
+            Provider: CodeBuild
             Version: 1
+          InputArtifacts:
+          - Name: !Ref SourceStageOutputArtifact
+          Configuration:
+            ProjectName: !Ref CypressTestsProjectname
           RunOrder: 4
         - Name: DestroyStack
           ActionTypeId:
