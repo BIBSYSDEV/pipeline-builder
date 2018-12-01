@@ -1,7 +1,7 @@
-openapi: 3.0.0
+openapi: 3.0.1
 info:
-  title: aut-reg-inf-autreg-58-openapi-lambdab-final
-  version: "1.0-oas3"
+  title: API for bulding pipelines
+  version: "1.0"
 servers:
 - url: '<SERVER_PLACEHOLDER>'
   variables:
