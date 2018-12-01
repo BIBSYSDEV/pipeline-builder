@@ -32,7 +32,7 @@ public class SwaggerHubUpdater {
 
     private final transient SwaggerHubInfo swaggerHubInfo;
     private final transient AmazonApiGateway apiGateway;
-    private final transient String swaggerApiKey;
+
     private final transient String apiGatewayRestApiId;
     protected transient Stage stage;
 
@@ -48,7 +48,7 @@ public class SwaggerHubUpdater {
         this.apiGatewayRestApiId = apiGatewayRestApiId;
         this.stage = stage;
         this.swaggerHubInfo = intializeSwaggerHubInfo(swaggerHubInfo,gitInfo,stackName);
-        this.swaggerApiKey = swaggerHubInfo.getSwaggerAuth();
+
     }
 
     private SwaggerHubInfo intializeSwaggerHubInfo(SwaggerHubInfo swaggerHubInfo, GitInfo gitInfo,String stackName) {
@@ -66,6 +66,7 @@ public class SwaggerHubUpdater {
 
 
     public int deleteApiVersion() throws URISyntaxException, IOException {
+        String swaggerApiKey = swaggerHubInfo.getSwaggerAuth();
         SwaggerDriver swaggerDriver=new SwaggerDriver(swaggerHubInfo);
         HttpDelete deleteRequest = swaggerDriver.createDeleteVersionRequest(swaggerApiKey);
         return swaggerDriver.executeDelete(deleteRequest);
@@ -80,6 +81,7 @@ public class SwaggerHubUpdater {
      * @return Success of Failure code the delete request
      */
     public int deleteApi() throws URISyntaxException, IOException {
+        String swaggerApiKey = swaggerHubInfo.getSwaggerAuth();
         SwaggerDriver swaggerDriver = new SwaggerDriver(swaggerHubInfo);
         HttpDelete deleteRequest = swaggerDriver.createDeleteApiRequest(swaggerApiKey);
         return swaggerDriver.executeDelete(deleteRequest);
@@ -113,7 +115,7 @@ public class SwaggerHubUpdater {
 
 
     private String readTheUpdatedAPI(SwaggerDriver swaggerDriver) throws URISyntaxException, IOException {
-
+        String swaggerApiKey = swaggerHubInfo.getSwaggerAuth();
         HttpGet getSpecRequest = swaggerDriver.getSpecificationRequest(swaggerApiKey);
         return swaggerDriver.executeGet(getSpecRequest);
     }
@@ -124,6 +126,7 @@ public class SwaggerHubUpdater {
     }
 
     private void executeUpdate(String json, SwaggerDriver swaggerDriver) throws URISyntaxException, IOException {
+        String swaggerApiKey = swaggerHubInfo.getSwaggerAuth();
         HttpPost request = swaggerDriver.createUpdateRequest(json, swaggerApiKey);
         swaggerDriver.executePost(request);
 
