@@ -209,7 +209,7 @@ Resources:
         Variables:
           SWAGGER_API_ID: "aut-reg-inf"
           SWAGGER_API_VERSION: "1.0"
-          SWAGGER_ORG: 'axthosarouris'
+          SWAGGER_API_OWNER: 'axthosarouris'
           OWNER: "BIBSYSDEV"
           BRANCH: !Ref Branch
           REPOSITORY: 'authority-registry-infrastructure'
@@ -251,7 +251,7 @@ Resources:
         Variables:
           SWAGGER_API_ID: "aut-reg-inf"
           SWAGGER_API_VERSION: "1.0"
-          SWAGGER_ORG: 'axthosarouris'
+          SWAGGER_API_OWNER: 'axthosarouris'
           OWNER: "BIBSYSDEV"
           BRANCH: !Ref Branch
           REPOSITORY: 'authority-registry-infrastructure'
