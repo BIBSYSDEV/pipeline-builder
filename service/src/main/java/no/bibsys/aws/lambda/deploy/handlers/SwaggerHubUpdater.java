@@ -18,17 +18,24 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Updates the OpenApi specification stored in SwaggerHub for a specific ApiGateway API.
+ *
+ * If the branch is master then the API name in SwaggerHub is the one specified in the constructor.
+ * If the branch is not the master then the API name in SwaggerHub is the name of the Stack.
+ *
  */
 
 public class SwaggerHubUpdater {
 
 
     private static final Logger logger = LoggerFactory.getLogger(SwaggerHubUpdater.class);
+
+
     private final transient SwaggerHubInfo swaggerHubInfo;
     private final transient AmazonApiGateway apiGateway;
     private final transient String swaggerApiKey;
     private final transient String apiGatewayRestApiId;
     protected transient Stage stage;
+
 
     public SwaggerHubUpdater(
         AmazonApiGateway apiGateway,
@@ -61,8 +68,7 @@ public class SwaggerHubUpdater {
     public int deleteApiVersion() throws URISyntaxException, IOException {
         SwaggerDriver swaggerDriver=new SwaggerDriver(swaggerHubInfo);
         HttpDelete deleteRequest = swaggerDriver.createDeleteVersionRequest(swaggerApiKey);
-        int result=swaggerDriver.executeDelete(deleteRequest);
-        return result;
+        return swaggerDriver.executeDelete(deleteRequest);
     }
 
 
@@ -128,6 +134,11 @@ public class SwaggerHubUpdater {
         ApiGatewayApiInfo apiGatewayApiInfo = new ApiGatewayApiInfo(stage, apiGateway, apiGatewayRestApiId);
         return apiGatewayApiInfo.generateOpenApiNoExtensions();
 
+    }
+
+
+    public SwaggerHubInfo getSwaggerHubInfo() {
+        return swaggerHubInfo;
     }
 
 

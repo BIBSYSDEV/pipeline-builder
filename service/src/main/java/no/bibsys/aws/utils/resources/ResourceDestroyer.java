@@ -22,8 +22,7 @@ import org.slf4j.LoggerFactory;
  * stack (either inside or outside AWS). It also deletes the disconnected resources. It is usually
  * called thought a handler of a Lambda function (see {@link no.bibsys.aws.lambda.deploy.handlers.DestroyHandler}).
  * <p>Currently it deletes the API from SwaggerHub and all Route53 and ApiGateway configurations
- * related to attaching the
- * branch's RestApi to a static url.
+ * related to attaching the branch's RestApi to a static url.
  * </p>
  */
 
@@ -49,7 +48,8 @@ public class ResourceDestroyer extends ResourceManager {
         swaggerHubUpdater = initSwaggerHubUpdater(stackName, swaggerHubInfo, stage, gitInfo,
             apiGateway, apiGatewayRestApi);
 
-        route53Updater = new Route53Updater(staticUrlInfo, apiGatewayRestApi, apiGateway);
+        StaticUrlInfo newStaticUrlInfo = initStaticUrlInfo(staticUrlInfo, gitInfo.getBranch());
+        route53Updater = new Route53Updater(newStaticUrlInfo, apiGatewayRestApi, apiGateway);
     }
 
 
