@@ -52,6 +52,8 @@ public class SwaggerHubUpdater {
         else{
             String org=swaggerHubInfo.getSwaggerOrganization();
             String version=swaggerHubInfo.getApiVersion();
+            //If it is not the master branch then do not overwrite the production API.
+            // Instead, create an API using the stack name.
             return new SwaggerHubInfo(stackName,version,org);
         }
 
