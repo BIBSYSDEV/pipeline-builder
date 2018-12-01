@@ -39,22 +39,17 @@ public class ResourceDestroyer extends ResourceManager {
         StaticUrlInfo staticUrlInfo,
         SwaggerHubInfo swaggerHubInfo,
         Stage stage,
-        GitInfo gitinfo)
+        GitInfo gitInfo)
         throws IOException {
         super();
-        AmazonApiGateway client = AmazonApiGatewayClientBuilder.defaultClient();
-
-        String apiGatewayRestApiId = findRestApi(stackName);
-
-        swaggerHubUpdater = new SwaggerHubUpdater(client,
-            apiGatewayRestApiId,
-            swaggerHubInfo,
-            stage,
-            stackName,
-            gitinfo);
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
 
-        route53Updater = new Route53Updater(staticUrlInfo, apiGatewayRestApiId, apiGateway);
+        String apiGatewayRestApi = findRestApi(stackName);
+
+        swaggerHubUpdater = initSwaggerHubUpdater(stackName, swaggerHubInfo, stage, gitInfo,
+            apiGateway, apiGatewayRestApi);
+
+        route53Updater = new Route53Updater(staticUrlInfo, apiGatewayRestApi, apiGateway);
     }
 
 

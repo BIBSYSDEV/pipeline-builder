@@ -47,12 +47,8 @@ public class ResourceInitializer extends ResourceManager {
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
         String apiGatewayRestApi = findRestApi(stackName);
 
-        this.swaggerHubUpdater = new SwaggerHubUpdater(apiGateway
-            , apiGatewayRestApi,
-            swaggerHubInfo,
-            stage,
-            stackName,
-            gitInfo);
+        this.swaggerHubUpdater = initSwaggerHubUpdater(stackName, swaggerHubInfo, stage, gitInfo,
+            apiGateway, apiGatewayRestApi);
 
         this.route53Updater = new Route53Updater(staticUrlInfo, apiGatewayRestApi, apiGateway);
         this.certificateArn = certificateArn;
