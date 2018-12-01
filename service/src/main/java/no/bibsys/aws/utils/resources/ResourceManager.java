@@ -47,7 +47,7 @@ public class ResourceManager {
 
             String randomString = DigestUtils.sha1Hex(gitBranch).substring(0, 5);
             String newUrl = String.format("%s.%s", randomString, staticUrlInfo.getRecordSetName());
-            return new StaticUrlInfo(staticUrlInfo.getDomainName(), newUrl,
+            return new StaticUrlInfo(staticUrlInfo.getZoneName(), newUrl,
                 staticUrlInfo.getStage());
         }
 
