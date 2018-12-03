@@ -1,0 +1,15 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "dummy testspec..."
+  pre_build:
+    commands:
+      - echo "pre_build step"
+  build:
+    commands:
+      - echo "doing nothing"
+  post_build:
+    commands:
+      - echo "post_build step"
