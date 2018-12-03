@@ -4,14 +4,24 @@ public class CodeBuildConfiguration extends CloudFormationConfigurable {
 
     private final String buildProjectName;
     private final String outputArtifact;
+    private final String executeTestsProjectName;
 
 
+
+    public String getExecuteTestsProjectName() {
+        return executeTestsProjectName;
+    }
 
     public CodeBuildConfiguration(String repositoryName, String branchName) {
         super(repositoryName, branchName);
         this.buildProjectName = initBuildProjectName();
         this.outputArtifact = initCodeBuildArtifact();
+        this.executeTestsProjectName = initExecuteTestsProjectName();
 
+    }
+
+    private String initExecuteTestsProjectName() {
+        return format(projectId, normalizedBranchName, "executeTests");
     }
 
     private String initCodeBuildArtifact() {
