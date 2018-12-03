@@ -27,12 +27,9 @@ public class DestroyHandler extends ResourceHandler {
         Context context)
         throws IOException, URISyntaxException {
 
-
         SwaggerHubInfo swaggerHubInfo = initializeSwaggerHubInfo();
-        StaticUrlInfo staticUrlInfo=initializeStaticUrlInfo();
+        StaticUrlInfo staticUrlInfo = initializeStaticUrlInfo();
         BranchInfo branchInfo = initalizeBranchInfo();
-
-
 
         ResourceDestroyer resourceDestroyer = new ResourceDestroyer(
             stackName,

@@ -17,8 +17,9 @@ public class ResourceManager {
     protected String findRestApi(String stackId) {
         StackResources stackResources = new StackResources(stackId);
         Optional<String> restApiId = stackResources.getResources(ResourceType.REST_API).stream()
-                .map(resource -> resource.getPhysicalResourceId()).findAny();
-        return restApiId.orElseThrow(() -> new NotFoundException("Could not find an API Gateway Rest API"));
+            .map(resource -> resource.getPhysicalResourceId()).findAny();
+        return restApiId
+            .orElseThrow(() -> new NotFoundException("Could not find an API Gateway Rest API"));
 
     }
 
@@ -26,8 +27,8 @@ public class ResourceManager {
         SwaggerHubInfo swaggerHubInfo,
         Stage stage, GitInfo gitInfo, AmazonApiGateway apiGateway, String apiGatewayRestApi)
         throws IOException {
-        return new SwaggerHubUpdater(apiGateway
-            , apiGatewayRestApi,
+        return new SwaggerHubUpdater(apiGateway,
+            apiGatewayRestApi,
             swaggerHubInfo,
             stage,
             stackName,

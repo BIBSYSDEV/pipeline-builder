@@ -40,34 +40,32 @@ public class SwaggerHubUpdater {
         this.apiGateway = apiGateway;
         this.apiGatewayRestApiId = apiGatewayRestApiId;
         this.stage = stage;
-        this.swaggerHubInfo = intializeSwaggerHubInfo(swaggerHubInfo,gitInfo,stackName);
+        this.swaggerHubInfo = intializeSwaggerHubInfo(swaggerHubInfo, gitInfo, stackName);
         this.swaggerApiKey = swaggerHubInfo.getSwaggerAuth();
     }
 
-    private SwaggerHubInfo intializeSwaggerHubInfo(SwaggerHubInfo swaggerHubInfo, GitInfo gitInfo,String stackName) {
-        String branch=gitInfo.getBranch();
-        if(branch.equalsIgnoreCase(GitConstants.MASTER)){
+    private SwaggerHubInfo intializeSwaggerHubInfo(SwaggerHubInfo swaggerHubInfo, GitInfo gitInfo,
+        String stackName) {
+        String branch = gitInfo.getBranch();
+        if (branch.equalsIgnoreCase(GitConstants.MASTER)) {
             return swaggerHubInfo;
-        }
-        else{
-            String org=swaggerHubInfo.getSwaggerOrganization();
-            String version=swaggerHubInfo.getApiVersion();
+        } else {
+            String org = swaggerHubInfo.getSwaggerOrganization();
+            String version = swaggerHubInfo.getApiVersion();
             //If it is not the master branch then do not overwrite the production API.
             // Instead, create an API using the stack name.
-            return new SwaggerHubInfo(stackName,version,org);
+            return new SwaggerHubInfo(stackName, version, org);
         }
 
     }
 
 
     public int deleteApiVersion() throws URISyntaxException, IOException {
-        SwaggerDriver swaggerDriver=new SwaggerDriver(swaggerHubInfo);
+        SwaggerDriver swaggerDriver = new SwaggerDriver(swaggerHubInfo);
         HttpDelete deleteRequest = swaggerDriver.createDeleteVersionRequest(swaggerApiKey);
-        int result=swaggerDriver.executeDelete(deleteRequest);
+        int result = swaggerDriver.executeDelete(deleteRequest);
         return result;
     }
-
-
 
 
     /**
@@ -89,7 +87,6 @@ public class SwaggerHubUpdater {
 
     public Optional<String> updateApiDocumentation() throws IOException, URISyntaxException {
 
-
         Optional<String> jsonOpt = generateApiSpec();
 
         logger.debug(jsonOpt.toString());
@@ -107,8 +104,8 @@ public class SwaggerHubUpdater {
     }
 
 
-
-    private String readTheUpdatedAPI(SwaggerDriver swaggerDriver) throws URISyntaxException, IOException {
+    private String readTheUpdatedAPI(SwaggerDriver swaggerDriver)
+        throws URISyntaxException, IOException {
 
         HttpGet getSpecRequest = swaggerDriver.getSpecificationRequest(swaggerApiKey);
         return swaggerDriver.executeGet(getSpecRequest);
@@ -119,7 +116,8 @@ public class SwaggerHubUpdater {
         return new SwaggerDriver(swaggerHubInfo);
     }
 
-    private void executeUpdate(String json, SwaggerDriver swaggerDriver) throws URISyntaxException, IOException {
+    private void executeUpdate(String json, SwaggerDriver swaggerDriver)
+        throws URISyntaxException, IOException {
         HttpPost request = swaggerDriver.createUpdateRequest(json, swaggerApiKey);
         swaggerDriver.executePost(request);
 
@@ -127,7 +125,8 @@ public class SwaggerHubUpdater {
     }
 
     private Optional<String> generateApiSpec() throws IOException {
-        ApiGatewayApiInfo apiGatewayApiInfo = new ApiGatewayApiInfo(stage, apiGateway, apiGatewayRestApiId);
+        ApiGatewayApiInfo apiGatewayApiInfo = new ApiGatewayApiInfo(stage, apiGateway,
+            apiGatewayRestApiId);
         return apiGatewayApiInfo.generateOpenApiNoExtensions();
 
     }

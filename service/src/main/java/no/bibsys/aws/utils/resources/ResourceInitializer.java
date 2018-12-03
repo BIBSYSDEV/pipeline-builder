@@ -23,13 +23,12 @@ import org.slf4j.LoggerFactory;
  * not belong to the Stack. These resources can be inside or outside AWS. <br/> It is usually called
  * thought a handler of a Lambda function (see {@link no.bibsys.aws.lambda.deploy.handlers.InitHandler}).
  * <p>Currently it stores the API specification to SwaggerHub and creates all Route53 and
- * ApiGateway
- * <br/>configurations related to attaching the branch's RestApi to a static url.
+ * ApiGateway <br/>configurations related to attaching the branch's RestApi to a static url.
  * </p>
  */
 public class ResourceInitializer extends ResourceManager {
 
-    private final static Logger logger = LoggerFactory.getLogger(ResourceInitializer.class);
+    private static final Logger logger = LoggerFactory.getLogger(ResourceInitializer.class);
 
     private final transient SwaggerHubUpdater swaggerHubUpdater;
     private final transient Route53Updater route53Updater;
@@ -42,7 +41,7 @@ public class ResourceInitializer extends ResourceManager {
         SwaggerHubInfo swaggerHubInfo,
         Stage stage,
         GitInfo gitInfo
-        ) throws IOException {
+    ) throws IOException {
         super();
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
         String apiGatewayRestApi = findRestApi(stackName);

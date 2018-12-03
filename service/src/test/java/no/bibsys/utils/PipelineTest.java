@@ -1,12 +1,9 @@
 package no.bibsys.utils;
 
-import com.amazonaws.services.logs.AWSLogs;
-import com.amazonaws.services.logs.AWSLogsClientBuilder;
-import com.amazonaws.services.logs.model.DeleteLogGroupRequest;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.stream.Collectors;
 import no.bibsys.aws.Application;
 import no.bibsys.aws.git.github.GithubConf;
 import org.junit.Ignore;
@@ -15,8 +12,8 @@ import org.junit.Test;
 public class PipelineTest {
 
 
-    private String branchName = "autreg-88-static-url";
-    private String repoName = "authority-registry";
+    private String branchName = "master";
+    private String repoName = "authority-registry-infrastructure";
     private String repoOwner = "BIBSYSDEV";
 
 
@@ -42,19 +39,6 @@ public class PipelineTest {
     }
 
 
-    @Test
-    @Ignore
-    public void foo() {
-        AWSLogs logsClient = AWSLogsClientBuilder.defaultClient();
-        List<String> logGroups =
-            logsClient.describeLogGroups().getLogGroups().stream()
-                .map(group -> group.getLogGroupName())
-                .collect(Collectors.toList());
-
-        logGroups.stream().map(group -> new DeleteLogGroupRequest().withLogGroupName(group))
-            .forEach(request -> logsClient.deleteLogGroup(request));
-
-    }
 
 
 }

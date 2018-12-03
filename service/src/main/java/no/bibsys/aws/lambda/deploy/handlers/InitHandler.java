@@ -13,7 +13,7 @@ import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.utils.resources.ResourceInitializer;
 
-public class InitHandler extends ResourceHandler{
+public class InitHandler extends ResourceHandler {
 
 
     public InitHandler() throws IOException {
@@ -21,28 +21,24 @@ public class InitHandler extends ResourceHandler{
     }
 
 
-
     @Override
     public SimpleResponse processInput(DeployEvent input, String apiGatewayMessage, Context context)
-            throws IOException, URISyntaxException {
-
+        throws IOException, URISyntaxException {
 
         String certificateArn = environment.readEnv(CERTIFICATE_ARN);
 
         SwaggerHubInfo swaggerHubInfo = initializeSwaggerHubInfo();
-        StaticUrlInfo staticUrlInfo=initializeStaticUrlInfo();
+        StaticUrlInfo staticUrlInfo = initializeStaticUrlInfo();
         BranchInfo branchInfo = initalizeBranchInfo();
         ResourceInitializer initializer =
-                new ResourceInitializer(stackName,staticUrlInfo,certificateArn, swaggerHubInfo,
-                    stage,
-                    branchInfo);
+            new ResourceInitializer(stackName, staticUrlInfo, certificateArn, swaggerHubInfo,
+                stage,
+                branchInfo);
         initializer.initializeStacks();
 
         return new SimpleResponse("OK");
 
     }
-
-
 
 
 }

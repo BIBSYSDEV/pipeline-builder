@@ -7,8 +7,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Class with basic information about the project and the branch.
- *
- * See also {@link PipelineStackConfiguration}, {@link CodeBuildConfiguration}, and {@link
+ ** See also {@link PipelineStackConfiguration}, {@link CodeBuildConfiguration}, and {@link
  * PipelineConfiguration}
  */
 public class CloudFormationConfigurable {
