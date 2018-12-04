@@ -279,6 +279,7 @@ Resources:
     Properties:
       Name: !Ref ExecuteTestsProjectname
       Artifacts:
+        # when using CodePipeline both sourceType, and artifactType must be set to: CODEPIPELINE
         Type:  CODEPIPELINE
       Source:
         Type: CODEPIPELINE
