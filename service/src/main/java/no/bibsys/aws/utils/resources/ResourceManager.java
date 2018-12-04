@@ -41,18 +41,21 @@ public class ResourceManager {
 
     protected StaticUrlInfo initStaticUrlInfo(StaticUrlInfo staticUrlInfo, String gitBranch) {
 
-        if (gitBranch.equals(GitConstants.MASTER)) {
-            return staticUrlInfo;
-        } else {
+        StaticUrlInfo newStaticUrlInfo = staticUrlInfo;
+        if (!gitBranch.equals(GitConstants.MASTER)) {
 
             String randomString = DigestUtils.sha1Hex(gitBranch).substring(0, 5);
             String newUrl = String.format("%s.%s", randomString, staticUrlInfo.getRecordSetName());
-            if (staticUrlInfo.getStage().equals(Stage.TEST)) {
-                newUrl = "test." + newUrl;
-            }
-            return new StaticUrlInfo(staticUrlInfo.getZoneName(), newUrl,
+            newStaticUrlInfo=new StaticUrlInfo(staticUrlInfo.getZoneName(), newUrl,
                 staticUrlInfo.getStage());
         }
+        if (staticUrlInfo.getStage().equals(Stage.TEST)) {
+            String newUrl="test."+staticUrlInfo.getRecordSetName();
+            newStaticUrlInfo=new StaticUrlInfo(newStaticUrlInfo.getZoneName(),
+                newUrl,
+                newStaticUrlInfo.getStage());
+        }
+        return newStaticUrlInfo;
 
 
     }
