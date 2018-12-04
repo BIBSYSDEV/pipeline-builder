@@ -8,12 +8,12 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
 import no.bibsys.aws.cloudformation.Stage;
+import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.lambda.deploy.handlers.SwaggerHubUpdater;
 import no.bibsys.aws.lambda.responses.SimpleResponse;
 import no.bibsys.aws.route53.Route53Updater;
 import no.bibsys.aws.route53.StaticUrlInfo;
 import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
-import no.bibsys.aws.utils.network.NetworkConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,31 +23,33 @@ import org.slf4j.LoggerFactory;
  * not belong to the Stack. These resources can be inside or outside AWS. <br/> It is usually called
  * thought a handler of a Lambda function (see {@link no.bibsys.aws.lambda.deploy.handlers.InitHandler}).
  * <p>Currently it stores the API specification to SwaggerHub and creates all Route53 and
- * ApiGateway
- * <br/>configurations related to attaching the branch's RestApi to a static url.
+ * ApiGateway <br/>configurations related to attaching the branch's RestApi to a static url.
  * </p>
  */
 public class ResourceInitializer extends ResourceManager {
 
-    private final static Logger logger = LoggerFactory.getLogger(ResourceInitializer.class);
+    private static final Logger logger = LoggerFactory.getLogger(ResourceInitializer.class);
 
     private final transient SwaggerHubUpdater swaggerHubUpdater;
     private final transient Route53Updater route53Updater;
     private final transient String certificateArn;
 
 
-    public ResourceInitializer(String zoneName, String stackName, SwaggerHubInfo swaggerHubInfo,
+    public ResourceInitializer(String stackName,
+        StaticUrlInfo staticUrlInfo,
+        String certificateArn,
+        SwaggerHubInfo swaggerHubInfo,
         Stage stage,
-        String certificateArn) throws IOException {
+        GitInfo gitInfo
+    ) throws IOException {
         super();
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
         String apiGatewayRestApi = findRestApi(stackName);
 
-        this.swaggerHubUpdater = new SwaggerHubUpdater(apiGateway, apiGatewayRestApi,
-            swaggerHubInfo, stage);
-        StaticUrlInfo staticUrlINfo = new StaticUrlInfo(zoneName, NetworkConstants.RECORD_SET_NAME,
-            stage);
-        this.route53Updater = new Route53Updater(staticUrlINfo, apiGatewayRestApi, apiGateway);
+        this.swaggerHubUpdater = initSwaggerHubUpdater(stackName, swaggerHubInfo, stage, gitInfo,
+            apiGateway, apiGatewayRestApi);
+
+        this.route53Updater = new Route53Updater(staticUrlInfo, apiGatewayRestApi, apiGateway);
         this.certificateArn = certificateArn;
     }
 
@@ -85,7 +87,7 @@ public class ResourceInitializer extends ResourceManager {
         Optional<ChangeResourceRecordSetsRequest> request = testPhaseRoute53Updater
             .createDeleteRequest();
         request.ifPresent(route53Updater::executeDeleteRequest);
-        swaggerHubUpdater.deleteApi();
+        swaggerHubUpdater.deleteApiVersion();
     }
 
 

@@ -9,20 +9,17 @@ import java.util.Map;
 import no.bibsys.aws.lambda.api.requests.UpdateStackRequest;
 import no.bibsys.aws.lambda.api.utils.Action;
 import no.bibsys.aws.secrets.SecretsReader;
-
 import no.bibsys.aws.tools.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class UpdateStackRequestHandler extends ApiHandler {
 
-    private final static Logger logger = LoggerFactory.getLogger(UpdateStackRequest.class);
+    private static final Logger logger = LoggerFactory.getLogger(UpdateStackRequest.class);
     private static final String AWS_SECRET_NAME = "infrastructure";
     private static final String AWS_SECRET_KEY = "buildbranch";
-
-
-    private transient SecretsReader secretsReader;
     private static final String API_KEY_HEADER = "api-key";
+    private transient SecretsReader secretsReader;
 
 
     public UpdateStackRequestHandler() {
@@ -32,10 +29,9 @@ public class UpdateStackRequestHandler extends ApiHandler {
     }
 
 
-
-
     @Override
-    public String processInput(String string, Map<String, String> headers, Context context) throws IOException {
+    public String processInput(String string, Map<String, String> headers, Context context)
+        throws IOException {
 
         String securityToken = headers.get(API_KEY_HEADER);
         checkAuthorization(securityToken);
@@ -73,7 +69,6 @@ public class UpdateStackRequestHandler extends ApiHandler {
     public void setSecretsReader(SecretsReader secretsReader) {
         this.secretsReader = secretsReader;
     }
-
 
 
 }

@@ -3,29 +3,15 @@ package no.bibsys.aws.lambda.deploy.handlers;
 import com.amazonaws.services.lambda.runtime.Context;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import no.bibsys.aws.cloudformation.Stage;
+import no.bibsys.aws.git.github.BranchInfo;
 import no.bibsys.aws.lambda.events.DeployEvent;
-import no.bibsys.aws.lambda.handlers.templates.CodePipelineFunctionHandlerTemplate;
 import no.bibsys.aws.lambda.responses.SimpleResponse;
+import no.bibsys.aws.route53.StaticUrlInfo;
 import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.utils.resources.ResourceDestroyer;
 
-public class DestroyHandler extends CodePipelineFunctionHandlerTemplate<SimpleResponse> {
-
-
-    /**
-     * Environment variable for reading the ROUTE 53 Hosted Zone name.
-     */
-    public static final String ZONE_NAME_ENV = "ZONE_NAME";
-
-
-    public static final String STACK_NAME = "STACK_NAME";
-
-
-
-    private final transient Environment environment;
-
+public class DestroyHandler extends ResourceHandler {
 
     public DestroyHandler() {
         this(new Environment());
@@ -33,21 +19,26 @@ public class DestroyHandler extends CodePipelineFunctionHandlerTemplate<SimpleRe
 
 
     public DestroyHandler(Environment environment) {
-        super();
-        this.environment = environment;
-
+        super(environment);
     }
 
     @Override
-    protected SimpleResponse processInput(DeployEvent input, String apiGatewayInputString, Context context)
-            throws IOException, URISyntaxException {
-        Stage stage = Stage.currentStage();
-        String zoneName = environment.readEnv(ZONE_NAME_ENV);
-        String stackName=environment.readEnv(STACK_NAME);
+    protected SimpleResponse processInput(DeployEvent input, String apiGatewayInputString,
+        Context context)
+        throws IOException, URISyntaxException {
 
-        SwaggerHubInfo swaggerHubInfo = new SwaggerHubInfo(environment);
+        SwaggerHubInfo swaggerHubInfo = initializeSwaggerHubInfo();
+        StaticUrlInfo staticUrlInfo = initializeStaticUrlInfo();
+        BranchInfo branchInfo = initalizeBranchInfo();
 
-        ResourceDestroyer resourceDestroyer = new ResourceDestroyer(zoneName, stackName, swaggerHubInfo, stage);
+        ResourceDestroyer resourceDestroyer = new ResourceDestroyer(
+            stackName,
+            staticUrlInfo,
+            swaggerHubInfo,
+            stage,
+            branchInfo
+
+        );
         resourceDestroyer.destroy();
 
         return new SimpleResponse("OK");

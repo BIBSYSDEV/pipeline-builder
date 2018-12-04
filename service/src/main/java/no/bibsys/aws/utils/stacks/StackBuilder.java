@@ -75,7 +75,8 @@ public class StackBuilder {
                 newParameter("CodebuildProjectname", pipelineStack.getCodeBuildConfiguration().getBuildProjectName()));
 
         parameters.add(
-                newParameter("ExecuteTestsProjectname", pipelineStack.getCodeBuildConfiguration().getExecuteTestsProjectName()));
+                newParameter("ExecuteTestsProjectname",
+                    pipelineStack.getCodeBuildConfiguration().getExecuteTestsProjectName()));
 
 
         parameters.add(newParameter("PipelineTestServiceStackName",

@@ -5,6 +5,11 @@ import no.bibsys.aws.tools.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Class with basic information about the project and the branch.
+ ** See also {@link PipelineStackConfiguration}, {@link CodeBuildConfiguration}, and {@link
+ * PipelineConfiguration}
+ */
 public class CloudFormationConfigurable {
 
     public static final int NORMALIZED_BRANCH_MAX_LENGTH = 25;

@@ -6,8 +6,10 @@ import java.net.URISyntaxException;
 import java.util.Optional;
 import no.bibsys.aws.apigateway.ApiGatewayApiInfo;
 import no.bibsys.aws.cloudformation.Stage;
+import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.swaggerhub.SwaggerDriver;
 import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
+import no.bibsys.aws.utils.constants.GitConstants;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -28,20 +30,48 @@ public class SwaggerHubUpdater {
     private final transient String apiGatewayRestApiId;
     protected transient Stage stage;
 
-    public SwaggerHubUpdater(AmazonApiGateway apiGateway, String apiGatewayRestApiId, SwaggerHubInfo swaggerHubInfo,
-            Stage stage) throws IOException {
+    public SwaggerHubUpdater(
+        AmazonApiGateway apiGateway,
+        String apiGatewayRestApiId,
+        SwaggerHubInfo swaggerHubInfo,
+        Stage stage,
+        String stackName,
+        GitInfo gitInfo) throws IOException {
         this.apiGateway = apiGateway;
         this.apiGatewayRestApiId = apiGatewayRestApiId;
         this.stage = stage;
-        this.swaggerHubInfo = swaggerHubInfo;
+        this.swaggerHubInfo = intializeSwaggerHubInfo(swaggerHubInfo, gitInfo, stackName);
         this.swaggerApiKey = swaggerHubInfo.getSwaggerAuth();
+    }
+
+    private SwaggerHubInfo intializeSwaggerHubInfo(SwaggerHubInfo swaggerHubInfo, GitInfo gitInfo,
+        String stackName) {
+        String branch = gitInfo.getBranch();
+        if (branch.equalsIgnoreCase(GitConstants.MASTER)) {
+            return swaggerHubInfo;
+        } else {
+            String org = swaggerHubInfo.getSwaggerOrganization();
+            String version = swaggerHubInfo.getApiVersion();
+            //If it is not the master branch then do not overwrite the production API.
+            // Instead, create an API using the stack name.
+            return new SwaggerHubInfo(stackName, version, org);
+        }
+
+    }
+
+
+    public int deleteApiVersion() throws URISyntaxException, IOException {
+        SwaggerDriver swaggerDriver = new SwaggerDriver(swaggerHubInfo);
+        HttpDelete deleteRequest = swaggerDriver.createDeleteVersionRequest(swaggerApiKey);
+        int result = swaggerDriver.executeDelete(deleteRequest);
+        return result;
     }
 
 
     /**
      * Deletes the whole API documentation from SwaggerHub.
      *
-     * @return Sucess of Failure code the delete request
+     * @return Success of Failure code the delete request
      */
     public int deleteApi() throws URISyntaxException, IOException {
         SwaggerDriver swaggerDriver = new SwaggerDriver(swaggerHubInfo);
@@ -56,7 +86,6 @@ public class SwaggerHubUpdater {
      */
 
     public Optional<String> updateApiDocumentation() throws IOException, URISyntaxException {
-
 
         Optional<String> jsonOpt = generateApiSpec();
 
@@ -75,10 +104,10 @@ public class SwaggerHubUpdater {
     }
 
 
+    private String readTheUpdatedAPI(SwaggerDriver swaggerDriver)
+        throws URISyntaxException, IOException {
 
-    private String readTheUpdatedAPI(SwaggerDriver swaggerDriver) throws URISyntaxException, IOException {
-
-        HttpGet getSpecRequest = swaggerDriver.getSpecificationRequest(swaggerHubInfo.getApiVersion());
+        HttpGet getSpecRequest = swaggerDriver.getSpecificationRequest(swaggerApiKey);
         return swaggerDriver.executeGet(getSpecRequest);
     }
 
@@ -87,15 +116,17 @@ public class SwaggerHubUpdater {
         return new SwaggerDriver(swaggerHubInfo);
     }
 
-    private void executeUpdate(String json, SwaggerDriver swaggerDriver) throws URISyntaxException, IOException {
-        HttpPost request = swaggerDriver.createUpdateRequest(json, swaggerHubInfo.getApiVersion(), swaggerApiKey);
+    private void executeUpdate(String json, SwaggerDriver swaggerDriver)
+        throws URISyntaxException, IOException {
+        HttpPost request = swaggerDriver.createUpdateRequest(json, swaggerApiKey);
         swaggerDriver.executePost(request);
 
 
     }
 
     private Optional<String> generateApiSpec() throws IOException {
-        ApiGatewayApiInfo apiGatewayApiInfo = new ApiGatewayApiInfo(stage, apiGateway, apiGatewayRestApiId);
+        ApiGatewayApiInfo apiGatewayApiInfo = new ApiGatewayApiInfo(stage, apiGateway,
+            apiGatewayRestApiId);
         return apiGatewayApiInfo.generateOpenApiNoExtensions();
 
     }
