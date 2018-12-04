@@ -256,7 +256,7 @@ Resources:
       Artifacts:
         Type: NO_ARTIFACTS
       Source:
-        Type: CODEPIPELINE
+        Type:  S3
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
         Image: "aws/codebuild/eb-java-8-amazonlinux-64:2.4.3"
