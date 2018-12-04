@@ -9,7 +9,10 @@ import no.bibsys.aws.cloudformation.helpers.ResourceType;
 import no.bibsys.aws.cloudformation.helpers.StackResources;
 import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.lambda.deploy.handlers.SwaggerHubUpdater;
+import no.bibsys.aws.route53.StaticUrlInfo;
 import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
+import no.bibsys.aws.utils.constants.GitConstants;
+import org.apache.commons.codec.digest.DigestUtils;
 
 public class ResourceManager {
 
@@ -33,5 +36,27 @@ public class ResourceManager {
             stage,
             stackName,
             gitInfo);
+    }
+
+
+    protected StaticUrlInfo initStaticUrlInfo(StaticUrlInfo staticUrlInfo, String gitBranch) {
+
+        StaticUrlInfo newStaticUrlInfo = staticUrlInfo;
+        if (!gitBranch.equals(GitConstants.MASTER)) {
+
+            String randomString = DigestUtils.sha1Hex(gitBranch).substring(0, 5);
+            String newUrl = String.format("%s.%s", randomString, staticUrlInfo.getRecordSetName());
+            newStaticUrlInfo=new StaticUrlInfo(staticUrlInfo.getZoneName(), newUrl,
+                staticUrlInfo.getStage());
+        }
+        if (staticUrlInfo.getStage().equals(Stage.TEST)) {
+            String newUrl="test."+staticUrlInfo.getRecordSetName();
+            newStaticUrlInfo=new StaticUrlInfo(newStaticUrlInfo.getZoneName(),
+                newUrl,
+                newStaticUrlInfo.getStage());
+        }
+        return newStaticUrlInfo;
+
+
     }
 }

@@ -18,6 +18,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Updates the OpenApi specification stored in SwaggerHub for a specific ApiGateway API.
+ *
+ * If the branch is master then the API name in SwaggerHub is the one specified in the constructor.
+ * If the branch is not the master then the API name in SwaggerHub is the name of the Stack.
+ *
  */
 
 public class SwaggerHubUpdater {
@@ -26,7 +30,6 @@ public class SwaggerHubUpdater {
     private static final Logger logger = LoggerFactory.getLogger(SwaggerHubUpdater.class);
     private final transient SwaggerHubInfo swaggerHubInfo;
     private final transient AmazonApiGateway apiGateway;
-    private final transient String swaggerApiKey;
     private final transient String apiGatewayRestApiId;
     protected transient Stage stage;
 
@@ -41,7 +44,7 @@ public class SwaggerHubUpdater {
         this.apiGatewayRestApiId = apiGatewayRestApiId;
         this.stage = stage;
         this.swaggerHubInfo = intializeSwaggerHubInfo(swaggerHubInfo, gitInfo, stackName);
-        this.swaggerApiKey = swaggerHubInfo.getSwaggerAuth();
+
     }
 
     private SwaggerHubInfo intializeSwaggerHubInfo(SwaggerHubInfo swaggerHubInfo, GitInfo gitInfo,
@@ -61,10 +64,10 @@ public class SwaggerHubUpdater {
 
 
     public int deleteApiVersion() throws URISyntaxException, IOException {
-        SwaggerDriver swaggerDriver = new SwaggerDriver(swaggerHubInfo);
+        String swaggerApiKey = swaggerHubInfo.getSwaggerAuth();
+        SwaggerDriver swaggerDriver=new SwaggerDriver(swaggerHubInfo);
         HttpDelete deleteRequest = swaggerDriver.createDeleteVersionRequest(swaggerApiKey);
-        int result = swaggerDriver.executeDelete(deleteRequest);
-        return result;
+        return swaggerDriver.executeDelete(deleteRequest);
     }
 
 
@@ -74,6 +77,7 @@ public class SwaggerHubUpdater {
      * @return Success of Failure code the delete request
      */
     public int deleteApi() throws URISyntaxException, IOException {
+        String swaggerApiKey = swaggerHubInfo.getSwaggerAuth();
         SwaggerDriver swaggerDriver = new SwaggerDriver(swaggerHubInfo);
         HttpDelete deleteRequest = swaggerDriver.createDeleteApiRequest(swaggerApiKey);
         return swaggerDriver.executeDelete(deleteRequest);
@@ -104,9 +108,8 @@ public class SwaggerHubUpdater {
     }
 
 
-    private String readTheUpdatedAPI(SwaggerDriver swaggerDriver)
-        throws URISyntaxException, IOException {
-
+    private String readTheUpdatedAPI(SwaggerDriver swaggerDriver) throws URISyntaxException, IOException {
+        String swaggerApiKey = swaggerHubInfo.getSwaggerAuth();
         HttpGet getSpecRequest = swaggerDriver.getSpecificationRequest(swaggerApiKey);
         return swaggerDriver.executeGet(getSpecRequest);
     }
@@ -116,8 +119,9 @@ public class SwaggerHubUpdater {
         return new SwaggerDriver(swaggerHubInfo);
     }
 
-    private void executeUpdate(String json, SwaggerDriver swaggerDriver)
-        throws URISyntaxException, IOException {
+
+    private void executeUpdate(String json, SwaggerDriver swaggerDriver) throws URISyntaxException, IOException {
+        String swaggerApiKey = swaggerHubInfo.getSwaggerAuth();
         HttpPost request = swaggerDriver.createUpdateRequest(json, swaggerApiKey);
         swaggerDriver.executePost(request);
 
@@ -129,6 +133,11 @@ public class SwaggerHubUpdater {
             apiGatewayRestApiId);
         return apiGatewayApiInfo.generateOpenApiNoExtensions();
 
+    }
+
+
+    public SwaggerHubInfo getSwaggerHubInfo() {
+        return swaggerHubInfo;
     }
 
 
