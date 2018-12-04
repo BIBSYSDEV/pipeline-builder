@@ -253,7 +253,8 @@ Resources:
     Description: CodeBuild project for using in the CodePipeline
     Properties:
       Name: !Ref CodebuildProjectname
-      Artifacts: {}
+      Artifacts:
+        Type: NO_ARTIFACTS
       Source:
         Type: CODEPIPELINE
       Environment:
