@@ -38,7 +38,7 @@ public class SwaggerHubUpdaterTest {
 
 
     @Test
-    public void swaggerHubUpdater_masterBranch_restAPIWithStackName() throws IOException {
+    public void swaggerHubUpdater_masterBranch_restAPIWithPredeternminedApiId() throws IOException {
         SwaggerHubInfo swaggerHubInfo = new SwaggerHubInfo(API_ID, API_VERSION, SWAGGER_ORG);
         BranchInfo branchInfo = new BranchInfo(null, "master");
         SwaggerHubUpdater swaggerHubUpdater = new SwaggerHubUpdater(

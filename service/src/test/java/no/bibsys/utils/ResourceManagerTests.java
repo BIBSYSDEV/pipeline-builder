@@ -32,7 +32,7 @@ public class ResourceManagerTests extends ResourceManager {
 
 
     @Test
-    public void initRoute53Updater_gitBranch_alteredUrlIfBrancIsMaster() {
+    public void initRoute53Updater_gitBranch_originaldUrlIfBrancIsMaster() {
         String originalUrl = "originalUrl";
         StaticUrlInfo staticUrlInfo = new StaticUrlInfo("zoneName", originalUrl, Stage.FINAL);
 
