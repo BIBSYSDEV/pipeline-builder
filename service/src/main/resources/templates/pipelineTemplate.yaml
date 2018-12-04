@@ -279,7 +279,7 @@ Resources:
     Properties:
       Name: !Ref ExecuteTestsProjectname
       Artifacts:
-        Type: NO_ARTIFACT
+        Type:  NO_ARTIFACTS
       Source:
         Type: CODEPIPELINE
         BuildSpec: "testspec.yml"
