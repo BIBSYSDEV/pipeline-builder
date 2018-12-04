@@ -30,8 +30,8 @@ public class ResourceManager {
         SwaggerHubInfo swaggerHubInfo,
         Stage stage, GitInfo gitInfo, AmazonApiGateway apiGateway, String apiGatewayRestApi)
         throws IOException {
-        return new SwaggerHubUpdater(apiGateway
-            , apiGatewayRestApi,
+        return new SwaggerHubUpdater(apiGateway,
+            apiGatewayRestApi,
             swaggerHubInfo,
             stage,
             stackName,
