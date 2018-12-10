@@ -237,6 +237,7 @@ Resources:
           - Effect: Allow
             Action:
             - 'ssm:GetParameters'
+            - 'ssm:GetParameter'
             Resource: '*'
       - PolicyName: pipelineHandling
         PolicyDocument:
