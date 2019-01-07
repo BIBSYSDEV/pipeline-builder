@@ -171,6 +171,7 @@ Resources:
           - s3:PutBucketPolicy
           - s3:PutEncryptionConfiguration
           - s3:PutObject
+          - codepipeline:DisableStageTransition
           Resource: "*"
           Effect: Allow
         - Action:
