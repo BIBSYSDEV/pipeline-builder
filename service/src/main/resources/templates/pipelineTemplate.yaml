@@ -412,31 +412,31 @@ Resources:
           Configuration:
             ProjectName: !Ref ExecuteTestsProjectname
           RunOrder: 4
-        - Name: DestroyStack
-          ActionTypeId:
-            Category: Invoke
-            Owner: AWS
-            Version: 1
-            Provider: Lambda
-          Configuration:
-            FunctionName: !Join ['-', [!Ref DestroyFunctionName, !Ref TestPhaseName]]
-          InputArtifacts: []
-          OutputArtifacts: []
-          RunOrder: 5
-        - Name: DeleteTestStack
-          ActionTypeId:
-            Category: Deploy
-            Owner: AWS
-            Provider: CloudFormation
-            Version: '1'
-          Configuration:
-            ActionMode: DELETE_ONLY
-            RoleArn: !GetAtt CreateStackRole.Arn
-            StackName: !Ref PipelineTestServiceStackName
-          RunOrder: 6
       - Name: ProdStack
         Actions:
-        - Name: CreateFinalStack
+          - Name: DestroyStack
+            ActionTypeId:
+              Category: Invoke
+              Owner: AWS
+              Version: 1
+              Provider: Lambda
+            Configuration:
+              FunctionName: !Join ['-', [!Ref DestroyFunctionName, !Ref TestPhaseName]]
+            InputArtifacts: []
+            OutputArtifacts: []
+            RunOrder: 5
+          - Name: DeleteTestStack
+            ActionTypeId:
+              Category: Deploy
+              Owner: AWS
+              Provider: CloudFormation
+              Version: '1'
+            Configuration:
+              ActionMode: DELETE_ONLY
+              RoleArn: !GetAtt CreateStackRole.Arn
+              StackName: !Ref PipelineTestServiceStackName
+            RunOrder: 6
+          - Name: CreateFinalStack
           ActionTypeId:
             Category: Deploy
             Owner: AWS
