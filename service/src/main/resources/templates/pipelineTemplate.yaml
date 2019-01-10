@@ -442,20 +442,20 @@ Resources:
                 Owner: AWS
                 Version: 1
                 Provider: CloudFormation
-                Configuration:
-                  ActionMode: CHANGE_SET_REPLACE
-                  StackName: !Ref PipelineFinalServiceStackName
-                  ChangeSetName: ProdStageChangeSet
-                  Capabilities: CAPABILITY_NAMED_IAM
-                  RoleArn: !GetAtt CreateStackRole.Arn
-                  TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
-                  ParameterOverrides:
-                    !Sub
-                    - '{"ProjectId":"${ProjectIdValue}", "Stage":"${FinalPhaseName}","Branch":"${NormalizedBranchName}","CodeBucket":"${S3Bucket}","InitFunctionName": "${InitFunctionNameStage}","DestroyFunctionName": "${DestroyFunctionNameStage}"}'
-                    - { ProjectIdValue: !Ref ProjectId,  InitFunctionNameStage: !Join ['-', [!Ref InitFunctionName, !Ref FinalPhaseName]], DestroyFunctionNameStage: !Join ['-', [!Ref DestroyFunctionName, !Ref FinalPhaseName]] }
-                InputArtifacts:
+              Configuration:
+                ActionMode: CHANGE_SET_REPLACE
+                StackName: !Ref PipelineFinalServiceStackName
+                ChangeSetName: ProdStageChangeSet
+                Capabilities: CAPABILITY_NAMED_IAM
+                RoleArn: !GetAtt CreateStackRole.Arn
+                TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
+                ParameterOverrides:
+                  !Sub
+                  - '{"ProjectId":"${ProjectIdValue}", "Stage":"${FinalPhaseName}","Branch":"${NormalizedBranchName}","CodeBucket":"${S3Bucket}","InitFunctionName": "${InitFunctionNameStage}","DestroyFunctionName": "${DestroyFunctionNameStage}"}'
+                  - { ProjectIdValue: !Ref ProjectId,  InitFunctionNameStage: !Join ['-', [!Ref InitFunctionName, !Ref FinalPhaseName]], DestroyFunctionNameStage: !Join ['-', [!Ref DestroyFunctionName, !Ref FinalPhaseName]] }
+              InputArtifacts:
                 - Name: !Ref CodebuildOutputArtifact
-                RunOrder: 3
+              RunOrder: 3
             - Name: ExecuteFinalStack
               ActionTypeId:
                 Category: Deploy
