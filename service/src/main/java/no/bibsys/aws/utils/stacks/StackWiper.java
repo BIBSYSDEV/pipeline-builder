@@ -140,7 +140,7 @@ public class StackWiper {
     }
 
 
-    private void deleteBucket(String bucketName) {
+    public void deleteBucket(String bucketName) {
         try {
             AmazonS3 s3 = AmazonS3ClientBuilder.defaultClient();
             emptyBucket(bucketName, s3);
