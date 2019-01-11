@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 public class ResourceManager {
 
-    private static Logger logger= LoggerFactory.getLogger(ResourceManager.class);
+    private static final Logger logger= LoggerFactory.getLogger(ResourceManager.class);
 
     protected String findRestApi(String stackId) {
         StackResources stackResources = new StackResources(stackId);
