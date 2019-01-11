@@ -13,9 +13,12 @@ import no.bibsys.aws.route53.StaticUrlInfo;
 import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
 import no.bibsys.aws.utils.constants.GitConstants;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ResourceManager {
 
+    private static Logger logger= LoggerFactory.getLogger(ResourceManager.class);
 
     protected String findRestApi(String stackId) {
         StackResources stackResources = new StackResources(stackId);
@@ -42,18 +45,14 @@ public class ResourceManager {
     protected StaticUrlInfo initStaticUrlInfo(StaticUrlInfo staticUrlInfo, String gitBranch) {
 
         StaticUrlInfo newStaticUrlInfo = staticUrlInfo;
+        logger.info("Gitbranch:{}",gitBranch);
         if (!gitBranch.equals(GitConstants.MASTER)) {
 
             String randomString = DigestUtils.sha1Hex(gitBranch).substring(0, 5);
+            logger.info("RandomString:{}",randomString);
             String newUrl = String.format("%s.%s", randomString, staticUrlInfo.getRecordSetName());
             newStaticUrlInfo=new StaticUrlInfo(staticUrlInfo.getZoneName(), newUrl,
                 staticUrlInfo.getStage());
-        }
-        if (staticUrlInfo.getStage().equals(Stage.TEST)) {
-            String newUrl="test."+staticUrlInfo.getRecordSetName();
-            newStaticUrlInfo=new StaticUrlInfo(newStaticUrlInfo.getZoneName(),
-                newUrl,
-                newStaticUrlInfo.getStage());
         }
         return newStaticUrlInfo;
 
