@@ -54,6 +54,11 @@ public class ResourceManager {
             newStaticUrlInfo=new StaticUrlInfo(staticUrlInfo.getZoneName(), newUrl,
                 staticUrlInfo.getStage());
         }
+        if(staticUrlInfo.getStage().equals(Stage.TEST)){
+            newStaticUrlInfo=new StaticUrlInfo(newStaticUrlInfo.getZoneName(),
+                "test."+newStaticUrlInfo.getRecordSetName(),Stage.TEST);
+
+        }
         return newStaticUrlInfo;
 
 
