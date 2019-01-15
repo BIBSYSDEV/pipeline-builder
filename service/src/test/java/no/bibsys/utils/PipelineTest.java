@@ -57,7 +57,6 @@ public class PipelineTest {
 
             stackWiper.deleteBucket(bucket.getName());
         });
-
     }
 
 
@@ -67,8 +66,6 @@ public class PipelineTest {
     public void deleteAllTables() throws IOException {
         AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
         client.listTables().getTableNames().stream().filter(table->table.startsWith("test_")).forEach(table->client.deleteTable(table));
-
-
     }
 
 
