@@ -1,10 +1,10 @@
 package no.bibsys.utils;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.logs.AWSLogsClientBuilder;
 import com.amazonaws.services.logs.model.DeleteLogGroupRequest;
-import com.amazonaws.services.logs.model.DeleteLogStreamRequest;
-import com.amazonaws.services.logs.model.DescribeLogStreamsRequest;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import org.junit.Test;
 public class PipelineTest {
 
 
-    private String branchName = "jersey-2-authorizer";
+    private String branchName = "AUTREG-131_ensure_javascript_linting_is_in_place";
     private String repoName = "authority-registry";
     private String repoOwner = "BIBSYSDEV";
 
@@ -55,7 +55,15 @@ public class PipelineTest {
 
             stackWiper.deleteBucket(bucket.getName());
         });
+    }
 
+
+
+    @Test
+    @Ignore
+    public void deleteAllTables() throws IOException {
+        AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
+        client.listTables().getTableNames().stream().filter(table->table.startsWith("test_")).forEach(table->client.deleteTable(table));
     }
 
 

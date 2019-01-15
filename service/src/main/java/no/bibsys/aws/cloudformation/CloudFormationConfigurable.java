@@ -16,6 +16,7 @@ public class CloudFormationConfigurable {
     public static final int MAX_BRANCH_WORD_LENGTH = 6;
     public static final int MAX_PROJECT_WORD_LENGTH = 3;
 
+
     protected final transient String projectId;
     protected final transient String normalizedBranchName;
     private final transient StringUtils stringUtils = new StringUtils();
@@ -38,8 +39,19 @@ public class CloudFormationConfigurable {
     private String initNormalizedBranchName(String branchName) {
         String normalized = stringUtils.shortNormalizedString(branchName, MAX_BRANCH_WORD_LENGTH);
         int cutIndex = Math.min(normalized.length(), NORMALIZED_BRANCH_MAX_LENGTH);
-        return normalized.substring(0, cutIndex);
+        String result = normalized.substring(0, cutIndex);
+        result=removeNonAlpahnumbericCharsFromEnd(result);
+        return result;
+    }
 
+    private String removeNonAlpahnumbericCharsFromEnd(String input){
+        char lastChar = input.charAt(input.length() - 1);
+        if(Character.isAlphabetic(lastChar) || Character.isDigit(lastChar)){
+            return input;
+        }
+        else{
+            return removeNonAlpahnumbericCharsFromEnd(input.substring(0,input.length()-1));
+        }
     }
 
 
