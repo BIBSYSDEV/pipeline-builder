@@ -5,8 +5,6 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.logs.AWSLogsClientBuilder;
 import com.amazonaws.services.logs.model.DeleteLogGroupRequest;
-import com.amazonaws.services.logs.model.DeleteLogStreamRequest;
-import com.amazonaws.services.logs.model.DescribeLogStreamsRequest;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import java.io.IOException;
@@ -20,8 +18,8 @@ import org.junit.Test;
 public class PipelineTest {
 
 
-    private String branchName = "master";
-    private String repoName = "authority-registry-infrastructure";
+    private String branchName = "AUTREG-131_ensure_javascript_linting_is_in_place";
+    private String repoName = "authority-registry";
     private String repoOwner = "BIBSYSDEV";
 
 

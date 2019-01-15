@@ -50,7 +50,7 @@ public class CloudFormationConfigurable {
             return input;
         }
         else{
-            return input.substring(0,input.length()-1);
+            return removeNonAlpahnumbericCharsFromEnd(input.substring(0,input.length()-1));
         }
     }
 
