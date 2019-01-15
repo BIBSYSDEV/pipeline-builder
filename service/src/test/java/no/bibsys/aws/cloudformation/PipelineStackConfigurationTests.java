@@ -87,9 +87,7 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
     public void initBucketName_projectIdAndNormalizedBranch_endWithAlphanumericChar() {
         assertThat(conf.getBucketName(), not(endsWith("-")));
         assertThat(conf.getBucketName(), not(endsWith("_")));
-
     }
-
 
 
     @Test

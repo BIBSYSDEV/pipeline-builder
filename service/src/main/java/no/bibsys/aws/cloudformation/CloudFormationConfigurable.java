@@ -42,9 +42,7 @@ public class CloudFormationConfigurable {
         String result = normalized.substring(0, cutIndex);
         result=removeNonAlpahnumbericCharsFromEnd(result);
         return result;
-
     }
-
 
     private String removeNonAlpahnumbericCharsFromEnd(String input){
         char lastChar = input.charAt(input.length() - 1);
