@@ -15,7 +15,7 @@ public abstract class ConfigurationTests extends AmazonNamingRestrictions {
 
     protected final String normalizedBranch;
     protected final String projectId;
-    protected String branchName = "AUTREG-49_This_is_purposefully_and_meticulously_looong";
+    protected String branchName = "AUTREG-131_ensure_javascript_linting_is_in_place";
     protected String repoOwner = "OWNER";
     protected String repoName = "REPOSITORY_NAME_ENV_VAR";
     protected PipelineStackConfiguration conf;

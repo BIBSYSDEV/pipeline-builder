@@ -2,6 +2,7 @@ package no.bibsys.aws.cloudformation;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -80,6 +81,15 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
         assertThat(conf.getBucketName(), containsString(normalizedBranch));
 
     }
+
+
+    @Test
+    public void initBucketName_projectIdAndNormalizedBranch_endWithAlphanumericChar() {
+        assertThat(conf.getBucketName(), not(endsWith("-")));
+        assertThat(conf.getBucketName(), not(endsWith("_")));
+
+    }
+
 
 
     @Test
