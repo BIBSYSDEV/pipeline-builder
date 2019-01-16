@@ -234,9 +234,11 @@ Resources:
           - route53:ChangeResourceRecordSets
           - apigateway:*
           - cloudformation:DescribeStackResources
-
           Effect: Allow
           Resource: "*"
+        - Effect: Allow
+          Action: iam:CreateServiceLinkedRole
+          Resource: "arn:aws:iam::*:role/aws-service-role/*"
       MemorySize: 1500
       Timeout: 900
   Destroy:
