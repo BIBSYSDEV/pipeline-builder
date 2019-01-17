@@ -215,7 +215,7 @@ Resources:
           BRANCH: !Ref Branch
           REPOSITORY: 'authority-registry-infrastructure'
           STAGE: !Ref Stage
-          ZONE_NAME: 'aws.unit.no.'
+          ZONE_NAME: 'entitydata.aws.unit.no.'
           APPLICATION_URL: 'infrastructure.entitydata.aws.unit.no.'
           REGIONAL_CERTIFICATE_ARN: '{{resolve:ssm:infrastructure-entitydata-certificate-arn:1}}'
           STACK_NAME: !Ref AWS::StackName
@@ -234,9 +234,11 @@ Resources:
           - route53:ChangeResourceRecordSets
           - apigateway:*
           - cloudformation:DescribeStackResources
-
           Effect: Allow
           Resource: "*"
+        - Effect: Allow
+          Action: iam:CreateServiceLinkedRole
+          Resource: "arn:aws:iam::*:role/aws-service-role/*"
       MemorySize: 1500
       Timeout: 900
   Destroy:
@@ -257,7 +259,7 @@ Resources:
           BRANCH: !Ref Branch
           REPOSITORY: 'authority-registry-infrastructure'
           STAGE: !Ref Stage
-          ZONE_NAME: 'aws.unit.no.'
+          ZONE_NAME: 'entitydata.aws.unit.no.'
           APPLICATION_URL: 'infrastructure.entitydata.aws.unit.no.'
           REGIONAL_CERTIFICATE_ARN: '{{resolve:ssm:infrastructure-entitydata-certificate-arn:1}}'
           STACK_NAME: !Ref AWS::StackName
