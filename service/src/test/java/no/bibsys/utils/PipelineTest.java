@@ -8,14 +8,10 @@ import com.amazonaws.services.logs.model.DeleteLogGroupRequest;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
 import no.bibsys.aws.Application;
 import no.bibsys.aws.git.github.GithubConf;
-import no.bibsys.aws.utils.stacks.StackWiper;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -47,8 +43,6 @@ public class PipelineTest {
         GithubConf githubConf = new GithubConf(repoOwner, repoName, branchName);
         return new Application(githubConf);
     }
-
-
 
     @Test
     @Ignore

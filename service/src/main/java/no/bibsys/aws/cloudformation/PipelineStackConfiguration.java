@@ -50,39 +50,31 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
     private String initBucketName() {
         return new StringUtils().randomString(BUCKET_NAME_SIZE);
-
     }
-
 
     public String getBucketName() {
         return bucketName;
     }
 
-
     public String getPipelineStackName() {
         return pipelineStackName;
     }
-
 
     private String initPipelineStackName() {
         return format(projectId, normalizedBranchName, "pipelineStack");
     }
 
-
     private String initPipelineRoleName() {
         return format("PipelineRole", projectId, normalizedBranchName);
     }
-
 
     public String getPipelineRoleName() {
         return pipelineRoleName;
     }
 
-
     public String getCreateStackRoleName() {
         return createStackRoleName;
     }
-
 
     public PipelineConfiguration getPipelineConfiguration() {
         return pipelineConfiguration;

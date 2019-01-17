@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNot.not;
+
 import java.io.IOException;
 import java.util.regex.Matcher;
 import org.junit.Test;
@@ -68,15 +69,12 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
     }
 
 
-
-
     @Test
     public void initBucketName_void_bucketNameisOfSpecifiedLength() {
         assertThat(conf.getBucketName().length(),
             is(equalTo(PipelineStackConfiguration.BUCKET_NAME_SIZE)));
 
     }
-
 
     @Test
     public void initBucketName_projectIdAndNormalizedBranch_endWithAlphanumericChar() {
@@ -94,7 +92,6 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
         assertThat(matcher.matches(), is(equalTo(true)));
         matcher = amazonPattern.matcher(conf.getPipelineConfiguration().getFinalServiceStack());
         assertThat(matcher.matches(), is(equalTo(true)));
-
     }
 
 

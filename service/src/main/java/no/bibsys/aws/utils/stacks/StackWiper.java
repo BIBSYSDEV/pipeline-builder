@@ -30,15 +30,12 @@ import org.slf4j.LoggerFactory;
 
 public class StackWiper {
 
-    private final transient PipelineStackConfiguration pipelineStackConfiguration;
-
-
     private static final Logger logger = LoggerFactory.getLogger(StackWiper.class);
+
+    private final transient PipelineStackConfiguration pipelineStackConfiguration;
 
     public StackWiper(PipelineStackConfiguration pipelineStackConfiguration) {
         this.pipelineStackConfiguration = pipelineStackConfiguration;
-
-
     }
 
 
@@ -75,9 +72,7 @@ public class StackWiper {
         } catch (ResourceNotFoundException e) {
             logger.error(String.format("Function %s could not be found", destroyFunctionName));
         }
-
         return -1;
-
     }
 
 
@@ -91,8 +86,6 @@ public class StackWiper {
 
         logGroups.stream().map(group -> new DeleteLogGroupRequest().withLogGroupName(group))
                 .forEach(request -> logsClient.deleteLogGroup(request));
-
-
     }
 
 
@@ -119,7 +112,6 @@ public class StackWiper {
 
 
     private void awaitDeleteStack(AmazonCloudFormation acf, String stackname) {
-
         int counter = 0;
         List<String> stackNames = acf.describeStacks().getStacks().stream().map(stack -> stack.getStackName())
                 .collect(Collectors.toList());
@@ -133,19 +125,14 @@ public class StackWiper {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
-
         }
-
     }
 
 
     private String exrtactBucketName(String physicalId){
         String[] array = physicalId.split(":::");
         return array[array.length-1];
-
     }
-
 
     public void deleteBuckets() {
         try {
@@ -171,7 +158,6 @@ public class StackWiper {
         s3.deleteBucket(bucketName);
     }
 
-
     private void emptyBucket(String bucketName, AmazonS3 s3) {
         VersionListing versionListing = s3.listVersions(new ListVersionsRequest().withBucketName(bucketName));
 
@@ -195,7 +181,6 @@ public class StackWiper {
         }
 
     }
-
 
     private void deleteObjectBatch(String bucketName, AmazonS3 s3, ObjectListing objectListing) {
         objectListing.getObjectSummaries().stream().forEach(object -> s3.deleteObject(bucketName, object.getKey()));
