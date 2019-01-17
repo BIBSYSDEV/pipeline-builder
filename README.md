@@ -36,4 +36,4 @@
    
 ## Swaggerhub: 
 
-  https://app.swaggerhub.com/apis/axthosarouris/small-api/1.0 
+  https://app.swaggerhub.com/apis/axthosarouris/aut-reg-inf/1.0-oas3
