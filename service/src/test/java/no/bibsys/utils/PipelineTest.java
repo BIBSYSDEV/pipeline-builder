@@ -46,19 +46,19 @@ public class PipelineTest {
 
     @Test
     @Ignore
-    public void deleteAllBuckets()  {
-        AmazonS3 client= AmazonS3ClientBuilder.defaultClient();
-        client.listBuckets().stream().forEach(bucket->{
+    public void deleteAllBuckets() {
+        AmazonS3 client = AmazonS3ClientBuilder.defaultClient();
+        client.listBuckets().stream().forEach(bucket -> {
             checkIfEmptyAndDelete(client, bucket);
         });
     }
 
     private void checkIfEmptyAndDelete(AmazonS3 client, Bucket bucket) {
-        boolean bucketIsEmpty= client
+        boolean bucketIsEmpty = client
             .listObjects(bucket.getName())
             .getObjectSummaries().isEmpty();
 
-        if(bucketIsEmpty){
+        if (bucketIsEmpty) {
             client.deleteBucket(bucket.getName());
         }
     }
@@ -68,20 +68,19 @@ public class PipelineTest {
     @Ignore
     public void deleteAllTables() throws IOException {
         AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
-        client.listTables().getTableNames().stream().filter(table->table.startsWith("test_")).forEach(table->client.deleteTable(table));
+        client.listTables().getTableNames().stream().filter(table -> table.startsWith("test_"))
+            .forEach(table -> client.deleteTable(table));
     }
 
 
     @Test
     @Ignore
-    public void deleteAllLogs(){
-        AWSLogs logs= AWSLogsClientBuilder.defaultClient();
+    public void deleteAllLogs() {
+        AWSLogs logs = AWSLogsClientBuilder.defaultClient();
         logs.describeLogGroups().getLogGroups().stream()
             .forEach(logGroup -> logs.deleteLogGroup(
                 new DeleteLogGroupRequest().withLogGroupName(logGroup.getLogGroupName())));
     }
-
-
 
 
 }
