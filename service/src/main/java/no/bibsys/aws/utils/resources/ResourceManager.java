@@ -47,7 +47,6 @@ public class ResourceManager {
         StaticUrlInfo newStaticUrlInfo = staticUrlInfo;
         logger.info("Gitbranch:{}",gitBranch);
         if (!gitBranch.equals(GitConstants.MASTER)) {
-
             String randomString = DigestUtils.sha1Hex(gitBranch).substring(0, 5);
             logger.info("RandomString:{}",randomString);
             String newUrl = String.format("%s.%s", randomString, staticUrlInfo.getRecordSetName());
