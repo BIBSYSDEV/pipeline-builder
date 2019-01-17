@@ -69,16 +69,11 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
 
 
 
-    @Test
-    public void initBucketName_projectIdAndNormalizedBranch_containsProjectId() {
-        assertThat(conf.getBucketName(), containsString(projectId));
-
-    }
-
 
     @Test
-    public void initBucketName_projectIdAndNormalizedBranch_containsNormalizedBranch() {
-        assertThat(conf.getBucketName(), containsString(normalizedBranch));
+    public void initBucketName_void_bucketNameisOfSpecifiedLength() {
+        assertThat(conf.getBucketName().length(),
+            is(equalTo(PipelineStackConfiguration.BUCKET_NAME_SIZE)));
 
     }
 

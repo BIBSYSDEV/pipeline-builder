@@ -7,8 +7,12 @@ import com.amazonaws.services.logs.AWSLogsClientBuilder;
 import com.amazonaws.services.logs.model.DeleteLogGroupRequest;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 import no.bibsys.aws.Application;
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.utils.stacks.StackWiper;
@@ -18,8 +22,8 @@ import org.junit.Test;
 public class PipelineTest {
 
 
-    private String branchName = "AUTREG-131_ensure_javascript_linting_is_in_place";
-    private String repoName = "authority-registry";
+    private String branchName = "move-to-sparkle";
+    private String repoName = "authority-registry-infrastructure";
     private String repoOwner = "BIBSYSDEV";
 
 
@@ -48,15 +52,22 @@ public class PipelineTest {
 
     @Test
     @Ignore
-    public void deleteAllBuckets() throws IOException {
+    public void deleteAllBuckets()  {
         AmazonS3 client= AmazonS3ClientBuilder.defaultClient();
-        StackWiper stackWiper=new StackWiper(initApplication().getPipelineStackConfiguration());
         client.listBuckets().stream().forEach(bucket->{
-
-            stackWiper.deleteBucket(bucket.getName());
+            checkIfEmptyAndDelete(client, bucket);
         });
     }
 
+    private void checkIfEmptyAndDelete(AmazonS3 client, Bucket bucket) {
+        boolean bucketIsEmpty= client
+            .listObjects(bucket.getName())
+            .getObjectSummaries().isEmpty();
+
+        if(bucketIsEmpty){
+            client.deleteBucket(bucket.getName());
+        }
+    }
 
 
     @Test

@@ -1,6 +1,6 @@
 
 dependencies{
-    compile 'no.bibsys.aws:aws-build-tools:2019.01.14.10.33'
+    compile 'no.bibsys.aws:aws-build-tools:1.0.2'
 
 }
 

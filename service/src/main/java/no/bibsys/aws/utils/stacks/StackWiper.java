@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.cloudformation.Stage;
+import no.bibsys.aws.cloudformation.helpers.ResourceType;
+import no.bibsys.aws.cloudformation.helpers.StackResources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,9 +80,7 @@ public class StackWiper {
 
     }
 
-    private void deleteBuckets() {
-        deleteBucket(pipelineStackConfiguration.getBucketName());
-    }
+
 
 
     private void deleteLogs() {
@@ -140,14 +140,35 @@ public class StackWiper {
     }
 
 
-    public void deleteBucket(String bucketName) {
+    private String exrtactBucketName(String physicalId){
+        String[] array = physicalId.split(":::");
+        return array[array.length-1];
+
+    }
+
+
+    public void deleteBuckets() {
         try {
             AmazonS3 s3 = AmazonS3ClientBuilder.defaultClient();
-            emptyBucket(bucketName, s3);
-            s3.deleteBucket(bucketName);
+
+            StackResources stackResources=
+                new StackResources(pipelineStackConfiguration.getPipelineStackName());
+            List<String> buckeNames = stackResources
+                .getResources(ResourceType.S3_BUCKET)
+                .stream().map(resource -> resource.getPhysicalResourceId())
+                .map(this::exrtactBucketName)
+                .collect(Collectors.toList());
+
+            buckeNames.forEach(name->deleteBucket(name, s3));
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+
+    private void deleteBucket(String bucketName,AmazonS3 s3){
+        emptyBucket(bucketName,s3);
+        s3.deleteBucket(bucketName);
     }
 
 
