@@ -9,8 +9,9 @@ plugins {
 
 wrapper {
     distributionType = Wrapper.DistributionType.ALL
-    gradleVersion = "4.10.1"
+    gradleVersion = "5.1.1"
 }
+
 
 
 dependencies {
@@ -62,6 +63,7 @@ subprojects {
             html.stylesheet rootProject.resources.text.fromFile('config/checkstyle/checkstyle-simple.xsl')
         }
     }
+
 
 
     shadowJar {
