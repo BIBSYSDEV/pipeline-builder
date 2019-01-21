@@ -50,18 +50,10 @@ subprojects {
         }
     }
 
-    pmd {
-        toolVersion = "6.7.0"
-        ruleSetConfig = rootProject.resources.text.fromFile('config/pmd/potential-future-pmd.xml')
-        ruleSets = []
-        ignoreFailures = false
-    }
-
-
     checkstyle {
-        configFile = rootProject.resources.text.fromFile('config/checkstyle/google_checks.xml').asFile()
+        configFile = rootProject.resources.text.fromFile('config/checkstyle/checkstyle.xml').asFile()
         showViolations = true
-        toolVersion '8.12'
+        toolVersion '8.13'
     }
 
     tasks.withType(Checkstyle) {
@@ -70,6 +62,14 @@ subprojects {
             html.enabled true
             html.stylesheet rootProject.resources.text.fromFile('config/checkstyle/checkstyle-simple.xsl')
         }
+    }
+
+
+    pmd {
+        toolVersion = "6.7.0"
+        ruleSetConfig = rootProject.resources.text.fromFile('config/pmd/ruleset.xml')
+        ruleSets = []
+        ignoreFailures = false
     }
 
 
