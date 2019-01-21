@@ -130,7 +130,7 @@ public class StackWiper {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error(e.getMessage());
             }
         }
     }
@@ -155,7 +155,7 @@ public class StackWiper {
 
             bucketNames.forEach(name -> deleteBucket(name, s3));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
     }
 
