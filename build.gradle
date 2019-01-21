@@ -9,8 +9,9 @@ plugins {
 
 wrapper {
     distributionType = Wrapper.DistributionType.ALL
-    gradleVersion = "4.10.1"
+    gradleVersion = "5.1.1"
 }
+
 
 
 dependencies {
@@ -35,9 +36,9 @@ subprojects {
 
     dependencies {
         //libraries for testing
-        testCompile group: 'org.hamcrest', name: 'hamcrest-junit', version: '2.0.0.0'
-        testCompile group: 'org.mockito', name: 'mockito-core', version: '2.23.0'
-        testCompile group: 'junit', name: 'junit', version: '4.12'
+        testImplementation group: 'org.hamcrest', name: 'hamcrest-junit', version: '2.0.0.0'
+        testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.23.0'
+        testImplementation group: 'junit', name: 'junit', version: '4.12'
 
     }
 
@@ -62,6 +63,7 @@ subprojects {
             html.stylesheet rootProject.resources.text.fromFile('config/checkstyle/checkstyle-simple.xsl')
         }
     }
+
 
 
     shadowJar {

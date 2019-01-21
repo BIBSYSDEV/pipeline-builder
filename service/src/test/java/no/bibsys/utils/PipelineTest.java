@@ -18,8 +18,8 @@ import org.junit.Test;
 public class PipelineTest {
 
 
-    private String branchName = "move-to-sparkle";
-    private String repoName = "authority-registry-infrastructure";
+    private String branchName = "AUTREG-122_entity_rdf_presentation";
+    private String repoName = "authority-registry";
     private String repoOwner = "BIBSYSDEV";
 
 
