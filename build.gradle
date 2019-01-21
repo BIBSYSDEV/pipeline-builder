@@ -6,12 +6,10 @@ plugins {
     id 'pmd'
 }
 
-
 wrapper {
     distributionType = Wrapper.DistributionType.ALL
     gradleVersion = "5.1.1"
 }
-
 
 dependencies {
     compile project(":service")
@@ -23,16 +21,14 @@ allprojects {
     repositories {
         mavenCentral()
         maven { url "https://dl.bintray.com/orestis-unit/aws-build-tools" }
-
     }
 }
 
 
 subprojects {
-
     apply plugin: 'checkstyle'
     apply plugin: 'pmd'
-
+    
     dependencies {
         //libraries for testing
         testImplementation('org.hamcrest:java-hamcrest:2.0.0.0')
@@ -40,8 +36,6 @@ subprojects {
         testImplementation('org.junit.jupiter:junit-jupiter-api:5.3.2')
         testImplementation('org.junit.jupiter:junit-jupiter-params:5.3.2')
         testImplementation('org.junit.jupiter:junit-jupiter-engine:5.3.2')
-
-
     }
     test {
         useJUnitPlatform()
@@ -63,8 +57,7 @@ subprojects {
             html.stylesheet rootProject.resources.text.fromFile('config/checkstyle/checkstyle-simple.xsl')
         }
     }
-
-
+    
     pmd {
         toolVersion = "6.7.0"
         ruleSetConfig = rootProject.resources.text.fromFile('config/pmd/ruleset.xml')
@@ -72,14 +65,10 @@ subprojects {
         ignoreFailures = false
     }
 
-
     shadowJar {
         archiveName = "${baseName}-fat.jar"
         exclude('org.apache.tomcat.embed:*')
-
     }
-
-
 }
 
 
