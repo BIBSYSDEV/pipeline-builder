@@ -1,6 +1,6 @@
 
 dependencies{
-    implementation 'no.bibsys.aws:aws-build-tools:1.0.2'
+    implementation 'no.bibsys.aws:aws-build-tools:1.0.3'
 
 }
 
