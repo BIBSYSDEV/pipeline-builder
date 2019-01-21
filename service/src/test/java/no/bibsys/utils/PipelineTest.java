@@ -12,26 +12,29 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import no.bibsys.aws.Application;
 import no.bibsys.aws.git.github.GithubConf;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 
+@Disabled
 public class PipelineTest {
 
 
-    private String branchName = "AUTREG-122_entity_rdf_presentation";
+    private String branchName = "autreg-142-fix-codacy-set";
     private String repoName = "authority-registry";
     private String repoOwner = "BIBSYSDEV";
 
 
+    @Tag("UtilityMethod")
     @Test
-    @Ignore
     public void createStacks() throws IOException, URISyntaxException {
         Application application = initApplication();
         application.createStacks();
     }
 
+
+    @Tag("UtilityMethod")
     @Test
-    @Ignore
     public void deleteStacks() throws IOException, URISyntaxException {
         Application application = initApplication();
         application.wipeStacks();
@@ -44,8 +47,8 @@ public class PipelineTest {
         return new Application(githubConf);
     }
 
+    @Tag("UtilityMethod")
     @Test
-    @Ignore
     public void deleteAllBuckets() {
         AmazonS3 client = AmazonS3ClientBuilder.defaultClient();
         client.listBuckets().stream().forEach(bucket -> {
@@ -54,33 +57,25 @@ public class PipelineTest {
     }
 
     private void checkIfEmptyAndDelete(AmazonS3 client, Bucket bucket) {
-        boolean bucketIsEmpty = client
-            .listObjects(bucket.getName())
-            .getObjectSummaries().isEmpty();
+        boolean bucketIsEmpty = client.listObjects(bucket.getName()).getObjectSummaries().isEmpty();
 
         if (bucketIsEmpty) {
             client.deleteBucket(bucket.getName());
         }
     }
 
-
+    @Tag("UtilityMethod")
     @Test
-    @Ignore
     public void deleteAllTables() throws IOException {
         AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
-        client.listTables().getTableNames().stream().filter(table -> table.startsWith("test_"))
-            .forEach(table -> client.deleteTable(table));
+        client.listTables().getTableNames().stream().filter(table -> table.startsWith("test_")).forEach(table -> client.deleteTable(table));
     }
 
-
+    @Tag("UtilityMethod")
     @Test
-    @Ignore
     public void deleteAllLogs() {
         AWSLogs logs = AWSLogsClientBuilder.defaultClient();
-        logs.describeLogGroups().getLogGroups().stream()
-            .forEach(logGroup -> logs.deleteLogGroup(
-                new DeleteLogGroupRequest().withLogGroupName(logGroup.getLogGroupName())));
+        logs.describeLogGroups().getLogGroups().stream().forEach(logGroup -> logs.deleteLogGroup(new DeleteLogGroupRequest().withLogGroupName(logGroup.getLogGroupName())));
     }
-
 
 }
