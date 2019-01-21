@@ -1,14 +1,14 @@
 package no.bibsys.aws.lambda.deploy.handlers;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.hamcrest.junit.MatcherAssert.assertThat;
 
 import java.io.IOException;
 import no.bibsys.aws.cloudformation.Stage;
 import no.bibsys.aws.git.github.BranchInfo;
 import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SwaggerHubUpdaterTest {
 

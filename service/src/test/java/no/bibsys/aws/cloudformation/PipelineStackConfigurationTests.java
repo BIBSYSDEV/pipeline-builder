@@ -10,7 +10,7 @@ import static org.hamcrest.core.IsNot.not;
 
 import java.io.IOException;
 import java.util.regex.Matcher;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PipelineStackConfigurationTests extends ConfigurationTests {
 
