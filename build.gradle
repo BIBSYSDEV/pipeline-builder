@@ -6,12 +6,10 @@ plugins {
     id 'pmd'
 }
 
-
 wrapper {
     distributionType = Wrapper.DistributionType.ALL
     gradleVersion = "5.1.1"
 }
-
 
 dependencies {
     compile project(":service")
@@ -23,25 +21,21 @@ allprojects {
     repositories {
         mavenCentral()
         maven { url "https://dl.bintray.com/orestis-unit/aws-build-tools" }
-
     }
 }
 
 
 subprojects {
-
     apply plugin: 'checkstyle'
     apply plugin: 'pmd'
-
+    
     dependencies {
         //libraries for testing
-        testImplementation group: 'org.hamcrest', name: 'hamcrest-junit', version: '2.0.0.0'
-        testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.23.0'
+        testImplementation('org.hamcrest:java-hamcrest:2.0.0.0')
+        testImplementation ('org.mockito:mockito-core:2.23.0')
         testImplementation('org.junit.jupiter:junit-jupiter-api:5.3.2')
         testImplementation('org.junit.jupiter:junit-jupiter-params:5.3.2')
         testImplementation('org.junit.jupiter:junit-jupiter-engine:5.3.2')
-
-
     }
     test {
         useJUnitPlatform()
@@ -50,18 +44,10 @@ subprojects {
         }
     }
 
-    pmd {
-        toolVersion = "6.7.0"
-        ruleSetConfig = rootProject.resources.text.fromFile('config/pmd/potential-future-pmd.xml')
-        ruleSets = []
-        ignoreFailures = false
-    }
-
-
     checkstyle {
-        configFile = rootProject.resources.text.fromFile('config/checkstyle/google_checks.xml').asFile()
+        configFile = rootProject.resources.text.fromFile('config/checkstyle/checkstyle.xml').asFile()
         showViolations = true
-        toolVersion '8.12'
+        toolVersion '8.13'
     }
 
     tasks.withType(Checkstyle) {
@@ -71,15 +57,18 @@ subprojects {
             html.stylesheet rootProject.resources.text.fromFile('config/checkstyle/checkstyle-simple.xsl')
         }
     }
-
+    
+    pmd {
+        toolVersion = "6.7.0"
+        ruleSetConfig = rootProject.resources.text.fromFile('config/pmd/ruleset.xml')
+        ruleSets = []
+        ignoreFailures = false
+    }
 
     shadowJar {
         archiveName = "${baseName}-fat.jar"
         exclude('org.apache.tomcat.embed:*')
-
     }
-
-
 }
 
 

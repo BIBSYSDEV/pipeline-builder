@@ -10,7 +10,7 @@ import static org.hamcrest.number.OrderingComparison.greaterThan;
 import no.bibsys.aws.cloudformation.Stage;
 import no.bibsys.aws.route53.StaticUrlInfo;
 import no.bibsys.aws.utils.resources.ResourceManager;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ResourceManagerTests extends ResourceManager {
 

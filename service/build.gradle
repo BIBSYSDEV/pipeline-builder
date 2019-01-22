@@ -1,9 +1,21 @@
 
 dependencies{
-    implementation 'no.bibsys.aws:aws-build-tools:1.0.2'
+    implementation 'no.bibsys.aws:aws-build-tools:1.0.3'
+   
+    // useful java libraries
+    implementation group: 'com.google.guava', name: 'guava', version: '27.0-jre'
 
+    implementation group: 'com.amazonaws', name: 'aws-java-sdk-api-gateway', version: '1.11.+'
+    implementation group: 'com.amazonaws', name: 'aws-java-sdk-cloudformation', version: '1.11.+'
+    implementation group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: '1.11.+'
+    implementation group: 'com.amazonaws', name: 'aws-java-sdk-lambda', version: '1.11.+'
+    implementation group: 'com.amazonaws', name: 'aws-java-sdk-route53', version: '1.11.+'
+    implementation group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.+'
+    implementation group: 'com.amazonaws', name: 'aws-java-sdk-logs', version: '1.11.+'
+    implementation group: 'com.amazonaws', name: 'aws-lambda-java-core', version: '1.2.+'
+    
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
 }
-
 
 test {
     useJUnitPlatform {

@@ -53,7 +53,7 @@ public class Application {
         Preconditions.checkNotNull(branch, "System property \"branch\" is not set");
         String action = System.getProperty("action");
         StringBuilder message = new StringBuilder(100);
-        message.append("System property \"action\" is not set\n").append("Valid values: create,delete");
+        message.append("System property \"action\" is not set\n" + "Valid values: create,delete");
         Preconditions.checkNotNull(action, message.toString());
 
         Application.run(repoOwner, repository, branch, action);

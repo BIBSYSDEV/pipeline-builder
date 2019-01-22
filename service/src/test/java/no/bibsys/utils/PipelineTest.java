@@ -12,9 +12,9 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import no.bibsys.aws.Application;
 import no.bibsys.aws.git.github.GithubConf;
-import org.junit.Test;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 @Disabled
 public class PipelineTest {

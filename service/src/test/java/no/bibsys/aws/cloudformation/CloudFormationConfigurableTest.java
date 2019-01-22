@@ -1,16 +1,16 @@
 package no.bibsys.aws.cloudformation;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertThat;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.regex.Matcher;
-import org.hamcrest.MatcherAssert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CloudFormationConfigurableTest extends ConfigurationTests {
 
@@ -58,7 +58,7 @@ public class CloudFormationConfigurableTest extends ConfigurationTests {
     @Test
     public void initNormalizedBranch_branchName_compliesToAmazonRestrctricions() {
         Matcher matcher = amazonPattern.matcher(conf.getNormalizedBranchName());
-        MatcherAssert.assertThat(matcher.matches(), is(equalTo(true)));
+        assertThat(matcher.matches(), is(equalTo(true)));
 
     }
 }

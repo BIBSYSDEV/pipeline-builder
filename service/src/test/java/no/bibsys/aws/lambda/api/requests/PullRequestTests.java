@@ -7,7 +7,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import java.io.IOException;
 import java.nio.file.Paths;
 import no.bibsys.aws.tools.IoUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PullRequestTests {
 
@@ -19,8 +19,6 @@ public class PullRequestTests {
         pullRequestString = IoUtils.resourceAsString(Paths.get("github", "pullrequest.json"));
         pullRequest = (PullRequest) PullRequest.create(pullRequestString).get();
     }
-
-    // Assert that PullRequest ...
 
     @Test
     public void create_githubPullRequestJson_validAction() {

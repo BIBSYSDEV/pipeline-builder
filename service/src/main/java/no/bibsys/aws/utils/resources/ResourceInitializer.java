@@ -72,11 +72,9 @@ public class ResourceInitializer extends ResourceManager {
             route53UpdateResult.map(result -> result.getChangeInfo().getStatus())
                 .orElse("Server not updated");
 
-        StringBuilder output = new StringBuilder(20);
-        output.append("Swagger:");
-
+        StringBuilder output = new StringBuilder("Swagger:");
         Optional<String> swaggerUpdateResult = swaggerHubUpdater.updateApiDocumentation();
-        swaggerUpdateResult.ifPresent(s -> output.append(s));
+        swaggerUpdateResult.ifPresent(output::append);
         output.append("\nRoute53:").append(route53Status);
         logger.info(output.toString());
         return new SimpleResponse(output.toString());
