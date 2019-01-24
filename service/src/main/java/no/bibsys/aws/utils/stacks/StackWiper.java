@@ -160,7 +160,7 @@ public class StackWiper {
     }
 
 
-    private void deleteBucket(String bucketName, AmazonS3 s3) {
+    public void deleteBucket(String bucketName, AmazonS3 s3) {
         emptyBucket(bucketName, s3);
         s3.deleteBucket(bucketName);
     }
