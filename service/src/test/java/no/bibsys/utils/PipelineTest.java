@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import no.bibsys.aws.Application;
 import no.bibsys.aws.git.github.GithubConf;
+import no.bibsys.aws.utils.stacks.StackWiper;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -20,8 +21,8 @@ import org.junit.jupiter.api.Test;
 public class PipelineTest {
 
 
-    private String branchName = "autreg-142-fix-codacy-set";
-    private String repoName = "authority-registry";
+    private String branchName = "master";
+    private String repoName = "authority-registry-infrastructure";
     private String repoOwner = "BIBSYSDEV";
 
 
@@ -49,17 +50,20 @@ public class PipelineTest {
 
     @Tag("UtilityMethod")
     @Test
-    public void deleteAllBuckets() {
+    public void deleteAllBuckets() throws IOException {
         AmazonS3 client = AmazonS3ClientBuilder.defaultClient();
+        Application application=initApplication();
+        StackWiper stackWiper=new StackWiper(application.getPipelineStackConfiguration());
         client.listBuckets().stream().forEach(bucket -> {
-            checkIfEmptyAndDelete(client, bucket);
+            stackWiper.deleteBucket(bucket.getName(),client);
+
         });
     }
 
     private void checkIfEmptyAndDelete(AmazonS3 client, Bucket bucket) {
         boolean bucketIsEmpty = client.listObjects(bucket.getName()).getObjectSummaries().isEmpty();
 
-        if (bucketIsEmpty) {
+        if (true) {
             client.deleteBucket(bucket.getName());
         }
     }
