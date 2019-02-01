@@ -20,11 +20,9 @@ import org.junit.jupiter.api.Test;
 @Disabled
 public class PipelineTest {
 
-
     private String branchName = "master";
     private String repoName = "authority-registry-infrastructure";
     private String repoOwner = "BIBSYSDEV";
-
 
     @Tag("UtilityMethod")
     @Test
@@ -33,15 +31,12 @@ public class PipelineTest {
         application.createStacks();
     }
 
-
     @Tag("UtilityMethod")
     @Test
     public void deleteStacks() throws IOException, URISyntaxException {
         Application application = initApplication();
         application.wipeStacks();
-
     }
-
 
     private Application initApplication() throws IOException {
         GithubConf githubConf = new GithubConf(repoOwner, repoName, branchName);
@@ -52,11 +47,10 @@ public class PipelineTest {
     @Test
     public void deleteAllBuckets() throws IOException {
         AmazonS3 client = AmazonS3ClientBuilder.defaultClient();
-        Application application=initApplication();
-        StackWiper stackWiper=new StackWiper(application.getPipelineStackConfiguration());
+        Application application = initApplication();
+        StackWiper stackWiper = new StackWiper(application.getPipelineStackConfiguration());
         client.listBuckets().stream().forEach(bucket -> {
-            stackWiper.deleteBucket(bucket.getName(),client);
-
+            stackWiper.deleteBucket(bucket.getName(), client);
         });
     }
 
@@ -72,14 +66,15 @@ public class PipelineTest {
     @Test
     public void deleteAllTables() throws IOException {
         AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
-        client.listTables().getTableNames().stream().filter(table -> table.startsWith("test_")).forEach(table -> client.deleteTable(table));
+        client.listTables().getTableNames().stream().filter(table -> table.startsWith("test_"))
+            .forEach(table -> client.deleteTable(table));
     }
 
     @Tag("UtilityMethod")
     @Test
     public void deleteAllLogs() {
         AWSLogs logs = AWSLogsClientBuilder.defaultClient();
-        logs.describeLogGroups().getLogGroups().stream().forEach(logGroup -> logs.deleteLogGroup(new DeleteLogGroupRequest().withLogGroupName(logGroup.getLogGroupName())));
+        logs.describeLogGroups().getLogGroups().stream().forEach(
+            logGroup -> logs.deleteLogGroup(new DeleteLogGroupRequest().withLogGroupName(logGroup.getLogGroupName())));
     }
-
 }
