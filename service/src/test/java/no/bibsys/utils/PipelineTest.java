@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 public class PipelineTest {
 
     private String branchName = "master";
-    private String repoName = "authority-registry-infrastructure";
+    private String repoName = "authority-registry";
     private String repoOwner = "BIBSYSDEV";
 
     @Tag("UtilityMethod")
