@@ -1,5 +1,5 @@
 # Building Pipelines
- This is a tool for managing CloudFormation stacks in AWS. It integrates Github Pull Requests with CloudForomation and it allows  automatic creation and deletion of  CloudFormation stacks automatically when an Pull Request is opened or closed.
+This is a tool for managing CloudFormation stacks in AWS. It integrates Github Pull Requests with CloudFormation and it allows  automatic creation and deletion of CloudFormation stacks automatically when an Pull Request is opened or closed.
  
  It also enables the user to create a stack for any branch using the commands desribed below.
  
