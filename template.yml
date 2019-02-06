@@ -208,15 +208,15 @@ Resources:
       Runtime: java8
       Environment:
         Variables:
-          SWAGGER_API_ID: "aut-reg-inf"
+          SWAGGER_API_ID: '{{resolve:ssm:INFRASTRUCTURE_SWAGGER_API_ID:1}}'
           SWAGGER_API_VERSION: "1.0"
-          SWAGGER_API_OWNER: 'axthosarouris'
+          SWAGGER_API_OWNER: '{{resolve:ssm:SWAGGER_API_OWNER:1}}'
           OWNER: "BIBSYSDEV"
           BRANCH: !Ref Branch
           REPOSITORY: 'authority-registry-infrastructure'
           STAGE: !Ref Stage
-          ZONE_NAME: 'entitydata.aws.unit.no.'
-          APPLICATION_URL: 'infrastructure.entitydata.aws.unit.no.'
+          ZONE_NAME: '{{resolve:ssm:HOSTED_ZONE_NAME:1}}'
+          APPLICATION_URL: '{{resolve:ssm:INFRASTRUCTURE_URL:1}}'
           REGIONAL_CERTIFICATE_ARN: '{{resolve:ssm:infrastructure-entitydata-certificate-arn:1}}'
           STACK_NAME: !Ref AWS::StackName
 
@@ -252,15 +252,15 @@ Resources:
       CodeUri: build/libs/pipeline-fat.jar
       Environment:
         Variables:
-          SWAGGER_API_ID: "aut-reg-inf"
+          SWAGGER_API_ID: '{{resolve:ssm:INFRASTRUCTURE_SWAGGER_API_ID:1}}'
           SWAGGER_API_VERSION: "1.0"
-          SWAGGER_API_OWNER: 'axthosarouris'
+          SWAGGER_API_OWNER: '{{resolve:ssm:SWAGGER_API_OWNER:1}}'
           OWNER: "BIBSYSDEV"
           BRANCH: !Ref Branch
           REPOSITORY: 'authority-registry-infrastructure'
           STAGE: !Ref Stage
-          ZONE_NAME: 'entitydata.aws.unit.no.'
-          APPLICATION_URL: 'infrastructure.entitydata.aws.unit.no.'
+          ZONE_NAME: '{{resolve:ssm:HOSTED_ZONE_NAME:1}}'
+          APPLICATION_URL: '{{resolve:ssm:INFRASTRUCTURE_URL:1}}'
           REGIONAL_CERTIFICATE_ARN: '{{resolve:ssm:infrastructure-entitydata-certificate-arn:1}}'
           STACK_NAME: !Ref AWS::StackName
       Policies:

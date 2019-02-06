@@ -2,6 +2,8 @@ package no.bibsys.aws.utils.resources;
 
 import com.amazonaws.services.apigateway.AmazonApiGateway;
 import com.amazonaws.services.apigateway.AmazonApiGatewayClientBuilder;
+import com.amazonaws.services.route53.AmazonRoute53;
+import com.amazonaws.services.route53.AmazonRoute53ClientBuilder;
 import com.amazonaws.services.route53.model.ChangeResourceRecordSetsRequest;
 import com.amazonaws.services.route53.model.ChangeResourceRecordSetsResult;
 import java.io.IOException;
@@ -17,11 +19,10 @@ import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * It is called after the creation of a CloudFormation Stack in order to create resources that do
- * not belong to the Stack. These resources can be inside or outside AWS. <br/> It is usually called
- * thought a handler of a Lambda function (see {@link no.bibsys.aws.lambda.deploy.handlers.InitHandler}).
+ * It is called after the creation of a CloudFormation Stack in order to create resources that do not belong to the
+ * Stack. These resources can be inside or outside AWS. <br/> It is usually called thought a handler of a Lambda
+ * function (see {@link no.bibsys.aws.lambda.deploy.handlers.InitHandler}).
  * <p>Currently it stores the API specification to SwaggerHub and creates all Route53 and
  * ApiGateway <br/>configurations related to attaching the branch's RestApi to a static url.
  * </p>
@@ -34,26 +35,20 @@ public class ResourceInitializer extends ResourceManager {
     private final transient Route53Updater route53Updater;
     private final transient String certificateArn;
 
-
-    public ResourceInitializer(String stackName,
-        StaticUrlInfo staticUrlInfo,
-        String certificateArn,
-        SwaggerHubInfo swaggerHubInfo,
-        Stage stage,
-        GitInfo gitInfo
-    ) throws IOException {
+    public ResourceInitializer(String stackName, StaticUrlInfo staticUrlInfo, String certificateArn,
+        SwaggerHubInfo swaggerHubInfo, Stage stage, GitInfo gitInfo) throws IOException {
         super();
         AmazonApiGateway apiGateway = AmazonApiGatewayClientBuilder.defaultClient();
         String apiGatewayRestApi = findRestApi(stackName);
 
-        this.swaggerHubUpdater = initSwaggerHubUpdater(stackName, swaggerHubInfo, stage, gitInfo,
-            apiGateway, apiGatewayRestApi);
+        this.swaggerHubUpdater = initSwaggerHubUpdater(stackName, swaggerHubInfo, stage, gitInfo, apiGateway,
+            apiGatewayRestApi);
 
         StaticUrlInfo newStaticUrlInfo = initStaticUrlInfo(staticUrlInfo, gitInfo.getBranch());
-        route53Updater = new Route53Updater(newStaticUrlInfo, apiGatewayRestApi, apiGateway);
+        AmazonRoute53 route53Client = AmazonRoute53ClientBuilder.defaultClient();
+        route53Updater = new Route53Updater(newStaticUrlInfo, apiGatewayRestApi, apiGateway, route53Client);
         this.certificateArn = certificateArn;
     }
-
 
     public SimpleResponse initializeStacks() throws IOException, URISyntaxException {
 
@@ -62,15 +57,13 @@ public class ResourceInitializer extends ResourceManager {
 
         deletePreviousResources();
 
-        Optional<ChangeResourceRecordSetsRequest> requestOpt = route53Updater
-            .createUpdateRequest(certificateArn);
+        Optional<ChangeResourceRecordSetsRequest> requestOpt = route53Updater.createUpdateRequest(certificateArn);
 
-        Optional<ChangeResourceRecordSetsResult> route53UpdateResult = requestOpt.map(
-            req -> route53Updater.executeUpdateRequest(req));
+        Optional<ChangeResourceRecordSetsResult> route53UpdateResult = requestOpt
+            .map(req -> route53Updater.executeUpdateRequest(req));
 
-        String route53Status =
-            route53UpdateResult.map(result -> result.getChangeInfo().getStatus())
-                .orElse("Server not updated");
+        String route53Status = route53UpdateResult.map(result -> result.getChangeInfo().getStatus())
+            .orElse("Server not updated");
 
         StringBuilder output = new StringBuilder("Swagger:");
         Optional<String> swaggerUpdateResult = swaggerHubUpdater.updateApiDocumentation();
@@ -78,16 +71,12 @@ public class ResourceInitializer extends ResourceManager {
         output.append("\nRoute53:").append(route53Status);
         logger.info(output.toString());
         return new SimpleResponse(output.toString());
-
     }
 
     private void deletePreviousResources() throws URISyntaxException, IOException {
         Route53Updater testPhaseRoute53Updater = route53Updater.copy(Stage.TEST);
-        Optional<ChangeResourceRecordSetsRequest> request = testPhaseRoute53Updater
-            .createDeleteRequest();
+        Optional<ChangeResourceRecordSetsRequest> request = testPhaseRoute53Updater.createDeleteRequest();
         request.ifPresent(route53Updater::executeDeleteRequest);
         swaggerHubUpdater.deleteApiVersion();
     }
-
-
 }
