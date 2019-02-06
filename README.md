@@ -1,8 +1,12 @@
 # Building Pipelines
+ This is a tool for managing CloudFormation stacks in AWS. It integrates Github Pull Requests with CloudForomation and it allows  automatic creation and deletion of  CloudFormation stacks automatically when an Pull Request is opened or closed.
+ 
+ It also enables the user to create a stack for any branch using the commands desribed below.
+ 
+ More information can be found in the Wiki page.
 
 ## Build
  ` sh build.sh ` 
- 
  
  
 ## Run 
@@ -36,4 +40,4 @@
    
 ## Swaggerhub: 
 
-  https://app.swaggerhub.com/apis/axthosarouris/aut-reg-inf/1.0-oas3
+  https://app.swaggerhub.com/apis/axthosarouris/aut-reg-inf/1.0
