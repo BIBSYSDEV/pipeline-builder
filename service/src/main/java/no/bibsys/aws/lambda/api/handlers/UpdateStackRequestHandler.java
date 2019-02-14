@@ -1,14 +1,16 @@
 package no.bibsys.aws.lambda.api.handlers;
 
-
 import com.amazonaws.services.apigateway.model.UnauthorizedException;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Map;
+import no.bibsys.aws.lambda.EnvironmentConstants;
 import no.bibsys.aws.lambda.api.requests.UpdateStackRequest;
 import no.bibsys.aws.lambda.api.utils.Action;
+import no.bibsys.aws.secrets.AWSSecretsReader;
 import no.bibsys.aws.secrets.SecretsReader;
+import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.tools.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,18 +18,15 @@ import org.slf4j.LoggerFactory;
 public class UpdateStackRequestHandler extends ApiHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(UpdateStackRequest.class);
-    private static final String AWS_SECRET_NAME = "infrastructure";
-    private static final String AWS_SECRET_KEY = "buildbranch";
     private static final String API_KEY_HEADER = "api-key";
     private transient SecretsReader secretsReader;
 
-
-    public UpdateStackRequestHandler() {
-        super();
-
-        this.secretsReader = new SecretsReader(AWS_SECRET_NAME, AWS_SECRET_KEY);
+    public UpdateStackRequestHandler(Environment environment) {
+        super(environment);
+        String secretName = environment.readEnv(EnvironmentConstants.REST_USER_API_KEY_SECRET_NAME);
+        String secretKey = environment.readEnv(EnvironmentConstants.REST_USER_API_KEY_SECRET_KEY);
+        this.secretsReader = new AWSSecretsReader(secretName, secretKey,region);
     }
-
 
     @Override
     public String processInput(String string, Map<String, String> headers, Context context)
@@ -50,7 +49,6 @@ public class UpdateStackRequestHandler extends ApiHandler {
         ObjectMapper objectMapper = JsonUtils.newJsonParser();
         String requestJson = objectMapper.writeValueAsString(request);
         return requestJson;
-
     }
 
     private UpdateStackRequest parseRequest(String string) throws IOException {
@@ -69,8 +67,6 @@ public class UpdateStackRequestHandler extends ApiHandler {
     public void setSecretsReader(SecretsReader secretsReader) {
         this.secretsReader = secretsReader;
     }
-
-
 }
 
 

@@ -1,5 +1,6 @@
 package no.bibsys.utils;
 
+import static no.bibsys.aws.testtutils.LocalTest.mockCloudFormationClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.core.Is.is;
@@ -13,6 +14,11 @@ import no.bibsys.aws.utils.resources.ResourceManager;
 import org.junit.jupiter.api.Test;
 
 public class ResourceManagerTests extends ResourceManager {
+
+    public ResourceManagerTests() {
+        super(mockCloudFormationClient());
+    }
+
 
 
     @Test

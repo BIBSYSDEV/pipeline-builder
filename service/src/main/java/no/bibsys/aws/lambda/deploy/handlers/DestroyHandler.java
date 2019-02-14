@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import no.bibsys.aws.git.github.BranchInfo;
 import no.bibsys.aws.lambda.events.DeployEvent;
+import no.bibsys.aws.lambda.handlers.templates.CodePipelineCommunicator;
 import no.bibsys.aws.lambda.responses.SimpleResponse;
 import no.bibsys.aws.route53.StaticUrlInfo;
 import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
@@ -13,13 +14,16 @@ import no.bibsys.aws.utils.resources.ResourceDestroyer;
 
 public class DestroyHandler extends ResourceHandler {
 
+    /**
+     * Used by AWS Lambda.
+     */
     public DestroyHandler() {
-        this(new Environment());
+        this(new Environment(), new CodePipelineCommunicator());
     }
 
-
-    public DestroyHandler(Environment environment) {
-        super(environment);
+    public DestroyHandler(Environment environment,
+        CodePipelineCommunicator codePipelineCommunicator) {
+        super(environment, codePipelineCommunicator);
     }
 
     @Override
@@ -35,15 +39,15 @@ public class DestroyHandler extends ResourceHandler {
             stackName,
             staticUrlInfo,
             swaggerHubInfo,
+            swaggerHubSecretsReader,
             stage,
-            branchInfo
+            branchInfo,
+            cloudFormationClient,
+            apiGatewayClient
 
         );
         resourceDestroyer.destroy();
 
         return new SimpleResponse("OK");
-
     }
-
-
 }

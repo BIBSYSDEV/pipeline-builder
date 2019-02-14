@@ -3,6 +3,8 @@ package no.bibsys.aws.utils.stacks;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
 import com.amazonaws.services.cloudformation.model.DeleteStackRequest;
+import com.amazonaws.services.cloudformation.model.Stack;
+import com.amazonaws.services.cloudformation.model.StackResource;
 import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
 import com.amazonaws.services.lambda.model.InvocationType;
@@ -12,6 +14,7 @@ import com.amazonaws.services.lambda.model.ResourceNotFoundException;
 import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.logs.AWSLogsClientBuilder;
 import com.amazonaws.services.logs.model.DeleteLogGroupRequest;
+import com.amazonaws.services.logs.model.LogGroup;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ListVersionsRequest;
@@ -33,11 +36,12 @@ public class StackWiper {
     private static final Logger logger = LoggerFactory.getLogger(StackWiper.class);
 
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
+    private final transient AmazonCloudFormation cloudFormationClient;
 
     public StackWiper(PipelineStackConfiguration pipelineStackConfiguration) {
         this.pipelineStackConfiguration = pipelineStackConfiguration;
+        this.cloudFormationClient = AmazonCloudFormationClientBuilder.defaultClient();
     }
-
 
     public void deleteStacks() {
         AmazonCloudFormation acf = AmazonCloudFormationClientBuilder.defaultClient();
@@ -55,9 +59,7 @@ public class StackWiper {
 
         acf.deleteStack(new DeleteStackRequest().withStackName(stack));
         awaitDeleteStack(acf, stack);
-
     }
-
 
     private Integer invokeDeleteLambdaFunction(Stage stage) {
         String destroyFunctionName = null;
@@ -77,19 +79,17 @@ public class StackWiper {
         return -1;
     }
 
-
     private void deleteLogs() {
         AWSLogs logsClient = AWSLogsClientBuilder.defaultClient();
         List<String> logGroups =
             logsClient.describeLogGroups().getLogGroups().stream()
-                .map(group -> group.getLogGroupName())
+                .map(LogGroup::getLogGroupName)
                 .filter(name -> filterLogGroups(pipelineStackConfiguration, name))
                 .collect(Collectors.toList());
 
         logGroups.stream().map(group -> new DeleteLogGroupRequest().withLogGroupName(group))
-            .forEach(request -> logsClient.deleteLogGroup(request));
+            .forEach(logsClient::deleteLogGroup);
     }
-
 
     public void wipeStacks() {
 
@@ -108,23 +108,19 @@ public class StackWiper {
         deleteLogs();
     }
 
-
     private boolean filterLogGroups(PipelineStackConfiguration conf, String name) {
-        boolean result =
-            name.contains(conf.getProjectId()) && name.contains(conf.getNormalizedBranchName());
-        return result;
+        return name.contains(conf.getProjectId()) && name.contains(conf.getNormalizedBranchName());
     }
-
 
     private void awaitDeleteStack(AmazonCloudFormation acf, String stackname) {
         int counter = 0;
         List<String> stackNames = acf.describeStacks().getStacks().stream()
-            .map(stack -> stack.getStackName())
+            .map(Stack::getStackName)
             .collect(Collectors.toList());
 
         while (stackNames.contains(stackname) && counter < 100) {
             stackNames = acf.describeStacks().getStacks().stream()
-                .map(stack -> stack.getStackName())
+                .map(Stack::getStackName)
                 .collect(Collectors.toList());
             counter++;
             try {
@@ -135,7 +131,6 @@ public class StackWiper {
         }
     }
 
-
     private String extractBucketName(String physicalId) {
         String[] array = physicalId.split(":::");
         return array[array.length - 1];
@@ -144,12 +139,14 @@ public class StackWiper {
     public void deleteBuckets() {
         try {
             AmazonS3 s3 = AmazonS3ClientBuilder.defaultClient();
-
             StackResources stackResources =
-                new StackResources(pipelineStackConfiguration.getPipelineStackName());
+                new StackResources(
+                    pipelineStackConfiguration.getPipelineStackName(),
+                    cloudFormationClient
+                );
             List<String> bucketNames = stackResources
                 .getResources(ResourceType.S3_BUCKET)
-                .stream().map(resource -> resource.getPhysicalResourceId())
+                .stream().map(StackResource::getPhysicalResourceId)
                 .map(this::extractBucketName)
                 .collect(Collectors.toList());
 
@@ -158,7 +155,6 @@ public class StackWiper {
             logger.error(e.getMessage());
         }
     }
-
 
     public void deleteBucket(String bucketName, AmazonS3 s3) {
         emptyBucket(bucketName, s3);
@@ -188,11 +184,10 @@ public class StackWiper {
             .isEmpty()) {
             emptyBucket(bucketName, s3);
         }
-
     }
 
     private void deleteObjectBatch(String bucketName, AmazonS3 s3, ObjectListing objectListing) {
-        objectListing.getObjectSummaries().stream()
+        objectListing.getObjectSummaries()
             .forEach(object -> s3.deleteObject(bucketName, object.getKey()));
     }
 
@@ -201,6 +196,4 @@ public class StackWiper {
             .forEach(
                 version -> s3.deleteVersion(bucketName, version.getKey(), version.getVersionId()));
     }
-
-
 }

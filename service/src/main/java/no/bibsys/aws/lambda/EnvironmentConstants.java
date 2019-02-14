@@ -32,6 +32,19 @@ public class EnvironmentConstants {
 
     public static final String SWAGGER_API_OWNER = "SWAGGER_API_OWNER";
 
+    public static String ACCESS_SWAGGERHUB_SECRET_NAME="ACCESS_SWAGGERHUB_SECRET_NAME";
+    public static String ACCESS_SWAGGERHUB_SECRET_KEY="ACCESS_SWAGGERHUB_SECRET_KEY";
+
 
     public static final String BRANCH = "BRANCH";
+    public static final String AWS_REGION = "AWS_REGION";
+
+    public static final String REST_USER_API_KEY_SECRET_NAME="REST_USER_API_KEY_SECRET_NAME";
+    public static final String REST_USER_API_KEY_SECRET_KEY = "REST_USER_API_KEY_SECRET_KEY";
+    public static final String READ_FROM_GITHUB_SECRET_NAME = "READ_FROM_GITHUB_SECRET_NAME" ;
+    public static final String READ_FROM_GITHUB_SECRET_KEY = "READ_FROM_GITHUB_SECRET_KEY" ;
+    public static final String GITHUB_WEBHOOK_SECRET_NAME = "GITHUB_WEBHOOK_SECRET_NAME";
+    public static final String GITHUB_WEBHOOK_SECRET_KEY = "GITHUB_WEBHOOK_SECRET_KEY";
+
+
 }

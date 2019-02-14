@@ -123,6 +123,10 @@ Resources:
       CodeUri: build/libs/pipeline-fat.jar
       MemorySize:  1500
       Timeout: 900
+      Environment:
+        Variables:
+          REST_USER_API_KEY_SECRET_NAME: 'infrastructure'
+          REST_USER_API_KEY_SECRET_KEY:   'buildbranch'
       Events:
         RestApiEvent:
           Type: Api
