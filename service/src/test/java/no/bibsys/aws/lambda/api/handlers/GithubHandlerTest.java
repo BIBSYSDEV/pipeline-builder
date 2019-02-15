@@ -22,12 +22,10 @@ import org.mockito.Mockito;
 
 public class GithubHandlerTest {
 
-
     private final transient Environment environment;
 
-
-    public GithubHandlerTest(){
-        environment=mockEnvironment(AWS_REGION, ARBITRARY_REGION.getName());
+    public GithubHandlerTest() {
+        environment = mockEnvironment(AWS_REGION, ARBITRARY_REGION.getName());
     }
 
     @Test()
@@ -59,5 +57,4 @@ public class GithubHandlerTest {
         String result = githubHandler.processInput("{\"foo\":\"doo\"}", headers, null);
         assertThat(result, is(equalTo("No action")));
     }
-
 }

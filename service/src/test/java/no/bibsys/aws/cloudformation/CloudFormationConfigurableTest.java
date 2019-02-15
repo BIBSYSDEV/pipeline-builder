@@ -14,11 +14,9 @@ import org.junit.jupiter.api.Test;
 
 public class CloudFormationConfigurableTest extends ConfigurationTests {
 
-
     public CloudFormationConfigurableTest() throws IOException {
         super();
     }
-
 
     @Test
     public void format_strings_stringWithDashes() {
@@ -26,13 +24,11 @@ public class CloudFormationConfigurableTest extends ConfigurationTests {
         assertThat(output, is(equalTo("hello-worl_d")));
     }
 
-
     @Test
     public void initNormalizedBranchName_branchName_normalizedBranchNameUnderSpecifiedLength() {
         assertThat(conf.getNormalizedBranchName().length(),
-                is(not(greaterThan(CloudFormationConfigurable.NORMALIZED_BRANCH_MAX_LENGTH))));
+            is(not(greaterThan(CloudFormationConfigurable.NORMALIZED_BRANCH_MAX_LENGTH))));
     }
-
 
     @Test
     public void initProjectId_repositoryName_projectIdWithoutUnderscores() {
@@ -40,25 +36,25 @@ public class CloudFormationConfigurableTest extends ConfigurationTests {
         assertThat(repoName, is(equalTo("REPOSITORY_NAME_ENV_VAR")));
 
         assertThat(conf.getProjectId(), not(containsString("_")));
-
     }
-
 
     @Test
     public void initProjectId_repositoryName_projectIdWithTokensNotLongerThanSpecified() {
-
         String[] tokens = projectId.split("-");
         Arrays.stream(tokens).forEach(token -> {
-            assertThat(token.length(), is(not(greaterThan(CloudFormationConfigurable.MAX_PROJECT_WORD_LENGTH))));
+            assertThat(token.length(),
+                is(not(greaterThan(CloudFormationConfigurable.MAX_PROJECT_WORD_LENGTH))));
         });
-
     }
-
 
     @Test
     public void initNormalizedBranch_branchName_compliesToAmazonRestrctricions() {
         Matcher matcher = amazonPattern.matcher(conf.getNormalizedBranchName());
         assertThat(matcher.matches(), is(equalTo(true)));
+    }
 
+    @Test
+    public void getBranch_CloudFormationConfigurable_nonNull(){
+        assertThat(conf.getBranchName(),is(not(equalTo(null))));
     }
 }

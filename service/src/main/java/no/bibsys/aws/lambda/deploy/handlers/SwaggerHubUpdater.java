@@ -39,7 +39,7 @@ public class SwaggerHubUpdater {
         SecretsReader swaggerHubSecretsReader,
         Stage stage,
         String stackName,
-        GitInfo gitInfo)  {
+        GitInfo gitInfo) {
         this.apiGateway = apiGateway;
         this.apiGatewayRestApiId = apiGatewayRestApiId;
         this.stage = stage;
@@ -48,7 +48,7 @@ public class SwaggerHubUpdater {
     }
 
     private SwaggerHubInfo intializeSwaggerHubInfo(SwaggerHubInfo swaggerHubInfo, GitInfo gitInfo,
-        String stackName,SecretsReader secretsReader) {
+        String stackName, SecretsReader secretsReader) {
         String branch = gitInfo.getBranch();
         if (branch.equalsIgnoreCase(GitConstants.MASTER)) {
             return swaggerHubInfo;
@@ -57,7 +57,7 @@ public class SwaggerHubUpdater {
             String version = swaggerHubInfo.getApiVersion();
             //If it is not the master branch then do not overwrite the production API.
             // Instead, create an API using the stack name.
-            return new SwaggerHubInfo(stackName, version, org,secretsReader);
+            return new SwaggerHubInfo(stackName, version, org, secretsReader);
         }
     }
 

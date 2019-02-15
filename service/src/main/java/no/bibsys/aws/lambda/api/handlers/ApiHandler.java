@@ -17,11 +17,12 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
     protected final transient Region region;
     private final transient SecretsReader secretsReader;
 
-
     protected ApiHandler(Environment environment) {
         super(String.class);
-        String readFromGithubSecretName= environment.readEnv(EnvironmentConstants.READ_FROM_GITHUB_SECRET_NAME);
-        String readFromGithubSecretKey= environment.readEnv(EnvironmentConstants.READ_FROM_GITHUB_SECRET_KEY);
+        String readFromGithubSecretName = environment
+            .readEnv(EnvironmentConstants.READ_FROM_GITHUB_SECRET_NAME);
+        String readFromGithubSecretKey = environment
+            .readEnv(EnvironmentConstants.READ_FROM_GITHUB_SECRET_KEY);
 
         this.region = Region
             .getRegion(Regions.fromName(environment.readEnv(EnvironmentConstants.AWS_REGION)));

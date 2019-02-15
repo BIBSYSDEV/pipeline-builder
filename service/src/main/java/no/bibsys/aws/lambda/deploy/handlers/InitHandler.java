@@ -19,10 +19,9 @@ public class InitHandler extends ResourceHandler {
     /**
      * Used by AWS Lambda
      */
-    public InitHandler()  {
+    public InitHandler() {
         super(new Environment(), new CodePipelineCommunicator());
     }
-
 
     @Override
     public SimpleResponse processInput(DeployEvent input, String apiGatewayMessage, Context context)
@@ -48,8 +47,5 @@ public class InitHandler extends ResourceHandler {
         initializer.initializeStacks();
 
         return new SimpleResponse("OK");
-
     }
-
-
 }

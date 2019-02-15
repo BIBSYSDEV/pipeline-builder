@@ -41,12 +41,11 @@ public class UpdateStackRequestHandlerTest {
             () -> handler.processInput(requestJson, headers, null));
     }
 
-    private UpdateStackRequestHandler newHandlerWithMockSecretsReader()  {
+    private UpdateStackRequestHandler newHandlerWithMockSecretsReader() {
         UpdateStackRequestHandler handler = new UpdateStackRequestHandler(
             mockEnvironment(EnvironmentConstants.AWS_REGION, ARBITRARY_REGION.getName()));
-        SecretsReader secretsReader = ()-> ARBITRARY_SECRET_VALUE;
+        SecretsReader secretsReader = () -> ARBITRARY_SECRET_VALUE;
         handler.setSecretsReader(secretsReader);
         return handler;
     }
-
 }

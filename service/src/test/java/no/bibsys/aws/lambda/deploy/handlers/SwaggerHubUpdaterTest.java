@@ -54,6 +54,4 @@ public class SwaggerHubUpdaterTest {
         SwaggerHubInfo newInfo = swaggerHubUpdater.getSwaggerHubInfo();
         assertThat(newInfo.getApiId(), is(equalTo(API_ID)));
     }
-
-
 }
