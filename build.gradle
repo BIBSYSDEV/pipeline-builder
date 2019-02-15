@@ -42,6 +42,7 @@ subprojects {
         testLogging {
             events "passed", "skipped", "failed"
         }
+        failFast = true
     }
 
     checkstyle {

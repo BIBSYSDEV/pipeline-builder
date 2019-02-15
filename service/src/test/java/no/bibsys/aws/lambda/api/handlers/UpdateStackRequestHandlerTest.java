@@ -2,22 +2,28 @@ package no.bibsys.aws.lambda.api.handlers;
 
 import static no.bibsys.aws.testtutils.LocalTest.mockEnvironment;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
 
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.apigateway.model.UnauthorizedException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import no.bibsys.aws.lambda.EnvironmentConstants;
 import no.bibsys.aws.lambda.api.requests.UpdateStackRequest;
 import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.tools.JsonUtils;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 public class UpdateStackRequestHandlerTest {
 
-    private final UpdateStackRequest request = new UpdateStackRequest("OWNER", "REPO", "BRAnCH",
+    private static final String SOME_OWNER = "OWNER";
+    private static final String SOME_REPO = "REPO";
+    private static final String SOME_BRANCH = "BRAnCH";
+    private static final String ARBITRARY_SECRET_VALUE = "secretValue";
+    private static final Region ARBITRARY_REGION = Region.getRegion(Regions.EU_WEST_1);
+    private final UpdateStackRequest request = new UpdateStackRequest(SOME_OWNER, SOME_REPO,
+        SOME_BRANCH,
         "create");
     private final String requestJson;
 
@@ -26,8 +32,7 @@ public class UpdateStackRequestHandlerTest {
     }
 
     @Test
-    public void handleRequest_falseSignature_UnauthorizedException()
-        throws IOException {
+    public void handleRequest_falseSignature_UnauthorizedException() {
         UpdateStackRequestHandler handler = newHandlerWithMockSecretsReader();
         Map<String, String> headers = new HashMap<>();
         headers.put("api-key", "wrongValue");
@@ -36,12 +41,11 @@ public class UpdateStackRequestHandlerTest {
             () -> handler.processInput(requestJson, headers, null));
     }
 
-    private UpdateStackRequestHandler newHandlerWithMockSecretsReader() throws IOException {
-        UpdateStackRequestHandler handler = new UpdateStackRequestHandler(mockEnvironment());
-        SecretsReader secretsReader = Mockito.mock(SecretsReader.class);
-        when(secretsReader.readSecret()).thenReturn("secretValue");
+    private UpdateStackRequestHandler newHandlerWithMockSecretsReader()  {
+        UpdateStackRequestHandler handler = new UpdateStackRequestHandler(
+            mockEnvironment(EnvironmentConstants.AWS_REGION, ARBITRARY_REGION.getName()));
+        SecretsReader secretsReader = ()-> ARBITRARY_SECRET_VALUE;
         handler.setSecretsReader(secretsReader);
-
         return handler;
     }
 

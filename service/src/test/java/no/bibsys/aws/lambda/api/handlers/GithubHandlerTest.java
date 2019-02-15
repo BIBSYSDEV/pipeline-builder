@@ -1,5 +1,8 @@
 package no.bibsys.aws.lambda.api.handlers;
 
+import static no.bibsys.aws.lambda.EnvironmentConstants.AWS_REGION;
+import static no.bibsys.aws.testtutils.LocalTest.ARBITRARY_REGION;
+import static no.bibsys.aws.testtutils.LocalTest.mockEnvironment;
 import static no.bibsys.aws.testtutils.LocalTest.mockSecretsReader;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -20,7 +23,12 @@ import org.mockito.Mockito;
 public class GithubHandlerTest {
 
 
-    private Environment environment = Mockito.mock(Environment.class);
+    private final transient Environment environment;
+
+
+    public GithubHandlerTest(){
+        environment=mockEnvironment(AWS_REGION, ARBITRARY_REGION.getName());
+    }
 
     @Test()
     public void handleRequest_falseSignature_UnauthorizedException()
