@@ -24,6 +24,7 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
     private final transient AmazonS3 s3Client;
     private final transient AWSLambda lambdaClient;
     private final transient AWSLogs logsClient;
+    protected final transient Environment environment;
 
     protected ApiHandler(Environment environment,
         AmazonCloudFormation acf,
@@ -31,6 +32,7 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
         AWSLambda lambdaClient,
         AWSLogs logsClient) {
         super(String.class);
+        this.environment = environment;
         String readFromGithubSecretName = environment
             .readEnv(EnvironmentConstants.READ_FROM_GITHUB_SECRET_NAME);
         String readFromGithubSecretKey = environment

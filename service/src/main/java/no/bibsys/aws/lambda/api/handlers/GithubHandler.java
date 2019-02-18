@@ -35,26 +35,30 @@ public class GithubHandler extends ApiHandler {
      * Used by AWS Lambda.
      */
     public GithubHandler() {
-        this(new Environment(),
+        super(new Environment(),
             AmazonCloudFormationClientBuilder.defaultClient(),
             AmazonS3ClientBuilder.defaultClient(),
             AWSLambdaClientBuilder.defaultClient(),
             AWSLogsClientBuilder.defaultClient()
         );
+
+        String secretName = environment.readEnv(EnvironmentConstants.GITHUB_WEBHOOK_SECRET_NAME);
+        String secretKey = environment.readEnv(EnvironmentConstants.GITHUB_WEBHOOK_SECRET_KEY);
+        String regsionString = environment.readEnv(EnvironmentConstants.AWS_REGION);
+        Region region = Region.getRegion(Regions.fromName(regsionString));
+        SecretsReader secretsReader = new AWSSecretsReader(secretName, secretKey, region);
+        this.signatureChecker = new GithubSignatureChecker(secretsReader);
     }
 
     public GithubHandler(Environment environment,
         AmazonCloudFormation acf,
         AmazonS3 s3,
         AWSLambda lambdaClient,
-        AWSLogs logsClient) {
+        AWSLogs logsClient,
+        GithubSignatureChecker signatureChecker
+    ) {
         super(environment, acf, s3, lambdaClient, logsClient);
-        String secretName = environment.readEnv(EnvironmentConstants.GITHUB_WEBHOOK_SECRET_NAME);
-        String secretKey = environment.readEnv(EnvironmentConstants.GITHUB_WEBHOOK_SECRET_KEY);
-        String regsionString = environment.readEnv(EnvironmentConstants.AWS_REGION);
-        Region region = Region.getRegion(Regions.fromName(regsionString));
-        SecretsReader secretsReader = new AWSSecretsReader(secretName, secretKey, region);
-        signatureChecker = new GithubSignatureChecker(secretsReader);
+        this.signatureChecker = signatureChecker;
     }
 
     @Override
@@ -101,10 +105,6 @@ public class GithubHandler extends ApiHandler {
 
     private Optional<GitEvent> parseEvent(String json) throws IOException {
         return PullRequest.create(json);
-    }
-
-    public void setSignatureChecker(GithubSignatureChecker signatureChecker) {
-        this.signatureChecker = signatureChecker;
     }
 }
 

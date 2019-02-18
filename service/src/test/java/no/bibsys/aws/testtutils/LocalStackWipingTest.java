@@ -1,5 +1,10 @@
 package no.bibsys.aws.testtutils;
 
+import static no.bibsys.aws.testtutils.LocalTest.mockCloudFormationClient;
+import static no.bibsys.aws.testtutils.LocalTest.mockLambdaClient;
+import static no.bibsys.aws.testtutils.LocalTest.mockLogsClient;
+import static no.bibsys.aws.testtutils.LocalTest.mockS3Client;
+import static no.bibsys.aws.testtutils.LocalTest.mockSecretsReader;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -28,7 +33,7 @@ import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.utils.stacks.StackWiper;
 import org.mockito.stubbing.Answer;
 
-public class LocalStackWipingTest extends LocalTest {
+public class LocalStackWipingTest {
 
     private static final String SOME_REPO_OWNER = "owner";
     private static final String SOME_REPO = "repo";
@@ -50,20 +55,24 @@ public class LocalStackWipingTest extends LocalTest {
         pipelineStackConfiguration = new PipelineStackConfiguration(gitInfo);
         AmazonCloudFormation acf = initializeMockCloudFormation();
         AmazonS3 s3 = initializeS3();
-        AWSLambda lambda = mockLambdaClient();
+        AWSLambda lambda = initializeLamdaClient();
         AWSLogs logsClient = initializeMockLogsClient();
         this.stackWiper = new StackWiper(pipelineStackConfiguration, acf,
             s3, lambda, logsClient);
     }
 
-    private AWSLogs initializeMockLogsClient() {
+    protected AWSLambda initializeLamdaClient() {
+        return mockLambdaClient();
+    }
+
+    protected AWSLogs initializeMockLogsClient() {
         AWSLogs logsClient = mockLogsClient();
         when(logsClient.describeLogGroups()).thenReturn(new DescribeLogGroupsResult()
             .withLogGroups(Collections.emptyList()));
         return logsClient;
     }
 
-    private AmazonCloudFormation initializeMockCloudFormation() {
+    protected AmazonCloudFormation initializeMockCloudFormation() {
         AmazonCloudFormation cloudFormation = mockCloudFormationClient();
         when(cloudFormation.listStacks()).thenReturn(listWithStackSummaries());
         when(cloudFormation.describeStacks()).thenReturn(describeStackResults());
@@ -74,7 +83,7 @@ public class LocalStackWipingTest extends LocalTest {
         return cloudFormation;
     }
 
-    private AmazonS3 initializeS3() {
+    protected AmazonS3 initializeS3() {
         AmazonS3 s3 = mockS3Client();
         when(s3.listVersions(any()))
             .then(invocation -> listVersionsAnswer())

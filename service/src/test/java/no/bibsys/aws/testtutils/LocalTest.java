@@ -14,15 +14,21 @@ import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.s3.AmazonS3;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import no.bibsys.aws.lambda.EnvironmentConstants;
+import no.bibsys.aws.lambda.api.handlers.GithubHandler;
+import no.bibsys.aws.secrets.GithubSignatureChecker;
 import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.tools.Environment;
 import org.apache.http.HttpStatus;
 import org.mockito.Mockito;
 
-public class LocalTest {
+public final class LocalTest {
 
     public static final Region ARBITRARY_REGION = Region.getRegion(Regions.EU_WEST_1);
     private static final int ENV_VARIABLE_NAME = 0;
+    private static final String ARBITRARY_SECRET_KEY = "secretKey";
+    public static final String APPROVE_ALL_KEYS = null;
 
     public static AmazonCloudFormation mockCloudFormationClient() {
         AmazonCloudFormation cloudFormation = Mockito.mock(AmazonCloudFormation.class);
@@ -52,20 +58,40 @@ public class LocalTest {
     }
 
     public static SecretsReader mockSecretsReader() {
-        return () -> "secretKey";
+        return () -> ARBITRARY_SECRET_KEY;
+    }
+
+    public static SecretsReader mockSecretsReader(String secretKey) {
+        return () -> secretKey;
+    }
+
+    public static Environment mockEnvironment() {
+        return mockEnvironment(Collections.emptyMap());
+    }
+
+    public static Environment mockEnvironment(Map<String, String> mockEnvValues) {
+
+        Map<String, String> newMap = new ConcurrentHashMap<>();
+        newMap.put(EnvironmentConstants.AWS_REGION, ARBITRARY_REGION.getName());
+        newMap.putAll(mockEnvValues);
+
+        Environment environment = Mockito.mock(Environment.class);
+        when(environment.readEnv(anyString()))
+            .then(invocation -> {
+                String envVariable = invocation.getArgument(ENV_VARIABLE_NAME);
+                return newMap.get(envVariable);
+            });
+        return environment;
     }
 
     public static Environment mockEnvironment(String envVariable, String value) {
         return mockEnvironment(Collections.singletonMap(envVariable, value));
     }
 
-    public static Environment mockEnvironment(Map<String, String> mockEnvValues) {
-        Environment environment = Mockito.mock(Environment.class);
-        when(environment.readEnv(anyString()))
-            .then(invocation -> {
-                String envVariable = invocation.getArgument(ENV_VARIABLE_NAME);
-                return mockEnvValues.get(envVariable);
-            });
-        return environment;
+    public static GithubHandler getGithubHandlerWithMockSecretsReader(Environment environment) {
+
+        GithubSignatureChecker signatureChecker = new GithubSignatureChecker(mockSecretsReader());
+        return new GithubHandler(environment, mockCloudFormationClient(),
+            mockS3Client(), mockLambdaClient(), mockLogsClient(), signatureChecker);
     }
 }
