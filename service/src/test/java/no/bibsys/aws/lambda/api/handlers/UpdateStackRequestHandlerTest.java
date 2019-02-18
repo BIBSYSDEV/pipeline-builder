@@ -1,22 +1,35 @@
 package no.bibsys.aws.lambda.api.handlers;
 
+import static no.bibsys.aws.testtutils.LocalTest.mockCloudFormationClient;
+import static no.bibsys.aws.testtutils.LocalTest.mockEnvironment;
+import static no.bibsys.aws.testtutils.LocalTest.mockLambdaClient;
+import static no.bibsys.aws.testtutils.LocalTest.mockLogsClient;
+import static no.bibsys.aws.testtutils.LocalTest.mockS3Client;
+import static no.bibsys.aws.testtutils.LocalTest.mockSecretsReader;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.apigateway.model.UnauthorizedException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import no.bibsys.aws.lambda.EnvironmentConstants;
 import no.bibsys.aws.lambda.api.requests.UpdateStackRequest;
+import no.bibsys.aws.lambda.api.utils.Action;
 import no.bibsys.aws.secrets.SecretsReader;
-import no.bibsys.aws.testtutils.LocalTest;
+import no.bibsys.aws.testtutils.LocalStackWipingTest;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.tools.JsonUtils;
 import org.junit.jupiter.api.Test;
 
-public class UpdateStackRequestHandlerTest extends LocalTest {
+public class UpdateStackRequestHandlerTest extends LocalStackWipingTest {
 
     private static final String SOME_OWNER = "OWNER";
     private static final String SOME_REPO = "REPO";
@@ -31,6 +44,31 @@ public class UpdateStackRequestHandlerTest extends LocalTest {
     public UpdateStackRequestHandlerTest() throws JsonProcessingException {
         requestJson = JsonUtils.newJsonParser().writeValueAsString(request);
     }
+
+    @Test
+    public void processInput_closePRrequest_actionClose() throws IOException {
+        UpdateStackRequestHandler handler = new UpdateStackRequestHandler(mockEnvironment(),
+            initializeMockCloudFormation(),
+            initializeS3(), initializeLamdaClient(),
+            initializeMockLogsClient(),
+            mockSecretsReader()
+        );
+        String json = deleteStackRequest();
+        String key = mockSecretsReader().readSecret();
+        Map<String, String> headersMap = Collections.singletonMap(
+            UpdateStackRequestHandler.API_KEY_HEADER, key);
+
+        String response = handler.processInput(json, headersMap, null);
+        assertThat(response, is(equalTo(json)));
+    }
+
+    private String deleteStackRequest() throws JsonProcessingException {
+        UpdateStackRequest request = new UpdateStackRequest(SOME_OWNER, SOME_REPO, SOME_BRANCH,
+            Action.DELETE);
+        ObjectMapper parser = JsonUtils.newJsonParser();
+        return parser.writeValueAsString(request);
+    }
+
 
     @Test
     public void handleRequest_falseSignature_UnauthorizedException() {
@@ -50,7 +88,8 @@ public class UpdateStackRequestHandlerTest extends LocalTest {
             mockCloudFormationClient(),
             mockS3Client(),
             mockLambdaClient(),
-            mockLogsClient()
+            mockLogsClient(),
+            mockSecretsReader()
         );
         SecretsReader secretsReader = () -> ARBITRARY_SECRET_VALUE;
         handler.setSecretsReader(secretsReader);

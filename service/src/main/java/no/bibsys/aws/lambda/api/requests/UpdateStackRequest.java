@@ -10,7 +10,8 @@ import com.google.common.base.Preconditions;
 @JsonInclude(Include.NON_NULL)
 public final class UpdateStackRequest extends GitEvent {
 
-
+    private static final String ERROR_MESSAGE = "\"action\" field is empty. Valid values \"create\" or \"delete\"";
+    private static final String INVALID_ACTION_ERROR_MESSAGE = "Valid values: \"create\", \"delete\"";
     private String action;
 
     public UpdateStackRequest() {
@@ -23,8 +24,8 @@ public final class UpdateStackRequest extends GitEvent {
     }
 
     public String getAction() {
-        Preconditions.checkNotNull(action, "\"action\" field is empty. Valid values \"create\" or \"update\"");
-        Preconditions.checkArgument(validActionValue(), "Valid values: \"create\", \"update\"");
+        Preconditions.checkNotNull(action, ERROR_MESSAGE);
+        Preconditions.checkArgument(validActionValue(), INVALID_ACTION_ERROR_MESSAGE);
         return action;
     }
 

@@ -2,10 +2,14 @@ package no.bibsys.aws.lambda.api.handlers;
 
 import com.amazonaws.services.apigateway.model.UnauthorizedException;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
+import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
 import com.amazonaws.services.lambda.AWSLambda;
+import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.logs.AWSLogs;
+import com.amazonaws.services.logs.AWSLogsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Map;
@@ -22,18 +26,31 @@ import org.slf4j.LoggerFactory;
 public class UpdateStackRequestHandler extends ApiHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(UpdateStackRequest.class);
-    private static final String API_KEY_HEADER = "api-key";
+    protected static final String API_KEY_HEADER = "api-key";
     private transient SecretsReader secretsReader;
+
+    public UpdateStackRequestHandler() {
+        super(new Environment(),
+            AmazonCloudFormationClientBuilder.defaultClient(),
+            AmazonS3ClientBuilder.defaultClient(),
+            AWSLambdaClientBuilder.defaultClient(),
+            AWSLogsClientBuilder.defaultClient()
+        );
+        String secretName = environment.readEnv(EnvironmentConstants.REST_USER_API_KEY_SECRET_NAME);
+        String secretKey = environment.readEnv(EnvironmentConstants.REST_USER_API_KEY_SECRET_KEY);
+        this.secretsReader = new AWSSecretsReader(secretName, secretKey, region);
+    }
 
     public UpdateStackRequestHandler(Environment environment,
         AmazonCloudFormation acf,
         AmazonS3 s3,
         AWSLambda lambdaClient,
-        AWSLogs logsClient) {
+        AWSLogs logsClient,
+        SecretsReader secretsReader) {
+
         super(environment, acf, s3, lambdaClient, logsClient);
-        String secretName = environment.readEnv(EnvironmentConstants.REST_USER_API_KEY_SECRET_NAME);
-        String secretKey = environment.readEnv(EnvironmentConstants.REST_USER_API_KEY_SECRET_KEY);
-        this.secretsReader = new AWSSecretsReader(secretName, secretKey, region);
+
+        this.secretsReader = secretsReader;
     }
 
     @Override
