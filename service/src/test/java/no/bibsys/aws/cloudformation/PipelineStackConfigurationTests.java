@@ -93,6 +93,4 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
         matcher = amazonPattern.matcher(conf.getPipelineConfiguration().getFinalServiceStack());
         assertThat(matcher.matches(), is(equalTo(true)));
     }
-
-
 }

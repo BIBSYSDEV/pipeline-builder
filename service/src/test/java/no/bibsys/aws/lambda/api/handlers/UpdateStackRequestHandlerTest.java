@@ -1,6 +1,5 @@
 package no.bibsys.aws.lambda.api.handlers;
 
-import static no.bibsys.aws.testtutils.LocalTest.mockEnvironment;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazonaws.regions.Region;
@@ -12,10 +11,12 @@ import java.util.Map;
 import no.bibsys.aws.lambda.EnvironmentConstants;
 import no.bibsys.aws.lambda.api.requests.UpdateStackRequest;
 import no.bibsys.aws.secrets.SecretsReader;
+import no.bibsys.aws.testtutils.LocalTest;
+import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.tools.JsonUtils;
 import org.junit.jupiter.api.Test;
 
-public class UpdateStackRequestHandlerTest {
+public class UpdateStackRequestHandlerTest extends LocalTest {
 
     private static final String SOME_OWNER = "OWNER";
     private static final String SOME_REPO = "REPO";
@@ -42,8 +43,15 @@ public class UpdateStackRequestHandlerTest {
     }
 
     private UpdateStackRequestHandler newHandlerWithMockSecretsReader() {
+        Environment env = mockEnvironment(EnvironmentConstants.AWS_REGION,
+            ARBITRARY_REGION.getName());
         UpdateStackRequestHandler handler = new UpdateStackRequestHandler(
-            mockEnvironment(EnvironmentConstants.AWS_REGION, ARBITRARY_REGION.getName()));
+            env,
+            mockCloudFormationClient(),
+            mockS3Client(),
+            mockLambdaClient(),
+            mockLogsClient()
+        );
         SecretsReader secretsReader = () -> ARBITRARY_SECRET_VALUE;
         handler.setSecretsReader(secretsReader);
         return handler;

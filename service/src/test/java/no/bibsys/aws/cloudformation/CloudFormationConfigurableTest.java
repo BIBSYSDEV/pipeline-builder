@@ -7,15 +7,21 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNot.not;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import org.junit.jupiter.api.Test;
 
 public class CloudFormationConfigurableTest extends ConfigurationTests {
 
-    public CloudFormationConfigurableTest() throws IOException {
+    public CloudFormationConfigurableTest() {
         super();
+    }
+
+    @Test
+    public void initNormalizedBranchName_normalizedBranchname_shortenedNormalizedBranchName() {
+        PipelineStackConfiguration conf = new PipelineStackConfiguration(githubConfWithEasyBranch);
+        assertThat(conf.getNormalizedBranchName(),
+            is(equalTo(NORMALIZED_BRANCH_NAME_WITH_ONLY_ALLOWED_CHARS)));
     }
 
     @Test

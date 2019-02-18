@@ -2,6 +2,14 @@ package no.bibsys.aws;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
+import com.amazonaws.services.cloudformation.AmazonCloudFormation;
+import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
+import com.amazonaws.services.lambda.AWSLambda;
+import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
+import com.amazonaws.services.logs.AWSLogs;
+import com.amazonaws.services.logs.AWSLogsClientBuilder;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.google.common.base.Preconditions;
 import java.io.IOException;
 import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
@@ -23,12 +31,16 @@ public class Application {
 
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
 
-    public Application(GithubConf gitInfo) {
+    public Application(GithubConf gitInfo,
+        AmazonCloudFormation acf,
+        AmazonS3 s3Client,
+        AWSLambda lambdaClient,
+        AWSLogs logsClient) {
         this.pipelineStackConfiguration = new PipelineStackConfiguration(gitInfo);
         this.repoName = gitInfo.getRepository();
         this.branch = gitInfo.getBranch();
 
-        wiper = new StackWiper(pipelineStackConfiguration);
+        wiper = new StackWiper(pipelineStackConfiguration, acf, s3Client, lambdaClient, logsClient);
         checkNulls();
     }
 
@@ -41,7 +53,12 @@ public class Application {
         throws IOException {
 
         GithubConf gitInfo = new GithubConf(repoOwner, repository, branch, secretsReader);
-        Application application = new Application(gitInfo);
+        AmazonCloudFormation cloudFormation = AmazonCloudFormationClientBuilder.defaultClient();
+        AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
+        AWSLambda lambdaClient = AWSLambdaClientBuilder.defaultClient();
+        AWSLogs logsClient = AWSLogsClientBuilder.defaultClient();
+        Application application = new Application(gitInfo, cloudFormation, s3Client, lambdaClient,
+            logsClient);
         if (action.equals(Action.CREATE)) {
             application.createStacks();
         } else if (action.equals(Action.DELETE)) {

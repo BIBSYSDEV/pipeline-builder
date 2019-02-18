@@ -3,7 +3,15 @@ package no.bibsys.aws.lambda.api.handlers;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.apigateway.model.UnauthorizedException;
+import com.amazonaws.services.cloudformation.AmazonCloudFormation;
+import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
+import com.amazonaws.services.lambda.AWSLambda;
+import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
 import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.logs.AWSLogs;
+import com.amazonaws.services.logs.AWSLogsClientBuilder;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
@@ -27,11 +35,20 @@ public class GithubHandler extends ApiHandler {
      * Used by AWS Lambda.
      */
     public GithubHandler() {
-        this(new Environment());
+        this(new Environment(),
+            AmazonCloudFormationClientBuilder.defaultClient(),
+            AmazonS3ClientBuilder.defaultClient(),
+            AWSLambdaClientBuilder.defaultClient(),
+            AWSLogsClientBuilder.defaultClient()
+        );
     }
 
-    public GithubHandler(Environment environment) {
-        super(environment);
+    public GithubHandler(Environment environment,
+        AmazonCloudFormation acf,
+        AmazonS3 s3,
+        AWSLambda lambdaClient,
+        AWSLogs logsClient) {
+        super(environment, acf, s3, lambdaClient, logsClient);
         String secretName = environment.readEnv(EnvironmentConstants.GITHUB_WEBHOOK_SECRET_NAME);
         String secretKey = environment.readEnv(EnvironmentConstants.GITHUB_WEBHOOK_SECRET_KEY);
         String regsionString = environment.readEnv(EnvironmentConstants.AWS_REGION);

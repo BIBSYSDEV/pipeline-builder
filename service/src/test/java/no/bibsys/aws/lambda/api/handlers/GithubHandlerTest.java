@@ -1,9 +1,6 @@
 package no.bibsys.aws.lambda.api.handlers;
 
 import static no.bibsys.aws.lambda.EnvironmentConstants.AWS_REGION;
-import static no.bibsys.aws.testtutils.LocalTest.ARBITRARY_REGION;
-import static no.bibsys.aws.testtutils.LocalTest.mockEnvironment;
-import static no.bibsys.aws.testtutils.LocalTest.mockSecretsReader;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -16,11 +13,12 @@ import java.util.HashMap;
 import java.util.Map;
 import no.bibsys.aws.secrets.GithubSignatureChecker;
 import no.bibsys.aws.secrets.SecretsReader;
+import no.bibsys.aws.testtutils.LocalTest;
 import no.bibsys.aws.tools.Environment;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class GithubHandlerTest {
+public class GithubHandlerTest extends LocalTest {
 
     private final transient Environment environment;
 
@@ -39,7 +37,8 @@ public class GithubHandlerTest {
     }
 
     private GithubHandler getGithubHandlerWithMockSecretsReader() throws IOException {
-        GithubHandler githubHandler = new GithubHandler(environment);
+        GithubHandler githubHandler = new GithubHandler(environment, mockCloudFormationClient(),
+            mockS3Client(), mockLambdaClient(), mockLogsClient());
         GithubSignatureChecker signatureChecker = new GithubSignatureChecker(mockSecretsReader());
         SecretsReader secretsReader = Mockito.mock(SecretsReader.class);
         signatureChecker.setSecretsReader(secretsReader);

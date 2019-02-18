@@ -1,7 +1,11 @@
 package no.bibsys.aws.lambda.api.handlers;
 
 import com.amazonaws.services.apigateway.model.UnauthorizedException;
+import com.amazonaws.services.cloudformation.AmazonCloudFormation;
+import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.logs.AWSLogs;
+import com.amazonaws.services.s3.AmazonS3;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Map;
@@ -21,11 +25,15 @@ public class UpdateStackRequestHandler extends ApiHandler {
     private static final String API_KEY_HEADER = "api-key";
     private transient SecretsReader secretsReader;
 
-    public UpdateStackRequestHandler(Environment environment) {
-        super(environment);
+    public UpdateStackRequestHandler(Environment environment,
+        AmazonCloudFormation acf,
+        AmazonS3 s3,
+        AWSLambda lambdaClient,
+        AWSLogs logsClient) {
+        super(environment, acf, s3, lambdaClient, logsClient);
         String secretName = environment.readEnv(EnvironmentConstants.REST_USER_API_KEY_SECRET_NAME);
         String secretKey = environment.readEnv(EnvironmentConstants.REST_USER_API_KEY_SECRET_KEY);
-        this.secretsReader = new AWSSecretsReader(secretName, secretKey,region);
+        this.secretsReader = new AWSSecretsReader(secretName, secretKey, region);
     }
 
     @Override

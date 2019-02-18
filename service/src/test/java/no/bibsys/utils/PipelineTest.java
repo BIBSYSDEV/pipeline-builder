@@ -2,8 +2,12 @@ package no.bibsys.utils;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
+import com.amazonaws.services.cloudformation.AmazonCloudFormation;
+import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.lambda.AWSLambda;
+import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
 import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.logs.AWSLogsClientBuilder;
 import com.amazonaws.services.logs.model.DeleteLogGroupRequest;
@@ -24,9 +28,13 @@ import org.junit.jupiter.api.Test;
 @Disabled
 public class PipelineTest {
 
-    private String branchName = "master";
-    private String repoName = "authority-registry";
-    private String repoOwner = "BIBSYSDEV";
+    private final AmazonCloudFormation cloudFormation;
+    private final AmazonS3 s3Client;
+    private final AWSLambda lambdaClient;
+    private static final String branchName = "master";
+    private static final String repoName = "authority-registry";
+    private static final String repoOwner = "BIBSYSDEV";
+    private final transient AWSLogs logsClient;
     private SecretsReader secretsReader;
 
     public PipelineTest() {
@@ -35,6 +43,10 @@ public class PipelineTest {
         String secretKey = env.readEnv(EnvironmentConstants.READ_FROM_GITHUB_SECRET_KEY);
         Region region = Regions.getCurrentRegion();
         secretsReader = new AWSSecretsReader(secretName, secretKey, region);
+        this.cloudFormation = AmazonCloudFormationClientBuilder.defaultClient();
+        this.s3Client = AmazonS3ClientBuilder.defaultClient();
+        this.lambdaClient = AWSLambdaClientBuilder.defaultClient();
+        this.logsClient = AWSLogsClientBuilder.defaultClient();
     }
 
     @Tag("UtilityMethod")
@@ -53,7 +65,7 @@ public class PipelineTest {
 
     private Application initApplication() {
         GithubConf githubConf = new GithubConf(repoOwner, repoName, branchName, secretsReader);
-        return new Application(githubConf);
+        return new Application(githubConf, cloudFormation, s3Client, lambdaClient, logsClient);
     }
 
     @Tag("UtilityMethod")
@@ -61,25 +73,24 @@ public class PipelineTest {
     public void deleteAllBuckets() {
         AmazonS3 client = AmazonS3ClientBuilder.defaultClient();
         Application application = initApplication();
-        StackWiper stackWiper = new StackWiper(application.getPipelineStackConfiguration());
-        client.listBuckets().stream().forEach(bucket -> {
-            stackWiper.deleteBucket(bucket.getName(), client);
-        });
+        StackWiper stackWiper = new StackWiper(application.getPipelineStackConfiguration()
+            , cloudFormation, s3Client, lambdaClient, logsClient);
+        client.listBuckets().forEach(bucket -> stackWiper.deleteBucket(bucket.getName()));
     }
 
     @Tag("UtilityMethod")
     @Test
-    public void deleteAllTables() throws IOException {
+    public void deleteAllTables() {
         AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
         client.listTables().getTableNames().stream().filter(table -> table.startsWith("test_"))
-            .forEach(table -> client.deleteTable(table));
+            .forEach(client::deleteTable);
     }
 
     @Tag("UtilityMethod")
     @Test
     public void deleteAllLogs() {
         AWSLogs logs = AWSLogsClientBuilder.defaultClient();
-        logs.describeLogGroups().getLogGroups().stream().forEach(
+        logs.describeLogGroups().getLogGroups().forEach(
             logGroup -> logs.deleteLogGroup(
                 new DeleteLogGroupRequest().withLogGroupName(logGroup.getLogGroupName())));
     }

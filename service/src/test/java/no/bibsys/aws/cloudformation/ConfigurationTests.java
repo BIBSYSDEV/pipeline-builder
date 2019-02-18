@@ -10,16 +10,24 @@ public abstract class ConfigurationTests extends AmazonNamingRestrictions {
 
     protected final String normalizedBranch;
     protected final String projectId;
-    protected String branchName = "AUTREG-131_ensure_javascript_linting_is_in_place";
+    //underscores not allowd in AWS
+    protected static final String BRANCH_NAME_WITH_NOT_ALLOWED_CHARS = "AUTREG-131_ensure_javascript_linting_is_in_place";
+    protected static final String BRANCH_NAME_WITH_ONLY_ALLOWED_CHARS = "some-branch-here";
+    protected static final String NORMALIZED_BRANCH_NAME_WITH_ONLY_ALLOWED_CHARS = "some-branch-here";
     protected String repoOwner = "OWNER";
     protected String repoName = "REPOSITORY_NAME_ENV_VAR";
     protected PipelineStackConfiguration conf;
-    protected GithubConf githubConf;
+    protected final GithubConf githubConfWithProblematicBranch;
+    protected final GithubConf githubConfWithEasyBranch;
 
 
     public ConfigurationTests() {
-        githubConf = new GithubConf(repoOwner, repoName, branchName,mockSecretsReader());
-        this.conf = new PipelineStackConfiguration(githubConf);
+        githubConfWithProblematicBranch = new GithubConf(repoOwner, repoName,
+            BRANCH_NAME_WITH_NOT_ALLOWED_CHARS, mockSecretsReader());
+        githubConfWithEasyBranch = new GithubConf(repoOwner, repoName,
+            BRANCH_NAME_WITH_ONLY_ALLOWED_CHARS, mockSecretsReader());
+        this.conf = new PipelineStackConfiguration(githubConfWithProblematicBranch);
+
         this.normalizedBranch = conf.getNormalizedBranchName();
         this.projectId = conf.getProjectId();
     }
