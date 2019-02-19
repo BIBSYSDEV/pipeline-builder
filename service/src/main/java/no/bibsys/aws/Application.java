@@ -24,6 +24,7 @@ import no.bibsys.aws.utils.stacks.StackWiper;
 
 public class Application {
 
+    private static final int INIITIAL_CAPACITY = 100;
     private final transient StackWiper wiper;
 
     private final transient String repoName;
@@ -60,7 +61,7 @@ public class Application {
         Application application = new Application(gitInfo, cloudFormation, s3Client, lambdaClient,
             logsClient);
         if (action.equals(Action.CREATE)) {
-            application.createStacks();
+            application.createStacks(cloudFormation);
         } else if (action.equals(Action.DELETE)) {
             application.wipeStacks();
         }
@@ -74,7 +75,7 @@ public class Application {
         String branch = System.getProperty("branch");
         Preconditions.checkNotNull(branch, "System property \"branch\" is not set");
         String action = System.getProperty("action");
-        StringBuilder message = new StringBuilder(100);
+        StringBuilder message = new StringBuilder(INIITIAL_CAPACITY);
         message.append("System property \"action\" is not set\n" + "Valid values: create,delete");
         Preconditions.checkNotNull(action, message.toString());
 
@@ -93,8 +94,10 @@ public class Application {
         return pipelineStackConfiguration;
     }
 
-    public void createStacks() throws IOException {
-        StackBuilder stackBuilder = new StackBuilder(wiper, pipelineStackConfiguration);
+    public void createStacks(AmazonCloudFormation cloudFormation) throws IOException {
+        StackBuilder stackBuilder = new StackBuilder(wiper,
+            pipelineStackConfiguration,
+            cloudFormation);
         stackBuilder.createStacks();
     }
 

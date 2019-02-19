@@ -7,10 +7,10 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import com.amazonaws.services.cloudformation.model.DeleteStackResult;
 import java.util.ArrayList;
 import java.util.List;
-import no.bibsys.aws.testtutils.LocalStackWipingTest;
+import no.bibsys.aws.testtutils.LocalStackTest;
 import org.junit.jupiter.api.Test;
 
-public class StackWiperTest extends LocalStackWipingTest {
+public class StackWiperTest extends LocalStackTest {
 
     @Test
     void deleteStacks_pielineStackConfiguration_deleteStackResults() {

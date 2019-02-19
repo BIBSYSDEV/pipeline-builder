@@ -1,7 +1,6 @@
 package no.bibsys.aws.utils.stacks;
 
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
-import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
 import com.amazonaws.services.cloudformation.model.Capability;
 import com.amazonaws.services.cloudformation.model.CreateStackRequest;
 import com.amazonaws.services.cloudformation.model.Parameter;
@@ -17,34 +16,32 @@ public class StackBuilder {
 
     private final transient StackWiper stackWiper;
 
-
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
+    private final transient AmazonCloudFormation cloudFormationClient;
 
-
-    public StackBuilder(StackWiper wiper, PipelineStackConfiguration pipelineStackConfiguration) {
+    public StackBuilder(
+        StackWiper wiper,
+        PipelineStackConfiguration pipelineStackConfiguration,
+        AmazonCloudFormation cloudFormationClient
+    ) {
+        this.cloudFormationClient = cloudFormationClient;
         this.stackWiper = wiper;
         this.pipelineStackConfiguration = pipelineStackConfiguration;
-
-
     }
-
 
     public void createStacks() throws IOException {
         stackWiper.wipeStacks();
         createPipelineStack(pipelineStackConfiguration);
     }
 
-
-
-    private void createPipelineStack(PipelineStackConfiguration pipelineStackConfiguration) throws IOException {
+    private void createPipelineStack(PipelineStackConfiguration pipelineStackConfiguration)
+        throws IOException {
         CreateStackRequest createStackRequest = createStackRequest(pipelineStackConfiguration);
-        AmazonCloudFormation acf = AmazonCloudFormationClientBuilder.defaultClient();
-        acf.createStack(createStackRequest);
+        cloudFormationClient.createStack(createStackRequest);
     }
 
-
-
-    private CreateStackRequest createStackRequest(PipelineStackConfiguration pipelineStack) throws IOException {
+    private CreateStackRequest createStackRequest(PipelineStackConfiguration pipelineStack)
+        throws IOException {
 
         CreateStackRequest createStackRequest = new CreateStackRequest();
         createStackRequest.setStackName(pipelineStack.getPipelineStackName());
@@ -54,7 +51,8 @@ public class StackBuilder {
         parameters.add(newParameter("GithubRepo", pipelineStack.getGithubConf().getRepository()));
         parameters.add(newParameter("GithubAuth", pipelineStack.getGithubConf().getOauth()));
 
-        parameters.add(newParameter("PipelineName", pipelineStack.getPipelineConfiguration().getPipelineName()));
+        parameters.add(newParameter("PipelineName",
+            pipelineStack.getPipelineConfiguration().getPipelineName()));
 
         parameters.add(newParameter("PipelineBucketname", pipelineStack.getBucketName()));
 
@@ -63,32 +61,35 @@ public class StackBuilder {
         parameters.add(newParameter("CreateStackRolename", pipelineStack.getCreateStackRoleName()));
 
         parameters.add(newParameter("SourceStageOutputArtifact",
-                pipelineStack.getPipelineConfiguration().getSourceOutputArtifactName()));
+            pipelineStack.getPipelineConfiguration().getSourceOutputArtifactName()));
 
         parameters.add(newParameter("ProjectId", pipelineStack.getProjectId()));
         parameters.add(newParameter("ProjectBranch", pipelineStack.getBranchName()));
-        parameters.add(newParameter("NormalizedBranchName", pipelineStack.getNormalizedBranchName()));
+        parameters
+            .add(newParameter("NormalizedBranchName", pipelineStack.getNormalizedBranchName()));
 
         parameters.add(
-                newParameter("CodebuildOutputArtifact", pipelineStack.getCodeBuildConfiguration().getOutputArtifact()));
+            newParameter("CodebuildOutputArtifact",
+                pipelineStack.getCodeBuildConfiguration().getOutputArtifact()));
         parameters.add(
-                newParameter("CodebuildProjectname", pipelineStack.getCodeBuildConfiguration().getBuildProjectName()));
+            newParameter("CodebuildProjectname",
+                pipelineStack.getCodeBuildConfiguration().getBuildProjectName()));
 
         parameters.add(
-                newParameter("ExecuteTestsProjectname",
-                    pipelineStack.getCodeBuildConfiguration().getExecuteTestsProjectName()));
-
+            newParameter("ExecuteTestsProjectname",
+                pipelineStack.getCodeBuildConfiguration().getExecuteTestsProjectName()));
 
         parameters.add(newParameter("PipelineTestServiceStackName",
-                pipelineStack.getPipelineConfiguration().getTestServiceStack()));
+            pipelineStack.getPipelineConfiguration().getTestServiceStack()));
 
         parameters.add(newParameter("PipelineFinalServiceStackName",
-                pipelineStack.getPipelineConfiguration().getFinalServiceStack()));
+            pipelineStack.getPipelineConfiguration().getFinalServiceStack()));
 
         parameters.add(
-                newParameter("InitFunctionName", pipelineStack.getPipelineConfiguration().getInitLambdaFunctionName()));
+            newParameter("InitFunctionName",
+                pipelineStack.getPipelineConfiguration().getInitLambdaFunctionName()));
         parameters.add(newParameter("DestroyFunctionName",
-                pipelineStack.getPipelineConfiguration().getDestroyLambdaFunctionName()));
+            pipelineStack.getPipelineConfiguration().getDestroyLambdaFunctionName()));
 
         parameters.add(newParameter("TestPhaseName", Stage.TEST.toString()));
         parameters.add(newParameter("FinalPhaseName", Stage.FINAL.toString()));
@@ -96,13 +97,12 @@ public class StackBuilder {
         createStackRequest.setParameters(parameters);
         createStackRequest.withCapabilities(Capability.CAPABILITY_NAMED_IAM);
 
-        String templateBody = IoUtils.resourceAsString(Paths.get("templates", "pipelineTemplate.yaml"));
+        String templateBody = IoUtils
+            .resourceAsString(Paths.get("templates", "pipelineTemplate.yaml"));
         createStackRequest.setTemplateBody(templateBody);
 
         return createStackRequest;
-
     }
-
 
     private Parameter newParameter(String key, String value) {
         return new Parameter().withParameterKey(key).withParameterValue(value);

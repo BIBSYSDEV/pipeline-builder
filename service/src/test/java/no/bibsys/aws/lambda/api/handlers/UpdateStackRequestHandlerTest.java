@@ -23,17 +23,16 @@ import java.util.Map;
 import no.bibsys.aws.lambda.EnvironmentConstants;
 import no.bibsys.aws.lambda.api.requests.UpdateStackRequest;
 import no.bibsys.aws.lambda.api.utils.Action;
-import no.bibsys.aws.testtutils.LocalStackWipingTest;
+import no.bibsys.aws.testtutils.LocalStackTest;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.tools.JsonUtils;
 import org.junit.jupiter.api.Test;
 
-public class UpdateStackRequestHandlerTest extends LocalStackWipingTest {
+public class UpdateStackRequestHandlerTest extends LocalStackTest {
 
     private static final String SOME_OWNER = "OWNER";
     private static final String SOME_REPO = "REPO";
     private static final String SOME_BRANCH = "BRAnCH";
-    private static final String ARBITRARY_SECRET_VALUE = "secretValue";
     private static final Region ARBITRARY_REGION = Region.getRegion(Regions.EU_WEST_1);
     private final UpdateStackRequest request = new UpdateStackRequest(SOME_OWNER, SOME_REPO,
         SOME_BRANCH,
@@ -45,10 +44,10 @@ public class UpdateStackRequestHandlerTest extends LocalStackWipingTest {
     }
 
     @Test
-    public void processInput_closePRrequest_actionClose() throws IOException {
+    public void processInput_closeRequest_actionClose() throws IOException {
         UpdateStackRequestHandler handler = new UpdateStackRequestHandler(mockEnvironment(),
             initializeMockCloudFormation(),
-            initializeS3(), initializeLamdaClient(),
+            initializeS3(), initializeLambdaClient(),
             initializeMockLogsClient(),
             mockSecretsReader(),
             mockSecretsReader()
@@ -66,7 +65,7 @@ public class UpdateStackRequestHandlerTest extends LocalStackWipingTest {
     public void processInput_createStackRequest_actionCreate() throws IOException {
         UpdateStackRequestHandler handler = new UpdateStackRequestHandler(mockEnvironment(),
             initializeMockCloudFormation(),
-            initializeS3(), initializeLamdaClient(),
+            initializeS3(), initializeLambdaClient(),
             initializeMockLogsClient(),
             mockSecretsReader(),
             mockSecretsReader()
