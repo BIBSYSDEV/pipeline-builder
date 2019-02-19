@@ -26,9 +26,9 @@ import org.mockito.Mockito;
 public final class LocalTest {
 
     public static final Region ARBITRARY_REGION = Region.getRegion(Regions.EU_WEST_1);
+    public static final String APPROVE_ALL_KEYS = null;
     private static final int ENV_VARIABLE_NAME = 0;
     private static final String ARBITRARY_SECRET_KEY = "secretKey";
-    public static final String APPROVE_ALL_KEYS = null;
 
     public static AmazonCloudFormation mockCloudFormationClient() {
         AmazonCloudFormation cloudFormation = Mockito.mock(AmazonCloudFormation.class);
@@ -91,7 +91,14 @@ public final class LocalTest {
     public static GithubHandler getGithubHandlerWithMockSecretsReader(Environment environment) {
 
         GithubSignatureChecker signatureChecker = new GithubSignatureChecker(mockSecretsReader());
-        return new GithubHandler(environment, mockCloudFormationClient(),
-            mockS3Client(), mockLambdaClient(), mockLogsClient(), signatureChecker);
+        return new GithubHandler(environment,
+            mockCloudFormationClient(),
+            mockS3Client(),
+            mockLambdaClient(),
+            mockLogsClient(),
+            signatureChecker,
+            mockSecretsReader(),
+            mockSecretsReader()
+        );
     }
 }

@@ -1,5 +1,10 @@
 package no.bibsys.aws.lambda.api.handlers;
 
+import static no.bibsys.aws.lambda.EnvironmentConstants.READ_FROM_GITHUB_SECRET_KEY;
+import static no.bibsys.aws.lambda.EnvironmentConstants.READ_FROM_GITHUB_SECRET_NAME;
+import static no.bibsys.aws.lambda.EnvironmentConstants.REST_USER_API_KEY_SECRET_KEY;
+import static no.bibsys.aws.lambda.EnvironmentConstants.REST_USER_API_KEY_SECRET_NAME;
+
 import com.amazonaws.services.apigateway.model.UnauthorizedException;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
@@ -13,7 +18,6 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Map;
-import no.bibsys.aws.lambda.EnvironmentConstants;
 import no.bibsys.aws.lambda.api.requests.UpdateStackRequest;
 import no.bibsys.aws.lambda.api.utils.Action;
 import no.bibsys.aws.secrets.AWSSecretsReader;
@@ -25,9 +29,10 @@ import org.slf4j.LoggerFactory;
 
 public class UpdateStackRequestHandler extends ApiHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(UpdateStackRequest.class);
     protected static final String API_KEY_HEADER = "api-key";
-    private transient SecretsReader secretsReader;
+    private static final Logger logger = LoggerFactory.getLogger(UpdateStackRequest.class);
+    private final SecretsReader readFromGithubSecretsReader;
+    private transient SecretsReader restApiKeySecretsReader;
 
     public UpdateStackRequestHandler() {
         super(new Environment(),
@@ -36,9 +41,16 @@ public class UpdateStackRequestHandler extends ApiHandler {
             AWSLambdaClientBuilder.defaultClient(),
             AWSLogsClientBuilder.defaultClient()
         );
-        String secretName = environment.readEnv(EnvironmentConstants.REST_USER_API_KEY_SECRET_NAME);
-        String secretKey = environment.readEnv(EnvironmentConstants.REST_USER_API_KEY_SECRET_KEY);
-        this.secretsReader = new AWSSecretsReader(secretName, secretKey, region);
+
+        this.restApiKeySecretsReader = new AWSSecretsReader(
+            environment.readEnv(REST_USER_API_KEY_SECRET_NAME)
+            , environment.readEnv(REST_USER_API_KEY_SECRET_KEY),
+            region);
+
+        this.readFromGithubSecretsReader = new AWSSecretsReader(
+            environment.readEnv(READ_FROM_GITHUB_SECRET_NAME),
+            environment.readEnv(READ_FROM_GITHUB_SECRET_KEY),
+            region);
     }
 
     public UpdateStackRequestHandler(Environment environment,
@@ -46,11 +58,14 @@ public class UpdateStackRequestHandler extends ApiHandler {
         AmazonS3 s3,
         AWSLambda lambdaClient,
         AWSLogs logsClient,
-        SecretsReader secretsReader) {
+        SecretsReader restApiKeySecretsReader,
+        SecretsReader readFromGithubSecretsReader
+    ) {
 
         super(environment, acf, s3, lambdaClient, logsClient);
 
-        this.secretsReader = secretsReader;
+        this.restApiKeySecretsReader = restApiKeySecretsReader;
+        this.readFromGithubSecretsReader = readFromGithubSecretsReader;
     }
 
     @Override
@@ -72,8 +87,7 @@ public class UpdateStackRequestHandler extends ApiHandler {
         logger.debug(request.toString());
 
         ObjectMapper objectMapper = JsonUtils.newJsonParser();
-        String requestJson = objectMapper.writeValueAsString(request);
-        return requestJson;
+        return objectMapper.writeValueAsString(request);
     }
 
     private UpdateStackRequest parseRequest(String string) throws IOException {
@@ -83,14 +97,15 @@ public class UpdateStackRequestHandler extends ApiHandler {
 
     private void checkAuthorization(String securityToken) throws IOException {
 
-        String secret = secretsReader.readSecret();
+        String secret = restApiKeySecretsReader.readSecret();
         if (!secret.equals(securityToken)) {
             throw new UnauthorizedException("Wrong API key signature");
         }
     }
 
-    public void setSecretsReader(SecretsReader secretsReader) {
-        this.secretsReader = secretsReader;
+    @Override
+    protected SecretsReader readFromGithubSecretReader() {
+        return this.readFromGithubSecretsReader;
     }
 }
 

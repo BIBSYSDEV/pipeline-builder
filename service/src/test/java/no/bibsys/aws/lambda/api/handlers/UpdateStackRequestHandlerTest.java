@@ -23,7 +23,6 @@ import java.util.Map;
 import no.bibsys.aws.lambda.EnvironmentConstants;
 import no.bibsys.aws.lambda.api.requests.UpdateStackRequest;
 import no.bibsys.aws.lambda.api.utils.Action;
-import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.testtutils.LocalStackWipingTest;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.tools.JsonUtils;
@@ -51,6 +50,7 @@ public class UpdateStackRequestHandlerTest extends LocalStackWipingTest {
             initializeMockCloudFormation(),
             initializeS3(), initializeLamdaClient(),
             initializeMockLogsClient(),
+            mockSecretsReader(),
             mockSecretsReader()
         );
         String json = deleteStackRequest();
@@ -62,9 +62,34 @@ public class UpdateStackRequestHandlerTest extends LocalStackWipingTest {
         assertThat(response, is(equalTo(json)));
     }
 
+    @Test
+    public void processInput_createStackRequest_actionCreate() throws IOException {
+        UpdateStackRequestHandler handler = new UpdateStackRequestHandler(mockEnvironment(),
+            initializeMockCloudFormation(),
+            initializeS3(), initializeLamdaClient(),
+            initializeMockLogsClient(),
+            mockSecretsReader(),
+            mockSecretsReader()
+        );
+        String json = createStackRequest();
+        String key = mockSecretsReader().readSecret();
+        Map<String, String> headersMap = Collections.singletonMap(
+            UpdateStackRequestHandler.API_KEY_HEADER, key);
+
+        String response = handler.processInput(json, headersMap, null);
+        assertThat(response, is(equalTo(json)));
+    }
+
     private String deleteStackRequest() throws JsonProcessingException {
         UpdateStackRequest request = new UpdateStackRequest(SOME_OWNER, SOME_REPO, SOME_BRANCH,
             Action.DELETE);
+        ObjectMapper parser = JsonUtils.newJsonParser();
+        return parser.writeValueAsString(request);
+    }
+
+    private String createStackRequest() throws JsonProcessingException {
+        UpdateStackRequest request = new UpdateStackRequest(SOME_OWNER, SOME_REPO, SOME_BRANCH,
+            Action.CREATE);
         ObjectMapper parser = JsonUtils.newJsonParser();
         return parser.writeValueAsString(request);
     }
@@ -89,10 +114,10 @@ public class UpdateStackRequestHandlerTest extends LocalStackWipingTest {
             mockS3Client(),
             mockLambdaClient(),
             mockLogsClient(),
+            mockSecretsReader(),
             mockSecretsReader()
         );
-        SecretsReader secretsReader = () -> ARBITRARY_SECRET_VALUE;
-        handler.setSecretsReader(secretsReader);
+
         return handler;
     }
 }

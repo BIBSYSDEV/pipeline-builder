@@ -36,7 +36,9 @@ public class GithubHandlerTest extends LocalStackWipingTest {
             initializeMockCloudFormation(),
             initializeS3(), initializeLamdaClient(),
             initializeMockLogsClient(),
-            signatureChecker);
+            signatureChecker,
+            mockSecretsReader(),
+            mockSecretsReader());
         String githubCloseRequest = IoUtils.resourceAsString(Paths.get(GITHUB_RESOURCES_FOLDER,
             CLOSE_PULLREQUEST_JSON));
 

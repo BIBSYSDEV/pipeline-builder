@@ -1,5 +1,11 @@
 package no.bibsys.aws.lambda.api.handlers;
 
+import static no.bibsys.aws.lambda.EnvironmentConstants.AWS_REGION;
+import static no.bibsys.aws.lambda.EnvironmentConstants.GITHUB_WEBHOOK_SECRET_KEY;
+import static no.bibsys.aws.lambda.EnvironmentConstants.GITHUB_WEBHOOK_SECRET_NAME;
+import static no.bibsys.aws.lambda.EnvironmentConstants.READ_FROM_GITHUB_SECRET_KEY;
+import static no.bibsys.aws.lambda.EnvironmentConstants.READ_FROM_GITHUB_SECRET_NAME;
+
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.apigateway.model.UnauthorizedException;
@@ -15,7 +21,6 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
-import no.bibsys.aws.lambda.EnvironmentConstants;
 import no.bibsys.aws.lambda.api.requests.GitEvent;
 import no.bibsys.aws.lambda.api.requests.PullRequest;
 import no.bibsys.aws.secrets.AWSSecretsReader;
@@ -28,8 +33,13 @@ import org.slf4j.LoggerFactory;
 public class GithubHandler extends ApiHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GithubHandler.class);
+    private static final String GITHUB_SIGNATURE_HEADER = "X-Hub-Signature";
+    private static final String ERROR_MESSAGE_FOR_FAILED_GITHUB_SIGNATURE = "Wrong API key signature";
 
+    private transient SecretsReader readFromGithubSecretsReader;
     private transient GithubSignatureChecker signatureChecker;
+
+    private SecretsReader webhookSecretsReader;
 
     /**
      * Used by AWS Lambda.
@@ -42,12 +52,17 @@ public class GithubHandler extends ApiHandler {
             AWSLogsClientBuilder.defaultClient()
         );
 
-        String secretName = environment.readEnv(EnvironmentConstants.GITHUB_WEBHOOK_SECRET_NAME);
-        String secretKey = environment.readEnv(EnvironmentConstants.GITHUB_WEBHOOK_SECRET_KEY);
-        String regsionString = environment.readEnv(EnvironmentConstants.AWS_REGION);
+        String regsionString = environment.readEnv(AWS_REGION);
         Region region = Region.getRegion(Regions.fromName(regsionString));
-        SecretsReader secretsReader = new AWSSecretsReader(secretName, secretKey, region);
-        this.signatureChecker = new GithubSignatureChecker(secretsReader);
+        this.webhookSecretsReader = new AWSSecretsReader(
+            environment.readEnv(GITHUB_WEBHOOK_SECRET_NAME),
+            environment.readEnv(GITHUB_WEBHOOK_SECRET_KEY),
+            region);
+        this.readFromGithubSecretsReader = new AWSSecretsReader(
+            environment.readEnv(READ_FROM_GITHUB_SECRET_NAME),
+            environment.readEnv(READ_FROM_GITHUB_SECRET_KEY),
+            region);
+        this.signatureChecker = new GithubSignatureChecker(webhookSecretsReader);
     }
 
     public GithubHandler(Environment environment,
@@ -55,23 +70,27 @@ public class GithubHandler extends ApiHandler {
         AmazonS3 s3,
         AWSLambda lambdaClient,
         AWSLogs logsClient,
-        GithubSignatureChecker signatureChecker
+        GithubSignatureChecker signatureChecker,
+        SecretsReader webhookSecretsReader,
+        SecretsReader readFromGithubSecretsReader
     ) {
         super(environment, acf, s3, lambdaClient, logsClient);
         this.signatureChecker = signatureChecker;
+        this.webhookSecretsReader = webhookSecretsReader;
+        this.readFromGithubSecretsReader = readFromGithubSecretsReader;
     }
 
     @Override
     public String processInput(String request, Map<String, String> headers, Context context)
         throws IOException {
 
-        String webhookSecurityToken = headers.get("X-Hub-Signature");
+        String webhookSecurityToken = headers.get(GITHUB_SIGNATURE_HEADER);
         boolean verified = signatureChecker.verifySecurityToken(webhookSecurityToken, request);
 
         if (verified) {
             return processGitEvent(request);
         } else {
-            throw new UnauthorizedException("Wrong API key signature");
+            throw new UnauthorizedException(ERROR_MESSAGE_FOR_FAILED_GITHUB_SIGNATURE);
         }
     }
 
@@ -105,6 +124,15 @@ public class GithubHandler extends ApiHandler {
 
     private Optional<GitEvent> parseEvent(String json) throws IOException {
         return PullRequest.create(json);
+    }
+
+    protected SecretsReader getWebhookSecretsReader() {
+        return webhookSecretsReader;
+    }
+
+    @Override
+    protected SecretsReader readFromGithubSecretReader() {
+        return this.readFromGithubSecretsReader;
     }
 }
 
