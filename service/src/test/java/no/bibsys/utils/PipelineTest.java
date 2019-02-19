@@ -53,7 +53,7 @@ public class PipelineTest {
     @Test
     public void createStacks() throws IOException {
         Application application = initApplication();
-        application.createStacks();
+        application.createStacks(cloudFormation);
     }
 
     @Tag("UtilityMethod")

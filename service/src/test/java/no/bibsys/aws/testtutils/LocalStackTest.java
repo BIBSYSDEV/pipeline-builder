@@ -33,7 +33,7 @@ import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.utils.stacks.StackWiper;
 import org.mockito.stubbing.Answer;
 
-public class LocalStackWipingTest {
+public class LocalStackTest {
 
     private static final String SOME_REPO_OWNER = "owner";
     private static final String SOME_REPO = "repo";
@@ -49,19 +49,19 @@ public class LocalStackWipingTest {
     protected final transient StackWiper stackWiper;
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
 
-    public LocalStackWipingTest() {
+    public LocalStackTest() {
         GithubConf gitInfo = new GithubConf(SOME_REPO_OWNER, SOME_REPO, SOME_GIT_BRANCH,
             mockSecretsReader());
         pipelineStackConfiguration = new PipelineStackConfiguration(gitInfo);
         AmazonCloudFormation acf = initializeMockCloudFormation();
         AmazonS3 s3 = initializeS3();
-        AWSLambda lambda = initializeLamdaClient();
+        AWSLambda lambda = initializeLambdaClient();
         AWSLogs logsClient = initializeMockLogsClient();
         this.stackWiper = new StackWiper(pipelineStackConfiguration, acf,
             s3, lambda, logsClient);
     }
 
-    protected AWSLambda initializeLamdaClient() {
+    protected AWSLambda initializeLambdaClient() {
         return mockLambdaClient();
     }
 
