@@ -25,9 +25,6 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
     private final transient AWSLogs logsClient;
     protected final transient Environment environment;
 
-    protected final transient String readFromGithubSecretName;
-    protected final transient String readFromGithubSecretKey;
-
     protected ApiHandler(Environment environment,
         AmazonCloudFormation acf,
         AmazonS3 s3Client,
@@ -37,11 +34,6 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
     ) {
         super(String.class);
         this.environment = environment;
-        readFromGithubSecretName = environment
-            .readEnv(EnvironmentConstants.READ_FROM_GITHUB_SECRET_NAME);
-        readFromGithubSecretKey = environment
-            .readEnv(EnvironmentConstants.READ_FROM_GITHUB_SECRET_KEY);
-
         this.region = Region
             .getRegion(Regions.fromName(environment.readEnv(EnvironmentConstants.AWS_REGION)));
         this.cloudFormation = acf;
@@ -66,7 +58,7 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
                 readFromGithubSecretReader());
         Application application = new Application(gitInfo, cloudFormation, s3Client, lambdaClient,
             logsClient);
-        application.createStacks();
+        application.createStacks(cloudFormation);
     }
 
     protected abstract SecretsReader readFromGithubSecretReader();
