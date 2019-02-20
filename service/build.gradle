@@ -1,6 +1,6 @@
 
 dependencies{
-    implementation 'no.bibsys.aws:aws-build-tools:1.1.0'
+    implementation 'no.bibsys.aws:aws-build-tools:1.2.0f'
    
     // useful java libraries
     implementation group: 'com.google.guava', name: 'guava', version: '27.0-jre'
