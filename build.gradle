@@ -4,11 +4,12 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '2.0.4'
     id 'checkstyle'
     id 'pmd'
+    id 'jacoco'
 }
 
 wrapper {
     distributionType = Wrapper.DistributionType.ALL
-    gradleVersion = "5.1.1"
+    gradleVersion = "5.2.1"
 }
 
 dependencies {
@@ -18,21 +19,21 @@ dependencies {
 allprojects {
     apply plugin: 'java'
     apply plugin: 'base'
+    apply plugin: 'jacoco'
     repositories {
         mavenCentral()
         maven { url "https://dl.bintray.com/orestis-unit/aws-build-tools" }
     }
 }
 
-
 subprojects {
     apply plugin: 'checkstyle'
     apply plugin: 'pmd'
-    
+
     dependencies {
         //libraries for testing
         testImplementation('org.hamcrest:java-hamcrest:2.0.0.0')
-        testImplementation ('org.mockito:mockito-core:2.24.5')
+        testImplementation('org.mockito:mockito-core:2.24.5')
         testImplementation('org.junit.jupiter:junit-jupiter-api:5.3.2')
         testImplementation('org.junit.jupiter:junit-jupiter-params:5.3.2')
         testImplementation('org.junit.jupiter:junit-jupiter-engine:5.3.2')
@@ -42,6 +43,7 @@ subprojects {
         testLogging {
             events "passed", "skipped", "failed"
         }
+        failFast = true
     }
 
     checkstyle {
@@ -57,7 +59,7 @@ subprojects {
             html.stylesheet rootProject.resources.text.fromFile('config/checkstyle/checkstyle-simple.xsl')
         }
     }
-    
+
     pmd {
         toolVersion = "6.7.0"
         ruleSetConfig = rootProject.resources.text.fromFile('config/pmd/ruleset.xml')
@@ -69,6 +71,64 @@ subprojects {
         archiveName = "${baseName}-fat.jar"
         exclude('org.apache.tomcat.embed:*')
     }
+
+
+    jacocoTestReport {
+        reports {
+            xml.enabled false
+            csv.enabled false
+            html.destination file("${buildDir}/reports/jacoco")
+        }
+    }
+
+    jacoco {
+        toolVersion = "0.8.3"
+    }
+
+
+    check.dependsOn jacocoTestCoverageVerification
+    jacocoTestCoverageVerification.dependsOn(jacocoTestReport)
+    jacocoTestCoverageVerification {
+        violationRules {
+            rule {
+                limit {
+                    counter = 'METHOD'
+                    value = 'COVEREDRATIO'
+                    minimum = 0.80
+                    List<String> excludeList = [
+                            '*.CodePipelineCommunicator*',
+                            '*ResourceHandler*',
+                            '*InitHandler*',
+                            '*DestroyHandler*',
+                            '*StackWiper*',
+                            '*StackBuilder*'
+
+                    ]
+                    excludes += (excludeList)
+                }
+            }
+
+            rule {
+                limit {
+                    counter = 'CLASS'
+                    value = 'COVEREDRATIO'
+                    minimum = 0.80
+                    List<String> excludeList = [
+                            '*CodePipelineCommunicator*',
+                            '*ResourceHandler*',
+                            '*InitHandler*',
+                            '*DestroyHandler*',
+                            '*StackWiper*',
+                            '*StackBuilder*'
+                    ]
+                    excludes += (excludeList)
+                }
+            }
+
+        }
+    }
+
+
 }
 
 

@@ -2,7 +2,11 @@ package no.bibsys.aws.cloudformation;
 
 public class PipelineConfiguration extends CloudFormationConfigurable {
 
-
+    public static final String DESTROY_FUNCTION_SUFFIX = "destroy-function";
+    public static final String INIT_FUNCTION_SUFFIX = "init-function";
+    public static final String PIPELINE_NAME_SUFFIX = "pipeline";
+    public static final String SERVICE_STACK_SUFFIX = "service-stack";
+    public static final String SOURCE_OUTPUT_SUFFIX = "sourceOutput";
     private final String sourceOutputArtifactName;
     private final String testServiceStack;
     private final String finalServiceStack;
@@ -28,24 +32,24 @@ public class PipelineConfiguration extends CloudFormationConfigurable {
     }
 
     private String initDestroyLambdaFunction() {
-        return format(projectId, normalizedBranchName, "destroy-function");
+        return format(projectId, normalizedBranchName, DESTROY_FUNCTION_SUFFIX);
     }
 
     private String initInitLambdaFunction() {
-        return format(projectId, normalizedBranchName, "init-function");
+        return format(projectId, normalizedBranchName, INIT_FUNCTION_SUFFIX);
     }
 
 
     private String initializePipelineName() {
-        return format(projectId, normalizedBranchName, "pipeline");
+        return format(projectId, normalizedBranchName, PIPELINE_NAME_SUFFIX);
     }
 
     private String initServiceStack(Stage stage) {
-        return format(projectId, normalizedBranchName, "service-stack", stage.toString());
+        return format(projectId, normalizedBranchName, SERVICE_STACK_SUFFIX, stage.toString());
     }
 
     private String initSourceOutputArtifactName() {
-        return format(projectId, normalizedBranchName, "sourceOutput");
+        return format(projectId, normalizedBranchName, SOURCE_OUTPUT_SUFFIX);
     }
 
     public String getInitLambdaFunctionName() {
