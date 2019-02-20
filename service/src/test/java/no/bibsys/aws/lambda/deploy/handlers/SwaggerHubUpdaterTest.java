@@ -20,7 +20,7 @@ public class SwaggerHubUpdaterTest extends LocalStackTest {
     private static final String STACK_NAME = "stackName";
 
     @Test
-    public void swaggerHubUpdater_notMasterBranch_restAPIWithStackName() throws IOException {
+    public void swaggerHubUpdater_notMasterBranch_restApiWithStackName() throws IOException {
         SwaggerHubInfo swaggerHubInfo = new SwaggerHubInfo(API_ID, API_VERSION, SWAGGER_ORG,
             mockSecretsReader());
         BranchInfo branchInfo = new BranchInfo(null, "notmaster");
@@ -38,7 +38,7 @@ public class SwaggerHubUpdaterTest extends LocalStackTest {
     }
 
     @Test
-    public void swaggerHubUpdater_masterBranch_restAPIWithPredeternminedApiId() throws IOException {
+    public void swaggerHubUpdater_masterBranch_restApiWithPredeternminedApiId() throws IOException {
         SwaggerHubInfo swaggerHubInfo = new SwaggerHubInfo(API_ID, API_VERSION, SWAGGER_ORG,
             mockSecretsReader());
         BranchInfo branchInfo = new BranchInfo(null, "master");

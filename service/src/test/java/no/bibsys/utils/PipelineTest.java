@@ -28,12 +28,12 @@ import org.junit.jupiter.api.Test;
 @Disabled
 public class PipelineTest {
 
-    private final AmazonCloudFormation cloudFormation;
-    private final AmazonS3 s3Client;
-    private final AWSLambda lambdaClient;
     private static final String branchName = "master";
     private static final String repoName = "authority-registry";
     private static final String repoOwner = "BIBSYSDEV";
+    private final AmazonCloudFormation cloudFormation;
+    private final AmazonS3 s3Client;
+    private final AWSLambda lambdaClient;
     private final transient AWSLogs logsClient;
     private SecretsReader secretsReader;
 
@@ -73,8 +73,8 @@ public class PipelineTest {
     public void deleteAllBuckets() {
         AmazonS3 client = AmazonS3ClientBuilder.defaultClient();
         Application application = initApplication();
-        StackWiper stackWiper = new StackWiper(application.getPipelineStackConfiguration()
-            , cloudFormation, s3Client, lambdaClient, logsClient);
+        StackWiper stackWiper = new StackWiper(application.getPipelineStackConfiguration(),
+            cloudFormation, s3Client, lambdaClient, logsClient);
         client.listBuckets().forEach(bucket -> stackWiper.deleteBucket(bucket.getName()));
     }
 

@@ -60,7 +60,7 @@ public class CloudFormationConfigurableTest extends ConfigurationTests {
     }
 
     @Test
-    public void getBranch_CloudFormationConfigurable_nonNull(){
-        assertThat(conf.getBranchName(),is(not(equalTo(null))));
+    public void getBranch_CloudFormationConfigurable_nonNull() {
+        assertThat(conf.getBranchName(), is(not(equalTo(null))));
     }
 }

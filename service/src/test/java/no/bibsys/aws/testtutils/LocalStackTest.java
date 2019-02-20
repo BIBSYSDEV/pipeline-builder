@@ -183,9 +183,9 @@ public class LocalStackTest {
     }
 
     private GetExportResult getExportResult() throws IOException {
-        String jsonAPI = JsonUtils.yamlToJson(IoUtils
+        String jsonApi = JsonUtils.yamlToJson(IoUtils
             .resourceAsString(Paths.get(OPENAPI_RESOURCES_FOLDER, OPENAPI_FILE)));
-        ByteBuffer buffer = ByteBuffer.wrap(jsonAPI.getBytes(), 0, jsonAPI.getBytes().length);
+        ByteBuffer buffer = ByteBuffer.wrap(jsonApi.getBytes(), 0, jsonApi.getBytes().length);
         return new GetExportResult().withBody(buffer);
     }
 
