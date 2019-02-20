@@ -269,6 +269,8 @@ Resources:
           APPLICATION_URL: '{{resolve:ssm:INFRASTRUCTURE_URL:1}}'
           REGIONAL_CERTIFICATE_ARN: '{{resolve:ssm:infrastructure-entitydata-certificate-arn:1}}'
           STACK_NAME: !Ref AWS::StackName
+          ACCESS_SWAGGERHUB_SECRET_NAME: swaggerapikey
+          ACCESS_SWAGGERHUB_SECRET_KEY: swaggerapikey
       Policies:
         Version: '2012-10-17'
         Statement:
