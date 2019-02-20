@@ -43,8 +43,8 @@ public class DestroyHandler extends ResourceHandler {
             stage,
             branchInfo,
             cloudFormationClient,
-            apiGatewayClient
-
+            apiGatewayClient,
+            route53Client
         );
         resourceDestroyer.destroy();
 

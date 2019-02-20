@@ -3,7 +3,6 @@ package no.bibsys.aws.utils.resources;
 import com.amazonaws.services.apigateway.AmazonApiGateway;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.route53.AmazonRoute53;
-import com.amazonaws.services.route53.AmazonRoute53ClientBuilder;
 import com.amazonaws.services.route53.model.ChangeResourceRecordSetsRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -43,7 +42,8 @@ public class ResourceDestroyer extends ResourceManager {
         Stage stage,
         GitInfo gitInfo,
         AmazonCloudFormation cloudFormationClient,
-        AmazonApiGateway apiGatewayClient
+        AmazonApiGateway apiGatewayClient,
+        AmazonRoute53 route53Client
     ) {
         super(cloudFormationClient);
 
@@ -54,7 +54,6 @@ public class ResourceDestroyer extends ResourceManager {
             apiGatewayRestApi, swagggerHubSecretsReader);
 
         StaticUrlInfo newStaticUrlInfo = initStaticUrlInfo(staticUrlInfo, gitInfo.getBranch());
-        AmazonRoute53 route53Client = AmazonRoute53ClientBuilder.defaultClient();
         route53Updater = new Route53Updater(newStaticUrlInfo, apiGatewayRestApi, apiGatewayClient,
             route53Client);
     }

@@ -1,9 +1,5 @@
 package no.bibsys.aws.lambda.api.handlers;
 
-import static no.bibsys.aws.testtutils.LocalTest.APPROVE_ALL_KEYS;
-import static no.bibsys.aws.testtutils.LocalTest.getGithubHandlerWithMockSecretsReader;
-import static no.bibsys.aws.testtutils.LocalTest.mockEnvironment;
-import static no.bibsys.aws.testtutils.LocalTest.mockSecretsReader;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;

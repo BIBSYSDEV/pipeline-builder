@@ -5,9 +5,8 @@ import no.bibsys.aws.tools.StringUtils;
 
 public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
-
     public static final Integer MAX_ROLENAME_SIZE = 64;
-    public static final Integer BUCKET_NAME_SIZE=20;
+    public static final Integer BUCKET_NAME_SIZE = 20;
     private final transient String pipelineStackName;
 
     // Role for creating the stack of the pipeline
@@ -19,12 +18,10 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
     private final transient String bucketName;
     // private final transient GithubConf githubConf;
 
-
     private final GithubConf githubConf;
 
     private final transient PipelineConfiguration pipelineConfiguration;
     private final transient CodeBuildConfiguration codeBuildConfiguration;
-
 
     public PipelineStackConfiguration(GithubConf gitInfo) {
         super(gitInfo.getRepository(), gitInfo.getBranch());
@@ -34,15 +31,15 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
         this.createStackRoleName = initCreateStackRole();
         this.pipelineRoleName = initPipelineRoleName();
 
-        this.pipelineConfiguration = initPipelineConfiguration(gitInfo.getRepository(), gitInfo.getBranch());
-        this.codeBuildConfiguration = new CodeBuildConfiguration(gitInfo.getRepository(), gitInfo.getBranch());
+        this.pipelineConfiguration = initPipelineConfiguration(gitInfo.getRepository(),
+            gitInfo.getBranch());
+        this.codeBuildConfiguration = new CodeBuildConfiguration(gitInfo.getRepository(),
+            gitInfo.getBranch());
     }
-
 
     private PipelineConfiguration initPipelineConfiguration(String repository, String branch) {
         return new PipelineConfiguration(repository, branch);
     }
-
 
     private String initCreateStackRole() {
         return format("CreateStack", projectId, normalizedBranchName);
@@ -87,6 +84,4 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
     public GithubConf getGithubConf() {
         return githubConf;
     }
-
-
 }

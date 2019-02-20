@@ -1,11 +1,5 @@
 package no.bibsys.aws.lambda.api.handlers;
 
-import static no.bibsys.aws.testtutils.LocalTest.mockCloudFormationClient;
-import static no.bibsys.aws.testtutils.LocalTest.mockEnvironment;
-import static no.bibsys.aws.testtutils.LocalTest.mockLambdaClient;
-import static no.bibsys.aws.testtutils.LocalTest.mockLogsClient;
-import static no.bibsys.aws.testtutils.LocalTest.mockS3Client;
-import static no.bibsys.aws.testtutils.LocalTest.mockSecretsReader;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -34,6 +28,8 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
     private static final String SOME_REPO = "REPO";
     private static final String SOME_BRANCH = "BRAnCH";
     private static final Region ARBITRARY_REGION = Region.getRegion(Regions.EU_WEST_1);
+    private static final String API_KEY_HEADEER = "api-key";
+    private static final String WRONG_API_KEY = "wrongValue";
     private final UpdateStackRequest request = new UpdateStackRequest(SOME_OWNER, SOME_REPO,
         SOME_BRANCH,
         "create");
@@ -81,24 +77,23 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
 
     private String deleteStackRequest() throws JsonProcessingException {
         UpdateStackRequest request = new UpdateStackRequest(SOME_OWNER, SOME_REPO, SOME_BRANCH,
-            Action.DELETE);
+            Action.DELETE.toString());
         ObjectMapper parser = JsonUtils.newJsonParser();
         return parser.writeValueAsString(request);
     }
 
     private String createStackRequest() throws JsonProcessingException {
         UpdateStackRequest request = new UpdateStackRequest(SOME_OWNER, SOME_REPO, SOME_BRANCH,
-            Action.CREATE);
+            Action.CREATE.toString());
         ObjectMapper parser = JsonUtils.newJsonParser();
         return parser.writeValueAsString(request);
     }
-
 
     @Test
     public void handleRequest_falseSignature_UnauthorizedException() {
         UpdateStackRequestHandler handler = newHandlerWithMockSecretsReader();
         Map<String, String> headers = new HashMap<>();
-        headers.put("api-key", "wrongValue");
+        headers.put(API_KEY_HEADEER, WRONG_API_KEY);
 
         assertThrows(UnauthorizedException.class,
             () -> handler.processInput(requestJson, headers, null));
@@ -109,10 +104,10 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
             ARBITRARY_REGION.getName());
         UpdateStackRequestHandler handler = new UpdateStackRequestHandler(
             env,
-            mockCloudFormationClient(),
-            mockS3Client(),
-            mockLambdaClient(),
-            mockLogsClient(),
+            initializeMockCloudFormation(),
+            initializeS3(),
+            initializeLambdaClient(),
+            initializeMockLogsClient(),
             mockSecretsReader(),
             mockSecretsReader()
         );

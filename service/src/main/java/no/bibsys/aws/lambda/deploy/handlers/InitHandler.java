@@ -41,7 +41,8 @@ public class InitHandler extends ResourceHandler {
                 stage,
                 branchInfo,
                 cloudFormationClient,
-                apiGatewayClient
+                apiGatewayClient,
+                route53Client
             );
 
         initializer.initializeStacks();

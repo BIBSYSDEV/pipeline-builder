@@ -6,6 +6,8 @@ import com.amazonaws.services.apigateway.AmazonApiGateway;
 import com.amazonaws.services.apigateway.AmazonApiGatewayClientBuilder;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
+import com.amazonaws.services.route53.AmazonRoute53;
+import com.amazonaws.services.route53.AmazonRoute53ClientBuilder;
 import no.bibsys.aws.cloudformation.Stage;
 import no.bibsys.aws.git.github.BranchInfo;
 import no.bibsys.aws.lambda.EnvironmentConstants;
@@ -20,20 +22,19 @@ import no.bibsys.aws.tools.Environment;
 
 public abstract class ResourceHandler extends CodePipelineFunctionHandlerTemplate<SimpleResponse> {
 
-    private final transient String swagerApiId;
-    private final transient String swagerApiVersion;
-    private final transient String swagerApiOwner;
     protected final transient Stage stage;
     protected final transient String stackName;
-    private final transient String zoneName;
-
-    private final transient String applicationUrl;
     protected final transient String branch;
-
     protected final transient Environment environment;
     protected final transient AmazonCloudFormation cloudFormationClient;
     protected final transient AmazonApiGateway apiGatewayClient;
     protected final transient SecretsReader swaggerHubSecretsReader;
+    private final transient String swagerApiId;
+    private final transient String swagerApiVersion;
+    private final transient String swagerApiOwner;
+    private final transient String zoneName;
+    private final transient String applicationUrl;
+    protected final transient AmazonRoute53 route53Client;
 
     public ResourceHandler(Environment environment,
         CodePipelineCommunicator codePipelineCommunicator) {
@@ -54,6 +55,7 @@ public abstract class ResourceHandler extends CodePipelineFunctionHandlerTemplat
 
         this.cloudFormationClient = AmazonCloudFormationClientBuilder.defaultClient();
         this.apiGatewayClient = AmazonApiGatewayClientBuilder.defaultClient();
+        this.route53Client = AmazonRoute53ClientBuilder.defaultClient();
 
         String swaggerHubApiKeySecretsName = environment
             .readEnv(EnvironmentConstants.ACCESS_SWAGGERHUB_SECRET_NAME);

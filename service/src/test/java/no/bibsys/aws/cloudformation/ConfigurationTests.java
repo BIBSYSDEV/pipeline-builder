@@ -1,6 +1,6 @@
 package no.bibsys.aws.cloudformation;
 
-import static no.bibsys.aws.testtutils.LocalTest.mockSecretsReader;
+import static no.bibsys.aws.testtutils.LocalStackTest.mockSecretsReader;
 
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.tools.AmazonNamingRestrictions;

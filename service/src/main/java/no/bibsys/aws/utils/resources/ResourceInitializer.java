@@ -3,7 +3,6 @@ package no.bibsys.aws.utils.resources;
 import com.amazonaws.services.apigateway.AmazonApiGateway;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.route53.AmazonRoute53;
-import com.amazonaws.services.route53.AmazonRoute53ClientBuilder;
 import com.amazonaws.services.route53.model.ChangeResourceRecordSetsRequest;
 import com.amazonaws.services.route53.model.ChangeResourceRecordSetsResult;
 import java.io.IOException;
@@ -44,7 +43,8 @@ public class ResourceInitializer extends ResourceManager {
         Stage stage,
         GitInfo gitInfo,
         AmazonCloudFormation cloudFormationClient,
-        AmazonApiGateway apiGatewayClient
+        AmazonApiGateway apiGatewayClient,
+        AmazonRoute53 route53Client
     ) {
         super(cloudFormationClient);
 
@@ -55,7 +55,7 @@ public class ResourceInitializer extends ResourceManager {
             apiGatewayRestApi, swaggerHubSecretsReader);
 
         StaticUrlInfo newStaticUrlInfo = initStaticUrlInfo(staticUrlInfo, gitInfo.getBranch());
-        AmazonRoute53 route53Client = AmazonRoute53ClientBuilder.defaultClient();
+
         route53Updater = new Route53Updater(newStaticUrlInfo, apiGatewayRestApi, apiGatewayClient,
             route53Client);
         this.certificateArn = certificateArn;
@@ -72,7 +72,7 @@ public class ResourceInitializer extends ResourceManager {
             .createUpdateRequest(certificateArn);
 
         Optional<ChangeResourceRecordSetsResult> route53UpdateResult = requestOpt
-            .map(req -> route53Updater.executeUpdateRequest(req));
+            .map(route53Updater::executeUpdateRequest);
 
         String route53Status = route53UpdateResult.map(result -> result.getChangeInfo().getStatus())
             .orElse("Server not updated");
