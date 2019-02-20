@@ -24,7 +24,7 @@ class ApplicationTest extends LocalStackTest {
     }
 
     @Test
-    public void foo() {
+    public void getPipelineStackConfiguration_Application_notNull() {
         assertThat(application.getPipelineStackConfiguration(), is(not(equalTo(null))));
     }
 }

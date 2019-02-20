@@ -24,7 +24,16 @@ import no.bibsys.aws.utils.stacks.StackWiper;
 
 public class Application {
 
-    private static final int INIITIAL_CAPACITY = 100;
+    private static final String GITHUB_OWNER_PROPERTY = "owner";
+    private static final String GITHUB_REPOSITORY_PROPERTY = "repository";
+    private static final String GIT_BRANCH_PROPERTY = "branch";
+    private static final String CODEPIEPINE_ACTION = "action";
+    private static final String ABSENT_OWNER_ERROR_MEESSAGE = "System property \"owner\" is not set";
+    private static final String ABSENT_REPOSITORY_MESSAGE = "System property \"repository\" is not set";
+    private static final String ABSENT_BRANCH_ERROR_MESSAGE = "System property \"branch\" is not set";
+    private static final String VALID_VALUES_FOR_ACTION_MESSAGE = "Valid values: create,delete";
+    private static final String INVALID_ACTION_VALUE_MESSAGE = "System property \"action\" is not set\n";
+    private static final String ABSENT_ACTION_VALUE_MESSAGE1 = INVALID_ACTION_VALUE_MESSAGE;
     private final transient StackWiper wiper;
 
     private final transient String repoName;
@@ -68,16 +77,15 @@ public class Application {
     }
 
     public static void main(String... args) throws IOException {
-        String repoOwner = System.getProperty("owner");
-        Preconditions.checkNotNull(repoOwner, "System property \"owner\" is not set");
-        String repository = System.getProperty("repository");
-        Preconditions.checkNotNull(repository, "System property \"repository\" is not set");
-        String branch = System.getProperty("branch");
-        Preconditions.checkNotNull(branch, "System property \"branch\" is not set");
-        String action = System.getProperty("action");
-        StringBuilder message = new StringBuilder(INIITIAL_CAPACITY);
-        message.append("System property \"action\" is not set\n" + "Valid values: create,delete");
-        Preconditions.checkNotNull(action, message.toString());
+        String repoOwner = System.getProperty(GITHUB_OWNER_PROPERTY);
+        Preconditions.checkNotNull(repoOwner, ABSENT_OWNER_ERROR_MEESSAGE);
+        String repository = System.getProperty(GITHUB_REPOSITORY_PROPERTY);
+        Preconditions.checkNotNull(repository, ABSENT_REPOSITORY_MESSAGE);
+        String branch = System.getProperty(GIT_BRANCH_PROPERTY);
+        Preconditions.checkNotNull(branch, ABSENT_BRANCH_ERROR_MESSAGE);
+        String action = System.getProperty(CODEPIEPINE_ACTION);
+        String message = ABSENT_ACTION_VALUE_MESSAGE1 + VALID_VALUES_FOR_ACTION_MESSAGE;
+        Preconditions.checkNotNull(action, message);
 
         Region region = Regions.getCurrentRegion();
         Environment environment = new Environment();
