@@ -40,11 +40,12 @@ public class LocalStackTest {
     private static final String SOME_GIT_BRANCH = "branch";
     private static final int REQUEST = 0;
     private static final String ARBITRARY_BUCKET_VERSION = "v1";
-    private static final String TEST_STACK = "testStack";
+    protected static final String TEST_STACK = "testStack";
     private static final String FINAL_STACK = "finalStack";
     private static final String PIPELINE_STACK = "pipelineStack";
     private static final String ARBITRARY_BUCKET_NAME = "aBucket";
     private static final String ARBITRARY_BUCKET_ARN = "s3:::" + ARBITRARY_BUCKET_NAME;
+    private static final String REST_API_PHYSICAL_ID = "aws:::RestAPI";
 
     protected final transient StackWiper stackWiper;
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
@@ -122,8 +123,12 @@ public class LocalStackTest {
                 .withStackName(request.getStackName())
                 .withResourceType(ResourceType.S3_BUCKET.toString())
                 .withPhysicalResourceId(ARBITRARY_BUCKET_ARN);
+            StackResource restApiResource = new StackResource()
+                .withStackName(request.getStackName())
+                .withResourceType(ResourceType.REST_API.toString())
+                .withPhysicalResourceId(REST_API_PHYSICAL_ID);
             return new DescribeStackResourcesResult()
-                .withStackResources(bucketResource);
+                .withStackResources(bucketResource, restApiResource);
         };
     }
 
@@ -145,6 +150,7 @@ public class LocalStackTest {
             .withStacks(new Stack().withStackName(TEST_STACK),
                 new Stack().withStackName(FINAL_STACK),
                 new Stack().withStackName(PIPELINE_STACK)
+
             );
     }
 }

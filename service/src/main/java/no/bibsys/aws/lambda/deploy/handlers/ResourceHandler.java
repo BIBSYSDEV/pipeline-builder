@@ -13,7 +13,7 @@ import no.bibsys.aws.lambda.handlers.templates.CodePipelineCommunicator;
 import no.bibsys.aws.lambda.handlers.templates.CodePipelineFunctionHandlerTemplate;
 import no.bibsys.aws.lambda.responses.SimpleResponse;
 import no.bibsys.aws.route53.StaticUrlInfo;
-import no.bibsys.aws.secrets.AWSSecretsReader;
+import no.bibsys.aws.secrets.AwsSecretsReader;
 import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
 import no.bibsys.aws.tools.Environment;
@@ -61,7 +61,7 @@ public abstract class ResourceHandler extends CodePipelineFunctionHandlerTemplat
             .readEnv(EnvironmentConstants.ACCESS_SWAGGERHUB_SECRET_KEY);
         Region region = Region
             .getRegion(Regions.fromName(environment.readEnv(EnvironmentConstants.AWS_REGION)));
-        this.swaggerHubSecretsReader = new AWSSecretsReader(swaggerHubApiKeySecretsName,
+        this.swaggerHubSecretsReader = new AwsSecretsReader(swaggerHubApiKeySecretsName,
             swaggerHubApiKeySecretsKey, region);
     }
 

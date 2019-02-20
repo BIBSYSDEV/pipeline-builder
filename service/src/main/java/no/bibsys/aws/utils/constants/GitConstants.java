@@ -1,7 +1,9 @@
 package no.bibsys.aws.utils.constants;
 
-public class GitConstants {
+public final class GitConstants {
 
+    private GitConstants() {
+    }
 
     public static final String MASTER = "master";
 

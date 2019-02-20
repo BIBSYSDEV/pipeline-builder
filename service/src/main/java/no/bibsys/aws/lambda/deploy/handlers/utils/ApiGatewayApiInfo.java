@@ -1,5 +1,7 @@
 package no.bibsys.aws.lambda.deploy.handlers.utils;
 
+import static org.apache.http.entity.ContentType.APPLICATION_JSON;
+
 import com.amazonaws.services.apigateway.AmazonApiGateway;
 import com.amazonaws.services.apigateway.model.GetExportRequest;
 import com.amazonaws.services.apigateway.model.GetExportResult;
@@ -12,6 +14,7 @@ import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import no.bibsys.aws.apigateway.ApiGatewayConstants;
@@ -35,6 +38,10 @@ public class ApiGatewayApiInfo {
     private static final String OPENAPI_TEMPLATE = OPENAPI_YML;
     private static final String SERVER_URL_PLACEHOLDER = "<SERVER_PLACEHOLDER>";
     private static final String STAGE_PLACEHOLDER = "<STAGE_PLACEHOLDER>";
+    private static final String ACCEPTS_HEADER = "accepts";
+
+    private static final String MEDIA_TYPE_APPLICATION_JSON = APPLICATION_JSON.getMimeType();
+    private static final int ONE_SERVER_EXPECTED = 0;
     private final transient Stage stage;
     private final transient AmazonApiGateway client;
     private final transient String restApiId;
@@ -61,7 +68,7 @@ public class ApiGatewayApiInfo {
 
     public Optional<ServerInfo> readServerInfo() throws IOException {
         Map<String, String> requestParameters = new ConcurrentHashMap<>();
-        requestParameters.put("accepts", "application/json");
+        requestParameters.put(ACCEPTS_HEADER, MEDIA_TYPE_APPLICATION_JSON);
         Optional<JsonNode> amazonApiSpec = readOpenApiSpecFromAmazon(requestParameters);
         return amazonApiSpec.map(this::generateServerInfo);
     }
@@ -77,13 +84,13 @@ public class ApiGatewayApiInfo {
     private String injectServerInfo(String openApiTemplate, ServerInfo serverInfo) throws IOException {
 
         String replacedSever = openApiTemplate.replace(SERVER_URL_PLACEHOLDER, serverInfo.getServerUrl());
-        if (serverInfo.getStage() != null) {
+        if (Objects.nonNull(serverInfo.getStage())) {
             return replacedSever.replace(STAGE_PLACEHOLDER, serverInfo.getStage());
         } else {
             ObjectMapper yamlParser = JsonUtils.newYamlParser();
             ObjectNode root = (ObjectNode) yamlParser.readTree(replacedSever);
             ArrayNode servers = (ArrayNode) root.get(SERVERS_FIELD);
-            ObjectNode server = (ObjectNode) servers.get(0);
+            ObjectNode server = (ObjectNode) servers.get(ONE_SERVER_EXPECTED);
             server.remove(VARIABLES_FIELD);
             return yamlParser.writeValueAsString(root);
         }
@@ -103,16 +110,15 @@ public class ApiGatewayApiInfo {
     }
 
     private ServerInfo generateServerInfo(JsonNode openApiSpec) {
-        JsonNode serversNode = openApiSpec.get(SERVERS_FIELD).get(0);
+        JsonNode serversNode = openApiSpec.get(SERVERS_FIELD).get(ONE_SERVER_EXPECTED);
         String serverUrl = serversNode.get(URL_FIELD).asText();
         String apiStage = getStageVariable(serversNode).orElse(null);
         return new ServerInfo(serverUrl, apiStage);
     }
 
     private Optional<String> getStageVariable(JsonNode serversNode) {
-        Optional<String> apiStage = Optional.ofNullable(serversNode.get(VARIABLES_FIELD))
+        return Optional.ofNullable(serversNode.get(VARIABLES_FIELD))
             .map(var -> var.get(BASE_PATH_FIELD)).map(basePath -> basePath.get(DEFAULT_FIELD)).map(JsonNode::asText);
-        return apiStage;
     }
 
     private String readOpenApiTemplate() throws IOException {

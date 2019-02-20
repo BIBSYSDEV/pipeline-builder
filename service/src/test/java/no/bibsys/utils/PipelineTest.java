@@ -17,7 +17,7 @@ import java.io.IOException;
 import no.bibsys.aws.Application;
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.lambda.EnvironmentConstants;
-import no.bibsys.aws.secrets.AWSSecretsReader;
+import no.bibsys.aws.secrets.AwsSecretsReader;
 import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.utils.stacks.StackWiper;
@@ -42,7 +42,7 @@ public class PipelineTest {
         String secretName = env.readEnv(EnvironmentConstants.READ_FROM_GITHUB_SECRET_NAME);
         String secretKey = env.readEnv(EnvironmentConstants.READ_FROM_GITHUB_SECRET_KEY);
         Region region = Regions.getCurrentRegion();
-        secretsReader = new AWSSecretsReader(secretName, secretKey, region);
+        secretsReader = new AwsSecretsReader(secretName, secretKey, region);
         this.cloudFormation = AmazonCloudFormationClientBuilder.defaultClient();
         this.s3Client = AmazonS3ClientBuilder.defaultClient();
         this.lambdaClient = AWSLambdaClientBuilder.defaultClient();

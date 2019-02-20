@@ -30,6 +30,8 @@ public class GithubHandlerTest extends LocalStackTest {
     private static final String ARBIRTRARY_REQUEST = "{\"foo\":\"doo\"}";
     private static final String GITHUB_SIGNATURE_HEADER = "X-Hub-Signature";
     private static final String VALID_SIGNATURE_HEADER_VALUE = "sha1=9a56fd503f28caa0f65b7d341589ed7edb379024";
+    private static final String FALSE_SIGNATURE = "sha1=586242134c853931b8df12ac69352f26e6d52453";
+    private static final String ARBITRARY_REQUEST = "something";
 
     @Test
     public void processInput_closePRrequest_actionClose() throws IOException {
@@ -89,9 +91,9 @@ public class GithubHandlerTest extends LocalStackTest {
     public void handleRequest_falseSignature_UnauthorizedException() {
         GithubHandler githubHandler = getGithubHandlerWithMockSecretsReader(mockEnvironment());
         Map<String, String> headers = new HashMap<>();
-        headers.put("X-Hub-Signature", "sha1=586242134c853931b8df12ac69352f26e6d52453");
+        headers.put(GITHUB_SIGNATURE_HEADER, FALSE_SIGNATURE);
         assertThrows(UnauthorizedException.class,
-            () -> githubHandler.processInput("something", headers, null));
+            () -> githubHandler.processInput(ARBITRARY_REQUEST, headers, null));
     }
 
     @Test
@@ -101,6 +103,6 @@ public class GithubHandlerTest extends LocalStackTest {
         Map<String, String> headers = new HashMap<>();
         headers.put(GITHUB_SIGNATURE_HEADER, VALID_SIGNATURE_HEADER_VALUE);
         String result = githubHandler.processInput(ARBIRTRARY_REQUEST, headers, null);
-        assertThat(result, is(equalTo("No action")));
+        assertThat(result, is(equalTo(GithubHandler.NO_ACTION_MESSAGE)));
     }
 }

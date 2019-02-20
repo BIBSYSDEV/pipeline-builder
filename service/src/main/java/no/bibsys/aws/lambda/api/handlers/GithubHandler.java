@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import no.bibsys.aws.lambda.api.requests.GitEvent;
 import no.bibsys.aws.lambda.api.requests.PullRequest;
-import no.bibsys.aws.secrets.AWSSecretsReader;
+import no.bibsys.aws.secrets.AwsSecretsReader;
 import no.bibsys.aws.secrets.GithubSignatureChecker;
 import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.tools.Environment;
@@ -35,6 +35,7 @@ public class GithubHandler extends ApiHandler {
     private static final Logger logger = LoggerFactory.getLogger(GithubHandler.class);
     private static final String GITHUB_SIGNATURE_HEADER = "X-Hub-Signature";
     private static final String ERROR_MESSAGE_FOR_FAILED_GITHUB_SIGNATURE = "Wrong API key signature";
+    public static final String NO_ACTION_MESSAGE = "No action";
 
     private transient SecretsReader readFromGithubSecretsReader;
     private transient GithubSignatureChecker signatureChecker;
@@ -54,11 +55,11 @@ public class GithubHandler extends ApiHandler {
 
         String regsionString = environment.readEnv(AWS_REGION);
         Region region = Region.getRegion(Regions.fromName(regsionString));
-        this.webhookSecretsReader = new AWSSecretsReader(
+        this.webhookSecretsReader = new AwsSecretsReader(
             environment.readEnv(GITHUB_WEBHOOK_SECRET_NAME),
             environment.readEnv(GITHUB_WEBHOOK_SECRET_KEY),
             region);
-        this.readFromGithubSecretsReader = new AWSSecretsReader(
+        this.readFromGithubSecretsReader = new AwsSecretsReader(
             environment.readEnv(READ_FROM_GITHUB_SECRET_NAME),
             environment.readEnv(READ_FROM_GITHUB_SECRET_KEY),
             region);
@@ -96,7 +97,7 @@ public class GithubHandler extends ApiHandler {
 
     private String processGitEvent(String request) throws IOException {
         Optional<GitEvent> gitEventOpt = parseEvent(request);
-        String response = "No action";
+        String response = NO_ACTION_MESSAGE;
         if (gitEventOpt.isPresent()) {
             GitEvent event = gitEventOpt.get();
             if (event instanceof PullRequest) {

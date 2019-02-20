@@ -16,7 +16,7 @@ import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.lambda.EnvironmentConstants;
 import no.bibsys.aws.lambda.api.utils.Action;
-import no.bibsys.aws.secrets.AWSSecretsReader;
+import no.bibsys.aws.secrets.AwsSecretsReader;
 import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.utils.stacks.StackBuilder;
@@ -85,7 +85,7 @@ public class Application {
             .readEnv(EnvironmentConstants.READ_FROM_GITHUB_SECRET_NAME);
         String readFromGithubSecretKey = environment
             .readEnv(EnvironmentConstants.READ_FROM_GITHUB_SECRET_KEY);
-        SecretsReader secretsReader = new AWSSecretsReader(readFromGithubSecretName,
+        SecretsReader secretsReader = new AwsSecretsReader(readFromGithubSecretName,
             readFromGithubSecretKey, region);
         Application.run(repoOwner, repository, branch, action, secretsReader);
     }

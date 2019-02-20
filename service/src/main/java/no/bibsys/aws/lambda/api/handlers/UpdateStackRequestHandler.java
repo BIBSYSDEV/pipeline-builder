@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Map;
 import no.bibsys.aws.lambda.api.requests.UpdateStackRequest;
 import no.bibsys.aws.lambda.api.utils.Action;
-import no.bibsys.aws.secrets.AWSSecretsReader;
+import no.bibsys.aws.secrets.AwsSecretsReader;
 import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.tools.JsonUtils;
@@ -31,6 +31,7 @@ public class UpdateStackRequestHandler extends ApiHandler {
 
     protected static final String API_KEY_HEADER = "api-key";
     private static final Logger logger = LoggerFactory.getLogger(UpdateStackRequest.class);
+    private static final String AUTHORIZATION_ERROR_MESSAGE = "Wrong API key signature";
     private final SecretsReader readFromGithubSecretsReader;
     private transient SecretsReader restApiKeySecretsReader;
 
@@ -42,12 +43,12 @@ public class UpdateStackRequestHandler extends ApiHandler {
             AWSLogsClientBuilder.defaultClient()
         );
 
-        this.restApiKeySecretsReader = new AWSSecretsReader(
+        this.restApiKeySecretsReader = new AwsSecretsReader(
             environment.readEnv(REST_USER_API_KEY_SECRET_NAME)
             , environment.readEnv(REST_USER_API_KEY_SECRET_KEY),
             region);
 
-        this.readFromGithubSecretsReader = new AWSSecretsReader(
+        this.readFromGithubSecretsReader = new AwsSecretsReader(
             environment.readEnv(READ_FROM_GITHUB_SECRET_NAME),
             environment.readEnv(READ_FROM_GITHUB_SECRET_KEY),
             region);
@@ -99,7 +100,7 @@ public class UpdateStackRequestHandler extends ApiHandler {
 
         String secret = restApiKeySecretsReader.readSecret();
         if (!secret.equals(securityToken)) {
-            throw new UnauthorizedException("Wrong API key signature");
+            throw new UnauthorizedException(AUTHORIZATION_ERROR_MESSAGE);
         }
     }
 

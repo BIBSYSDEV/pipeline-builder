@@ -14,6 +14,26 @@ import no.bibsys.aws.tools.IoUtils;
 
 public class StackBuilder {
 
+    private static final String CLOUDFORMATION_TEMPLATE_PARAMETER_GITHUB_OWNER = "GithubOwner";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_GITHUB_REPO = "GithubRepo";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_GITHUB_AUTH = "GithubAuth";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_NAME = "PipelineName";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_BUCKETNAME = "PipelineBucketname";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_ROLENAME = "PipelineRolename";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_CREATE_STACK_ROLENAME = "CreateStackRolename";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_SOURCE_STAGE_OUTPUT_ARTIFACT = "SourceStageOutputArtifact";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PROJECT_ID = "ProjectId";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PROJECT_BRANCH = "ProjectBranch";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_NORMALIZED_BRANCH_NAME = "NormalizedBranchName";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_CODEBUILD_OUTPUT_ARTIFACT = "CodebuildOutputArtifact";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_CODEBUILD_PROJECTNAME = "CodebuildProjectname";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_EXECUTE_TESTS_PROJECTNAME = "ExecuteTestsProjectname";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_TEST_SERVICE_STACK_NAME = "PipelineTestServiceStackName";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_FINAL_SERVICE_STACK_NAME = "PipelineFinalServiceStackName";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_INIT_FUNCTION_NAME = "InitFunctionName";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_DESTROY_FUNCTION_NAME = "DestroyFunctionName";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_TEST_PHASE_NAME = "TestPhaseName";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_FINAL_PHASE_NAME = "FinalPhaseName";
     private final transient StackWiper stackWiper;
 
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
@@ -47,52 +67,68 @@ public class StackBuilder {
         createStackRequest.setStackName(pipelineStack.getPipelineStackName());
         List<Parameter> parameters = new ArrayList<>();
 
-        parameters.add(newParameter("GithubOwner", pipelineStack.getGithubConf().getOwner()));
-        parameters.add(newParameter("GithubRepo", pipelineStack.getGithubConf().getRepository()));
-        parameters.add(newParameter("GithubAuth", pipelineStack.getGithubConf().getOauth()));
+        parameters.add(newParameter(
+            CLOUDFORMATION_TEMPLATE_PARAMETER_GITHUB_OWNER,
+            pipelineStack.getGithubConf().getOwner()));
+        parameters.add(newParameter(
+            CLOUD_FORMATION_TEMPLATE_PARAMETER_GITHUB_REPO,
+            pipelineStack.getGithubConf().getRepository()));
+        parameters.add(newParameter(
+            CLOUD_FORMATION_TEMPLATE_PARAMETER_GITHUB_AUTH,
+            pipelineStack.getGithubConf().getOauth()));
 
-        parameters.add(newParameter("PipelineName",
+        parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_NAME,
             pipelineStack.getPipelineConfiguration().getPipelineName()));
 
-        parameters.add(newParameter("PipelineBucketname", pipelineStack.getBucketName()));
+        parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_BUCKETNAME,
+            pipelineStack.getBucketName()));
 
-        parameters.add(newParameter("PipelineRolename", pipelineStack.getPipelineRoleName()));
+        parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_ROLENAME,
+            pipelineStack.getPipelineRoleName()));
 
-        parameters.add(newParameter("CreateStackRolename", pipelineStack.getCreateStackRoleName()));
+        parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_CREATE_STACK_ROLENAME,
+            pipelineStack.getCreateStackRoleName()));
 
-        parameters.add(newParameter("SourceStageOutputArtifact",
+        parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_SOURCE_STAGE_OUTPUT_ARTIFACT,
             pipelineStack.getPipelineConfiguration().getSourceOutputArtifactName()));
 
-        parameters.add(newParameter("ProjectId", pipelineStack.getProjectId()));
-        parameters.add(newParameter("ProjectBranch", pipelineStack.getBranchName()));
+        parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_PROJECT_ID,
+            pipelineStack.getProjectId()));
+        parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_PROJECT_BRANCH,
+            pipelineStack.getBranchName()));
         parameters
-            .add(newParameter("NormalizedBranchName", pipelineStack.getNormalizedBranchName()));
+            .add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_NORMALIZED_BRANCH_NAME,
+                pipelineStack.getNormalizedBranchName()));
 
         parameters.add(
-            newParameter("CodebuildOutputArtifact",
+            newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_CODEBUILD_OUTPUT_ARTIFACT,
                 pipelineStack.getCodeBuildConfiguration().getOutputArtifact()));
         parameters.add(
-            newParameter("CodebuildProjectname",
+            newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_CODEBUILD_PROJECTNAME,
                 pipelineStack.getCodeBuildConfiguration().getBuildProjectName()));
 
         parameters.add(
-            newParameter("ExecuteTestsProjectname",
+            newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_EXECUTE_TESTS_PROJECTNAME,
                 pipelineStack.getCodeBuildConfiguration().getExecuteTestsProjectName()));
 
-        parameters.add(newParameter("PipelineTestServiceStackName",
+        parameters.add(newParameter(
+            CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_TEST_SERVICE_STACK_NAME,
             pipelineStack.getPipelineConfiguration().getTestServiceStack()));
 
-        parameters.add(newParameter("PipelineFinalServiceStackName",
+        parameters.add(newParameter(
+            CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_FINAL_SERVICE_STACK_NAME,
             pipelineStack.getPipelineConfiguration().getFinalServiceStack()));
 
         parameters.add(
-            newParameter("InitFunctionName",
+            newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_INIT_FUNCTION_NAME,
                 pipelineStack.getPipelineConfiguration().getInitLambdaFunctionName()));
-        parameters.add(newParameter("DestroyFunctionName",
+        parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_DESTROY_FUNCTION_NAME,
             pipelineStack.getPipelineConfiguration().getDestroyLambdaFunctionName()));
 
-        parameters.add(newParameter("TestPhaseName", Stage.TEST.toString()));
-        parameters.add(newParameter("FinalPhaseName", Stage.FINAL.toString()));
+        parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_TEST_PHASE_NAME,
+            Stage.TEST.toString()));
+        parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_FINAL_PHASE_NAME,
+            Stage.FINAL.toString()));
 
         createStackRequest.setParameters(parameters);
         createStackRequest.withCapabilities(Capability.CAPABILITY_NAMED_IAM);
