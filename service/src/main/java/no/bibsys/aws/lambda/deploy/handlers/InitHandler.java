@@ -13,11 +13,12 @@ import no.bibsys.aws.route53.StaticUrlInfo;
 import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.utils.resources.ResourceInitializer;
+import no.bibsys.aws.utils.resources.SwaggerHubConnectionDetails;
 
 public class InitHandler extends ResourceHandler {
 
     /**
-     * Used by AWS Lambda
+     * Used by AWS Lambda.
      */
     public InitHandler() {
         super(new Environment(), new CodePipelineCommunicator());
@@ -36,8 +37,7 @@ public class InitHandler extends ResourceHandler {
             new ResourceInitializer(stackName,
                 staticUrlInfo,
                 certificateArn,
-                swaggerHubInfo,
-                swaggerHubSecretsReader,
+                new SwaggerHubConnectionDetails(swaggerHubInfo, swaggerHubSecretsReader),
                 stage,
                 branchInfo,
                 cloudFormationClient,

@@ -14,8 +14,6 @@ import no.bibsys.aws.lambda.deploy.handlers.SwaggerHubUpdater;
 import no.bibsys.aws.lambda.responses.SimpleResponse;
 import no.bibsys.aws.route53.Route53Updater;
 import no.bibsys.aws.route53.StaticUrlInfo;
-import no.bibsys.aws.secrets.SecretsReader;
-import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +36,7 @@ public class ResourceInitializer extends ResourceManager {
     public ResourceInitializer(String stackName,
         StaticUrlInfo staticUrlInfo,
         String certificateArn,
-        SwaggerHubInfo swaggerHubInfo,
-        SecretsReader swaggerHubSecretsReader,
+        SwaggerHubConnectionDetails swaggerHubConnectionDetails,
         Stage stage,
         GitInfo gitInfo,
         AmazonCloudFormation cloudFormationClient,
@@ -50,9 +47,10 @@ public class ResourceInitializer extends ResourceManager {
 
         String apiGatewayRestApi = findRestApi(stackName);
 
-        this.swaggerHubUpdater = initSwaggerHubUpdater(stackName, swaggerHubInfo, stage, gitInfo,
+        this.swaggerHubUpdater = initSwaggerHubUpdater(stackName,
+            swaggerHubConnectionDetails.getSwaggerHubInfo(), stage, gitInfo,
             apiGatewayClient,
-            apiGatewayRestApi, swaggerHubSecretsReader);
+            apiGatewayRestApi, swaggerHubConnectionDetails.getSwaggerHubSecretsReader());
 
         StaticUrlInfo newStaticUrlInfo = initStaticUrlInfo(staticUrlInfo, gitInfo.getBranch());
 

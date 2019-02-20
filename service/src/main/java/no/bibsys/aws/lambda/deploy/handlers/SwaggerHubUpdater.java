@@ -19,9 +19,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Updates the OpenApi specification stored in SwaggerHub for a specific ApiGateway API.
- *
- * If the branch is master then the API name in SwaggerHub is the one specified in the constructor.
- * If the branch is not the master then the API name in SwaggerHub is the name of the Stack.
+ * <p>
+ * If the branch is master then the API name in SwaggerHub is the one specified in the constructor. If the branch is not
+ * the master then the API name in SwaggerHub is the name of the Stack.
+ * </p>
  */
 
 public class SwaggerHubUpdater {
@@ -61,11 +62,10 @@ public class SwaggerHubUpdater {
         }
     }
 
-    public int deleteApiVersion() throws URISyntaxException, IOException {
+    public void deleteApiVersion() throws URISyntaxException, IOException {
         String swaggerApiKey = swaggerHubInfo.getSwaggerAuth();
         SwaggerDriver swaggerDriver = new SwaggerDriver(swaggerHubInfo);
-        HttpDelete deleteRequest = swaggerDriver.createDeleteVersionRequest(swaggerApiKey);
-        return swaggerDriver.executeDelete(deleteRequest);
+        swaggerDriver.createDeleteVersionRequest(swaggerApiKey);
     }
 
     /**
@@ -96,14 +96,14 @@ public class SwaggerHubUpdater {
             logger.debug("Found json API");
             SwaggerDriver swaggerDriver = newSwaggerDriver();
             executeUpdate(jsonOpt.get(), swaggerDriver);
-            String response = readTheUpdatedAPI(swaggerDriver);
+            String response = readTheUpdatedApi(swaggerDriver);
             return Optional.of(response);
         } else {
             return Optional.empty();
         }
     }
 
-    private String readTheUpdatedAPI(SwaggerDriver swaggerDriver)
+    private String readTheUpdatedApi(SwaggerDriver swaggerDriver)
         throws URISyntaxException, IOException {
         String swaggerApiKey = swaggerHubInfo.getSwaggerAuth();
         HttpGet getSpecRequest = swaggerDriver.getSpecificationRequest(swaggerApiKey);

@@ -11,6 +11,7 @@ import no.bibsys.aws.route53.StaticUrlInfo;
 import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.utils.resources.ResourceDestroyer;
+import no.bibsys.aws.utils.resources.SwaggerHubConnectionDetails;
 
 public class DestroyHandler extends ResourceHandler {
 
@@ -38,8 +39,7 @@ public class DestroyHandler extends ResourceHandler {
         ResourceDestroyer resourceDestroyer = new ResourceDestroyer(
             stackName,
             staticUrlInfo,
-            swaggerHubInfo,
-            swaggerHubSecretsReader,
+            new SwaggerHubConnectionDetails(swaggerHubInfo, swaggerHubSecretsReader),
             stage,
             branchInfo,
             cloudFormationClient,

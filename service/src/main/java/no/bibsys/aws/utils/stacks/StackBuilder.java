@@ -18,18 +18,26 @@ public class StackBuilder {
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_GITHUB_REPO = "GithubRepo";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_GITHUB_AUTH = "GithubAuth";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_NAME = "PipelineName";
-    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_BUCKETNAME = "PipelineBucketname";
-    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_ROLENAME = "PipelineRolename";
-    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_CREATE_STACK_ROLENAME = "CreateStackRolename";
-    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_SOURCE_STAGE_OUTPUT_ARTIFACT = "SourceStageOutputArtifact";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_BUCKETNAME =
+        "PipelineBucketname";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_ROLENAME =
+        "PipelineRolename";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_CREATE_STACK_ROLENAME =
+        "CreateStackRolename";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_SOURCE_STAGE_OUTPUT_ARTIFACT =
+        "SourceStageOutputArtifact";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PROJECT_ID = "ProjectId";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PROJECT_BRANCH = "ProjectBranch";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_NORMALIZED_BRANCH_NAME = "NormalizedBranchName";
-    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_CODEBUILD_OUTPUT_ARTIFACT = "CodebuildOutputArtifact";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_CODEBUILD_OUTPUT_ARTIFACT =
+        "CodebuildOutputArtifact";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_CODEBUILD_PROJECTNAME = "CodebuildProjectname";
-    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_EXECUTE_TESTS_PROJECTNAME = "ExecuteTestsProjectname";
-    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_TEST_SERVICE_STACK_NAME = "PipelineTestServiceStackName";
-    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_FINAL_SERVICE_STACK_NAME = "PipelineFinalServiceStackName";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_EXECUTE_TESTS_PROJECTNAME =
+        "ExecuteTestsProjectname";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_TEST_SERVICE_STACK_NAME =
+        "PipelineTestServiceStackName";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_FINAL_SERVICE_STACK_NAME =
+        "PipelineFinalServiceStackName";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_INIT_FUNCTION_NAME = "InitFunctionName";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_DESTROY_FUNCTION_NAME = "DestroyFunctionName";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_TEST_PHASE_NAME = "TestPhaseName";

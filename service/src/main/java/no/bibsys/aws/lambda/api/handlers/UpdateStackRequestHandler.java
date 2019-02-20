@@ -32,8 +32,8 @@ public class UpdateStackRequestHandler extends ApiHandler {
     protected static final String API_KEY_HEADER = "api-key";
     private static final Logger logger = LoggerFactory.getLogger(UpdateStackRequest.class);
     private static final String AUTHORIZATION_ERROR_MESSAGE = "Wrong API key signature";
-    private final SecretsReader readFromGithubSecretsReader;
-    private transient SecretsReader restApiKeySecretsReader;
+    private final transient SecretsReader readFromGithubSecretsReader;
+    private final transient SecretsReader restApiKeySecretsReader;
 
     public UpdateStackRequestHandler() {
         super(new Environment(),
@@ -44,8 +44,8 @@ public class UpdateStackRequestHandler extends ApiHandler {
         );
 
         this.restApiKeySecretsReader = new AwsSecretsReader(
-            environment.readEnv(REST_USER_API_KEY_SECRET_NAME)
-            , environment.readEnv(REST_USER_API_KEY_SECRET_KEY),
+            environment.readEnv(REST_USER_API_KEY_SECRET_NAME),
+            environment.readEnv(REST_USER_API_KEY_SECRET_KEY),
             region);
 
         this.readFromGithubSecretsReader = new AwsSecretsReader(
@@ -77,11 +77,11 @@ public class UpdateStackRequestHandler extends ApiHandler {
         checkAuthorization(securityToken);
         UpdateStackRequest request = parseRequest(string);
 
-        if (request.getAction().equals(Action.CREATE)) {
+        if (request.getAction().equals(Action.CREATE.toString())) {
             createStacks(request);
         }
 
-        if (request.getAction().equals(Action.DELETE)) {
+        if (request.getAction().equals(Action.DELETE.toString())) {
             deleteStacks(request);
         }
 

@@ -1,5 +1,7 @@
 package no.bibsys.aws.lambda.api.utils;
 
+import java.util.Locale;
+
 public enum Action {
 
     CREATE, DELETE;
@@ -9,7 +11,7 @@ public enum Action {
 
     @Override
     public String toString() {
-        return this.name().toLowerCase();
+        return this.name().toLowerCase(Locale.getDefault());
     }
 
     public static Action fromString(String actionString) {

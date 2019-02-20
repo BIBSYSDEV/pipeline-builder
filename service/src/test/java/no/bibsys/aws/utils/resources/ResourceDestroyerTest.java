@@ -31,8 +31,7 @@ class ResourceDestroyerTest extends LocalStackTest {
         ResourceDestroyer destroyer = new ResourceDestroyer(
             STACK_NAME,
             staticUrlInfo,
-            swaggerHubInfo,
-            mockSecretsReader(),
+            new SwaggerHubConnectionDetails(swaggerHubInfo, mockSecretsReader()),
             Stage.TEST,
             gitInfo,
             initializeMockCloudFormation(),

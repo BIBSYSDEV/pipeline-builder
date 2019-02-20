@@ -90,23 +90,23 @@ public class StackWiper {
     public List<DeleteStackResult> deleteStacks() {
 
         String stack = pipelineStackConfiguration.getPipelineConfiguration().getTestServiceStack();
-        DeleteStackResult deleteTeckStackResult = cloudFormationClient
+        final DeleteStackResult deleteTeckStackResult = cloudFormationClient
             .deleteStack(new DeleteStackRequest().withStackName(stack));
         awaitDeleteStack(cloudFormationClient, stack);
 
         stack = pipelineStackConfiguration.getPipelineConfiguration().getFinalServiceStack();
-        DeleteStackResult deleteFinalStackResult =
+        final DeleteStackResult deleteFinalStackResult =
             cloudFormationClient.deleteStack(new DeleteStackRequest().withStackName(stack));
         awaitDeleteStack(cloudFormationClient, stack);
 
         stack = pipelineStackConfiguration.getPipelineStackName();
 
-        DeleteStackResult deletePipelineStackResult = cloudFormationClient
+        final DeleteStackResult deletePipelineStackResult = cloudFormationClient
             .deleteStack(new DeleteStackRequest().withStackName(stack));
         awaitDeleteStack(cloudFormationClient, stack);
-        List<DeleteStackResult> resultList = Arrays
+
+        return Arrays
             .asList(deleteTeckStackResult, deleteFinalStackResult, deletePipelineStackResult);
-        return resultList;
     }
 
     private Integer invokeDestroyLambdaFunction(Stage stage) {

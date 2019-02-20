@@ -37,10 +37,10 @@ public class GithubHandler extends ApiHandler {
     private static final String ERROR_MESSAGE_FOR_FAILED_GITHUB_SIGNATURE = "Wrong API key signature";
     public static final String NO_ACTION_MESSAGE = "No action";
 
-    private transient SecretsReader readFromGithubSecretsReader;
-    private transient GithubSignatureChecker signatureChecker;
+    private final transient SecretsReader readFromGithubSecretsReader;
+    private final transient GithubSignatureChecker signatureChecker;
 
-    private SecretsReader webhookSecretsReader;
+    private final transient SecretsReader webhookSecretsReader;
 
     /**
      * Used by AWS Lambda.
