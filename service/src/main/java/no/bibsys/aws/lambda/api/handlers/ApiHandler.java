@@ -4,9 +4,11 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.lambda.AWSLambda;
+import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.s3.AmazonS3;
 import java.io.IOException;
+import java.util.Map;
 import no.bibsys.aws.Application;
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.lambda.EnvironmentConstants;
@@ -17,13 +19,14 @@ import no.bibsys.aws.tools.Environment;
 
 public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, String> {
 
-    protected final transient Region region;
+    private static final String OVERRIDE_WARNING = "You should override this method";
 
+    protected final transient Environment environment;
     private final transient AmazonCloudFormation cloudFormation;
     private final transient AmazonS3 s3Client;
     private final transient AWSLambda lambdaClient;
     private final transient AWSLogs logsClient;
-    protected final transient Environment environment;
+    protected transient Region region;
 
     protected ApiHandler(Environment environment,
         AmazonCloudFormation acf,
@@ -34,12 +37,24 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
     ) {
         super(String.class);
         this.environment = environment;
-        this.region = Region
-            .getRegion(Regions.fromName(environment.readEnv(EnvironmentConstants.AWS_REGION)));
         this.cloudFormation = acf;
         this.s3Client = s3Client;
         this.lambdaClient = lambdaClient;
         this.logsClient = logsClient;
+    }
+
+    // Read all ENV in processInput so that in case of failure the error will be handled
+    // by the  no.bibsys.aws.lambda.handlers.templates.HandlerTemplate class and the Lambda function will terminate
+    // soon and not wait for the 30 minutes timeout.
+    protected void init() {
+        this.region = Region
+            .getRegion(Regions.fromName(environment.readEnv(EnvironmentConstants.AWS_REGION)));
+    }
+
+    @Override
+    protected String processInput(String input, Map<String, String> headers, Context context) throws IOException {
+        init();
+        throw new IllegalStateException(OVERRIDE_WARNING);
     }
 
     protected void deleteStacks(GitEvent event) {

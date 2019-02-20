@@ -31,7 +31,7 @@ public class DestroyHandler extends ResourceHandler {
     protected SimpleResponse processInput(DeployEvent input, String apiGatewayInputString,
         Context context)
         throws IOException, URISyntaxException {
-
+        init();
         SwaggerHubInfo swaggerHubInfo = initializeSwaggerHubInfo();
         StaticUrlInfo staticUrlInfo = initializeStaticUrlInfo();
         BranchInfo branchInfo = initalizeBranchInfo();

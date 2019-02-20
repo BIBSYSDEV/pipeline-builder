@@ -84,7 +84,7 @@ public class GithubHandler extends ApiHandler {
     @Override
     public String processInput(String request, Map<String, String> headers, Context context)
         throws IOException {
-
+        init();
         String webhookSecurityToken = headers.get(GITHUB_SIGNATURE_HEADER);
         boolean verified = signatureChecker.verifySecurityToken(webhookSecurityToken, request);
 

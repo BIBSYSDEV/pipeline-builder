@@ -6,11 +6,15 @@ import com.amazonaws.services.apigateway.AmazonApiGateway;
 import com.amazonaws.services.apigateway.AmazonApiGatewayClientBuilder;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
+import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.route53.AmazonRoute53;
 import com.amazonaws.services.route53.AmazonRoute53ClientBuilder;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import no.bibsys.aws.cloudformation.Stage;
 import no.bibsys.aws.git.github.BranchInfo;
 import no.bibsys.aws.lambda.EnvironmentConstants;
+import no.bibsys.aws.lambda.events.DeployEvent;
 import no.bibsys.aws.lambda.handlers.templates.CodePipelineCommunicator;
 import no.bibsys.aws.lambda.handlers.templates.CodePipelineFunctionHandlerTemplate;
 import no.bibsys.aws.lambda.responses.SimpleResponse;
@@ -22,25 +26,33 @@ import no.bibsys.aws.tools.Environment;
 
 public abstract class ResourceHandler extends CodePipelineFunctionHandlerTemplate<SimpleResponse> {
 
-    protected final transient Stage stage;
-    protected final transient String stackName;
-    protected final transient String branch;
-    protected final transient Environment environment;
-    protected final transient AmazonCloudFormation cloudFormationClient;
-    protected final transient AmazonApiGateway apiGatewayClient;
-    protected final transient SecretsReader swaggerHubSecretsReader;
-    private final transient String swagerApiId;
-    private final transient String swagerApiVersion;
-    private final transient String swagerApiOwner;
-    private final transient String zoneName;
-    private final transient String applicationUrl;
-    protected final transient AmazonRoute53 route53Client;
+    private static final String OVERRIDE_WARNING = "You should override this method";
+    protected transient Stage stage;
+    protected transient String stackName;
+    protected transient String branch;
+    protected transient Environment environment;
+    protected transient AmazonCloudFormation cloudFormationClient;
+    protected transient AmazonApiGateway apiGatewayClient;
+    protected transient SecretsReader swaggerHubSecretsReader;
+    protected transient AmazonRoute53 route53Client;
+    private transient String swagerApiId;
+    private transient String swagerApiVersion;
+    private transient String swagerApiOwner;
+    private transient String zoneName;
+    private transient String applicationUrl;
 
     public ResourceHandler(Environment environment,
         CodePipelineCommunicator codePipelineCommunicator) {
         super(codePipelineCommunicator);
         this.environment = environment;
 
+
+    }
+
+    // Read all ENV in processInput so that in case of failure the error will be handled
+    // by the  no.bibsys.aws.lambda.handlers.templates.HandlerTemplate class and the Lambda function will terminate
+    // soon and not wait for the 30 minutes timeout.
+    protected void init() {
         this.branch = environment.readEnv(EnvironmentConstants.BRANCH);
         this.applicationUrl = environment.readEnv(EnvironmentConstants.APPLICATION_URL);
 
@@ -65,6 +77,13 @@ public abstract class ResourceHandler extends CodePipelineFunctionHandlerTemplat
             .getRegion(Regions.fromName(environment.readEnv(EnvironmentConstants.AWS_REGION)));
         this.swaggerHubSecretsReader = new AwsSecretsReader(swaggerHubApiKeySecretsName,
             swaggerHubApiKeySecretsKey, region);
+    }
+
+    @Override
+    protected SimpleResponse processInput(DeployEvent deployEvent, String apiGatewayQuery, Context context)
+        throws IOException, URISyntaxException {
+        init();
+        throw new IllegalStateException(OVERRIDE_WARNING);
     }
 
     protected SwaggerHubInfo initializeSwaggerHubInfo() {

@@ -94,7 +94,7 @@ subprojects {
                 limit {
                     counter = 'METHOD'
                     value = 'COVEREDRATIO'
-                    minimum = 0.85
+                    minimum = 0.80
                     List<String> excludeList = [
                             '*.CodePipelineCommunicator*',
                             '*ResourceHandler*',
@@ -112,7 +112,7 @@ subprojects {
                 limit {
                     counter = 'CLASS'
                     value = 'COVEREDRATIO'
-                    minimum = 0.85
+                    minimum = 0.80
                     List<String> excludeList = [
                             '*CodePipelineCommunicator*',
                             '*ResourceHandler*',

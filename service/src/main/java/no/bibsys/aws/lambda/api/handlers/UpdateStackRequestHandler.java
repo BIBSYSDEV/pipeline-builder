@@ -72,7 +72,7 @@ public class UpdateStackRequestHandler extends ApiHandler {
     @Override
     public String processInput(String string, Map<String, String> headers, Context context)
         throws IOException {
-
+        init();
         String securityToken = headers.get(API_KEY_HEADER);
         checkAuthorization(securityToken);
         UpdateStackRequest request = parseRequest(string);
