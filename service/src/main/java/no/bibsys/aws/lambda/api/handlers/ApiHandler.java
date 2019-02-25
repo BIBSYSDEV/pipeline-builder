@@ -41,6 +41,9 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
         this.s3Client = s3Client;
         this.lambdaClient = lambdaClient;
         this.logsClient = logsClient;
+        this.region = Region
+            .getRegion(Regions.fromName(environment.readEnv(EnvironmentConstants.AWS_REGION)));
+
     }
 
     // Read all ENV in processInput so that in case of failure the error will be handled

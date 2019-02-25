@@ -18,6 +18,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 import no.bibsys.aws.lambda.api.requests.UpdateStackRequest;
 import no.bibsys.aws.lambda.api.utils.Action;
 import no.bibsys.aws.secrets.AwsSecretsReader;
@@ -32,6 +33,7 @@ public class UpdateStackRequestHandler extends ApiHandler {
     protected static final String API_KEY_HEADER = "api-key";
     private static final Logger logger = LoggerFactory.getLogger(UpdateStackRequest.class);
     private static final String AUTHORIZATION_ERROR_MESSAGE = "Wrong API key signature";
+    private static final String NULL_ENVIRONMENT_MESSAGE = "Environment is null";
     private final transient SecretsReader readFromGithubSecretsReader;
     private final transient SecretsReader restApiKeySecretsReader;
 
@@ -42,6 +44,8 @@ public class UpdateStackRequestHandler extends ApiHandler {
             AWSLambdaClientBuilder.defaultClient(),
             AWSLogsClientBuilder.defaultClient()
         );
+
+        Objects.requireNonNull(this.environment, NULL_ENVIRONMENT_MESSAGE);
 
         this.restApiKeySecretsReader = new AwsSecretsReader(
             environment.readEnv(REST_USER_API_KEY_SECRET_NAME),
