@@ -1,6 +1,7 @@
 package no.bibsys.aws.utils.stacks;
 
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
+import com.amazonaws.services.cloudformation.model.AmazonCloudFormationException;
 import com.amazonaws.services.cloudformation.model.Capability;
 import com.amazonaws.services.cloudformation.model.CreateStackRequest;
 import com.amazonaws.services.cloudformation.model.Parameter;
@@ -11,8 +12,12 @@ import java.util.List;
 import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.cloudformation.Stage;
 import no.bibsys.aws.tools.IoUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StackBuilder {
+
+    private static final Logger log = LoggerFactory.getLogger(StackBuilder.class);
 
     private static final String CLOUDFORMATION_TEMPLATE_PARAMETER_GITHUB_OWNER = "GithubOwner";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_GITHUB_REPO = "GithubRepo";
@@ -42,6 +47,8 @@ public class StackBuilder {
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_DESTROY_FUNCTION_NAME = "DestroyFunctionName";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_TEST_PHASE_NAME = "TestPhaseName";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_FINAL_PHASE_NAME = "FinalPhaseName";
+    private static final String STACK_DOES_NOT_EXIST_WARNING = "Stack does not exist";
+
     private final transient StackWiper stackWiper;
 
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
@@ -58,7 +65,11 @@ public class StackBuilder {
     }
 
     public void createStacks() throws IOException {
-        stackWiper.wipeStacks();
+        try {
+            stackWiper.wipeStacks();
+        } catch (AmazonCloudFormationException e) {
+            log.warn(STACK_DOES_NOT_EXIST_WARNING);
+        }
         createPipelineStack(pipelineStackConfiguration);
     }
 
