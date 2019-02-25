@@ -45,8 +45,6 @@ public class UpdateStackRequestHandler extends ApiHandler {
             AWSLogsClientBuilder.defaultClient()
         );
 
-        Objects.requireNonNull(this.environment, NULL_ENVIRONMENT_MESSAGE);
-
         this.restApiKeySecretsReader = new AwsSecretsReader(
             environment.readEnv(REST_USER_API_KEY_SECRET_NAME),
             environment.readEnv(REST_USER_API_KEY_SECRET_KEY),
