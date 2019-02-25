@@ -32,7 +32,6 @@ public class UpdateStackRequestHandler extends ApiHandler {
     protected static final String API_KEY_HEADER = "api-key";
     private static final Logger logger = LoggerFactory.getLogger(UpdateStackRequest.class);
     private static final String AUTHORIZATION_ERROR_MESSAGE = "Wrong API key signature";
-    private static final String NULL_ENVIRONMENT_MESSAGE = "Environment is null";
     private final transient SecretsReader readFromGithubSecretsReader;
     private final transient SecretsReader restApiKeySecretsReader;
 

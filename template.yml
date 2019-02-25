@@ -17,8 +17,6 @@ Parameters:
   DestroyFunctionName:
     Type:  String
 
-
-
 Resources:
   RestApi:
     DependsOn:
