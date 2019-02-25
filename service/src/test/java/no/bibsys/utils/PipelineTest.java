@@ -38,11 +38,11 @@ public class PipelineTest {
     private SecretsReader secretsReader;
 
     public PipelineTest() {
-//        Environment env = new Environment();
-//        String secretName = env.readEnv(EnvironmentConstants.READ_FROM_GITHUB_SECRET_NAME);
-//        String secretKey = env.readEnv(EnvironmentConstants.READ_FROM_GITHUB_SECRET_KEY);
+        Environment env = new Environment();
+        String secretName = env.readEnv(EnvironmentConstants.READ_FROM_GITHUB_SECRET_NAME);
+        String secretKey = env.readEnv(EnvironmentConstants.READ_FROM_GITHUB_SECRET_KEY);
         Region region = Region.getRegion(Regions.EU_WEST_1);
-        secretsReader = new AwsSecretsReader("github", "read_from_github", region);
+        secretsReader = new AwsSecretsReader(secretName, secretKey, region);
         this.cloudFormation = AmazonCloudFormationClientBuilder.defaultClient();
         this.s3Client = AmazonS3ClientBuilder.defaultClient();
         this.lambdaClient = AWSLambdaClientBuilder.defaultClient();
