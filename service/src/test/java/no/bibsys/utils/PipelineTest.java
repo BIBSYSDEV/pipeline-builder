@@ -28,7 +28,9 @@ import org.junit.jupiter.api.Test;
 @Disabled
 public class PipelineTest {
 
-    private static final String branchName = "master";
+
+    private static final String branchName = "develop";
+
     private static final String repoName = "authority-registry";
     private static final String repoOwner = "BIBSYSDEV";
     private final AmazonCloudFormation cloudFormation;
@@ -41,7 +43,7 @@ public class PipelineTest {
         Environment env = new Environment();
         String secretName = env.readEnv(EnvironmentConstants.READ_FROM_GITHUB_SECRET_NAME);
         String secretKey = env.readEnv(EnvironmentConstants.READ_FROM_GITHUB_SECRET_KEY);
-        Region region = Regions.getCurrentRegion();
+        Region region = Region.getRegion(Regions.EU_WEST_1);
         secretsReader = new AwsSecretsReader(secretName, secretKey, region);
         this.cloudFormation = AmazonCloudFormationClientBuilder.defaultClient();
         this.s3Client = AmazonS3ClientBuilder.defaultClient();
