@@ -53,6 +53,7 @@ Resources:
         Statement:
         - Action:
           - cloudformation:CreateStack
+          - cloudformation:DescribeStackResources
           - cloudformation:DescribeStacks
           - cloudformation:DeleteStack
           - codebuild:CreateProject

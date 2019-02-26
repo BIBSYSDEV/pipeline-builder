@@ -28,4 +28,21 @@ public class StackBuilderTest extends LocalStackTest {
         assertThrows(AmazonCloudFormationException.class, wiper::wipeStacks);
         stackBuilder.createStacks();
     }
+
+    @Test
+    public void crateStacks_existingStack_noException() throws IOException {
+        AmazonCloudFormation acf = initializeMockCloudFormation();
+        StackWiper wiper = new StackWiper(
+            pipelineStackConfiguration,
+            initializeMockCloudFormation(),
+            initializeS3(),
+            initializeLambdaClient(),
+            initializeMockLogsClient()
+        );
+        StackBuilder stackBuilder = new StackBuilder(wiper, pipelineStackConfiguration, acf);
+
+        stackBuilder.createStacks();
+    }
+
+
 }
