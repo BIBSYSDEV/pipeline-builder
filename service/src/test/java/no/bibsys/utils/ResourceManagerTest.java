@@ -29,9 +29,7 @@ public class ResourceManagerTest extends ResourceManager {
     public void initRoute53Updater_gitBranch_alteredUrlIfBranchNotMaster() {
 
         StaticUrlInfo staticUrlInfo = new StaticUrlInfo(ZONE_NAME, ORIGINAL_URL, Stage.FINAL);
-
         StaticUrlInfo info = initStaticUrlInfo(staticUrlInfo, ARBITRARY_BRANCH);
-
         String newUrl = info.getRecordSetName();
 
         int prefixIndex = newUrl.indexOf(".");
@@ -45,11 +43,8 @@ public class ResourceManagerTest extends ResourceManager {
     public void initRoute53Updater_gitBranch_originaldUrlIfBrancIsMaster() {
 
         StaticUrlInfo staticUrlInfo = new StaticUrlInfo(ZONE_NAME, ORIGINAL_URL, Stage.FINAL);
-
         StaticUrlInfo info = initStaticUrlInfo(staticUrlInfo, MASTER_BRANCH);
-
         String newUrl = info.getRecordSetName();
-
         int prefixIndex = newUrl.indexOf(".");
         assertThat(prefixIndex, is(lessThan(0)));
         assertThat(newUrl, is(equalTo(ORIGINAL_URL)));
