@@ -14,6 +14,7 @@ import com.amazonaws.services.apigateway.model.GetDomainNameRequest;
 import com.amazonaws.services.apigateway.model.GetDomainNameResult;
 import com.amazonaws.services.apigateway.model.GetExportResult;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
+import com.amazonaws.services.cloudformation.model.AmazonCloudFormationException;
 import com.amazonaws.services.cloudformation.model.DeleteStackResult;
 import com.amazonaws.services.cloudformation.model.DescribeStackResourcesRequest;
 import com.amazonaws.services.cloudformation.model.DescribeStackResourcesResult;
@@ -170,6 +171,13 @@ public class LocalStackTest {
         when(cloudFormation.describeStackResources(any()))
             .then(describeStackResourcesResultAnswer());
 
+        return cloudFormation;
+    }
+
+    public AmazonCloudFormation mockCloudFormationwithNoStack() {
+        AmazonCloudFormation cloudFormation = Mockito.mock(AmazonCloudFormation.class);
+        when(cloudFormation.describeStackResources(any())).thenThrow(AmazonCloudFormationException.class);
+        when(cloudFormation.deleteStack(any())).thenThrow(AmazonCloudFormationException.class);
         return cloudFormation;
     }
 

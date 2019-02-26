@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 public class ResourceManager {
 
     private static final Logger logger = LoggerFactory.getLogger(ResourceManager.class);
+    private static final int RANDOM_STRING_LENGTH = 5;
+    protected static final int ADEQUATELY_RANDOM_STRING = RANDOM_STRING_LENGTH;
     private final transient AmazonCloudFormation cloudFormation;
 
     public ResourceManager(AmazonCloudFormation cloudFormation) {
@@ -51,17 +53,19 @@ public class ResourceManager {
 
         StaticUrlInfo newStaticUrlInfo = staticUrlInfo;
         logger.info("Gitbranch:{}", gitBranch);
+
         if (!gitBranch.equals(GitConstants.MASTER)) {
-            String randomString = DigestUtils.sha1Hex(gitBranch).substring(0, 5);
+            String randomString = DigestUtils.sha1Hex(gitBranch).substring(0, ADEQUATELY_RANDOM_STRING);
             logger.info("RandomString:{}", randomString);
-            String newUrl = String.format("%s.%s", randomString, staticUrlInfo.getRecordSetName());
-            newStaticUrlInfo = new StaticUrlInfo(staticUrlInfo.getZoneName(), newUrl,
+            String newUrl = String.format("%s.%s", randomString, newStaticUrlInfo.getRecordSetName());
+            newStaticUrlInfo = new StaticUrlInfo(newStaticUrlInfo.getZoneName(), newUrl,
                 staticUrlInfo.getStage());
         }
         if (staticUrlInfo.getStage().equals(Stage.TEST)) {
             newStaticUrlInfo = new StaticUrlInfo(newStaticUrlInfo.getZoneName(),
-                "test." + newStaticUrlInfo.getRecordSetName(), Stage.TEST);
+                "test." + staticUrlInfo.getRecordSetName(), Stage.TEST);
         }
+
         return newStaticUrlInfo;
     }
 }
