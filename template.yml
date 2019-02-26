@@ -39,6 +39,8 @@ Resources:
         Variables:
           READ_FROM_GITHUB_SECRET_NAME: 'github'
           READ_FROM_GITHUB_SECRET_KEY:  'read_from_github'
+          GITHUB_WEBHOOK_SECRET_NAME: 'github'
+          GITHUB_WEBHOOK_SECRET_KEY: 'github_webhook_authorization'
       Events:
         RestApiEvent:
           Type: Api
