@@ -37,8 +37,8 @@ Resources:
       Timeout: 900
       Environment:
         Variables:
-          GITHUB_WEBHOOK_SECRET_NAME: 'github'
-          GITHUB_WEBHOOK_SECRET_KEY:  'read_from_github'
+          READ_FROM_GITHUB_SECRET_NAME: 'github'
+          READ_FROM_GITHUB_SECRET_KEY:  'read_from_github'
       Events:
         RestApiEvent:
           Type: Api
@@ -125,8 +125,8 @@ Resources:
         Variables:
           REST_USER_API_KEY_SECRET_NAME: 'infrastructure'
           REST_USER_API_KEY_SECRET_KEY:   'buildbranch'
-          GITHUB_WEBHOOK_SECRET_NAME: 'github'
-          GITHUB_WEBHOOK_SECRET_KEY:  'read_from_github'
+          READ_FROM_GITHUB_SECRET_NAME: 'github'
+          READ_FROM_GITHUB_SECRET_KEY:  'read_from_github'
       Events:
         RestApiEvent:
           Type: Api
