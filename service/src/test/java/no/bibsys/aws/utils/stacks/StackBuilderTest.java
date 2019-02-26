@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 public class StackBuilderTest extends LocalStackTest {
 
     public StackBuilderTest() {
-
     }
 
     @Test
