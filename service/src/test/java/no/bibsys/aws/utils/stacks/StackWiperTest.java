@@ -29,7 +29,6 @@ public class StackWiperTest extends LocalStackTest {
             s3, lambda, logsClient);
     }
 
-
     @Test
     void deleteStacks_pielineStackConfiguration_deleteStackResults() {
         List<DeleteStackResult> results = stackWiper
@@ -43,10 +42,9 @@ public class StackWiperTest extends LocalStackTest {
         stackWiper.deleteBuckets();
     }
 
-
     @Test
-    public void wipeStacks_stackDoesNotExist_exception(){
-        StackWiper stackWiper=new StackWiper(pipelineStackConfiguration,
+    public void wipeStacks_stackDoesNotExist_exception() {
+        StackWiper stackWiper = new StackWiper(pipelineStackConfiguration,
             mockCloudFormationwithNoStack(),
             initializeS3(),
             initializeLambdaClient(),
@@ -58,6 +56,4 @@ public class StackWiperTest extends LocalStackTest {
     void wipeStacks_pipelineExists_noException() {
         stackWiper.wipeStacks();
     }
-
-
 }
