@@ -30,7 +30,7 @@ public class StackBuilderTest extends LocalStackTest {
     }
 
     @Test
-    public void crateStacks_existingStack_noException() throws IOException {
+    public void createStacks_existingStack_noException() throws IOException {
         AmazonCloudFormation acf = initializeMockCloudFormation();
         StackWiper wiper = new StackWiper(
             pipelineStackConfiguration,
