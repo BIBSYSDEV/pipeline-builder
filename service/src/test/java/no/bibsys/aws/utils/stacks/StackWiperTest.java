@@ -3,8 +3,10 @@ package no.bibsys.aws.utils.stacks;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
+import com.amazonaws.services.cloudformation.model.AmazonCloudFormationException;
 import com.amazonaws.services.cloudformation.model.DeleteStackResult;
 import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.logs.AWSLogs;
@@ -41,8 +43,21 @@ public class StackWiperTest extends LocalStackTest {
         stackWiper.deleteBuckets();
     }
 
+
     @Test
-    void wipeStacks_pipelineStackConfiguration_noException() {
+    public void wipeStacks_stackDoesNotExist_exception(){
+        StackWiper stackWiper=new StackWiper(pipelineStackConfiguration,
+            mockCloudFormationwithNoStack(),
+            initializeS3(),
+            initializeLambdaClient(),
+            initializeMockLogsClient());
+        assertThrows(AmazonCloudFormationException.class, stackWiper::wipeStacks);
+    }
+
+    @Test
+    void wipeStacks_pipelineExists_noException() {
         stackWiper.wipeStacks();
     }
+
+
 }

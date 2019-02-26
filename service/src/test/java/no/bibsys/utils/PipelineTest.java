@@ -28,9 +28,13 @@ import org.junit.jupiter.api.Test;
 @Disabled
 public class PipelineTest {
 
+<<<<<<< HEAD
 
     private static final String branchName = "develop";
 
+=======
+    private static final String branchName = "develop";
+>>>>>>> 86ca2fa27bdef19839a7ae6b50b41fd88ebda189
     private static final String repoName = "authority-registry";
     private static final String repoOwner = "BIBSYSDEV";
     private final AmazonCloudFormation cloudFormation;
@@ -84,7 +88,8 @@ public class PipelineTest {
     @Test
     public void deleteAllTables() {
         AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
-        client.listTables().getTableNames().stream().filter(table -> table.startsWith("test_"))
+        client.listTables().getTableNames().stream()
+            .filter(table -> table.startsWith("test_"))
             .forEach(client::deleteTable);
     }
 

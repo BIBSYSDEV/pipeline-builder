@@ -17,8 +17,6 @@ Parameters:
   DestroyFunctionName:
     Type:  String
 
-
-
 Resources:
   RestApi:
     DependsOn:
@@ -39,8 +37,8 @@ Resources:
       Timeout: 900
       Environment:
         Variables:
-          SECRET_NAME: github
-          SECRET_KEY: github_webhook_authorization
+          READ_FROM_GITHUB_SECRET_NAME: 'github'
+          READ_FROM_GITHUB_SECRET_KEY:  'read_from_github'
       Events:
         RestApiEvent:
           Type: Api
@@ -127,6 +125,8 @@ Resources:
         Variables:
           REST_USER_API_KEY_SECRET_NAME: 'infrastructure'
           REST_USER_API_KEY_SECRET_KEY:   'buildbranch'
+          READ_FROM_GITHUB_SECRET_NAME: 'github'
+          READ_FROM_GITHUB_SECRET_KEY:  'read_from_github'
       Events:
         RestApiEvent:
           Type: Api
@@ -139,6 +139,7 @@ Resources:
         Statement:
         - Action:
           - cloudformation:CreateStack
+          - cloudformation:DescribeStackResources
           - cloudformation:DescribeStacks
           - cloudformation:DeleteStack
           - codebuild:CreateProject
