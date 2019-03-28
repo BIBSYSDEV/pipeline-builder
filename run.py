@@ -12,6 +12,16 @@ import sys
 
 #
 #
+DEBUG_ARG = 6
+AWS_REGION_ARG = 5
+ACTION_ARG = 4
+BRANCH_ARG = 3
+OWNER_ARG = 1
+REPOSITORY_ARG = 2
+
+ARGUMENTS_WITH_DEBUG = 7
+ARGUMENTS_WITHOUT_DEBUG = 6
+
 DEBUG_FLAG = "debug"
 
 REPOSITORY_PARAMETER = "repository"
@@ -70,17 +80,18 @@ class Script:
 
 
 def main():
-  if len(sys.argv) < 6 or len(sys.argv) > 7:
+  if len(sys.argv) < ARGUMENTS_WITHOUT_DEBUG or len(
+      sys.argv) > ARGUMENTS_WITH_DEBUG:
     script = Script(None, None, None, None, None, None)
     print(script.help())
   else:
-    owner = sys.argv[1]
-    repository = sys.argv[2]
-    branch = sys.argv[3]
-    action = sys.argv[4]
-    awsRegion = sys.argv[5]
-    if len(sys.argv) == 7:
-      debugOption = sys.argv[6]
+    owner = sys.argv[OWNER_ARG]
+    repository = sys.argv[REPOSITORY_ARG]
+    branch = sys.argv[BRANCH_ARG]
+    action = sys.argv[ACTION_ARG]
+    awsRegion = sys.argv[AWS_REGION_ARG]
+    if len(sys.argv) == ARGUMENTS_WITH_DEBUG:
+      debugOption = sys.argv[DEBUG_ARG]
       script = Script(owner, repository, branch, action, awsRegion, debugOption)
     else:
       script = Script(owner, repository, branch, action, awsRegion, None)
