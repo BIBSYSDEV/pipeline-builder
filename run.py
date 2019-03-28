@@ -75,7 +75,7 @@ class Script:
       - branch:\t\t Github branch
       - action:\t\t "create" or "delete"
       - awsRegion:\t Desired AWS region
-      - debug (optional) 
+      - debug (optional)
   """
 
 
