@@ -83,6 +83,7 @@ public class Application {
     @SuppressWarnings("PMD")
     public static void main(String... args) throws IOException {
 
+
         Config config = ConfigFactory.defaultReference().resolve();
         final String readFromGithubSecretName = config.getString(CONFIGURATION_GITHUB_SECRET_NAME);
         final String readFromGithubSecretKey = config.getString(CONFIGURATION_GITHUB_SECRET_KEY);
