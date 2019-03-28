@@ -24,6 +24,7 @@ import no.bibsys.aws.utils.stacks.StackWiper;
 
 public class Application {
 
+    private static final String AWS_REGION = "awsRegion";
     private static final String GITHUB_OWNER_PROPERTY = "owner";
     private static final String GITHUB_REPOSITORY_PROPERTY = "repository";
     private static final String GIT_BRANCH_PROPERTY = "branch";
@@ -69,14 +70,16 @@ public class Application {
         AWSLogs logsClient = AWSLogsClientBuilder.defaultClient();
         Application application = new Application(gitInfo, cloudFormation, s3Client, lambdaClient,
             logsClient);
-        if (action.equals(Action.CREATE)) {
+        if (Action.CREATE.equals(Action.fromString(action))) {
             application.createStacks(cloudFormation);
-        } else if (action.equals(Action.DELETE)) {
+        } else if (Action.DELETE.equals(Action.fromString(action))) {
             application.wipeStacks();
         }
     }
 
+    @SuppressWarnings("PMD")
     public static void main(String... args) throws IOException {
+
         String repoOwner = System.getProperty(GITHUB_OWNER_PROPERTY);
         Preconditions.checkNotNull(repoOwner, ABSENT_OWNER_ERROR_MEESSAGE);
         String repository = System.getProperty(GITHUB_REPOSITORY_PROPERTY);
@@ -84,10 +87,11 @@ public class Application {
         String branch = System.getProperty(GIT_BRANCH_PROPERTY);
         Preconditions.checkNotNull(branch, ABSENT_BRANCH_ERROR_MESSAGE);
         String action = System.getProperty(CODEPIEPINE_ACTION);
+        String awsRegigon = System.getProperty(AWS_REGION);
         String message = ABSENT_ACTION_VALUE_MESSAGE1 + VALID_VALUES_FOR_ACTION_MESSAGE;
         Preconditions.checkNotNull(action, message);
 
-        Region region = Regions.getCurrentRegion();
+        Region region = Region.getRegion(Regions.fromName(awsRegigon));
         Environment environment = new Environment();
         String readFromGithubSecretName = environment
             .readEnv(EnvironmentConstants.READ_FROM_GITHUB_SECRET_NAME);

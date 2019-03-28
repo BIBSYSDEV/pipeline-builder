@@ -71,8 +71,7 @@ subprojects {
         archiveName = "${baseName}-fat.jar"
         exclude('org.apache.tomcat.embed:*')
     }
-
-
+    
     jacocoTestReport {
         reports {
             xml.enabled false

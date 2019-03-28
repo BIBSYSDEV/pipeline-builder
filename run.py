@@ -12,22 +12,36 @@ import sys
 
 #
 #
+DEBUG_ARG = 6
+AWS_REGION_ARG = 5
+ACTION_ARG = 4
+BRANCH_ARG = 3
+OWNER_ARG = 1
+REPOSITORY_ARG = 2
 
+ARGUMENTS_WITH_DEBUG = 7
+ARGUMENTS_WITHOUT_DEBUG = 6
 
-REPOSITORY = "repository"
-BRANCH = "branch"
-ACTION = "action"
-OWNER = "owner"
+DEBUG_FLAG = "debug"
 
+REPOSITORY_PARAMETER = "repository"
+BRANCH_PARAMETER = "branch"
+ACTION_PARAMETER = "action"
+OWNER_PARAMETER = "owner"
+REGION_PARAMETER = "awsRegion"
+
+DEBUG_OPTION = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
 
 class Script:
 
-  def __init__(self, owner, repository, branch, action):
+  def __init__(self, owner, repository, branch, action, awsRegion, debugOption):
     self._parameters = dict()
-    self._parameters[OWNER] = owner
-    self._parameters[REPOSITORY] = repository
-    self._parameters[BRANCH] = branch
-    self._parameters[ACTION] = action
+    self._parameters[OWNER_PARAMETER] = owner
+    self._parameters[REPOSITORY_PARAMETER] = repository
+    self._parameters[BRANCH_PARAMETER] = branch
+    self._parameters[ACTION_PARAMETER] = action
+    self._parameters[REGION_PARAMETER] = awsRegion
+    self._debug = DEBUG_FLAG == debugOption
 
   def _formSystemProperties(self):
     items = self._parameters.items()
@@ -37,6 +51,8 @@ class Script:
 
   def _executeCommand(self, systemProperties):
     command = ["java", "-classpath", "build/libs/pipeline-fat.jar"]
+    if self._debug == True:
+      command = command + [DEBUG_OPTION]
     command = command + systemProperties + ["no.bibsys.aws.Application"]
 
     subprocess.check_call(command)
@@ -53,24 +69,33 @@ class Script:
 
   def help(self):
     return \
-      """ python ryn.py <owner> <repository> <branch> <action>
+      """ python ryn.py <owner> <repository> <branch> <action> <awsRegion> [debug]
       - owner:\t\t Github owner
       - repository:\t Github repository
       - branch:\t\t Github branch
       - action:\t\t "create" or "delete"
+      - awsRegion:\t Desired AWS region
+      - debug (optional)
   """
 
 
 def main():
-  if len(sys.argv) != 5:
-    script = Script(None, None, None, None)
+  if len(sys.argv) < ARGUMENTS_WITHOUT_DEBUG or len(
+      sys.argv) > ARGUMENTS_WITH_DEBUG:
+    script = Script(None, None, None, None, None, None)
     print(script.help())
   else:
-    owner = sys.argv[1]
-    repository = sys.argv[2]
-    branch = sys.argv[3]
-    action = sys.argv[4]
-    script = Script(owner, repository, branch, action)
+    owner = sys.argv[OWNER_ARG]
+    repository = sys.argv[REPOSITORY_ARG]
+    branch = sys.argv[BRANCH_ARG]
+    action = sys.argv[ACTION_ARG]
+    awsRegion = sys.argv[AWS_REGION_ARG]
+    if len(sys.argv) == ARGUMENTS_WITH_DEBUG:
+      debugOption = sys.argv[DEBUG_ARG]
+      script = Script(owner, repository, branch, action, awsRegion, debugOption)
+    else:
+      script = Script(owner, repository, branch, action, awsRegion, None)
+
     script.run()
 
 
