@@ -11,10 +11,11 @@ import com.amazonaws.services.logs.AWSLogsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.google.common.base.Preconditions;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import java.io.IOException;
 import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.git.github.GithubConf;
-import no.bibsys.aws.lambda.EnvironmentConstants;
 import no.bibsys.aws.lambda.api.utils.Action;
 import no.bibsys.aws.secrets.AwsSecretsReader;
 import no.bibsys.aws.secrets.SecretsReader;
@@ -35,6 +36,8 @@ public class Application {
     private static final String VALID_VALUES_FOR_ACTION_MESSAGE = "Valid values: create,delete";
     private static final String INVALID_ACTION_VALUE_MESSAGE = "System property \"action\" is not set\n";
     private static final String ABSENT_ACTION_VALUE_MESSAGE1 = INVALID_ACTION_VALUE_MESSAGE;
+    public static final String CONFIGURATION_GITHUB_SECRET_NAME = "github.read_from_github_secret_name";
+    public static final String CONFIGURATION_GITHUB_SECRET_KEY = "github.read_from_github_secret_key";
     private final transient StackWiper wiper;
 
     private final transient String repoName;
@@ -80,6 +83,10 @@ public class Application {
     @SuppressWarnings("PMD")
     public static void main(String... args) throws IOException {
 
+        Config config = ConfigFactory.defaultReference().resolve();
+        final String readFromGithubSecretName = config.getString(CONFIGURATION_GITHUB_SECRET_NAME);
+        final String readFromGithubSecretKey = config.getString(CONFIGURATION_GITHUB_SECRET_KEY);
+
         String repoOwner = System.getProperty(GITHUB_OWNER_PROPERTY);
         Preconditions.checkNotNull(repoOwner, ABSENT_OWNER_ERROR_MEESSAGE);
         String repository = System.getProperty(GITHUB_REPOSITORY_PROPERTY);
@@ -93,10 +100,7 @@ public class Application {
 
         Region region = Region.getRegion(Regions.fromName(awsRegigon));
         Environment environment = new Environment();
-        String readFromGithubSecretName = environment
-            .readEnv(EnvironmentConstants.READ_FROM_GITHUB_SECRET_NAME);
-        String readFromGithubSecretKey = environment
-            .readEnv(EnvironmentConstants.READ_FROM_GITHUB_SECRET_KEY);
+
         SecretsReader secretsReader = new AwsSecretsReader(readFromGithubSecretName,
             readFromGithubSecretKey, region);
         Application.run(repoOwner, repository, branch, action, secretsReader);
