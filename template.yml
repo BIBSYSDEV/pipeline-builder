@@ -37,9 +37,9 @@ Resources:
       Timeout: 900
       Environment:
         Variables:
-          READ_FROM_GITHUB_SECRET_NAME: 'github'
+          READ_FROM_GITHUB_SECRET_NAME: 'infrastructure'
           READ_FROM_GITHUB_SECRET_KEY:  'read_from_github'
-          GITHUB_WEBHOOK_SECRET_NAME: 'github'
+          GITHUB_WEBHOOK_SECRET_NAME: 'infrastructure'
           GITHUB_WEBHOOK_SECRET_KEY: 'github_webhook_authorization'
       Events:
         RestApiEvent:
@@ -128,7 +128,7 @@ Resources:
         Variables:
           REST_USER_API_KEY_SECRET_NAME: 'infrastructure'
           REST_USER_API_KEY_SECRET_KEY:   'buildbranch'
-          READ_FROM_GITHUB_SECRET_NAME: 'github'
+          READ_FROM_GITHUB_SECRET_NAME: 'infrastructure'
           READ_FROM_GITHUB_SECRET_KEY:  'read_from_github'
       Events:
         RestApiEvent:
@@ -227,7 +227,7 @@ Resources:
           APPLICATION_URL: '{{resolve:ssm:INFRASTRUCTURE_URL:1}}'
           REGIONAL_CERTIFICATE_ARN: '{{resolve:ssm:infrastructure-entitydata-certificate-arn:1}}'
           STACK_NAME: !Ref AWS::StackName
-          ACCESS_SWAGGERHUB_SECRET_NAME: swaggerapikey
+          ACCESS_SWAGGERHUB_SECRET_NAME: infrastructure
           ACCESS_SWAGGERHUB_SECRET_KEY: swaggerapikey
 
       CodeUri: build/libs/pipeline-fat.jar
@@ -273,7 +273,7 @@ Resources:
           APPLICATION_URL: '{{resolve:ssm:INFRASTRUCTURE_URL:1}}'
           REGIONAL_CERTIFICATE_ARN: '{{resolve:ssm:infrastructure-entitydata-certificate-arn:1}}'
           STACK_NAME: !Ref AWS::StackName
-          ACCESS_SWAGGERHUB_SECRET_NAME: swaggerapikey
+          ACCESS_SWAGGERHUB_SECRET_NAME: infrastructure
           ACCESS_SWAGGERHUB_SECRET_KEY: swaggerapikey
       Policies:
         Version: '2012-10-17'
