@@ -67,7 +67,7 @@ public class ResourceInitializer extends ResourceManager {
         deletePreviousResources();
 
         Optional<ChangeResourceRecordSetsRequest> requestOpt = route53Updater
-            .createUpdateRequest(certificateArn);
+            .createUpdateRequestForRecordSets(certificateArn);
 
         Optional<ChangeResourceRecordSetsResult> route53UpdateResult = requestOpt
             .map(route53Updater::executeUpdateRequest);
