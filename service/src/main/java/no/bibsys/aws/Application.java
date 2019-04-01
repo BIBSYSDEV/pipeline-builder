@@ -19,7 +19,6 @@ import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.lambda.api.utils.Action;
 import no.bibsys.aws.secrets.AwsSecretsReader;
 import no.bibsys.aws.secrets.SecretsReader;
-import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.utils.stacks.StackBuilder;
 import no.bibsys.aws.utils.stacks.StackWiper;
 
@@ -58,7 +57,7 @@ public class Application {
         checkNulls();
     }
 
-    public static void run(String repoOwner,
+    private static void run(String repoOwner,
         String repository,
         String branch,
         String action,
@@ -83,7 +82,6 @@ public class Application {
     @SuppressWarnings("PMD")
     public static void main(String... args) throws IOException {
 
-
         Config config = ConfigFactory.defaultReference().resolve();
         final String readFromGithubSecretName = config.getString(CONFIGURATION_GITHUB_SECRET_NAME);
         final String readFromGithubSecretKey = config.getString(CONFIGURATION_GITHUB_SECRET_KEY);
@@ -100,7 +98,6 @@ public class Application {
         Preconditions.checkNotNull(action, message);
 
         Region region = Region.getRegion(Regions.fromName(awsRegigon));
-        Environment environment = new Environment();
 
         SecretsReader secretsReader = new AwsSecretsReader(readFromGithubSecretName,
             readFromGithubSecretKey, region);
