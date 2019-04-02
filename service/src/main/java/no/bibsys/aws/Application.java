@@ -35,8 +35,8 @@ public class Application {
     private static final String VALID_VALUES_FOR_ACTION_MESSAGE = "Valid values: create,delete";
     private static final String INVALID_ACTION_VALUE_MESSAGE = "System property \"action\" is not set\n";
     private static final String ABSENT_ACTION_VALUE_MESSAGE1 = INVALID_ACTION_VALUE_MESSAGE;
-    public static final String CONFIGURATION_GITHUB_SECRET_NAME = "github.read_from_github_secret_name";
-    public static final String CONFIGURATION_GITHUB_SECRET_KEY = "github.read_from_github_secret_key";
+    private static final String CONFIGURATION_GITHUB_SECRET_NAME = "github.read_from_github_secret_name";
+    private static final String CONFIGURATION_GITHUB_SECRET_KEY = "github.read_from_github_secret_key";
     private final transient StackWiper wiper;
 
     private final transient String repoName;
