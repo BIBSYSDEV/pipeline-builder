@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
 class ResourceDestroyerTest extends LocalStackTest {
 
     private static final String STACK_NAME = TEST_STACK;
-    private static final String RECORD_SET_NAME = "recordSetName";
-    private static final String ZONE_NAME = "zoneName";
+    private static final String RECORD_SET_NAME = "recor.dSet.Name.";
+    private static final String ZONE_NAME = "zone.Name.";
     private static final String GIT_OWNER = "owner";
     private static final String GIT_REPOSITORY = "gitRepository";
     private static final String BRANCH = "branch";

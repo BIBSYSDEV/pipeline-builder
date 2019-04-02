@@ -1,7 +1,6 @@
 package no.bibsys.utils;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -16,8 +15,8 @@ import org.junit.jupiter.api.Test;
 
 public class ResourceManagerTest extends ResourceManager {
 
-    private static final String ORIGINAL_URL = "originalUrl";
-    private static final String ZONE_NAME = "zoneName";
+    private static final String ORIGINAL_URL = "original.Url.";
+    private static final String ZONE_NAME = "zone.Name.";
     private static final String ARBITRARY_BRANCH = "notmaster";
     private static final String MASTER_BRANCH = "master";
 
@@ -45,8 +44,6 @@ public class ResourceManagerTest extends ResourceManager {
         StaticUrlInfo staticUrlInfo = new StaticUrlInfo(ZONE_NAME, ORIGINAL_URL, Stage.FINAL);
         StaticUrlInfo info = initStaticUrlInfo(staticUrlInfo, MASTER_BRANCH);
         String newUrl = info.getRecordSetName();
-        int prefixIndex = newUrl.indexOf(".");
-        assertThat(prefixIndex, is(lessThan(0)));
         assertThat(newUrl, is(equalTo(ORIGINAL_URL)));
     }
 
