@@ -122,14 +122,13 @@ Resources:
                   - !GetAtt S3Bucket.Arn
                   - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname, "/*"]]
                   - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname]]
-        - PolicyName: customResourceSupport
+        - PolicyName: ec2Support
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - 'lambda:InvokeFunction'
-                  - "s3:*"
+                  - 'ec2:*'
                 Resource: '*'
         - PolicyName: createLambdaFunctions
           PolicyDocument:
