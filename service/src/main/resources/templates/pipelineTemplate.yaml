@@ -419,8 +419,6 @@ Resources:
               Configuration:
                 ProjectName: !Ref ExecuteTestsProjectname
               RunOrder: 4
-        - Name: ProdStack
-          Actions:
             - Name: DestroyStack
               ActionTypeId:
                 Category: Invoke
@@ -431,7 +429,7 @@ Resources:
                 FunctionName: !Join ['-', [!Ref DestroyFunctionName, !Ref TestPhaseName]]
               InputArtifacts: []
               OutputArtifacts: []
-              RunOrder: 1
+              RunOrder: 5
             - Name: DeleteTestStack
               ActionTypeId:
                 Category: Deploy
@@ -442,7 +440,9 @@ Resources:
                 ActionMode: DELETE_ONLY
                 RoleArn: !GetAtt CreateStackRole.Arn
                 StackName: !Ref PipelineTestServiceStackName
-              RunOrder: 2
+              RunOrder: 6
+        - Name: ProdStack
+            Actions:
             - Name: CreateFinalStack
               ActionTypeId:
                 Category: Deploy
@@ -462,7 +462,7 @@ Resources:
                   - { ProjectIdValue: !Ref ProjectId,  InitFunctionNameStage: !Join ['-', [!Ref InitFunctionName, !Ref FinalPhaseName]], DestroyFunctionNameStage: !Join ['-', [!Ref DestroyFunctionName, !Ref FinalPhaseName]] }
               InputArtifacts:
                 - Name: !Ref CodebuildOutputArtifact
-              RunOrder: 3
+              RunOrder: 1
             - Name: ExecuteFinalStack
               ActionTypeId:
                 Category: Deploy
@@ -475,10 +475,7 @@ Resources:
                 StackName: !Ref PipelineFinalServiceStackName
               InputArtifacts: []
               OutputArtifacts: []
-              RunOrder: 4
-
-        - Name: Initialize
-          Actions:
+              RunOrder: 2
             - Name: InitializeStack
               ActionTypeId:
                 Category: Invoke
@@ -489,3 +486,4 @@ Resources:
                 FunctionName: !Join ['-', [!Ref InitFunctionName, !Ref FinalPhaseName]]
               InputArtifacts: []
               OutputArtifacts: []
+              RunOrder: 3
