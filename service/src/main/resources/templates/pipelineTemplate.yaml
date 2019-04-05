@@ -442,7 +442,7 @@ Resources:
                 StackName: !Ref PipelineTestServiceStackName
               RunOrder: 6
         - Name: ProdStack
-            Actions:
+          Actions:
             - Name: CreateFinalStack
               ActionTypeId:
                 Category: Deploy
