@@ -225,7 +225,7 @@ Resources:
           STAGE: !Ref Stage
           ZONE_NAME: '{{resolve:ssm:HOSTED_ZONE_NAME:1}}'
           APPLICATION_URL: '{{resolve:ssm:INFRASTRUCTURE_URL:1}}'
-          REGIONAL_CERTIFICATE_ARN: '{{resolve:ssm:INFRASTRUCTURE-CERTIFICATE-ARN:1}}'
+          REGIONAL_CERTIFICATE_ARN: '{{resolve:ssm:INFRASTRUCTURE_CERTIFICATE_ARN:1}}'
           STACK_NAME: !Ref AWS::StackName
           ACCESS_SWAGGERHUB_SECRET_NAME: infrastructure
           ACCESS_SWAGGERHUB_SECRET_KEY: swaggerapikey
@@ -271,7 +271,7 @@ Resources:
           STAGE: !Ref Stage
           ZONE_NAME: '{{resolve:ssm:HOSTED_ZONE_NAME:1}}'
           APPLICATION_URL: '{{resolve:ssm:INFRASTRUCTURE_URL:1}}'
-          REGIONAL_CERTIFICATE_ARN: '{{resolve:ssm:INFRASTRUCTURE-CERTIFICATE-ARN:1}}'
+          REGIONAL_CERTIFICATE_ARN: '{{resolve:ssm:INFRASTRUCTURE_CERTIFICATE_ARN:1}}'
           STACK_NAME: !Ref AWS::StackName
           ACCESS_SWAGGERHUB_SECRET_NAME: infrastructure
           ACCESS_SWAGGERHUB_SECRET_KEY: swaggerapikey
