@@ -25,7 +25,7 @@ public class InitHandler extends ResourceHandler {
     }
 
     @Override
-    public SimpleResponse processInput(DeployEvent input, String apiGatewayMessage, Context context)
+    public SimpleResponse processInput(DeployEvent input, String eventString, Context context)
         throws IOException, URISyntaxException {
         init();
         String certificateArn = environment.readEnv(CERTIFICATE_ARN);
