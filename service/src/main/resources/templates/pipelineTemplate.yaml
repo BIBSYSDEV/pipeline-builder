@@ -81,8 +81,6 @@ Resources:
                 - codepipeline.amazonaws.com
                 - codebuild.amazonaws.com
                 - iam.amazonaws.com
-              AWS: !GetAtt PipelineRole.Arn
-
       Policies:
         - PolicyName: "passRole"
           PolicyDocument:
@@ -202,14 +200,6 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource: "*"
-        - PolicyName: ec2Support
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - 'ec2:*'
-                Resource: '*'
         - PolicyName: cloudFormationAccess
           PolicyDocument:
             Version: '2012-10-17'
