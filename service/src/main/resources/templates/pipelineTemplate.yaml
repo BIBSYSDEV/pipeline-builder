@@ -170,6 +170,16 @@ Resources:
         - arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess
 
       Policies:
+        - PolicyName: lambdaInvocation
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'lambda:InvokeFunction'
+                  - 'codepipeline:PutJobFailureResult'
+                  - 'codepipeline:PutJobSuccessResult'
+                Resource: '*'
         - PolicyName: s3Access
           PolicyDocument:
             Version: '2012-10-17'
