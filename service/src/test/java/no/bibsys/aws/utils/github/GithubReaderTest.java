@@ -5,6 +5,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.mockito.Mockito.mock;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import no.bibsys.aws.git.github.GithubConf;
@@ -22,6 +23,7 @@ public class GithubReaderTest {
     private static final SecretsReader SECRETS_READER = () -> "secret";
     private static final GithubConf githubConf = new GithubConf(OWNER, REPO, BRANCH,
         SECRETS_READER);
+    public static final Path ARBITRARY_PATH = Paths.get("folder", "folder", "file");
 
     @Test
     public void createUrlFromPathShouldMapPathToValidUrl() {
@@ -33,5 +35,13 @@ public class GithubReaderTest {
         GithubReader githubReader = new GithubReader(githubConf, httpClient);
         String outputUrl = githubReader.createUrl(inputPath);
         assertThat(outputUrl, is(equalTo(expectedUrl)));
+    }
+
+    @Test
+    public void readFileShouldReturnAFileForAValidPath() throws IOException, UnauthorizedException, NotFoundException {
+        CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
+        GithubReader githubReader = new GithubReader(githubConf, httpClient);
+        String expectedString = "File contents";
+        assertThat(githubReader.readFile(ARBITRARY_PATH), is(equalTo(expectedString)));
     }
 }
