@@ -10,8 +10,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.secrets.SecretsReader;
 import org.apache.http.HttpStatus;
@@ -24,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 class GithubRestReaderTest {
 
-    public static final String SUCCESS_REASON_PHRASE = "OK";
+    private static final String SUCCESS_REASON_PHRASE = "OK";
     private static final String OWNER = "owner";
     private static final String REPO = "repo";
     private static final String BRANCH = "branch";
@@ -36,24 +34,13 @@ class GithubRestReaderTest {
     private static final ProtocolVersion PROTOCOL_VERSION = new ProtocolVersion(PROTOCOL, MAJOR_VERSION, MINOR_VERSION);
     private static final String BAD_CREDENTIALS_BODY = "{\"message\":\"Bad credentials\","
         + "\"documentation_url\":\"https://developer.github.com/v3\"}";
-
-    private final transient static String urlTemplate = "https://api.github.com/"
-        + "repos/%1$s/%2$s/contents/%4$s?ref=%3$s";
+    private static final String PATH_NOT_FOUND = "Gituhub path not found";
     private SecretsReader mockSecretsReader = () -> "something";
     private GithubConf githubConf = new GithubConf(OWNER, REPO, BRANCH, mockSecretsReader);
 
-    private String createUrl(Path path, GithubConf githubConf) {
-        String pathString = path.toString();
-        return String.format(urlTemplate,
-            githubConf.getOwner(),
-            githubConf.getRepository(),
-            githubConf.getBranch(),
-            pathString
-        );
-    }
-
     @Test
-    void ReadRestShouldReturnNonEmptyStringForValidUrlAndValidCredentials() throws IOException, UnauthorizedException {
+    void ReadRestShouldReturnNonEmptyStringForValidUrlAndValidCredentials()
+        throws IOException, UnauthorizedException, NotFoundException {
 
         CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
         CloseableHttpResponse mockHttpResponse = mock(CloseableHttpResponse.class);
@@ -80,17 +67,35 @@ class GithubRestReaderTest {
         when(httpClient.execute(any())).thenReturn(mockHttpResponse);
 
         GithubRestReader githubRestReader = new GithubRestReader(httpClient, githubConf);
-        String url = createUrl(Paths.get("service", "src", "main", "resources", "templates", "pipelineTemplate.yaml"),
-            githubConf);
-        assertThrows(UnauthorizedException.class, () -> githubRestReader.readRest(url));
+        assertThrows(UnauthorizedException.class, () -> githubRestReader.readRest(URL));
     }
 
     @Test
-    void ReadRestShouldThrowExceptionOnInvalidUrl() {
+    void ReadRestShouldThrowExceptionOnInvalidUrl() throws IOException {
 
+        CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
+        CloseableHttpResponse mockHttpResponse = mock(CloseableHttpResponse.class);
+
+        when(mockHttpResponse.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion(PROTOCOL,
+            MAJOR_VERSION, MINOR_VERSION), HttpStatus.SC_NOT_FOUND, PATH_NOT_FOUND));
+        when(httpClient.execute(any())).thenReturn(mockHttpResponse);
+
+        GithubRestReader githubRestReader = new GithubRestReader(httpClient, githubConf);
+        assertThrows(NotFoundException.class, () -> githubRestReader.readRest(URL));
     }
 
     @Test
-    void getGitInfo() {
+    void ReadRestShouldThrowNullPointerExceptionOnNullResponseContent() throws IOException {
+
+        CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
+        CloseableHttpResponse mockHttpResponse = mock(CloseableHttpResponse.class);
+        when(mockHttpResponse.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion(PROTOCOL,
+            MAJOR_VERSION, MINOR_VERSION), HttpStatus.SC_OK, SUCCESS_REASON_PHRASE));
+
+        when(mockHttpResponse.getEntity()).thenReturn(null);
+        when(httpClient.execute(any())).thenReturn(mockHttpResponse);
+
+        GithubRestReader githubRestReader = new GithubRestReader(httpClient, githubConf);
+        assertThrows(NullPointerException.class, () -> githubRestReader.readRest(URL));
     }
 }
