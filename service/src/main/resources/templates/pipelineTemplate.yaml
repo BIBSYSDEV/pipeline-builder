@@ -44,9 +44,6 @@ Parameters:
     Type: String
 
 
-Conditions:
-  CreateProdStack: !Equals [ !Ref ProjectBranch, 'master' ]
-
 Resources:
 
   S3Bucket:
