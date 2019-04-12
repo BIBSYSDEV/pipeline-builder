@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import no.bibsys.aws.git.github.GithubConf;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -40,7 +39,7 @@ class GithubRestReaderTest extends GithubTestUtilities {
         CloseableHttpResponse mockHttpResponse = mock(CloseableHttpResponse.class);
 
         when(httpClient.execute(any())).thenReturn(mockHttpResponse);
-        when(mockHttpResponse.getEntity()).thenReturn(SIMPLE_RESPONSE);
+        when(mockHttpResponse.getEntity()).thenReturn(simpleResponse);
         when(mockHttpResponse.getStatusLine()).thenReturn(STATUS_LINE_OK);
 
         GithubRestReader githubRestReader = new GithubRestReader(httpClient, githubConf);

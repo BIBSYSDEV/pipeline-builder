@@ -1,10 +1,8 @@
 package no.bibsys.aws.utils.github;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.file.Path;
 import no.bibsys.aws.git.github.GithubConf;
-import no.bibsys.aws.tools.JsonUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 
 public class GithubReader {

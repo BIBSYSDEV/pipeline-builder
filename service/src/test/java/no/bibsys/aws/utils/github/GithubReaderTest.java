@@ -7,16 +7,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import no.bibsys.aws.git.github.GithubConf;
-import no.bibsys.aws.secrets.AwsSecretsReader;
 import no.bibsys.aws.secrets.SecretsReader;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.junit.jupiter.api.Test;
 
 public class GithubReaderTest extends GithubTestUtilities {
@@ -49,10 +46,10 @@ public class GithubReaderTest extends GithubTestUtilities {
         CloseableHttpResponse response = mock(CloseableHttpResponse.class);
 
         when(httpClient.execute(any())).thenReturn(response);
-        when(response.getEntity()).thenReturn(SIMPLE_RESPONSE);
+        when(response.getEntity()).thenReturn(simpleResponse);
         when(response.getStatusLine()).thenReturn(STATUS_LINE_OK);
         GithubReader githubReader = new GithubReader(githubConf, httpClient);
-        String responseString= githubReader.readFile(ARBITRARY_PATH);
+        String responseString = githubReader.readFile(ARBITRARY_PATH);
         assertThat(responseString, is(equalTo(EXPECTED_RESPONSE)));
     }
 }
