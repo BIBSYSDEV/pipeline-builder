@@ -29,8 +29,8 @@ class GithubRestReaderTest extends GithubTestUtilities {
     private static final String URL = "http://www.example.org";
     private static final String ACCEPT = "Accept";
     private static final String EXPECTED_RAW_HEADER = "application/vnd.github.VERSION.raw";
-    public static final String AUTHORIZATION = "Authorization";
-    public static final String TOKEN = "token";
+    private static final String AUTHORIZATION = "Authorization";
+    private static final String TOKEN = "token";
 
     private GithubConf githubConf = new GithubConf(OWNER, REPO, BRANCH, MOCK_SECRETS_READER);
 
