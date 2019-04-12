@@ -94,10 +94,6 @@ public class GithubHandler extends ApiHandler {
         }
     }
 
-    private void setRegionOrReportErrorToLogger() {
-        init();
-    }
-
     private boolean isVerified(String request, Map<String, String> headers) throws IOException {
         String webhookSecurityToken = headers.get(GITHUB_SIGNATURE_HEADER);
         return signatureChecker.verifySecurityToken(webhookSecurityToken, request);

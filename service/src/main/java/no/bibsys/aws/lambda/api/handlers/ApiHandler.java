@@ -78,5 +78,9 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
         application.createStacks(cloudFormation);
     }
 
+    protected void setRegionOrReportErrorToLogger() {
+        init();
+    }
+
     protected abstract SecretsReader readFromGithubSecretReader();
 }
