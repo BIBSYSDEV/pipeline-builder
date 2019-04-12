@@ -1,5 +1,6 @@
 package no.bibsys.aws.utils.github;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -28,6 +29,8 @@ class GithubRestReaderTest extends GithubTestUtilities {
     private static final String URL = "http://www.example.org";
     private static final String ACCEPT = "Accept";
     private static final String EXPECTED_RAW_HEADER = "application/vnd.github.VERSION.raw";
+    public static final String AUTHORIZATION = "Authorization";
+    public static final String TOKEN = "token";
 
     private GithubConf githubConf = new GithubConf(OWNER, REPO, BRANCH, MOCK_SECRETS_READER);
 
@@ -98,5 +101,15 @@ class GithubRestReaderTest extends GithubTestUtilities {
                 .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
         assertThat(headerMap.keySet(), hasItem(ACCEPT));
         assertThat(headerMap.get(ACCEPT), is(equalTo(EXPECTED_RAW_HEADER)));
+    }
+
+    @Test
+    public void createRequestSetsHeaderForAuthorization() throws IOException {
+        GithubRestReader githubRestReader = new GithubRestReader(null, githubConf);
+        HttpGet httpGet = githubRestReader.createRequest(URL);
+        Map<String, String> headerMap = Arrays.stream(httpGet.getAllHeaders())
+            .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
+        assertThat(headerMap.keySet(), hasItem(AUTHORIZATION));
+        assertThat(headerMap.get(AUTHORIZATION), containsString(TOKEN));
     }
 }
