@@ -74,6 +74,7 @@ public class StackBuilder {
         } catch (AmazonCloudFormationException e) {
             log.warn(STACK_DOES_NOT_EXIST_WARNING);
         }
+
         createPipelineStack(pipelineStackConfiguration);
     }
 

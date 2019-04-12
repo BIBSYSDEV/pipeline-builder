@@ -93,11 +93,11 @@ public class Application {
         String branch = System.getProperty(GIT_BRANCH_PROPERTY);
         Preconditions.checkNotNull(branch, ABSENT_BRANCH_ERROR_MESSAGE);
         String action = System.getProperty(CODEPIEPINE_ACTION);
-        String awsRegigon = System.getProperty(AWS_REGION);
+        String awsRegion = System.getProperty(AWS_REGION);
         String message = ABSENT_ACTION_VALUE_MESSAGE1 + VALID_VALUES_FOR_ACTION_MESSAGE;
         Preconditions.checkNotNull(action, message);
 
-        Region region = Region.getRegion(Regions.fromName(awsRegigon));
+        Region region = Region.getRegion(Regions.fromName(awsRegion));
 
         SecretsReader secretsReader = new AwsSecretsReader(readFromGithubSecretName,
             readFromGithubSecretKey, region);

@@ -34,6 +34,7 @@ public class StackWiper {
     private static final Logger logger = LoggerFactory.getLogger(StackWiper.class);
     private static final int WAIT_UNTIL_CHECKING_AGAIN = 1000;
     private static final int MAX_TIMES_TO_CHECK = 100;
+    private static final String ARN_BUCKET_NAME_DELIMITER = ":::";
 
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
     private final transient AmazonCloudFormation cloudFormationClient;
@@ -56,12 +57,12 @@ public class StackWiper {
 
     public void wipeStacks() {
 
-        Map<Stage, Integer> statusCodes =
+        Map<Stage, Integer> resourceDestructionStatusCodes =
             Stage.listStages().stream()
                 .map(stage -> new SimpleEntry<>(stage, invokeDestroyLambdaFunction(stage)))
                 .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
 
-        statusCodes.entrySet().stream()
+        resourceDestructionStatusCodes.entrySet().stream()
             .map(entry -> String.format("%s->%s", entry.getKey(), entry.getValue()))
             .forEach(message -> logger.debug("Destroyed Stack status code:", message));
 
@@ -84,7 +85,7 @@ public class StackWiper {
             .map(this::extractBucketName)
             .collect(Collectors.toList());
 
-        bucketNames.forEach(this::deleteBucket);
+        bucketNames.forEach(this::emptyAndDeleteBucket);
     }
 
     public List<DeleteStackResult> deleteStacks() {
@@ -162,11 +163,11 @@ public class StackWiper {
     }
 
     private String extractBucketName(String physicalId) {
-        String[] array = physicalId.split(":::");
+        String[] array = physicalId.split(ARN_BUCKET_NAME_DELIMITER);
         return array[array.length - 1];
     }
 
-    public void deleteBucket(String bucketName) {
+    public void emptyAndDeleteBucket(String bucketName) {
         emptyBucket(bucketName, s3Client);
         s3Client.deleteBucket(bucketName);
     }

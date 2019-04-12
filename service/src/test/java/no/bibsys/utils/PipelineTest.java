@@ -76,7 +76,7 @@ public class PipelineTest {
         Application application = initApplication();
         StackWiper stackWiper = new StackWiper(application.getPipelineStackConfiguration(),
             cloudFormation, s3Client, lambdaClient, logsClient);
-        client.listBuckets().forEach(bucket -> stackWiper.deleteBucket(bucket.getName()));
+        client.listBuckets().forEach(bucket -> stackWiper.emptyAndDeleteBucket(bucket.getName()));
     }
 
     @Tag("UtilityMethod")
