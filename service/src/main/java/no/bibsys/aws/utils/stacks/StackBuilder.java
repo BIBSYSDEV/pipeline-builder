@@ -50,8 +50,8 @@ public class StackBuilder {
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_TEST_PHASE_NAME = "TestPhaseName";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_FINAL_PHASE_NAME = "FinalPhaseName";
     private static final String STACK_DOES_NOT_EXIST_WARNING = "Stack does not exist";
-    public static final String TEMPLATES_RESOURCE_DIRECTORY = "templates";
-    public static final String PIPELINE_TEMPLATE = "pipelineTemplate.yaml";
+    private static final String TEMPLATES_RESOURCE_DIRECTORY = "templates";
+    private static final String PIPELINE_TEMPLATE = "pipelineTemplate.yaml";
 
     private final transient StackWiper stackWiper;
 
@@ -88,7 +88,7 @@ public class StackBuilder {
         CreateStackRequest createStackRequest = new CreateStackRequest();
         setBasicStackRequestParameters(createStackRequest, pipelineStackConfiguration);
         setPipelineStackTemplate(createStackRequest);
-        setTemplateParamaters(createStackRequest, pipelineStackConfiguration);
+        setTemplateParameters(createStackRequest, pipelineStackConfiguration);
 
         return createStackRequest;
     }
@@ -99,7 +99,7 @@ public class StackBuilder {
         createStackRequest.withCapabilities(Capability.CAPABILITY_NAMED_IAM);
     }
 
-    private void setTemplateParamaters(CreateStackRequest createStackRequest, PipelineStackConfiguration pipelineStack)
+    private void setTemplateParameters(CreateStackRequest createStackRequest, PipelineStackConfiguration pipelineStack)
             throws IOException {
 
         List<Parameter> parameters = new ArrayList<>();
