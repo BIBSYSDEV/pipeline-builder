@@ -1,8 +1,10 @@
 package no.bibsys.aws.utils.github;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.file.Path;
 import no.bibsys.aws.git.github.GithubConf;
+import no.bibsys.aws.tools.JsonUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 
 public class GithubReader {
@@ -12,6 +14,7 @@ public class GithubReader {
 
     private final transient GithubConf githubConf;
     private final transient GithubRestReader githubRestReader;
+    private static final transient ObjectMapper mapper = JsonUtils.newJsonParser();
 
     public GithubReader(GithubConf githubConf, CloseableHttpClient closeableHttpClient) {
         this.githubConf = githubConf;
@@ -29,6 +32,9 @@ public class GithubReader {
     }
 
     public String readFile(Path filePath) throws UnauthorizedException, IOException, NotFoundException {
-        return this.githubRestReader.readRest(filePath.toString());
+        String url = createUrl(filePath);
+        return this.githubRestReader.readRest(url);
+
+
     }
 }

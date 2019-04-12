@@ -18,7 +18,7 @@ public class GithubRestReader {
     private static final String AUTHORIZATION = "Authorization";
     private static final String TOKEN = "token ";
     private static final String ACCEPT = "Accept";
-    private static final String ACCEPT_FORMAT = "application/vnd.github.v3+json";
+    private static final String ACCEPT_FORMAT = "application/vnd.github.VERSION.raw";
     private static final String ERROR_MESSAGE = "Response HttpEntity was null";
     private static final String PATH_NOT_FOUND = "Github path not found";
     private final transient GithubConf githubConf;
@@ -33,6 +33,7 @@ public class GithubRestReader {
         HttpGet get = new HttpGet(url);
         get.setHeader(new BasicHeader(AUTHORIZATION, TOKEN + githubConf.getOauth()));
         get.setHeader(new BasicHeader(ACCEPT, ACCEPT_FORMAT));
+
         CloseableHttpResponse response = this.httpClient.execute(get);
         int statusCode = response.getStatusLine().getStatusCode();
         String responseString = null;
