@@ -11,10 +11,16 @@ public final class SimplePullRequest extends GitEvent {
     public static final String ACTION_OPEN = "opened";
     public static final String ACTION_REOPEN = "reopened";
     public static final String ACTION_CLOSE = "closed";
-
+    private static final String REPOSITORY = "repository";
+    private static final String OWNER = "owner";
+    private static final String LOGIN = "login";
+    private static final String NAME = "name";
+    private static final String PULL_REQUEST = "pull_request";
+    private static final String HEAD = "head";
+    private static final String REF = "ref";
+    private static final String ACTION = "action";
 
     private String action;
-
 
     public SimplePullRequest() {
         super();
@@ -22,24 +28,22 @@ public final class SimplePullRequest extends GitEvent {
 
     private SimplePullRequest(JsonNode root) {
         super();
-        this.setOwner(root.get("repository").get("owner").get("login").asText());
-        this.setRepository(root.get("repository").get("name").asText());
-        this.setBranch(root.get("pull_request").get("head").get("ref").asText());
-        this.action = root.get("action").asText();
-
+        this.setOwner(root.get(REPOSITORY).get(OWNER).get(LOGIN).asText());
+        this.setRepository(root.get(REPOSITORY).get(NAME).asText());
+        this.setBranch(root.get(PULL_REQUEST).get(HEAD).get(REF).asText());
+        this.action = root.get(ACTION).asText();
     }
 
     public static Optional<GitEvent> create(String jsonString) throws IOException {
         ObjectMapper mapper = JsonUtils.newJsonParser();
         JsonNode root = mapper.readTree(jsonString);
 
-        if (root.has("pull_request")) {
+        if (root.has(PULL_REQUEST)) {
             return Optional.of(new SimplePullRequest(root));
         } else {
             return Optional.empty();
         }
     }
-
 
     public String getAction() {
         return action;
@@ -53,7 +57,4 @@ public final class SimplePullRequest extends GitEvent {
     public String toString() {
         return action;
     }
-
-
-
 }
