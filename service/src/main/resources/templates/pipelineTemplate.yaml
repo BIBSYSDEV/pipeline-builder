@@ -332,7 +332,7 @@ Resources:
                 Branch: !Ref ProjectBranch
               OutputArtifacts:
                 - Name: !Ref SourceStageOutputArtifact
-        - Name: CodeBuild
+        - Name: CodeBuild_step
           Actions:
             - Name: CodeBuildAction
               ActionTypeId:

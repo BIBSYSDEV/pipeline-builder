@@ -3,7 +3,7 @@ package no.bibsys.aws.cloudformation;
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.tools.StringUtils;
 
-public class PipelineStackConfiguration extends CloudFormationConfigurable {
+public class PipelineStackConfiguration extends Configurable {
 
     public static final Integer MAX_ROLENAME_SIZE = 64;
     public static final Integer BUCKET_NAME_SIZE = 20;

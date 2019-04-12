@@ -1,6 +1,6 @@
 package no.bibsys.aws.cloudformation;
 
-public class PipelineConfiguration extends CloudFormationConfigurable {
+public class PipelineConfiguration extends Configurable {
 
     public static final String DESTROY_FUNCTION_SUFFIX = "destroy-function";
     public static final String INIT_FUNCTION_SUFFIX = "init-function";

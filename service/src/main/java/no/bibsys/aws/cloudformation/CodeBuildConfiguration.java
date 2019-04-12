@@ -1,6 +1,6 @@
 package no.bibsys.aws.cloudformation;
 
-public class CodeBuildConfiguration extends CloudFormationConfigurable {
+public class CodeBuildConfiguration extends Configurable {
 
     private final String buildProjectName;
     private final String outputArtifact;
