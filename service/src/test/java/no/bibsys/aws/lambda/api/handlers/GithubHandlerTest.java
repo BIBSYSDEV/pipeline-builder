@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import no.bibsys.aws.lambda.api.requests.PullRequest;
+import no.bibsys.aws.lambda.api.requests.SimplePullRequest;
 import no.bibsys.aws.secrets.GithubSignatureChecker;
 import no.bibsys.aws.testtutils.LocalStackTest;
 import no.bibsys.aws.tools.IoUtils;
@@ -44,7 +44,7 @@ public class GithubHandlerTest extends LocalStackTest {
             CLOSE_PULLREQUEST_JSON));
 
         String response = githubHandler.processInput(githubCloseRequest, new HashMap<>(), null);
-        assertThat(response, is(equalTo(PullRequest.ACTION_CLOSE)));
+        assertThat(response, is(equalTo(SimplePullRequest.ACTION_CLOSE)));
     }
 
     @Test
@@ -62,7 +62,7 @@ public class GithubHandlerTest extends LocalStackTest {
             OPEN_PULLREQUEST_JSON));
 
         String response = githubHandler.processInput(githubCloseRequest, new HashMap<>(), null);
-        assertThat(response, is(equalTo(PullRequest.ACTION_OPEN)));
+        assertThat(response, is(equalTo(SimplePullRequest.ACTION_OPEN)));
     }
 
     @Test
@@ -80,7 +80,7 @@ public class GithubHandlerTest extends LocalStackTest {
             REOPEN_PULLREQUEST_JSON));
 
         String response = githubHandler.processInput(githubCloseRequest, new HashMap<>(), null);
-        assertThat(response, is(equalTo(PullRequest.ACTION_REOPEN)));
+        assertThat(response, is(equalTo(SimplePullRequest.ACTION_REOPEN)));
     }
 
     @Test()

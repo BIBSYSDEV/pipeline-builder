@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Optional;
 import no.bibsys.aws.tools.JsonUtils;
 
-public final class PullRequest extends GitEvent {
+public final class SimplePullRequest extends GitEvent {
 
     public static final String ACTION_OPEN = "opened";
     public static final String ACTION_REOPEN = "reopened";
@@ -16,11 +16,11 @@ public final class PullRequest extends GitEvent {
     private String action;
 
 
-    public PullRequest() {
+    public SimplePullRequest() {
         super();
     }
 
-    private PullRequest(JsonNode root) {
+    private SimplePullRequest(JsonNode root) {
         super();
         this.setOwner(root.get("repository").get("owner").get("login").asText());
         this.setRepository(root.get("repository").get("name").asText());
@@ -34,7 +34,7 @@ public final class PullRequest extends GitEvent {
         JsonNode root = mapper.readTree(jsonString);
 
         if (root.has("pull_request")) {
-            return Optional.of(new PullRequest(root));
+            return Optional.of(new SimplePullRequest(root));
         } else {
             return Optional.empty();
         }

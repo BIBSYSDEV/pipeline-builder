@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 import no.bibsys.aws.lambda.api.requests.GitEvent;
-import no.bibsys.aws.lambda.api.requests.PullRequest;
+import no.bibsys.aws.lambda.api.requests.SimplePullRequest;
 import no.bibsys.aws.secrets.AwsSecretsReader;
 import no.bibsys.aws.secrets.GithubSignatureChecker;
 import no.bibsys.aws.secrets.SecretsReader;
@@ -53,8 +53,8 @@ public class GithubHandler extends ApiHandler {
             AWSLogsClientBuilder.defaultClient()
         );
 
-        String regsionString = environment.readEnv(AWS_REGION);
-        Region region = Region.getRegion(Regions.fromName(regsionString));
+        String regionString = environment.readEnv(AWS_REGION);
+        Region region = Region.getRegion(Regions.fromName(regionString));
         this.webhookSecretsReader = new AwsSecretsReader(
             environment.readEnv(GITHUB_WEBHOOK_SECRET_NAME),
             environment.readEnv(GITHUB_WEBHOOK_SECRET_KEY),
@@ -84,15 +84,23 @@ public class GithubHandler extends ApiHandler {
     @Override
     public String processInput(String request, Map<String, String> headers, Context context)
         throws IOException {
-        init();
-        String webhookSecurityToken = headers.get(GITHUB_SIGNATURE_HEADER);
-        boolean verified = signatureChecker.verifySecurityToken(webhookSecurityToken, request);
 
-        if (verified) {
+        setRegionOrReportErrorToLogger();
+
+        if (isVerified(request, headers)) {
             return processGitEvent(request);
         } else {
             throw new UnauthorizedException(ERROR_MESSAGE_FOR_FAILED_GITHUB_SIGNATURE);
         }
+    }
+
+    private void setRegionOrReportErrorToLogger() {
+        init();
+    }
+
+    private boolean isVerified(String request, Map<String, String> headers) throws IOException {
+        String webhookSecurityToken = headers.get(GITHUB_SIGNATURE_HEADER);
+        return signatureChecker.verifySecurityToken(webhookSecurityToken, request);
     }
 
     private String processGitEvent(String request) throws IOException {
@@ -100,31 +108,31 @@ public class GithubHandler extends ApiHandler {
         String response = NO_ACTION_MESSAGE;
         if (gitEventOpt.isPresent()) {
             GitEvent event = gitEventOpt.get();
-            if (event instanceof PullRequest) {
-                response = processPullRequest((PullRequest) event);
+            if (event instanceof SimplePullRequest) {
+                response = processPullRequest((SimplePullRequest) event);
             }
         }
         return response;
     }
 
-    private String processPullRequest(PullRequest pullRequest)
+    private String processPullRequest(SimplePullRequest simplePullRequest)
         throws IOException {
-        if (pullRequest.getAction().equals(PullRequest.ACTION_OPEN)
-            || pullRequest.getAction().equals(PullRequest.ACTION_REOPEN)) {
-            createStacks(pullRequest);
+        if (simplePullRequest.getAction().equals(SimplePullRequest.ACTION_OPEN)
+            || simplePullRequest.getAction().equals(SimplePullRequest.ACTION_REOPEN)) {
+            createStacks(simplePullRequest);
         }
 
-        if (pullRequest.getAction().equals(PullRequest.ACTION_CLOSE)) {
-            deleteStacks(pullRequest);
+        if (simplePullRequest.getAction().equals(SimplePullRequest.ACTION_CLOSE)) {
+            deleteStacks(simplePullRequest);
         }
 
-        logger.info(pullRequest.toString());
+        logger.info(simplePullRequest.toString());
 
-        return pullRequest.toString();
+        return simplePullRequest.toString();
     }
 
     private Optional<GitEvent> parseEvent(String json) throws IOException {
-        return PullRequest.create(json);
+        return SimplePullRequest.create(json);
     }
 
     protected SecretsReader getWebhookSecretsReader() {
