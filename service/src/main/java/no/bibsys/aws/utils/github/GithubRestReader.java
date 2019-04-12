@@ -2,6 +2,7 @@ package no.bibsys.aws.utils.github;
 
 import java.io.IOException;
 import java.util.Objects;
+
 import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.tools.IoUtils;
@@ -29,23 +30,21 @@ public class GithubRestReader {
         this.githubConf = githubConf;
     }
 
-    public String readRest(String url) throws IOException, UnauthorizedException, NotFoundException {
-        HttpGet get = new HttpGet(url);
-        get.setHeader(new BasicHeader(AUTHORIZATION, TOKEN + githubConf.getOauth()));
-        get.setHeader(new BasicHeader(ACCEPT, ACCEPT_FORMAT));
-
-        CloseableHttpResponse response = this.httpClient.execute(get);
+    public String executeRequest(HttpGet httpGet) throws IOException, UnauthorizedException, NotFoundException {
+        CloseableHttpResponse response = this.httpClient.execute(httpGet);
         int statusCode = response.getStatusLine().getStatusCode();
         String responseString = null;
         switch (statusCode) {
-            case HttpStatus.SC_OK:
-                responseString = handleSuccess(response);
-                break;
             case HttpStatus.SC_UNAUTHORIZED:
                 handleUnauthorized();
                 break;
             case HttpStatus.SC_NOT_FOUND:
                 handleNotFound();
+                break;
+            case HttpStatus.SC_OK:
+            default:
+                responseString = handleSuccess(response);
+                break;
         }
 
         Objects.requireNonNull(responseString, ERROR_MESSAGE);
@@ -67,5 +66,12 @@ public class GithubRestReader {
 
     public GitInfo getGitInfo() {
         return githubConf;
+    }
+
+    public HttpGet createRequest(String url) throws IOException {
+        HttpGet get = new HttpGet(url);
+        get.setHeader(new BasicHeader(AUTHORIZATION, TOKEN + githubConf.getOauth()));
+        get.setHeader(new BasicHeader(ACCEPT, ACCEPT_FORMAT));
+        return get;
     }
 }

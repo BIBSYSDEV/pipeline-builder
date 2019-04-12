@@ -9,12 +9,11 @@ import org.apache.http.impl.client.CloseableHttpClient;
 
 public class GithubReader {
 
-    private final transient static String urlTemplate = "https://api.github.com/"
+    private static final transient String urlTemplate = "https://api.github.com/"
         + "repos/%1$s/%2$s/contents/%4$s?ref=%3$s";
 
     private final transient GithubConf githubConf;
     private final transient GithubRestReader githubRestReader;
-    private static final transient ObjectMapper mapper = JsonUtils.newJsonParser();
 
     public GithubReader(GithubConf githubConf, CloseableHttpClient closeableHttpClient) {
         this.githubConf = githubConf;
@@ -33,8 +32,6 @@ public class GithubReader {
 
     public String readFile(Path filePath) throws UnauthorizedException, IOException, NotFoundException {
         String url = createUrl(filePath);
-        return this.githubRestReader.readRest(url);
-
-
+        return this.githubRestReader.executeRequest(githubRestReader.createRequest(url));
     }
 }

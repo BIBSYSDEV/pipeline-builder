@@ -21,11 +21,11 @@ import org.junit.jupiter.api.Test;
 
 public class GithubReaderTest extends GithubTestUtilities {
 
-    public static final Path ARBITRARY_PATH = Paths.get("folder", "folder", "file");
+    private static final Path ARBITRARY_PATH = Paths.get("folder", "folder", "file");
     private static final String OWNER = "ownername";
     private static final String REPO = "reponame";
     private static final String BRANCH = "specialbranch";
-    private final transient static String urlTemplate = "https://api.github.com/"
+    private static final transient String urlTemplate = "https://api.github.com/"
         + "repos/%1$s/%2$s/contents/%4$s?ref=%3$s";
     private static final SecretsReader SECRETS_READER = () -> "secret";
     private static final GithubConf githubConf = new GithubConf(OWNER, REPO, BRANCH,
@@ -52,17 +52,7 @@ public class GithubReaderTest extends GithubTestUtilities {
         when(response.getEntity()).thenReturn(SIMPLE_RESPONSE);
         when(response.getStatusLine()).thenReturn(STATUS_LINE_OK);
         GithubReader githubReader = new GithubReader(githubConf, httpClient);
-        assertThat(githubReader.readFile(ARBITRARY_PATH), is(equalTo(EXPECTED_RESPONSE)));
-    }
-
-    @Test
-    public void readFileFromGithub() throws IOException, UnauthorizedException, NotFoundException {
-        CloseableHttpClient client = HttpClients.createMinimal();
-        AwsSecretsReader secretsReader = new AwsSecretsReader(AWSSecretsManagerClientBuilder.defaultClient(),
-            "infrastructure", "read_from_github");
-        GithubConf githubConf = new GithubConf("BIBSYSDEV", "pipeline-builder", "master", secretsReader);
-        GithubReader githubReader = new GithubReader(githubConf, client);
-        String contents = githubReader.readFile(Paths.get("template.yml"));
-        System.out.println(contents);
+        String responseString= githubReader.readFile(ARBITRARY_PATH);
+        assertThat(responseString, is(equalTo(EXPECTED_RESPONSE)));
     }
 }

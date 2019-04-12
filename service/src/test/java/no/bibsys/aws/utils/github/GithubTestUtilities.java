@@ -1,6 +1,9 @@
 package no.bibsys.aws.utils.github;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
+
 import no.bibsys.aws.secrets.SecretsReader;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
@@ -13,7 +16,7 @@ public class GithubTestUtilities {
     //package-private
     static final transient SecretsReader MOCK_SECRETS_READER = () -> "something";
     static final String EXPECTED_RESPONSE = "This is the expected response";
-    static final transient HttpEntity SIMPLE_RESPONSE;
+    static  HttpEntity SIMPLE_RESPONSE;
 
     private static final String SUCCESS_REASON_PHRASE = "OK";
     private static final int MAJOR_VERSION = 1;
@@ -35,6 +38,7 @@ public class GithubTestUtilities {
 
     static {
         SIMPLE_RESPONSE = new BasicHttpEntity();
-        ((BasicHttpEntity) SIMPLE_RESPONSE).setContent(new ByteArrayInputStream(EXPECTED_RESPONSE.getBytes()));
+        ((BasicHttpEntity) SIMPLE_RESPONSE)
+                .setContent(new ByteArrayInputStream(EXPECTED_RESPONSE.getBytes(StandardCharsets.UTF_8)));
     }
 }
