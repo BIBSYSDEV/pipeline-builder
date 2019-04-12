@@ -6,7 +6,7 @@ public class PipelineConfiguration extends Configurable {
     public static final String INIT_FUNCTION_SUFFIX = "init-function";
     public static final String PIPELINE_NAME_SUFFIX = "pipeline";
     public static final String SOURCE_OUTPUT_SUFFIX = "sourceOutput";
-    public static final String INVALID_STAGE = "Invalid Stage:";
+    private static final String INVALID_STAGE = "Invalid Stage:";
     private static final String SERVICE_STACK_SUFFIX = "service-stack";
 
     private final String sourceOutputArtifactName;
