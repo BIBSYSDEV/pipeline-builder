@@ -2,8 +2,8 @@ package no.bibsys.aws.lambda.api.handlers;
 
 import static no.bibsys.aws.lambda.EnvironmentConstants.READ_FROM_GITHUB_SECRET_KEY;
 import static no.bibsys.aws.lambda.EnvironmentConstants.READ_FROM_GITHUB_SECRET_NAME;
-import static no.bibsys.aws.lambda.EnvironmentConstants.REST_USER_API_KEY_SECRET_KEY;
-import static no.bibsys.aws.lambda.EnvironmentConstants.REST_USER_API_KEY_SECRET_NAME;
+import static no.bibsys.aws.lambda.EnvironmentConstants.REST_API_KEY_SECRET_KEY;
+import static no.bibsys.aws.lambda.EnvironmentConstants.REST_API_KEY_SECRET_NAME;
 
 import com.amazonaws.services.apigateway.model.UnauthorizedException;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
@@ -44,8 +44,8 @@ public class UpdateStackRequestHandler extends ApiHandler {
         );
 
         this.restApiKeySecretsReader = new AwsSecretsReader(
-            environment.readEnv(REST_USER_API_KEY_SECRET_NAME),
-            environment.readEnv(REST_USER_API_KEY_SECRET_KEY),
+            environment.readEnv(REST_API_KEY_SECRET_NAME),
+            environment.readEnv(REST_API_KEY_SECRET_KEY),
             region);
 
         this.readFromGithubSecretsReader = new AwsSecretsReader(
