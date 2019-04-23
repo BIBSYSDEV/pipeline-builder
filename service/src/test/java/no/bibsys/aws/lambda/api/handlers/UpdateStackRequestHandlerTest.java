@@ -79,13 +79,6 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
             mockIdentityManagement(pipelineStackConfiguration)
         );
 
-        CreateStackRole createStackRole = new CreateStackRoleImpl(
-                mockGithubReader(),
-                pipelineStackConfiguration,
-                mockIdentityManagement(pipelineStackConfiguration));
-
-        when(createStackRole.createNewCreateRoleRequest()).thenReturn(new CreateRoleRequest());
-
         String json = createStackRequest();
         String key = mockSecretsReader().readSecret();
         Map<String, String> headersMap = Collections.singletonMap(
