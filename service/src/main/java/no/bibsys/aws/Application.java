@@ -4,6 +4,8 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClientBuilder;
 import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
 import com.amazonaws.services.logs.AWSLogs;
@@ -13,14 +15,15 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.google.common.base.Preconditions;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import java.io.IOException;
 import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.lambda.api.utils.Action;
 import no.bibsys.aws.secrets.AwsSecretsReader;
 import no.bibsys.aws.secrets.SecretsReader;
+import no.bibsys.aws.utils.github.GithubReader;
 import no.bibsys.aws.utils.stacks.StackBuilder;
 import no.bibsys.aws.utils.stacks.StackWiper;
+import org.apache.http.impl.client.HttpClients;
 
 public class Application {
 
@@ -63,9 +66,10 @@ public class Application {
         String action,
         SecretsReader secretsReader
     )
-        throws IOException {
+            throws Exception {
 
         GithubConf gitInfo = new GithubConf(repoOwner, repository, branch, secretsReader);
+        GithubReader githubReader = new GithubReader(gitInfo, HttpClients.createMinimal());
         AmazonCloudFormation cloudFormation = AmazonCloudFormationClientBuilder.defaultClient();
         AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
         AWSLambda lambdaClient = AWSLambdaClientBuilder.defaultClient();
@@ -73,14 +77,14 @@ public class Application {
         Application application = new Application(gitInfo, cloudFormation, s3Client, lambdaClient,
             logsClient);
         if (Action.CREATE.equals(Action.fromString(action))) {
-            application.createStacks(cloudFormation);
+            application.createStacks(cloudFormation, AmazonIdentityManagementClientBuilder.defaultClient(), githubReader);
         } else if (Action.DELETE.equals(Action.fromString(action))) {
             application.wipeStacks();
         }
     }
 
     @SuppressWarnings("PMD")
-    public static void main(String... args) throws IOException {
+    public static void main(String... args) throws Exception {
 
         Config config = ConfigFactory.defaultReference().resolve();
         final String readFromGithubSecretName = config.getString(CONFIGURATION_GITHUB_SECRET_NAME);
@@ -108,10 +112,13 @@ public class Application {
         return pipelineStackConfiguration;
     }
 
-    public void createStacks(AmazonCloudFormation cloudFormation) throws IOException {
+    public void createStacks(AmazonCloudFormation cloudFormation, AmazonIdentityManagement amazonIdentityManagement, GithubReader githubReader) throws Exception {
         StackBuilder stackBuilder = new StackBuilder(wiper,
             pipelineStackConfiguration,
-            cloudFormation);
+            cloudFormation,
+            amazonIdentityManagement,
+            githubReader
+        );
         stackBuilder.createStacks();
     }
 

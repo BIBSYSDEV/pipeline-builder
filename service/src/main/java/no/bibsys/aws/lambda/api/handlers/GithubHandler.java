@@ -11,6 +11,8 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.apigateway.model.UnauthorizedException;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClientBuilder;
 import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
 import com.amazonaws.services.lambda.runtime.Context;
@@ -27,6 +29,7 @@ import no.bibsys.aws.secrets.AwsSecretsReader;
 import no.bibsys.aws.secrets.GithubSignatureChecker;
 import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.tools.Environment;
+import no.bibsys.aws.utils.github.GithubReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,8 +53,9 @@ public class GithubHandler extends ApiHandler {
             AmazonCloudFormationClientBuilder.defaultClient(),
             AmazonS3ClientBuilder.defaultClient(),
             AWSLambdaClientBuilder.defaultClient(),
-            AWSLogsClientBuilder.defaultClient()
-        );
+            AWSLogsClientBuilder.defaultClient(),
+            AmazonIdentityManagementClientBuilder.defaultClient()
+            );
 
         String regionString = environment.readEnv(AWS_REGION);
         Region region = Region.getRegion(Regions.fromName(regionString));
@@ -73,9 +77,10 @@ public class GithubHandler extends ApiHandler {
         AWSLogs logsClient,
         GithubSignatureChecker signatureChecker,
         SecretsReader webhookSecretsReader,
-        SecretsReader readFromGithubSecretsReader
+        SecretsReader readFromGithubSecretsReader,
+        AmazonIdentityManagement amazonIdentityManagement
     ) {
-        super(environment, acf, s3, lambdaClient, logsClient);
+        super(environment, acf, s3, lambdaClient, logsClient, amazonIdentityManagement);
         this.signatureChecker = signatureChecker;
         this.webhookSecretsReader = webhookSecretsReader;
         this.readFromGithubSecretsReader = readFromGithubSecretsReader;
@@ -83,7 +88,7 @@ public class GithubHandler extends ApiHandler {
 
     @Override
     public String processInput(String request, Map<String, String> headers, Context context)
-        throws IOException {
+            throws Exception {
 
         setRegionOrReportErrorToLogger();
 
@@ -99,7 +104,7 @@ public class GithubHandler extends ApiHandler {
         return signatureChecker.verifySecurityToken(webhookSecurityToken, request);
     }
 
-    private String processGitEvent(String request) throws IOException {
+    private String processGitEvent(String request) throws Exception {
         Optional<GitEvent> gitEventOpt = parseEvent(request);
         String response = NO_ACTION_MESSAGE;
         if (gitEventOpt.isPresent()) {
@@ -112,7 +117,7 @@ public class GithubHandler extends ApiHandler {
     }
 
     private String processPullRequest(SimplePullRequest simplePullRequest)
-        throws IOException {
+            throws Exception {
         if (simplePullRequest.getAction().equals(SimplePullRequest.ACTION_OPEN)
             || simplePullRequest.getAction().equals(SimplePullRequest.ACTION_REOPEN)) {
             createStacks(simplePullRequest);

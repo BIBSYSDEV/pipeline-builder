@@ -4,16 +4,24 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.amazonaws.services.apigateway.model.UnauthorizedException;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.amazonaws.services.identitymanagement.model.CreateRoleRequest;
 import no.bibsys.aws.lambda.api.requests.SimplePullRequest;
+import no.bibsys.aws.roles.CreateStackRole;
+import no.bibsys.aws.roles.CreateStackRoleImpl;
 import no.bibsys.aws.secrets.GithubSignatureChecker;
 import no.bibsys.aws.testtutils.LocalStackTest;
 import no.bibsys.aws.tools.IoUtils;
+import no.bibsys.aws.utils.github.GithubRestReader;
 import org.junit.jupiter.api.Test;
 
 public class GithubHandlerTest extends LocalStackTest {
@@ -30,7 +38,7 @@ public class GithubHandlerTest extends LocalStackTest {
     private static final String ARBITRARY_REQUEST = "something";
 
     @Test
-    public void processInput_closePRrequest_actionClose() throws IOException {
+    public void processInput_closePRrequest_actionClose() throws Exception {
         GithubSignatureChecker signatureChecker = new GithubSignatureChecker(
             mockSecretsReader(APPROVE_ALL_KEYS));
         GithubHandler githubHandler = new GithubHandler(mockEnvironment(),
@@ -39,7 +47,9 @@ public class GithubHandlerTest extends LocalStackTest {
             initializeMockLogsClient(),
             signatureChecker,
             mockSecretsReader(),
-            mockSecretsReader());
+            mockSecretsReader(),
+            mockIdentityManagement(pipelineStackConfiguration)
+        );
         String githubCloseRequest = IoUtils.resourceAsString(Paths.get(GITHUB_RESOURCES_FOLDER,
             CLOSE_PULLREQUEST_JSON));
 
@@ -48,16 +58,20 @@ public class GithubHandlerTest extends LocalStackTest {
     }
 
     @Test
-    public void processInput_openPRrequest_actionOpen() throws IOException {
+    public void processInput_openPRrequest_actionOpen() throws Exception {
         GithubSignatureChecker signatureChecker = new GithubSignatureChecker(
             mockSecretsReader(APPROVE_ALL_KEYS));
-        GithubHandler githubHandler = new GithubHandler(mockEnvironment(),
+        GithubHandler githubHandler = new GithubHandler(
+            mockEnvironment(),
             initializeMockCloudFormation(),
-            initializeS3(), initializeLambdaClient(),
+            initializeS3(),
+            initializeLambdaClient(),
             initializeMockLogsClient(),
             signatureChecker,
             mockSecretsReader(),
-            mockSecretsReader());
+            mockSecretsReader(),
+            mockIdentityManagement(pipelineStackConfiguration)
+        );
         String githubCloseRequest = IoUtils.resourceAsString(Paths.get(GITHUB_RESOURCES_FOLDER,
             OPEN_PULLREQUEST_JSON));
 
@@ -66,16 +80,22 @@ public class GithubHandlerTest extends LocalStackTest {
     }
 
     @Test
-    public void processInput_openPRrequest_actionReopen() throws IOException {
+    public void processInput_openPRrequest_actionReopen() throws Exception {
         GithubSignatureChecker signatureChecker = new GithubSignatureChecker(
             mockSecretsReader(APPROVE_ALL_KEYS));
-        GithubHandler githubHandler = new GithubHandler(mockEnvironment(),
+        GithubRestReader mockGithubRestReader = mock(GithubRestReader.class);
+        when(mockGithubRestReader.executeRequest(any())).thenReturn("Some string value");
+        GithubHandler githubHandler = new GithubHandler(
+            mockEnvironment(),
             initializeMockCloudFormation(),
-            initializeS3(), initializeLambdaClient(),
+            initializeS3(),
+            initializeLambdaClient(),
             initializeMockLogsClient(),
             signatureChecker,
             mockSecretsReader(),
-            mockSecretsReader());
+            mockSecretsReader(),
+            mockIdentityManagement(pipelineStackConfiguration)
+        );
         String githubCloseRequest = IoUtils.resourceAsString(Paths.get(GITHUB_RESOURCES_FOLDER,
             REOPEN_PULLREQUEST_JSON));
 
@@ -94,7 +114,7 @@ public class GithubHandlerTest extends LocalStackTest {
 
     @Test
     public void handleRequest_correctSignature_someMessage()
-        throws IOException {
+            throws Exception {
         GithubHandler githubHandler = getGithubHandlerWithMockSecretsReader(mockEnvironment());
         Map<String, String> headers = new HashMap<>();
         headers.put(GITHUB_SIGNATURE_HEADER, VALID_SIGNATURE_HEADER_VALUE);

@@ -2,6 +2,7 @@ package no.bibsys.aws.testtutils;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.amazonaws.regions.Region;
@@ -23,6 +24,9 @@ import com.amazonaws.services.cloudformation.model.ListStacksResult;
 import com.amazonaws.services.cloudformation.model.Stack;
 import com.amazonaws.services.cloudformation.model.StackResource;
 import com.amazonaws.services.cloudformation.model.StackSummary;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClientBuilder;
+import com.amazonaws.services.identitymanagement.model.*;
 import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.model.InvokeResult;
 import com.amazonaws.services.logs.AWSLogs;
@@ -35,12 +39,14 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.S3VersionSummary;
 import com.amazonaws.services.s3.model.VersionListing;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
 import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.cloudformation.helpers.ResourceType;
 import no.bibsys.aws.git.github.GithubConf;
@@ -51,6 +57,9 @@ import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.tools.IoUtils;
 import no.bibsys.aws.tools.JsonUtils;
+import no.bibsys.aws.utils.github.GithubReader;
+import no.bibsys.aws.utils.github.NotFoundException;
+import no.bibsys.aws.utils.github.UnauthorizedException;
 import org.apache.http.HttpStatus;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -58,8 +67,8 @@ import org.mockito.stubbing.Answer;
 
 public class LocalStackTest {
 
-    public static final Region ARBITRARY_REGION = Region.getRegion(Regions.EU_WEST_1);
-    public static final String APPROVE_ALL_KEYS = null;
+    private static final Region ARBITRARY_REGION = Region.getRegion(Regions.EU_WEST_1);
+    protected static final String APPROVE_ALL_KEYS = null;
     private static final int ENV_VARIABLE_NAME = 0;
     private static final String ARBITRARY_SECRET_KEY = "secretKey";
 
@@ -86,7 +95,7 @@ public class LocalStackTest {
 
     public LocalStackTest() {
         GithubConf gitInfo = new GithubConf(SOME_REPO_OWNER, SOME_REPO, SOME_GIT_BRANCH,
-            mockSecretsReader());
+                mockSecretsReader());
         pipelineStackConfiguration = new PipelineStackConfiguration(gitInfo);
     }
 
@@ -107,12 +116,12 @@ public class LocalStackTest {
         newMap.put(EnvironmentConstants.AWS_REGION, ARBITRARY_REGION.getName());
         newMap.putAll(mockEnvValues);
 
-        Environment environment = Mockito.mock(Environment.class);
+        Environment environment = mock(Environment.class);
         when(environment.readEnv(anyString()))
-            .then(invocation -> {
-                String envVariable = invocation.getArgument(ENV_VARIABLE_NAME);
-                return newMap.get(envVariable);
-            });
+                .then(invocation -> {
+                    String envVariable = invocation.getArgument(ENV_VARIABLE_NAME);
+                    return newMap.get(envVariable);
+                });
         return environment;
     }
 
@@ -120,22 +129,44 @@ public class LocalStackTest {
         return mockEnvironment(Collections.singletonMap(envVariable, value));
     }
 
-    public static GithubHandler getGithubHandlerWithMockSecretsReader(Environment environment) {
+    public GithubHandler getGithubHandlerWithMockSecretsReader(Environment environment) {
 
         GithubSignatureChecker signatureChecker = new GithubSignatureChecker(mockSecretsReader());
         return new GithubHandler(environment,
-            Mockito.mock(AmazonCloudFormation.class),
-            Mockito.mock(AmazonS3.class),
-            Mockito.mock(AWSLambda.class),
-            Mockito.mock(AWSLogs.class),
-            signatureChecker,
-            mockSecretsReader(),
-            mockSecretsReader()
+                mock(AmazonCloudFormation.class),
+                mock(AmazonS3.class),
+                mock(AWSLambda.class),
+                mock(AWSLogs.class),
+                signatureChecker,
+                mockSecretsReader(),
+                mockSecretsReader(),
+                mockIdentityManagement(pipelineStackConfiguration)
         );
     }
 
+    protected static AmazonIdentityManagement mockIdentityManagement(
+            PipelineStackConfiguration pipelineStackConfiguration) {
+        AmazonIdentityManagement mockAmazonIdentityManagement = mock(AmazonIdentityManagement.class);
+        when(mockAmazonIdentityManagement.createRole(any())).thenAnswer((Answer<CreateRoleResult>) invocation -> {
+            CreateRoleRequest request = invocation.getArgument(0);
+            return new CreateRoleResult().withRole(new Role().withRoleName(request.getRoleName()));
+        });
+
+        when(mockAmazonIdentityManagement.putRolePolicy(any())).thenReturn(new PutRolePolicyResult());
+
+        when(mockAmazonIdentityManagement.getRole(any()))
+                .thenReturn(new GetRoleResult().withRole(new Role()
+                        .withRoleName(pipelineStackConfiguration.getCreateStackRoleName())));
+        return mockAmazonIdentityManagement;
+    }
+
+    protected GithubReader mockGithubReader() {
+        GithubReader mockGithubReader = mock(GithubReader.class);
+        return mockGithubReader;
+    }
+
     protected AmazonRoute53 initializeRoute53Client(String zoneName) {
-        AmazonRoute53 route53 = Mockito.mock(AmazonRoute53.class);
+        AmazonRoute53 route53 = mock(AmazonRoute53.class);
         when(route53.listHostedZones()).thenReturn(listHostedZonesResult(zoneName));
         return route53;
     }
@@ -143,48 +174,48 @@ public class LocalStackTest {
     private ListHostedZonesResult listHostedZonesResult(String zoneName) {
 
         HostedZone hostedZone = new HostedZone(MOCK_HOSTED_ZONE_ID,
-            zoneName, CALLER_ID);
+                zoneName, CALLER_ID);
         return new ListHostedZonesResult()
-            .withHostedZones(hostedZone);
+                .withHostedZones(hostedZone);
     }
 
     protected AWSLambda initializeLambdaClient() {
-        AWSLambda lambdaClient = Mockito.mock(AWSLambda.class);
+        AWSLambda lambdaClient = mock(AWSLambda.class);
         when(lambdaClient.invoke(any())).thenAnswer(invocation -> new InvokeResult()
-            .withStatusCode(HttpStatus.SC_OK));
+                .withStatusCode(HttpStatus.SC_OK));
         return lambdaClient;
     }
 
     protected AWSLogs initializeMockLogsClient() {
-        AWSLogs logsClient = Mockito.mock(AWSLogs.class);
+        AWSLogs logsClient = mock(AWSLogs.class);
         when(logsClient.describeLogGroups()).thenReturn(new DescribeLogGroupsResult()
-            .withLogGroups(Collections.emptyList()));
+                .withLogGroups(Collections.emptyList()));
         return logsClient;
     }
 
     public AmazonCloudFormation initializeMockCloudFormation() {
-        AmazonCloudFormation cloudFormation = Mockito.mock(AmazonCloudFormation.class);
+        AmazonCloudFormation cloudFormation = mock(AmazonCloudFormation.class);
 
         when(cloudFormation.listStacks()).thenReturn(listWithStackSummaries());
         when(cloudFormation.describeStacks()).thenReturn(describeStackResults());
         when(cloudFormation.deleteStack(any())).then(invocation -> new DeleteStackResult());
         when(cloudFormation.describeStackResources(any()))
-            .then(describeStackResourcesResultAnswer());
+                .then(describeStackResourcesResultAnswer());
 
         return cloudFormation;
     }
 
     public AmazonCloudFormation mockCloudFormationwithNoStack() {
-        AmazonCloudFormation cloudFormation = Mockito.mock(AmazonCloudFormation.class);
+        AmazonCloudFormation cloudFormation = mock(AmazonCloudFormation.class);
         when(cloudFormation.describeStackResources(any())).thenThrow(AmazonCloudFormationException.class);
         when(cloudFormation.deleteStack(any())).thenThrow(AmazonCloudFormationException.class);
         return cloudFormation;
     }
 
     protected AmazonApiGateway initializeAmazonApiGateway() throws IOException {
-        AmazonApiGateway apiGateway = Mockito.mock(AmazonApiGateway.class);
+        AmazonApiGateway apiGateway = mock(AmazonApiGateway.class);
         when(apiGateway.getDomainName(any()))
-            .then((Answer<GetDomainNameResult>) this::getDomainNameResult);
+                .then((Answer<GetDomainNameResult>) this::getDomainNameResult);
         when(apiGateway.getBasePathMappings(any())).then(this::getBasePathMappingResult);
         when(apiGateway.getExport(any())).thenReturn(getExportResult());
         return apiGateway;
@@ -192,7 +223,7 @@ public class LocalStackTest {
 
     private GetExportResult getExportResult() throws IOException {
         String jsonApi = JsonUtils.yamlToJson(IoUtils
-            .resourceAsString(Paths.get(OPENAPI_RESOURCES_FOLDER, OPENAPI_FILE)));
+                .resourceAsString(Paths.get(OPENAPI_RESOURCES_FOLDER, OPENAPI_FILE)));
         ByteBuffer buffer = ByteBuffer.wrap(jsonApi.getBytes(), 0, jsonApi.getBytes().length);
         return new GetExportResult().withBody(buffer);
     }
@@ -201,10 +232,10 @@ public class LocalStackTest {
         GetBasePathMappingsRequest request = invocation.getArgument(REQUEST);
         String domainName = request.getDomainName();
         BasePathMapping basepathMapping = new BasePathMapping()
-            .withBasePath(MOCK_BASEPATH_PREFIX + domainName)
-            .withRestApiId(MOCK_REST_API_ID);
+                .withBasePath(MOCK_BASEPATH_PREFIX + domainName)
+                .withRestApiId(MOCK_REST_API_ID);
         return new GetBasePathMappingsResult()
-            .withItems(basepathMapping);
+                .withItems(basepathMapping);
     }
 
     private GetDomainNameResult getDomainNameResult(InvocationOnMock invocation) {
@@ -214,14 +245,14 @@ public class LocalStackTest {
     }
 
     protected AmazonS3 initializeS3() {
-        AmazonS3 s3 = Mockito.mock(AmazonS3.class);
+        AmazonS3 s3 = mock(AmazonS3.class);
         when(s3.listVersions(any()))
-            .then(invocation -> listVersionsAnswer())
-            .thenReturn(new VersionListing());
+                .then(invocation -> listVersionsAnswer())
+                .thenReturn(new VersionListing());
 
         when(s3.listObjects(anyString()))
-            .then((Answer<ObjectListing>) invocation -> objectListingAnswer())
-            .thenReturn(new ObjectListing());
+                .then((Answer<ObjectListing>) invocation -> objectListingAnswer())
+                .thenReturn(new ObjectListing());
         return s3;
     }
 
@@ -249,37 +280,37 @@ public class LocalStackTest {
         return invocation -> {
             DescribeStackResourcesRequest request = invocation.getArgument(REQUEST);
             StackResource bucketResource = new StackResource()
-                .withStackName(request.getStackName())
-                .withResourceType(ResourceType.S3_BUCKET.toString())
-                .withPhysicalResourceId(ARBITRARY_BUCKET_ARN);
+                    .withStackName(request.getStackName())
+                    .withResourceType(ResourceType.S3_BUCKET.toString())
+                    .withPhysicalResourceId(ARBITRARY_BUCKET_ARN);
             StackResource restApiResource = new StackResource()
-                .withStackName(request.getStackName())
-                .withResourceType(ResourceType.REST_API.toString())
-                .withPhysicalResourceId(REST_API_PHYSICAL_ID);
+                    .withStackName(request.getStackName())
+                    .withResourceType(ResourceType.REST_API.toString())
+                    .withPhysicalResourceId(REST_API_PHYSICAL_ID);
             return new DescribeStackResourcesResult()
-                .withStackResources(bucketResource, restApiResource);
+                    .withStackResources(bucketResource, restApiResource);
         };
     }
 
     private ListStacksResult listWithStackSummaries() {
         StackSummary testStackSummary = new StackSummary().withStackName(pipelineStackConfiguration
-            .getPipelineConfiguration().getTestServiceStack());
+                .getPipelineConfiguration().getTestServiceStack());
         StackSummary finalStackSummary = new StackSummary().withStackName(pipelineStackConfiguration
-            .getPipelineConfiguration().getFinalServiceStack());
+                .getPipelineConfiguration().getFinalServiceStack());
         StackSummary pipelineStackSummary = new StackSummary()
-            .withStackName(pipelineStackConfiguration
-                .getPipelineStackName());
+                .withStackName(pipelineStackConfiguration
+                        .getPipelineStackName());
 
         return new ListStacksResult()
-            .withStackSummaries(testStackSummary, finalStackSummary, pipelineStackSummary);
+                .withStackSummaries(testStackSummary, finalStackSummary, pipelineStackSummary);
     }
 
     private DescribeStacksResult describeStackResults() {
         return new DescribeStacksResult()
-            .withStacks(new Stack().withStackName(TEST_STACK),
-                new Stack().withStackName(FINAL_STACK),
-                new Stack().withStackName(PIPELINE_STACK)
+                .withStacks(new Stack().withStackName(TEST_STACK),
+                        new Stack().withStackName(FINAL_STACK),
+                        new Stack().withStackName(PIPELINE_STACK)
 
-            );
+                );
     }
 }

@@ -7,13 +7,19 @@ import com.amazonaws.services.cloudformation.model.CreateStackRequest;
 import com.amazonaws.services.cloudformation.model.Parameter;
 
 import java.io.IOException;
+import java.net.http.HttpClient;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
 import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.cloudformation.Stage;
+import no.bibsys.aws.roles.CreateStackRole;
+import no.bibsys.aws.roles.CreateStackRoleImpl;
 import no.bibsys.aws.tools.IoUtils;
+import no.bibsys.aws.utils.github.GithubReader;
+import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,25 +63,37 @@ public class StackBuilder {
 
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
     private final transient AmazonCloudFormation cloudFormationClient;
+    private final transient AmazonIdentityManagement amazonIdentityManagement;
+    private GithubReader githubReader;
 
     public StackBuilder(
             StackWiper wiper,
             PipelineStackConfiguration pipelineStackConfiguration,
-            AmazonCloudFormation cloudFormationClient
+            AmazonCloudFormation cloudFormationClient,
+            AmazonIdentityManagement amazonIdentityManagement,
+            GithubReader githubReader
     ) {
         this.cloudFormationClient = cloudFormationClient;
         this.stackWiper = wiper;
         this.pipelineStackConfiguration = pipelineStackConfiguration;
+        this.amazonIdentityManagement = amazonIdentityManagement;
+        this.githubReader = githubReader;
     }
 
-    public void createStacks() throws IOException {
+    public void createStacks() throws Exception {
         try {
             stackWiper.wipeStacks();
         } catch (AmazonCloudFormationException e) {
             log.warn(STACK_DOES_NOT_EXIST_WARNING);
         }
-
+        createNewCreateStackRole(pipelineStackConfiguration, this.githubReader);
         createPipelineStack(pipelineStackConfiguration);
+    }
+
+    private void createNewCreateStackRole(PipelineStackConfiguration pipelineStackConfiguration, GithubReader githubReader) throws Exception {
+        CreateStackRole createStackRole
+                = new CreateStackRoleImpl(githubReader, pipelineStackConfiguration, amazonIdentityManagement);
+        createStackRole.createRole();
     }
 
     private void createPipelineStack(PipelineStackConfiguration pipelineStackConfiguration)

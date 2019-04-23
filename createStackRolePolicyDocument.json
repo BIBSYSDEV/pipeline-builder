@@ -1,0 +1,59 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "lambda:CreateFunction",
+        "lambda:DeleteFunction",
+        "lambda:AddPermission",
+        "lambda:UpdateFunction",
+        "lambda:UpdateFunctionCode",
+        "lambda:GetFunction",
+        "lambda:GetFunctionConfiguration",
+        "lambda:UpdateFunctionConfiguration",
+        "lambda:RemovePermission",
+        "lambda:InvokeFunction",
+        "lambda:listTags",
+        "lambda:TagResource",
+        "lambda:UntagResource",
+        "apigateway:*",
+        "ssm:GetParameters"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "iam:PassRole"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "cloudformation:CreateChangeSet"
+      ],
+      "Resource": [
+        "arn:aws:cloudformation:eu-west-1:aws:transform/Serverless-2016-10-31",
+        "arn:aws:cloudformation:eu-west-1:aws:transform/Include"
+      ],
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "iam:GetRole",
+        "iam:CreateRole",
+        "iam:PutRolePolicy",
+        "iam:DetachRolePolicy",
+        "iam:DeleteRolePolicy",
+        "iam:DeleteRole",
+        "iam:AttachRolePolicy",
+        "ssm:PutParameter",
+        "ssm:DeleteParameter",
+        "secretsmanager:GetSecretValue"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    }
+  ]
+}

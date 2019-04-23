@@ -8,6 +8,8 @@ import static no.bibsys.aws.lambda.EnvironmentConstants.REST_API_KEY_SECRET_NAME
 import com.amazonaws.services.apigateway.model.UnauthorizedException;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClientBuilder;
 import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
 import com.amazonaws.services.lambda.runtime.Context;
@@ -40,8 +42,8 @@ public class UpdateStackRequestHandler extends ApiHandler {
             AmazonCloudFormationClientBuilder.defaultClient(),
             AmazonS3ClientBuilder.defaultClient(),
             AWSLambdaClientBuilder.defaultClient(),
-            AWSLogsClientBuilder.defaultClient()
-        );
+            AWSLogsClientBuilder.defaultClient(),
+                AmazonIdentityManagementClientBuilder.defaultClient());
 
         this.restApiKeySecretsReader = new AwsSecretsReader(
             environment.readEnv(REST_API_KEY_SECRET_NAME),
@@ -60,10 +62,11 @@ public class UpdateStackRequestHandler extends ApiHandler {
         AWSLambda lambdaClient,
         AWSLogs logsClient,
         SecretsReader restApiKeySecretsReader,
-        SecretsReader readFromGithubSecretsReader
+        SecretsReader readFromGithubSecretsReader,
+        AmazonIdentityManagement amazonIdentityManagement
     ) {
 
-        super(environment, acf, s3, lambdaClient, logsClient);
+        super(environment, acf, s3, lambdaClient, logsClient, amazonIdentityManagement);
 
         this.restApiKeySecretsReader = restApiKeySecretsReader;
         this.readFromGithubSecretsReader = readFromGithubSecretsReader;
@@ -71,7 +74,7 @@ public class UpdateStackRequestHandler extends ApiHandler {
 
     @Override
     public String processInput(String string, Map<String, String> headers, Context context)
-        throws IOException {
+            throws Exception {
 
         setRegionOrReportErrorToLogger();
 

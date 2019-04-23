@@ -3,11 +3,12 @@
 def awsSdkVersion = '1.11.534'
 
 dependencies{
-    implementation 'no.bibsys.aws:aws-build-tools:1.4.6'
+    implementation 'no.bibsys.aws:aws-build-tools:1.5.2'
    
     // useful java libraries
     implementation group: 'com.google.guava', name: 'guava', version: '27.0-jre'
 
+    implementation group: 'com.amazonaws', name: 'aws-java-sdk-iam', version: "${awsSdkVersion}"
     implementation group: 'com.amazonaws', name: 'aws-java-sdk-api-gateway', version: "${awsSdkVersion}"
     implementation group: 'com.amazonaws', name: 'aws-java-sdk-cloudformation', version: "${awsSdkVersion}"
     implementation group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: "${awsSdkVersion}"

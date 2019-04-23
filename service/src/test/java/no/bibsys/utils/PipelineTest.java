@@ -6,6 +6,7 @@ import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClientBuilder;
 import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
 import com.amazonaws.services.logs.AWSLogs;
@@ -13,7 +14,6 @@ import com.amazonaws.services.logs.AWSLogsClientBuilder;
 import com.amazonaws.services.logs.model.DeleteLogGroupRequest;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import java.io.IOException;
 import no.bibsys.aws.Application;
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.lambda.EnvironmentConstants;
@@ -48,13 +48,14 @@ public class PipelineTest {
         this.s3Client = AmazonS3ClientBuilder.defaultClient();
         this.lambdaClient = AWSLambdaClientBuilder.defaultClient();
         this.logsClient = AWSLogsClientBuilder.defaultClient();
+
     }
 
     @Tag("UtilityMethod")
     @Test
-    public void createStacks() throws IOException {
+    public void createStacks() throws Exception {
         Application application = initApplication();
-        application.createStacks(cloudFormation);
+     //   application.createStacks(cloudFormation, AmazonIdentityManagementClientBuilder.defaultClient(), githubReader);
     }
 
     @Tag("UtilityMethod")

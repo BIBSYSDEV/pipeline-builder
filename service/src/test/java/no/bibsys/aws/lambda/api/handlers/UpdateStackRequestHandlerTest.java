@@ -4,22 +4,32 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.apigateway.model.UnauthorizedException;
+import com.amazonaws.services.identitymanagement.model.CreateRoleRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.lambda.EnvironmentConstants;
 import no.bibsys.aws.lambda.api.requests.UpdateStackRequest;
 import no.bibsys.aws.lambda.api.utils.Action;
+import no.bibsys.aws.roles.CreateStackRole;
+import no.bibsys.aws.roles.CreateStackRoleImpl;
 import no.bibsys.aws.testtutils.LocalStackTest;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.tools.JsonUtils;
+import no.bibsys.aws.utils.github.GithubReader;
+import no.bibsys.aws.utils.github.GithubRestReader;
 import org.junit.jupiter.api.Test;
 
 public class UpdateStackRequestHandlerTest extends LocalStackTest {
@@ -40,13 +50,14 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
     }
 
     @Test
-    public void processInput_closeRequest_actionClose() throws IOException {
+    public void processInput_closeRequest_actionClose() throws Exception {
         UpdateStackRequestHandler handler = new UpdateStackRequestHandler(mockEnvironment(),
             initializeMockCloudFormation(),
             initializeS3(), initializeLambdaClient(),
             initializeMockLogsClient(),
             mockSecretsReader(),
-            mockSecretsReader()
+            mockSecretsReader(),
+            mockIdentityManagement(pipelineStackConfiguration)
         );
         String json = deleteStackRequest();
         String key = mockSecretsReader().readSecret();
@@ -58,14 +69,23 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
     }
 
     @Test
-    public void processInput_createStackRequest_actionCreate() throws IOException {
+    public void processInput_createStackRequest_actionCreate() throws Exception {
         UpdateStackRequestHandler handler = new UpdateStackRequestHandler(mockEnvironment(),
             initializeMockCloudFormation(),
             initializeS3(), initializeLambdaClient(),
             initializeMockLogsClient(),
             mockSecretsReader(),
-            mockSecretsReader()
+            mockSecretsReader(),
+            mockIdentityManagement(pipelineStackConfiguration)
         );
+
+        CreateStackRole createStackRole = new CreateStackRoleImpl(
+                mockGithubReader(),
+                pipelineStackConfiguration,
+                mockIdentityManagement(pipelineStackConfiguration));
+
+        when(createStackRole.createNewCreateRoleRequest()).thenReturn(new CreateRoleRequest());
+
         String json = createStackRequest();
         String key = mockSecretsReader().readSecret();
         Map<String, String> headersMap = Collections.singletonMap(
@@ -78,14 +98,14 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
     private String deleteStackRequest() throws JsonProcessingException {
         UpdateStackRequest request = new UpdateStackRequest(SOME_OWNER, SOME_REPO, SOME_BRANCH,
             Action.DELETE.toString());
-        ObjectMapper parser = JsonUtils.newJsonParser();
+        ObjectMapper parser = JsonUtils.jsonParser;
         return parser.writeValueAsString(request);
     }
 
     private String createStackRequest() throws JsonProcessingException {
         UpdateStackRequest request = new UpdateStackRequest(SOME_OWNER, SOME_REPO, SOME_BRANCH,
             Action.CREATE.toString());
-        ObjectMapper parser = JsonUtils.newJsonParser();
+        ObjectMapper parser = JsonUtils.jsonParser;
         return parser.writeValueAsString(request);
     }
 
@@ -109,7 +129,8 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
             initializeLambdaClient(),
             initializeMockLogsClient(),
             mockSecretsReader(),
-            mockSecretsReader()
+            mockSecretsReader(),
+            mockIdentityManagement(pipelineStackConfiguration)
         );
 
         return handler;
