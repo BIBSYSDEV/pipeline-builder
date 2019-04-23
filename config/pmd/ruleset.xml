@@ -28,6 +28,14 @@
 
   </rule>
 
+  <rule ref="category/java/codestyle.xml/LinguisticNaming">
+    <properties>
+      <!-- allow fluent setters -->
+      <property name="checkSetters">false</property>
+    </properties>
+
+  </rule>
+
   <rule ref="category/java/codestyle.xml">
     <exclude name="AtLeastOneConstructor"/>
     <exclude name="LongVariable"/>
