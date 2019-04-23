@@ -69,10 +69,8 @@ public class UpdateStackRequestHandler extends ApiHandler {
         AmazonIdentityManagement amazonIdentityManagement,
         GithubReader githubReader
     ) {
-
         super(environment, acf, s3, lambdaClient, logsClient, amazonIdentityManagement,
             githubReader);
-
         this.restApiKeySecretsReader = restApiKeySecretsReader;
         this.readFromGithubSecretsReader = readFromGithubSecretsReader;
     }

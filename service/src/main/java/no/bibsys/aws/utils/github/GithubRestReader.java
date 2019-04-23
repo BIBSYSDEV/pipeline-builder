@@ -27,7 +27,6 @@ public class GithubRestReader {
 
     public GithubRestReader(CloseableHttpClient httpClient) {
         this.httpClient = httpClient;
-
     }
 
     public String executeRequest(HttpGet httpGet) throws IOException, UnauthorizedException, NotFoundException {

@@ -57,8 +57,8 @@ class GithubRestReaderTest extends GithubTestUtilities {
         when(mockHttpResponse.getEntity()).thenReturn(simpleResponse);
         when(mockHttpResponse.getStatusLine()).thenReturn(STATUS_LINE_OK);
 
-        GithubRestReader githubRestReader = new GithubRestReader(httpClient);
-        githubRestReader.setGitHubConf(githubConf);
+        GithubRestReader githubRestReader = new GithubRestReader(httpClient)
+            .setGitHubConf(githubConf);
         String result = githubRestReader.executeRequest(githubRestReader.createRequest(URL));
 
         assertThat(result, is(equalTo(EXPECTED_RESPONSE)));
@@ -87,8 +87,8 @@ class GithubRestReaderTest extends GithubTestUtilities {
         when(mockHttpResponse.getStatusLine()).thenReturn(STATUS_LINE_NOT_FOUND);
         when(httpClient.execute(any())).thenReturn(mockHttpResponse);
 
-        GithubRestReader githubRestReader = new GithubRestReader(httpClient);
-        githubRestReader.setGitHubConf(githubConf);
+        GithubRestReader githubRestReader = new GithubRestReader(httpClient)
+            .setGitHubConf(githubConf);
         assertThrows(NotFoundException.class,
             () -> githubRestReader.executeRequest(githubRestReader.createRequest(URL)));
     }

@@ -38,7 +38,6 @@ public class GithubReaderTest extends GithubTestUtilities {
         NullPointerException exception = assertThrows(NullPointerException.class,
             () -> githubReader.createUrl(inputPath));
         assertThat(exception.getMessage(), is(equalTo(GithubReader.GITHUBCONF_NULL_ERROR_MESSAGE)));
-
     }
 
 
@@ -47,8 +46,7 @@ public class GithubReaderTest extends GithubTestUtilities {
         Path inputPath = Paths.get("directory/directory/file");
         String expectedUrl = String.format(urlTemplate, OWNER, REPO, BRANCH, inputPath);
         CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
-        GithubReader githubReader = new GithubReader(httpClient);
-        githubReader.setGitHubConf(githubConf);
+        GithubReader githubReader = new GithubReader(httpClient).setGitHubConf(githubConf);
         String outputUrl = githubReader.createUrl(inputPath);
         assertThat(outputUrl, is(equalTo(expectedUrl)));
     }

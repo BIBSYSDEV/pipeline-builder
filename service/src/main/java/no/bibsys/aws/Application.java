@@ -66,11 +66,12 @@ public class Application {
         String action,
         SecretsReader secretsReader
     )
-            throws Exception {
+        throws Exception {
 
         GithubConf gitInfo = new GithubConf(repoOwner, repository, branch, secretsReader);
-        GithubReader githubReader = new GithubReader(HttpClients.createMinimal());
-        githubReader.setGitHubConf(gitInfo);
+        GithubReader githubReader = new GithubReader(HttpClients.createMinimal())
+            .setGitHubConf(gitInfo);
+
         AmazonCloudFormation cloudFormation = AmazonCloudFormationClientBuilder.defaultClient();
         AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
         AWSLambda lambdaClient = AWSLambdaClientBuilder.defaultClient();
@@ -78,7 +79,9 @@ public class Application {
         Application application = new Application(gitInfo, cloudFormation, s3Client, lambdaClient,
             logsClient);
         if (Action.CREATE.equals(Action.fromString(action))) {
-            application.createStacks(cloudFormation, AmazonIdentityManagementClientBuilder.defaultClient(), githubReader);
+            application
+                .createStacks(cloudFormation, AmazonIdentityManagementClientBuilder.defaultClient(),
+                    githubReader);
         } else if (Action.DELETE.equals(Action.fromString(action))) {
             application.wipeStacks();
         }
@@ -113,7 +116,9 @@ public class Application {
         return pipelineStackConfiguration;
     }
 
-    public void createStacks(AmazonCloudFormation cloudFormation, AmazonIdentityManagement amazonIdentityManagement, GithubReader githubReader) throws Exception {
+    public void createStacks(AmazonCloudFormation cloudFormation,
+        AmazonIdentityManagement amazonIdentityManagement, GithubReader githubReader)
+        throws Exception {
         StackBuilder stackBuilder = new StackBuilder(wiper,
             pipelineStackConfiguration,
             cloudFormation,

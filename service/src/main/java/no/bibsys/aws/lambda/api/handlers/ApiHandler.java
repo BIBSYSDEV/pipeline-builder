@@ -38,7 +38,6 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
         AWSLogs logsClient,
         AmazonIdentityManagement amazonIdentityManagement,
         GithubReader githubReader
-
     ) {
         super(String.class);
         this.environment = environment;
@@ -58,7 +57,6 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
     protected void init() {
         this.region = Region
             .getRegion(Regions.fromName(environment.readEnv(EnvironmentConstants.AWS_REGION)));
-
     }
 
     @Override
@@ -92,8 +90,9 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
         init();
     }
 
-    public void setGithubReader(GithubReader githubReader) {
+    public ApiHandler setGithubReader(GithubReader githubReader) {
         this.githubReader = githubReader;
+        return this;
     }
 
     protected abstract SecretsReader readFromGithubSecretReader();
