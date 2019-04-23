@@ -3,6 +3,7 @@ package no.bibsys.aws.utils.github;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -29,13 +30,25 @@ public class GithubReaderTest extends GithubTestUtilities {
         SECRETS_READER);
 
     @Test
-    public void createUrlFromPathShouldMapPathToValidUrl() {
+    public void createUrkFromPathShouldThrowExceptionForNullGithubConf() {
+        Path inputPath = Paths.get("directory/directory/file");
 
+        CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
+        GithubReader githubReader = new GithubReader(httpClient);
+        NullPointerException exception = assertThrows(NullPointerException.class,
+            () -> githubReader.createUrl(inputPath));
+        assertThat(exception.getMessage(), is(equalTo(GithubReader.GITHUBCONF_NULL_ERROR_MESSAGE)));
+
+    }
+
+
+    @Test
+    public void createUrlFromPathShouldMapPathToValidUrl() {
         Path inputPath = Paths.get("directory/directory/file");
         String expectedUrl = String.format(urlTemplate, OWNER, REPO, BRANCH, inputPath);
         CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
-
-        GithubReader githubReader = new GithubReader(githubConf, httpClient);
+        GithubReader githubReader = new GithubReader(httpClient);
+        githubReader.setGitHubConf(githubConf);
         String outputUrl = githubReader.createUrl(inputPath);
         assertThat(outputUrl, is(equalTo(expectedUrl)));
     }
@@ -48,7 +61,8 @@ public class GithubReaderTest extends GithubTestUtilities {
         when(httpClient.execute(any())).thenReturn(response);
         when(response.getEntity()).thenReturn(simpleResponse);
         when(response.getStatusLine()).thenReturn(STATUS_LINE_OK);
-        GithubReader githubReader = new GithubReader(githubConf, httpClient);
+        GithubReader githubReader = new GithubReader(httpClient);
+        githubReader.setGitHubConf(githubConf);
         String responseString = githubReader.readFile(ARBITRARY_PATH);
         assertThat(responseString, is(equalTo(EXPECTED_RESPONSE)));
     }
