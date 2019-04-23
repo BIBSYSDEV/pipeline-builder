@@ -4,32 +4,22 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.apigateway.model.UnauthorizedException;
-import com.amazonaws.services.identitymanagement.model.CreateRoleRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.lambda.EnvironmentConstants;
 import no.bibsys.aws.lambda.api.requests.UpdateStackRequest;
 import no.bibsys.aws.lambda.api.utils.Action;
-import no.bibsys.aws.roles.CreateStackRole;
-import no.bibsys.aws.roles.CreateStackRoleImpl;
 import no.bibsys.aws.testtutils.LocalStackTest;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.tools.JsonUtils;
-import no.bibsys.aws.utils.github.GithubReader;
-import no.bibsys.aws.utils.github.GithubRestReader;
 import org.junit.jupiter.api.Test;
 
 public class UpdateStackRequestHandlerTest extends LocalStackTest {
@@ -57,7 +47,9 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
             initializeMockLogsClient(),
             mockSecretsReader(),
             mockSecretsReader(),
-            mockIdentityManagement(pipelineStackConfiguration)
+            mockIdentityManagement(pipelineStackConfiguration),
+            mockGithubReader()
+
         );
         String json = deleteStackRequest();
         String key = mockSecretsReader().readSecret();
@@ -76,7 +68,8 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
             initializeMockLogsClient(),
             mockSecretsReader(),
             mockSecretsReader(),
-            mockIdentityManagement(pipelineStackConfiguration)
+            mockIdentityManagement(pipelineStackConfiguration),
+            mockGithubReader()
         );
 
         String json = createStackRequest();
@@ -103,7 +96,7 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
     }
 
     @Test
-    public void handleRequest_falseSignature_UnauthorizedException() {
+    public void handleRequest_falseSignature_UnauthorizedException() throws IOException {
         UpdateStackRequestHandler handler = newHandlerWithMockSecretsReader();
         Map<String, String> headers = new HashMap<>();
         headers.put(API_KEY_HEADEER, WRONG_API_KEY);
@@ -112,9 +105,10 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
             () -> handler.processInput(requestJson, headers, null));
     }
 
-    private UpdateStackRequestHandler newHandlerWithMockSecretsReader() {
+    private UpdateStackRequestHandler newHandlerWithMockSecretsReader() throws IOException {
         Environment env = mockEnvironment(EnvironmentConstants.AWS_REGION,
             ARBITRARY_REGION.getName());
+
         UpdateStackRequestHandler handler = new UpdateStackRequestHandler(
             env,
             initializeMockCloudFormation(),
@@ -123,7 +117,8 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
             initializeMockLogsClient(),
             mockSecretsReader(),
             mockSecretsReader(),
-            mockIdentityManagement(pipelineStackConfiguration)
+            mockIdentityManagement(pipelineStackConfiguration),
+            mockGithubReader()
         );
 
         return handler;

@@ -17,9 +17,11 @@ public class GithubTestUtilities {
     private static final int MAJOR_VERSION = 1;
     private static final int MINOR_VERSION = 1;
     private static final String PROTOCOL = "http";
-    private static final ProtocolVersion PROTOCOL_VERSION = new ProtocolVersion(PROTOCOL, MAJOR_VERSION, MINOR_VERSION);
+    protected static final ProtocolVersion PROTOCOL_VERSION = new ProtocolVersion(PROTOCOL,
+        MAJOR_VERSION, MINOR_VERSION);
     //package-private
-    static final BasicStatusLine STATUS_LINE_OK = new BasicStatusLine(PROTOCOL_VERSION, HttpStatus.SC_OK,
+    protected static final BasicStatusLine STATUS_LINE_OK = new BasicStatusLine(PROTOCOL_VERSION,
+        HttpStatus.SC_OK,
         SUCCESS_REASON_PHRASE);
     private static final String BAD_CREDENTIALS_BODY = "{\"message\":\"Bad credentials\","
         + "\"documentation_url\":\"https://developer.github.com/v3\"}";

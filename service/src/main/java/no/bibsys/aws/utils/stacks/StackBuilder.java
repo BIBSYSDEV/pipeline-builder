@@ -5,21 +5,17 @@ import com.amazonaws.services.cloudformation.model.AmazonCloudFormationException
 import com.amazonaws.services.cloudformation.model.Capability;
 import com.amazonaws.services.cloudformation.model.CreateStackRequest;
 import com.amazonaws.services.cloudformation.model.Parameter;
-
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
 import java.io.IOException;
-import java.net.http.HttpClient;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
 import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.cloudformation.Stage;
 import no.bibsys.aws.roles.CreateStackRole;
 import no.bibsys.aws.roles.CreateStackRoleImpl;
 import no.bibsys.aws.tools.IoUtils;
 import no.bibsys.aws.utils.github.GithubReader;
-import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

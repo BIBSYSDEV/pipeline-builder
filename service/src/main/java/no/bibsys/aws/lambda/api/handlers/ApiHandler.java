@@ -8,7 +8,6 @@ import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.s3.AmazonS3;
-
 import java.util.Map;
 import no.bibsys.aws.Application;
 import no.bibsys.aws.git.github.GithubConf;
@@ -18,7 +17,6 @@ import no.bibsys.aws.lambda.handlers.templates.ApiGatewayHandlerTemplate;
 import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.utils.github.GithubReader;
-import org.apache.http.impl.client.HttpClients;
 
 public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, String> {
 
@@ -29,15 +27,18 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
     private final transient AmazonS3 s3Client;
     private final transient AWSLambda lambdaClient;
     private final transient AWSLogs logsClient;
+    private GithubReader githubReader;
     protected transient Region region;
     private final transient AmazonIdentityManagement amazonIdentityManagement;
 
     protected ApiHandler(Environment environment,
-                         AmazonCloudFormation acf,
-                         AmazonS3 s3Client,
-                         AWSLambda lambdaClient,
-                         AWSLogs logsClient,
-                         AmazonIdentityManagement amazonIdentityManagement
+        AmazonCloudFormation acf,
+        AmazonS3 s3Client,
+        AWSLambda lambdaClient,
+        AWSLogs logsClient,
+        AmazonIdentityManagement amazonIdentityManagement,
+        GithubReader githubReader
+
     ) {
         super(String.class);
         this.environment = environment;
@@ -48,6 +49,7 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
         this.region = Region
             .getRegion(Regions.fromName(environment.readEnv(EnvironmentConstants.AWS_REGION)));
         this.amazonIdentityManagement = amazonIdentityManagement;
+        this.githubReader = githubReader;
     }
 
     // Read all ENV in processInput so that in case of failure the error will be handled
@@ -56,10 +58,12 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
     protected void init() {
         this.region = Region
             .getRegion(Regions.fromName(environment.readEnv(EnvironmentConstants.AWS_REGION)));
+
     }
 
     @Override
-    protected String processInput(String input, Map<String, String> headers, Context context) throws Exception {
+    protected String processInput(String input, Map<String, String> headers, Context context)
+        throws Exception {
         init();
         throw new IllegalStateException(OVERRIDE_WARNING);
     }
@@ -78,14 +82,18 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
         GithubConf gitInfo =
             new GithubConf(event.getOwner(), event.getRepository(), event.getBranch(),
                 readFromGithubSecretReader());
+        githubReader.setGitHubConf(gitInfo);
         Application application = new Application(gitInfo, cloudFormation, s3Client, lambdaClient,
             logsClient);
-        GithubReader githubReader = new GithubReader(gitInfo, HttpClients.createMinimal());
         application.createStacks(cloudFormation, amazonIdentityManagement, githubReader);
     }
 
     protected void setRegionOrReportErrorToLogger() {
         init();
+    }
+
+    public void setGithubReader(GithubReader githubReader) {
+        this.githubReader = githubReader;
     }
 
     protected abstract SecretsReader readFromGithubSecretReader();

@@ -30,6 +30,7 @@ import no.bibsys.aws.secrets.GithubSignatureChecker;
 import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.utils.github.GithubReader;
+import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +55,8 @@ public class GithubHandler extends ApiHandler {
             AmazonS3ClientBuilder.defaultClient(),
             AWSLambdaClientBuilder.defaultClient(),
             AWSLogsClientBuilder.defaultClient(),
-            AmazonIdentityManagementClientBuilder.defaultClient()
+            AmazonIdentityManagementClientBuilder.defaultClient(),
+            new GithubReader(HttpClients.createMinimal())
             );
 
         String regionString = environment.readEnv(AWS_REGION);
@@ -78,9 +80,11 @@ public class GithubHandler extends ApiHandler {
         GithubSignatureChecker signatureChecker,
         SecretsReader webhookSecretsReader,
         SecretsReader readFromGithubSecretsReader,
-        AmazonIdentityManagement amazonIdentityManagement
+        AmazonIdentityManagement amazonIdentityManagement,
+        GithubReader githubReader
     ) {
-        super(environment, acf, s3, lambdaClient, logsClient, amazonIdentityManagement);
+        super(environment, acf, s3, lambdaClient, logsClient, amazonIdentityManagement,
+            githubReader);
         this.signatureChecker = signatureChecker;
         this.webhookSecretsReader = webhookSecretsReader;
         this.readFromGithubSecretsReader = readFromGithubSecretsReader;

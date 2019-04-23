@@ -1,18 +1,12 @@
 package no.bibsys.aws.utils.stacks;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.model.AmazonCloudFormationException;
-import java.io.IOException;
-
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
-import com.amazonaws.services.identitymanagement.model.*;
 import no.bibsys.aws.testtutils.LocalStackTest;
 import org.junit.jupiter.api.Test;
-import org.mockito.stubbing.Answer;
 
 public class StackBuilderTest extends LocalStackTest {
 
@@ -20,9 +14,10 @@ public class StackBuilderTest extends LocalStackTest {
     }
 
     @Test
-    public void crateStacks_notExistingStack_noException() throws Exception {
+    public void createStacks_notExistingStack_noException() throws Exception {
         AmazonCloudFormation acf = initializeMockCloudFormation();
-        AmazonIdentityManagement mockAmazonIdentityManagement = mockIdentityManagement(pipelineStackConfiguration);
+        AmazonIdentityManagement mockAmazonIdentityManagement = mockIdentityManagement(
+            pipelineStackConfiguration);
 
         StackWiper wiper = new StackWiper(
             pipelineStackConfiguration,
@@ -36,7 +31,7 @@ public class StackBuilderTest extends LocalStackTest {
             pipelineStackConfiguration,
             acf,
             mockAmazonIdentityManagement,
-            mockGithubReader());
+            mockGithubReader().setGitHubConf(mockGithubConf()));
 
         assertThrows(AmazonCloudFormationException.class, wiper::wipeStacks);
         stackBuilder.createStacks();
@@ -45,7 +40,8 @@ public class StackBuilderTest extends LocalStackTest {
     @Test
     public void createStacks_existingStack_noException() throws Exception {
         AmazonCloudFormation acf = initializeMockCloudFormation();
-        AmazonIdentityManagement mockAmazonIdentityManagement = mockIdentityManagement(pipelineStackConfiguration);
+        AmazonIdentityManagement mockAmazonIdentityManagement = mockIdentityManagement(
+            pipelineStackConfiguration);
         StackWiper wiper = new StackWiper(
             pipelineStackConfiguration,
             initializeMockCloudFormation(),
@@ -54,10 +50,10 @@ public class StackBuilderTest extends LocalStackTest {
             initializeMockLogsClient()
         );
         StackBuilder stackBuilder = new StackBuilder(
-                wiper, pipelineStackConfiguration, acf, mockAmazonIdentityManagement, mockGithubReader());
+            wiper, pipelineStackConfiguration, acf, mockAmazonIdentityManagement,
+            mockGithubReader().setGitHubConf(mockGithubConf()));
 
         stackBuilder.createStacks();
     }
-
 
 }

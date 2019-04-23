@@ -69,7 +69,8 @@ public class Application {
             throws Exception {
 
         GithubConf gitInfo = new GithubConf(repoOwner, repository, branch, secretsReader);
-        GithubReader githubReader = new GithubReader(gitInfo, HttpClients.createMinimal());
+        GithubReader githubReader = new GithubReader(HttpClients.createMinimal());
+        githubReader.setGitHubConf(gitInfo);
         AmazonCloudFormation cloudFormation = AmazonCloudFormationClientBuilder.defaultClient();
         AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
         AWSLambda lambdaClient = AWSLambdaClientBuilder.defaultClient();
