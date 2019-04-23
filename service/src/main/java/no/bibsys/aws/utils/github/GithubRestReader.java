@@ -2,7 +2,6 @@ package no.bibsys.aws.utils.github;
 
 import java.io.IOException;
 import java.util.Objects;
-
 import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.tools.IoUtils;
@@ -22,12 +21,13 @@ public class GithubRestReader {
     private static final String ACCEPT_FORMAT = "application/vnd.github.VERSION.raw";
     private static final String ERROR_MESSAGE = "Response HttpEntity was null";
     private static final String PATH_NOT_FOUND = "Github path not found";
-    private final transient GithubConf githubConf;
+    protected static final String GITHUBCONF_NULL_ERROR_MESSAGE = "You need to set the githubConf";
+    private transient GithubConf githubConf;
     private final transient CloseableHttpClient httpClient;
 
-    public GithubRestReader(CloseableHttpClient httpClient, GithubConf githubConf) {
+    public GithubRestReader(CloseableHttpClient httpClient) {
         this.httpClient = httpClient;
-        this.githubConf = githubConf;
+
     }
 
     public String executeRequest(HttpGet httpGet) throws IOException, UnauthorizedException, NotFoundException {
@@ -64,11 +64,17 @@ public class GithubRestReader {
         return IoUtils.streamToString(responseEntity.getContent());
     }
 
-    public GitInfo getGitInfo() {
+    public GitInfo getGithubConf() {
         return githubConf;
     }
 
+    public GithubRestReader setGitHubConf(GithubConf gitHubConf) {
+        this.githubConf = gitHubConf;
+        return this;
+    }
+
     public HttpGet createRequest(String url) throws IOException {
+        Objects.requireNonNull(githubConf, GITHUBCONF_NULL_ERROR_MESSAGE);
         HttpGet get = new HttpGet(url);
         get.setHeader(new BasicHeader(AUTHORIZATION, TOKEN + githubConf.getOauth()));
         get.setHeader(new BasicHeader(ACCEPT, ACCEPT_FORMAT));

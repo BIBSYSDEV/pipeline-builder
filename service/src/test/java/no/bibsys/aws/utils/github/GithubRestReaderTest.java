@@ -35,8 +35,20 @@ class GithubRestReaderTest extends GithubTestUtilities {
     private GithubConf githubConf = new GithubConf(OWNER, REPO, BRANCH, MOCK_SECRETS_READER);
 
     @Test
+    public void exectuteRequestShouldThowExceptionForNullGithubConfObject() {
+        CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
+
+        GithubRestReader githubRestReader = new GithubRestReader(httpClient);
+        NullPointerException execption = assertThrows(NullPointerException.class,
+            () -> githubRestReader.createRequest(URL));
+
+        assertThat(execption.getMessage(),
+            is(equalTo(GithubRestReader.GITHUBCONF_NULL_ERROR_MESSAGE)));
+    }
+
+    @Test
     public void executeRequestShouldReturnNonEmptyStringForValidUrlAndValidCredentials()
-            throws IOException, UnauthorizedException, NotFoundException {
+        throws IOException, UnauthorizedException, NotFoundException {
 
         CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
         CloseableHttpResponse mockHttpResponse = mock(CloseableHttpResponse.class);
@@ -45,7 +57,8 @@ class GithubRestReaderTest extends GithubTestUtilities {
         when(mockHttpResponse.getEntity()).thenReturn(simpleResponse);
         when(mockHttpResponse.getStatusLine()).thenReturn(STATUS_LINE_OK);
 
-        GithubRestReader githubRestReader = new GithubRestReader(httpClient, githubConf);
+        GithubRestReader githubRestReader = new GithubRestReader(httpClient);
+        githubRestReader.setGitHubConf(githubConf);
         String result = githubRestReader.executeRequest(githubRestReader.createRequest(URL));
 
         assertThat(result, is(equalTo(EXPECTED_RESPONSE)));
@@ -59,7 +72,8 @@ class GithubRestReaderTest extends GithubTestUtilities {
         when(mockHttpResponse.getStatusLine()).thenReturn(STATUS_LINE_UNAUTHORIZED);
         when(httpClient.execute(any())).thenReturn(mockHttpResponse);
 
-        GithubRestReader githubRestReader = new GithubRestReader(httpClient, githubConf);
+        GithubRestReader githubRestReader = new GithubRestReader(httpClient);
+        githubRestReader.setGitHubConf(githubConf);
         assertThrows(UnauthorizedException.class,
             () -> githubRestReader.executeRequest(githubRestReader.createRequest(URL)));
     }
@@ -73,13 +87,15 @@ class GithubRestReaderTest extends GithubTestUtilities {
         when(mockHttpResponse.getStatusLine()).thenReturn(STATUS_LINE_NOT_FOUND);
         when(httpClient.execute(any())).thenReturn(mockHttpResponse);
 
-        GithubRestReader githubRestReader = new GithubRestReader(httpClient, githubConf);
+        GithubRestReader githubRestReader = new GithubRestReader(httpClient);
+        githubRestReader.setGitHubConf(githubConf);
         assertThrows(NotFoundException.class,
             () -> githubRestReader.executeRequest(githubRestReader.createRequest(URL)));
     }
 
     @Test
-    public void executeRequestShouldThrowNullPointerExceptionOnNullResponseContent() throws IOException {
+    public void executeRequestShouldThrowNullPointerExceptionOnNullResponseContent()
+        throws IOException {
 
         CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
         CloseableHttpResponse mockHttpResponse = mock(CloseableHttpResponse.class);
@@ -88,24 +104,27 @@ class GithubRestReaderTest extends GithubTestUtilities {
         when(mockHttpResponse.getEntity()).thenReturn(null);
         when(httpClient.execute(any())).thenReturn(mockHttpResponse);
 
-        GithubRestReader githubRestReader = new GithubRestReader(httpClient, githubConf);
+        GithubRestReader githubRestReader = new GithubRestReader(httpClient);
+        githubRestReader.setGitHubConf(githubConf);
         assertThrows(NullPointerException.class,
             () -> githubRestReader.executeRequest(githubRestReader.createRequest(URL)));
     }
 
     @Test
     public void createRequestSetsHeaderForReadingRawContent() throws IOException {
-        GithubRestReader githubRestReader = new GithubRestReader(null, githubConf);
+        GithubRestReader githubRestReader = new GithubRestReader(null);
+        githubRestReader.setGitHubConf(githubConf);
         HttpGet httpGet = githubRestReader.createRequest(URL);
         Map<String, String> headerMap = Arrays.stream(httpGet.getAllHeaders())
-                .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
+            .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
         assertThat(headerMap.keySet(), hasItem(ACCEPT));
         assertThat(headerMap.get(ACCEPT), is(equalTo(EXPECTED_RAW_HEADER)));
     }
 
     @Test
     public void createRequestSetsHeaderForAuthorization() throws IOException {
-        GithubRestReader githubRestReader = new GithubRestReader(null, githubConf);
+        GithubRestReader githubRestReader = new GithubRestReader(null);
+        githubRestReader.setGitHubConf(githubConf);
         HttpGet httpGet = githubRestReader.createRequest(URL);
         Map<String, String> headerMap = Arrays.stream(httpGet.getAllHeaders())
             .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
