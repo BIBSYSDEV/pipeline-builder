@@ -27,7 +27,7 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
     private final transient AmazonS3 s3Client;
     private final transient AWSLambda lambdaClient;
     private final transient AWSLogs logsClient;
-    private GithubReader githubReader;
+    private transient GithubReader githubReader;
     protected transient Region region;
     private final transient AmazonIdentityManagement amazonIdentityManagement;
 

@@ -49,6 +49,7 @@ public class GithubHandler extends ApiHandler {
     /**
      * Used by AWS Lambda.
      */
+    @SuppressWarnings("PMD")
     public GithubHandler() {
         super(new Environment(),
             AmazonCloudFormationClientBuilder.defaultClient(),
@@ -57,7 +58,7 @@ public class GithubHandler extends ApiHandler {
             AWSLogsClientBuilder.defaultClient(),
             AmazonIdentityManagementClientBuilder.defaultClient(),
             new GithubReader(HttpClients.createMinimal())
-            );
+        );
 
         String regionString = environment.readEnv(AWS_REGION);
         Region region = Region.getRegion(Regions.fromName(regionString));
@@ -72,6 +73,8 @@ public class GithubHandler extends ApiHandler {
         this.signatureChecker = new GithubSignatureChecker(webhookSecretsReader);
     }
 
+    //long parameter list
+    @SuppressWarnings("PMD")
     public GithubHandler(Environment environment,
         AmazonCloudFormation acf,
         AmazonS3 s3,
@@ -92,7 +95,7 @@ public class GithubHandler extends ApiHandler {
 
     @Override
     public String processInput(String request, Map<String, String> headers, Context context)
-            throws Exception {
+        throws Exception {
 
         setRegionOrReportErrorToLogger();
 
@@ -121,7 +124,7 @@ public class GithubHandler extends ApiHandler {
     }
 
     private String processPullRequest(SimplePullRequest simplePullRequest)
-            throws Exception {
+        throws Exception {
         if (simplePullRequest.getAction().equals(SimplePullRequest.ACTION_OPEN)
             || simplePullRequest.getAction().equals(SimplePullRequest.ACTION_REOPEN)) {
             createStacks(simplePullRequest);

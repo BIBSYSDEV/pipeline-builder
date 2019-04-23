@@ -1,28 +1,38 @@
 package no.bibsys.aws.roles;
 
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
-import com.amazonaws.services.identitymanagement.model.*;
+import com.amazonaws.services.identitymanagement.model.AttachRolePolicyRequest;
+import com.amazonaws.services.identitymanagement.model.CreateRoleRequest;
+import com.amazonaws.services.identitymanagement.model.DeleteRolePolicyRequest;
+import com.amazonaws.services.identitymanagement.model.DeleteRoleRequest;
+import com.amazonaws.services.identitymanagement.model.DeleteRoleResult;
+import com.amazonaws.services.identitymanagement.model.GetRoleRequest;
+import com.amazonaws.services.identitymanagement.model.GetRoleResult;
+import com.amazonaws.services.identitymanagement.model.ListRolePoliciesRequest;
+import com.amazonaws.services.identitymanagement.model.PutRolePolicyRequest;
+import com.amazonaws.services.identitymanagement.model.Role;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
 import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.tools.IoUtils;
 import no.bibsys.aws.utils.github.GithubReader;
 import no.bibsys.aws.utils.github.NotFoundException;
 import no.bibsys.aws.utils.github.UnauthorizedException;
 
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class CreateStackRoleImpl implements CreateStackRole {
 
     private static final String TEMPLATES_DIRECTORY = "templates";
     private static final String CREATE_STACK_ROLE_ASSUME_POLICY_JSON = "createStackRoleAssumePolicy.json";
     private static final String CREATE_STACK_ROLE_POLICY_DOCUMENT_JSON = "createStackRolePolicyDocument.json";
-    private final GithubReader githubReader;
-    private final PipelineStackConfiguration pipelineStackConfiguration;
-    private final AmazonIdentityManagement amazonIdentityManagement;
+    private final transient GithubReader githubReader;
+    private final transient PipelineStackConfiguration pipelineStackConfiguration;
+    private final transient AmazonIdentityManagement amazonIdentityManagement;
 
-    public CreateStackRoleImpl(GithubReader githubReader, PipelineStackConfiguration pipelineStackConfiguration, AmazonIdentityManagement amazonIdentityManagement) {
+    public CreateStackRoleImpl(GithubReader githubReader,
+        PipelineStackConfiguration pipelineStackConfiguration,
+        AmazonIdentityManagement amazonIdentityManagement) {
         this.githubReader = githubReader;
         this.pipelineStackConfiguration = pipelineStackConfiguration;
         this.amazonIdentityManagement = amazonIdentityManagement;
@@ -31,8 +41,8 @@ public class CreateStackRoleImpl implements CreateStackRole {
     @Override
     public AttachRolePolicyRequest createNewAttachPolicyRequest(String policyArn, String roleName) {
         return new AttachRolePolicyRequest()
-                .withPolicyArn(policyArn)
-                .withRoleName(roleName);
+            .withPolicyArn(policyArn)
+            .withRoleName(roleName);
     }
 
     @Override
@@ -53,14 +63,18 @@ public class CreateStackRoleImpl implements CreateStackRole {
     public DeleteRoleResult deleteRole() {
 
         List<DeleteRolePolicyRequest> inlinePolicies = amazonIdentityManagement
-                .listRolePolicies(new ListRolePoliciesRequest().withRoleName(pipelineStackConfiguration.getCreateStackRoleName()))
-                .getPolicyNames()
-                .stream()
-                .map(policyName -> new DeleteRolePolicyRequest().withRoleName(pipelineStackConfiguration.getCreateStackRoleName())
-                        .withPolicyName(policyName)).collect(Collectors.toList());
+            .listRolePolicies(new ListRolePoliciesRequest()
+                .withRoleName(pipelineStackConfiguration.getCreateStackRoleName()))
+            .getPolicyNames()
+            .stream()
+            .map(policyName -> new DeleteRolePolicyRequest()
+                .withRoleName(pipelineStackConfiguration.getCreateStackRoleName())
+                .withPolicyName(policyName)).collect(Collectors.toList());
 
         inlinePolicies.forEach(amazonIdentityManagement::deleteRolePolicy);
-        DeleteRoleResult deleteRoleResult = amazonIdentityManagement.deleteRole(new DeleteRoleRequest().withRoleName(pipelineStackConfiguration.getCreateStackRoleName()));
+        DeleteRoleResult deleteRoleResult = amazonIdentityManagement.deleteRole(
+            new DeleteRoleRequest()
+                .withRoleName(pipelineStackConfiguration.getCreateStackRoleName()));
 
         return deleteRoleResult;
     }
@@ -68,27 +82,28 @@ public class CreateStackRoleImpl implements CreateStackRole {
     @Override
     public CreateRoleRequest createNewCreateRoleRequest() throws IOException {
         String assumeRolePolicy = IoUtils.resourceAsString(
-                Paths.get(TEMPLATES_DIRECTORY, CREATE_STACK_ROLE_ASSUME_POLICY_JSON));
+            Paths.get(TEMPLATES_DIRECTORY, CREATE_STACK_ROLE_ASSUME_POLICY_JSON));
         return new CreateRoleRequest()
-                .withAssumeRolePolicyDocument(assumeRolePolicy)
-                .withRoleName(this.pipelineStackConfiguration.getCreateStackRoleName());
+            .withAssumeRolePolicyDocument(assumeRolePolicy)
+            .withRoleName(this.pipelineStackConfiguration.getCreateStackRoleName());
     }
 
     @Override
     public PutRolePolicyRequest createNewPutRolePolicyRequest()
-            throws IOException, UnauthorizedException, NotFoundException {
-        String createStackRolePolicyDocument = githubReader.readFile(Paths.get(CREATE_STACK_ROLE_POLICY_DOCUMENT_JSON));
+        throws IOException, UnauthorizedException, NotFoundException {
+        String createStackRolePolicyDocument = githubReader
+            .readFile(Paths.get(CREATE_STACK_ROLE_POLICY_DOCUMENT_JSON));
         return new PutRolePolicyRequest()
-                .withPolicyDocument(createStackRolePolicyDocument)
-                .withPolicyName(pipelineStackConfiguration.getCreateStackRolePolicyName())
-                .withRoleName(pipelineStackConfiguration.getCreateStackRoleName());
+            .withPolicyDocument(createStackRolePolicyDocument)
+            .withPolicyName(pipelineStackConfiguration.getCreateStackRolePolicyName())
+            .withRoleName(pipelineStackConfiguration.getCreateStackRoleName());
     }
 
     private void waitForRole() {
 
         GetRoleResult roleResult = amazonIdentityManagement
-                .getRole(new GetRoleRequest()
-                        .withRoleName(pipelineStackConfiguration.getCreateStackRoleName()));
+            .getRole(new GetRoleRequest()
+                .withRoleName(pipelineStackConfiguration.getCreateStackRoleName()));
 
         Role role = roleResult.getRole();
 

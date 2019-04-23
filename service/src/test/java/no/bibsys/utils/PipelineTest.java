@@ -6,7 +6,6 @@ import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClientBuilder;
 import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
 import com.amazonaws.services.logs.AWSLogs;
@@ -55,7 +54,8 @@ public class PipelineTest {
     @Test
     public void createStacks() throws Exception {
         Application application = initApplication();
-     //   application.createStacks(cloudFormation, AmazonIdentityManagementClientBuilder.defaultClient(), githubReader);
+        //application.createStacks(
+        // cloudFormation, AmazonIdentityManagementClientBuilder.defaultClient(), githubReader);
     }
 
     @Tag("UtilityMethod")

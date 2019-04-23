@@ -86,7 +86,6 @@
     <exclude name="TooManyMethods"/>
     <exclude name="CyclomaticComplexity"/>
 
-
     <!-- This rule does not allow the Lambda Handler to cast  the ContainerInitializationException
         to a RuntimeException.
         //TODO investigate if we replace the handler's RuntimeException with something else
