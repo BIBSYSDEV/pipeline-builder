@@ -27,7 +27,7 @@ public class CreateStackRoleImpl implements CreateStackRole {
     private static final String CREATE_STACK_ROLE_POLICY_DOCUMENT_JSON = "createStackRolePolicyDocument.json";
     private static final String CREATE_STACK_ROLE_DESCRIPTION = "Role that allows creation of resources in a deployed"
         + " service";
-    public static final String CREATE_ROLE_SUCCESS_MESSAGE = "Created role with roleName {}";
+    private static final String CREATE_ROLE_SUCCESS_MESSAGE = "Created role with roleName {}";
     private final transient GithubReader githubReader;
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
     private final transient AmazonIdentityManagement amazonIdentityManagement;

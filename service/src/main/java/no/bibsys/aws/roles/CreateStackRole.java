@@ -2,7 +2,6 @@ package no.bibsys.aws.roles;
 
 import com.amazonaws.services.identitymanagement.model.AttachRolePolicyRequest;
 import com.amazonaws.services.identitymanagement.model.CreateRoleRequest;
-import com.amazonaws.services.identitymanagement.model.DeleteRoleResult;
 import com.amazonaws.services.identitymanagement.model.PutRolePolicyRequest;
 import java.io.IOException;
 import no.bibsys.aws.utils.github.NotFoundException;
@@ -20,6 +19,4 @@ public interface CreateStackRole {
     AttachRolePolicyRequest createNewAttachPolicyRequest(String policyArn, String roleName);
 
     String createRole() throws Exception;
-
-    DeleteRoleResult deleteRole();
 }

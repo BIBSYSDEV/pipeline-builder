@@ -23,6 +23,7 @@ import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.utils.github.GithubReader;
 import no.bibsys.aws.utils.stacks.StackBuilder;
 import no.bibsys.aws.utils.stacks.StackWiper;
+import no.bibsys.aws.utils.stacks.StackWiperImpl;
 import org.apache.http.impl.client.HttpClients;
 
 public class Application {
@@ -57,7 +58,7 @@ public class Application {
         this.repoName = gitInfo.getRepository();
         this.branch = gitInfo.getBranch();
 
-        wiper = new StackWiper(pipelineStackConfiguration, acf, s3Client, lambdaClient, logsClient,
+        wiper = new StackWiperImpl(pipelineStackConfiguration, acf, s3Client, lambdaClient, logsClient,
             amazonIdentityManagement);
         checkNulls();
     }

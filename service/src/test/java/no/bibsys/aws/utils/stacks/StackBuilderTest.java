@@ -36,7 +36,7 @@ public class StackBuilderTest extends LocalStackTest {
         mockAmazonIdentityManagement = mockIdentityManagement(pipelineStackConfiguration);
         when(mockAmazonIdentityManagement.getRole(any()))
             .thenAnswer((Answer<GetRoleResult>) this::mockGetRoleExecution);
-        wiper = new StackWiper(
+        wiper = new StackWiperImpl(
             pipelineStackConfiguration,
             mockCloudFormationwithNoStack(),
             mockS3Client(),
@@ -49,10 +49,7 @@ public class StackBuilderTest extends LocalStackTest {
     private GetRoleResult mockGetRoleExecution(InvocationOnMock invocation) {
         GetRoleRequest roleRequest = invocation.getArgument(0);
         String roleName = roleRequest.getRoleName();
-        Role role = new Role();
         if (pipelineStackConfiguration.getCreateStackRoleName().equals(roleName)) {
-            role = role.withRoleName(roleName);
-
             return new GetRoleResult()
                 .withRole(new Role()
                     .withArn(pipelineStackConfiguration.getCreateStackRoleName()));

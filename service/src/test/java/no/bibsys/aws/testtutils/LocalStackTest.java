@@ -1,6 +1,5 @@
 package no.bibsys.aws.testtutils;
 
-import static no.bibsys.aws.utils.stacks.StackWiperTest.SOME_INLINE_POLICY_NAME;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -94,6 +93,7 @@ public class LocalStackTest extends GithubTestUtilities {
     private static final String MOCK_BASEPATH_PREFIX = "basepath.for.";
     private static final String OPENAPI_RESOURCES_FOLDER = "openapi";
     private static final String OPENAPI_FILE = "openapi.yml";
+    private static final String SOME_INLINE_POLICY_NAME = "some_inline_policy";
     protected final transient PipelineStackConfiguration pipelineStackConfiguration;
 
     public LocalStackTest() {
