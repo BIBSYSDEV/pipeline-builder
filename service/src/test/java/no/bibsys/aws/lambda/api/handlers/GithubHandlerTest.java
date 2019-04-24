@@ -36,7 +36,7 @@ public class GithubHandlerTest extends LocalStackTest {
 
         GithubHandler githubHandler = new GithubHandler(mockEnvironment(),
             mockCloudFormationWithStack(),
-            initializeS3(), initializeLambdaClient(),
+            mockS3Client(), mockLambdaClient(),
             initializeMockLogsClient(),
             signatureChecker,
             mockSecretsReader(),
@@ -58,8 +58,8 @@ public class GithubHandlerTest extends LocalStackTest {
         GithubHandler githubHandler = new GithubHandler(
             mockEnvironment(),
             mockCloudFormationWithStack(),
-            initializeS3(),
-            initializeLambdaClient(),
+            mockS3Client(),
+            mockLambdaClient(),
             initializeMockLogsClient(),
             signatureChecker,
             mockSecretsReader(),
@@ -82,8 +82,8 @@ public class GithubHandlerTest extends LocalStackTest {
         GithubHandler githubHandler = new GithubHandler(
             mockEnvironment(),
             mockCloudFormationWithStack(),
-            initializeS3(),
-            initializeLambdaClient(),
+            mockS3Client(),
+            mockLambdaClient(),
             initializeMockLogsClient(),
             signatureChecker,
             mockSecretsReader(),

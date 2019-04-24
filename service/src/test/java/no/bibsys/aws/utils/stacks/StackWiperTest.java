@@ -22,8 +22,8 @@ public class StackWiperTest extends LocalStackTest {
 
     public StackWiperTest() {
         AmazonCloudFormation acf = mockCloudFormationWithStack();
-        AmazonS3 s3 = initializeS3();
-        AWSLambda lambda = initializeLambdaClient();
+        AmazonS3 s3 = mockS3Client();
+        AWSLambda lambda = mockLambdaClient();
         AWSLogs logsClient = initializeMockLogsClient();
         this.stackWiper = new StackWiper(pipelineStackConfiguration, acf,
             s3, lambda, logsClient);
@@ -46,8 +46,8 @@ public class StackWiperTest extends LocalStackTest {
     public void wipeStacks_stackDoesNotExist_exception() {
         StackWiper stackWiper = new StackWiper(pipelineStackConfiguration,
             mockCloudFormationwithNoStack(),
-            initializeS3(),
-            initializeLambdaClient(),
+            mockS3Client(),
+            mockLambdaClient(),
             initializeMockLogsClient());
         assertThrows(AmazonCloudFormationException.class, stackWiper::wipeStacks);
     }

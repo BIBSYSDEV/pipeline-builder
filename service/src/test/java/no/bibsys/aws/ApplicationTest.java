@@ -18,8 +18,8 @@ class ApplicationTest extends LocalStackTest {
             mockSecretsReader());
         application = new Application(githubConf,
             mockCloudFormationWithStack(),
-            initializeS3(),
-            initializeLambdaClient(),
+            mockS3Client(),
+            mockLambdaClient(),
             initializeMockLogsClient());
     }
 

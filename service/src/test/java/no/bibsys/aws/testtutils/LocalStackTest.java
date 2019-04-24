@@ -197,7 +197,7 @@ public class LocalStackTest extends GithubTestUtilities {
             .withHostedZones(hostedZone);
     }
 
-    protected AWSLambda initializeLambdaClient() {
+    protected AWSLambda mockLambdaClient() {
         AWSLambda lambdaClient = mock(AWSLambda.class);
         when(lambdaClient.invoke(any())).thenAnswer(invocation -> new InvokeResult()
             .withStatusCode(HttpStatus.SC_OK));
@@ -263,7 +263,7 @@ public class LocalStackTest extends GithubTestUtilities {
         return new GetDomainNameResult().withRegionalDomainName(regionalDomainName);
     }
 
-    protected AmazonS3 initializeS3() {
+    protected AmazonS3 mockS3Client() {
         AmazonS3 s3 = mock(AmazonS3.class);
         when(s3.listVersions(any()))
             .then(invocation -> listVersionsAnswer())
