@@ -17,18 +17,7 @@ public interface CreateStackRole {
 
     AttachRolePolicyRequest createNewAttachPolicyRequest(String policyArn, String roleName);
 
-    String createRole() throws IOException, UnauthorizedException, NotFoundException, Exception;
+    String createRole() throws Exception;
 
     DeleteRoleResult deleteRole();
-
-    class PolicyAndRoleName {
-
-        public final String roleName;
-        public final String policyName;
-
-        public PolicyAndRoleName(String roleName, String policyName) {
-            this.roleName = roleName;
-            this.policyName = policyName;
-        }
-    }
 }

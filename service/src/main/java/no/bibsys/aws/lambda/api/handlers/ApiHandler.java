@@ -27,7 +27,7 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
     private final transient AmazonS3 s3Client;
     private final transient AWSLambda lambdaClient;
     private final transient AWSLogs logsClient;
-    private transient GithubReader githubReader;
+    private final transient GithubReader githubReader;
     protected transient Region region;
     private final transient AmazonIdentityManagement amazonIdentityManagement;
 
@@ -88,11 +88,6 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
 
     protected void setRegionOrReportErrorToLogger() {
         init();
-    }
-
-    public ApiHandler setGithubReader(GithubReader githubReader) {
-        this.githubReader = githubReader;
-        return this;
     }
 
     protected abstract SecretsReader readFromGithubSecretReader();
