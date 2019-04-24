@@ -148,7 +148,7 @@ public class StackBuilder {
         parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_CREATE_STACK_ROLE_ARN,
             getCreateStackRoleArn()));
         parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_CREATE_STACK_ROLE_NAME,
-            getCreateStackRoleArn()));
+            pipelineStackConfiguration.getCreateStackRoleName()));
 
         parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_SOURCE_STAGE_OUTPUT_ARTIFACT,
             pipelineStack.getPipelineConfiguration().getSourceOutputArtifactName()));
