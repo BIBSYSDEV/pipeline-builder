@@ -211,7 +211,7 @@ public class LocalStackTest extends GithubTestUtilities {
         return logsClient;
     }
 
-    public AmazonCloudFormation initializeMockCloudFormation() {
+    public AmazonCloudFormation mockCloudFormationWithStack() {
         AmazonCloudFormation cloudFormation = mock(AmazonCloudFormation.class);
 
         when(cloudFormation.listStacks()).thenReturn(listWithStackSummaries());

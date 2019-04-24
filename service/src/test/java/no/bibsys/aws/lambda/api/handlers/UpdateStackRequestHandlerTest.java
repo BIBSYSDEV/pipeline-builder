@@ -42,7 +42,7 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
     @Test
     public void processInput_closeRequest_actionClose() throws Exception {
         UpdateStackRequestHandler handler = new UpdateStackRequestHandler(mockEnvironment(),
-            initializeMockCloudFormation(),
+            mockCloudFormationWithStack(),
             initializeS3(), initializeLambdaClient(),
             initializeMockLogsClient(),
             mockSecretsReader(),
@@ -63,7 +63,7 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
     @Test
     public void processInput_createStackRequest_actionCreate() throws Exception {
         UpdateStackRequestHandler handler = new UpdateStackRequestHandler(mockEnvironment(),
-            initializeMockCloudFormation(),
+            mockCloudFormationWithStack(),
             initializeS3(), initializeLambdaClient(),
             initializeMockLogsClient(),
             mockSecretsReader(),
@@ -111,7 +111,7 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
 
         UpdateStackRequestHandler handler = new UpdateStackRequestHandler(
             env,
-            initializeMockCloudFormation(),
+            mockCloudFormationWithStack(),
             initializeS3(),
             initializeLambdaClient(),
             initializeMockLogsClient(),

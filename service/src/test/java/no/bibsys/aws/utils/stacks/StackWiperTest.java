@@ -21,7 +21,7 @@ public class StackWiperTest extends LocalStackTest {
     private StackWiper stackWiper;
 
     public StackWiperTest() {
-        AmazonCloudFormation acf = initializeMockCloudFormation();
+        AmazonCloudFormation acf = mockCloudFormationWithStack();
         AmazonS3 s3 = initializeS3();
         AWSLambda lambda = initializeLambdaClient();
         AWSLogs logsClient = initializeMockLogsClient();

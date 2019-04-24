@@ -15,7 +15,7 @@ public class StackBuilderTest extends LocalStackTest {
 
     @Test
     public void createStacks_notExistingStack_noException() throws Exception {
-        AmazonCloudFormation acf = initializeMockCloudFormation();
+        AmazonCloudFormation acf = mockCloudFormationWithStack();
         AmazonIdentityManagement mockAmazonIdentityManagement = mockIdentityManagement(
             pipelineStackConfiguration);
 
@@ -39,12 +39,12 @@ public class StackBuilderTest extends LocalStackTest {
 
     @Test
     public void createStacks_existingStack_noException() throws Exception {
-        AmazonCloudFormation acf = initializeMockCloudFormation();
+        AmazonCloudFormation acf = mockCloudFormationWithStack();
         AmazonIdentityManagement mockAmazonIdentityManagement = mockIdentityManagement(
             pipelineStackConfiguration);
         StackWiper wiper = new StackWiper(
             pipelineStackConfiguration,
-            initializeMockCloudFormation(),
+            mockCloudFormationWithStack(),
             initializeS3(),
             initializeLambdaClient(),
             initializeMockLogsClient()

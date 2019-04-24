@@ -36,7 +36,7 @@ class ResourceInitializerTest extends LocalStackTest {
             new SwaggerHubConnectionDetails(swaggerHubInfo, mockSecretsReader()),
             Stage.TEST,
             gitInfo,
-            initializeMockCloudFormation(),
+            mockCloudFormationWithStack(),
             initializeAmazonApiGateway(),
             initializeRoute53Client(staticUrlInfo.getZoneName())
 

@@ -35,7 +35,7 @@ public class GithubHandlerTest extends LocalStackTest {
             mockSecretsReader(APPROVE_ALL_KEYS));
 
         GithubHandler githubHandler = new GithubHandler(mockEnvironment(),
-            initializeMockCloudFormation(),
+            mockCloudFormationWithStack(),
             initializeS3(), initializeLambdaClient(),
             initializeMockLogsClient(),
             signatureChecker,
@@ -57,7 +57,7 @@ public class GithubHandlerTest extends LocalStackTest {
             mockSecretsReader(APPROVE_ALL_KEYS));
         GithubHandler githubHandler = new GithubHandler(
             mockEnvironment(),
-            initializeMockCloudFormation(),
+            mockCloudFormationWithStack(),
             initializeS3(),
             initializeLambdaClient(),
             initializeMockLogsClient(),
@@ -81,7 +81,7 @@ public class GithubHandlerTest extends LocalStackTest {
 
         GithubHandler githubHandler = new GithubHandler(
             mockEnvironment(),
-            initializeMockCloudFormation(),
+            mockCloudFormationWithStack(),
             initializeS3(),
             initializeLambdaClient(),
             initializeMockLogsClient(),
