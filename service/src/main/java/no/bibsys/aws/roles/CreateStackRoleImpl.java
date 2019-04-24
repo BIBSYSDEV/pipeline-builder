@@ -56,7 +56,6 @@ public class CreateStackRoleImpl implements CreateStackRole {
         amazonIdentityManagement.putRolePolicy(putRolePolicyRequest);
 
         return role.getRoleName();
-
     }
 
     @Override

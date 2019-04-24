@@ -12,7 +12,7 @@ public class GithubTestUtilities {
 
     //package-private
     static final transient SecretsReader MOCK_SECRETS_READER = () -> "something";
-    static final String EXPECTED_RESPONSE = "This is the expected response";
+    protected static final String EXPECTED_RESPONSE = "This is the expected response";
     private static final String SUCCESS_REASON_PHRASE = "OK";
     private static final int MAJOR_VERSION = 1;
     private static final int MINOR_VERSION = 1;

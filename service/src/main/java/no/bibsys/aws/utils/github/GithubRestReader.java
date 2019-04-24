@@ -2,7 +2,6 @@ package no.bibsys.aws.utils.github;
 
 import java.io.IOException;
 import java.util.Objects;
-import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.tools.IoUtils;
 import org.apache.http.HttpEntity;
@@ -61,10 +60,6 @@ public class GithubRestReader {
     private String handleSuccess(CloseableHttpResponse response) throws IOException {
         HttpEntity responseEntity = response.getEntity();
         return IoUtils.streamToString(responseEntity.getContent());
-    }
-
-    public GitInfo getGithubConf() {
-        return githubConf;
     }
 
     public GithubRestReader setGitHubConf(GithubConf gitHubConf) {
