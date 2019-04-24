@@ -28,6 +28,14 @@
 
   </rule>
 
+  <rule ref="category/java/codestyle.xml/LinguisticNaming">
+    <properties>
+      <!-- allow fluent setters -->
+      <property name="checkSetters">false</property>
+    </properties>
+
+  </rule>
+
   <rule ref="category/java/codestyle.xml">
     <exclude name="AtLeastOneConstructor"/>
     <exclude name="LongVariable"/>
@@ -77,7 +85,6 @@
     <exclude name="UseObjectForClearerAPI"/>
     <exclude name="TooManyMethods"/>
     <exclude name="CyclomaticComplexity"/>
-
 
     <!-- This rule does not allow the Lambda Handler to cast  the ContainerInitializationException
         to a RuntimeException.

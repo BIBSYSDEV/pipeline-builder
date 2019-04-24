@@ -26,6 +26,8 @@ import no.bibsys.aws.secrets.AwsSecretsReader;
 import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.tools.JsonUtils;
+import no.bibsys.aws.utils.github.GithubReader;
+import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +45,8 @@ public class UpdateStackRequestHandler extends ApiHandler {
             AmazonS3ClientBuilder.defaultClient(),
             AWSLambdaClientBuilder.defaultClient(),
             AWSLogsClientBuilder.defaultClient(),
-                AmazonIdentityManagementClientBuilder.defaultClient());
+            AmazonIdentityManagementClientBuilder.defaultClient(),
+            new GithubReader(HttpClients.createMinimal()));
 
         this.restApiKeySecretsReader = new AwsSecretsReader(
             environment.readEnv(REST_API_KEY_SECRET_NAME),
@@ -63,11 +66,11 @@ public class UpdateStackRequestHandler extends ApiHandler {
         AWSLogs logsClient,
         SecretsReader restApiKeySecretsReader,
         SecretsReader readFromGithubSecretsReader,
-        AmazonIdentityManagement amazonIdentityManagement
+        AmazonIdentityManagement amazonIdentityManagement,
+        GithubReader githubReader
     ) {
-
-        super(environment, acf, s3, lambdaClient, logsClient, amazonIdentityManagement);
-
+        super(environment, acf, s3, lambdaClient, logsClient, amazonIdentityManagement,
+            githubReader);
         this.restApiKeySecretsReader = restApiKeySecretsReader;
         this.readFromGithubSecretsReader = readFromGithubSecretsReader;
     }

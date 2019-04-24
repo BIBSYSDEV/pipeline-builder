@@ -5,21 +5,17 @@ import com.amazonaws.services.cloudformation.model.AmazonCloudFormationException
 import com.amazonaws.services.cloudformation.model.Capability;
 import com.amazonaws.services.cloudformation.model.CreateStackRequest;
 import com.amazonaws.services.cloudformation.model.Parameter;
-
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
 import java.io.IOException;
-import java.net.http.HttpClient;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
 import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.cloudformation.Stage;
 import no.bibsys.aws.roles.CreateStackRole;
 import no.bibsys.aws.roles.CreateStackRoleImpl;
 import no.bibsys.aws.tools.IoUtils;
 import no.bibsys.aws.utils.github.GithubReader;
-import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,25 +28,25 @@ public class StackBuilder {
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_GITHUB_AUTH = "GithubAuth";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_NAME = "PipelineName";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_BUCKETNAME =
-            "PipelineBucketname";
+        "PipelineBucketname";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_ROLENAME =
-            "PipelineRolename";
+        "PipelineRolename";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_CREATE_STACK_ROLENAME =
-            "CreateStackRolename";
+        "CreateStackRolename";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_SOURCE_STAGE_OUTPUT_ARTIFACT =
-            "SourceStageOutputArtifact";
+        "SourceStageOutputArtifact";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PROJECT_ID = "ProjectId";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PROJECT_BRANCH = "ProjectBranch";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_NORMALIZED_BRANCH_NAME = "NormalizedBranchName";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_CODEBUILD_OUTPUT_ARTIFACT =
-            "CodebuildOutputArtifact";
+        "CodebuildOutputArtifact";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_CODEBUILD_PROJECTNAME = "CodebuildProjectname";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_EXECUTE_TESTS_PROJECTNAME =
-            "ExecuteTestsProjectname";
+        "ExecuteTestsProjectname";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_TEST_SERVICE_STACK_NAME =
-            "PipelineTestServiceStackName";
+        "PipelineTestServiceStackName";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_FINAL_SERVICE_STACK_NAME =
-            "PipelineFinalServiceStackName";
+        "PipelineFinalServiceStackName";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_INIT_FUNCTION_NAME = "InitFunctionName";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_DESTROY_FUNCTION_NAME = "DestroyFunctionName";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_TEST_PHASE_NAME = "TestPhaseName";
@@ -64,14 +60,14 @@ public class StackBuilder {
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
     private final transient AmazonCloudFormation cloudFormationClient;
     private final transient AmazonIdentityManagement amazonIdentityManagement;
-    private GithubReader githubReader;
+    private final transient GithubReader githubReader;
 
     public StackBuilder(
-            StackWiper wiper,
-            PipelineStackConfiguration pipelineStackConfiguration,
-            AmazonCloudFormation cloudFormationClient,
-            AmazonIdentityManagement amazonIdentityManagement,
-            GithubReader githubReader
+        StackWiper wiper,
+        PipelineStackConfiguration pipelineStackConfiguration,
+        AmazonCloudFormation cloudFormationClient,
+        AmazonIdentityManagement amazonIdentityManagement,
+        GithubReader githubReader
     ) {
         this.cloudFormationClient = cloudFormationClient;
         this.stackWiper = wiper;
@@ -90,20 +86,23 @@ public class StackBuilder {
         createPipelineStack(pipelineStackConfiguration);
     }
 
-    private void createNewCreateStackRole(PipelineStackConfiguration pipelineStackConfiguration, GithubReader githubReader) throws Exception {
+    private void createNewCreateStackRole(PipelineStackConfiguration pipelineStackConfiguration,
+        GithubReader githubReader) throws Exception {
         CreateStackRole createStackRole
-                = new CreateStackRoleImpl(githubReader, pipelineStackConfiguration, amazonIdentityManagement);
+            = new CreateStackRoleImpl(githubReader, pipelineStackConfiguration,
+            amazonIdentityManagement);
         createStackRole.createRole();
     }
 
     private void createPipelineStack(PipelineStackConfiguration pipelineStackConfiguration)
-            throws IOException {
+        throws IOException {
         CreateStackRequest createStackRequest = createStackRequest(pipelineStackConfiguration);
         cloudFormationClient.createStack(createStackRequest);
     }
 
-    private CreateStackRequest createStackRequest(PipelineStackConfiguration pipelineStackConfiguration)
-            throws IOException {
+    private CreateStackRequest createStackRequest(
+        PipelineStackConfiguration pipelineStackConfiguration)
+        throws IOException {
         CreateStackRequest createStackRequest = new CreateStackRequest();
         setBasicStackRequestParameters(createStackRequest, pipelineStackConfiguration);
         setPipelineStackTemplate(createStackRequest);
@@ -113,85 +112,87 @@ public class StackBuilder {
     }
 
     private void setBasicStackRequestParameters(CreateStackRequest createStackRequest,
-                                                PipelineStackConfiguration pipelineStackConfiguration) {
+        PipelineStackConfiguration pipelineStackConfiguration) {
         createStackRequest.setStackName(pipelineStackConfiguration.getPipelineStackName());
         createStackRequest.withCapabilities(Capability.CAPABILITY_NAMED_IAM);
     }
 
-    private void setTemplateParameters(CreateStackRequest createStackRequest, PipelineStackConfiguration pipelineStack)
-            throws IOException {
+    private void setTemplateParameters(CreateStackRequest createStackRequest,
+        PipelineStackConfiguration pipelineStack)
+        throws IOException {
 
         List<Parameter> parameters = new ArrayList<>();
 
         parameters.add(newParameter(
-                CLOUDFORMATION_TEMPLATE_PARAMETER_GITHUB_OWNER,
-                pipelineStack.getGithubConf().getOwner()));
+            CLOUDFORMATION_TEMPLATE_PARAMETER_GITHUB_OWNER,
+            pipelineStack.getGithubConf().getOwner()));
         parameters.add(newParameter(
-                CLOUD_FORMATION_TEMPLATE_PARAMETER_GITHUB_REPO,
-                pipelineStack.getGithubConf().getRepository()));
+            CLOUD_FORMATION_TEMPLATE_PARAMETER_GITHUB_REPO,
+            pipelineStack.getGithubConf().getRepository()));
         parameters.add(newParameter(
-                CLOUD_FORMATION_TEMPLATE_PARAMETER_GITHUB_AUTH,
-                pipelineStack.getGithubConf().getOauth()));
+            CLOUD_FORMATION_TEMPLATE_PARAMETER_GITHUB_AUTH,
+            pipelineStack.getGithubConf().getOauth()));
 
         parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_NAME,
-                pipelineStack.getPipelineConfiguration().getPipelineName()));
+            pipelineStack.getPipelineConfiguration().getPipelineName()));
 
         parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_BUCKETNAME,
-                pipelineStack.getBucketName()));
+            pipelineStack.getBucketName()));
 
         parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_ROLENAME,
-                pipelineStack.getPipelineRoleName()));
+            pipelineStack.getPipelineRoleName()));
 
         parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_CREATE_STACK_ROLENAME,
-                pipelineStack.getCreateStackRoleName()));
+            pipelineStack.getCreateStackRoleName()));
 
         parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_SOURCE_STAGE_OUTPUT_ARTIFACT,
-                pipelineStack.getPipelineConfiguration().getSourceOutputArtifactName()));
+            pipelineStack.getPipelineConfiguration().getSourceOutputArtifactName()));
 
         parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_PROJECT_ID,
-                pipelineStack.getProjectId()));
+            pipelineStack.getProjectId()));
         parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_PROJECT_BRANCH,
-                pipelineStack.getBranchName()));
+            pipelineStack.getBranchName()));
         parameters
-                .add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_NORMALIZED_BRANCH_NAME,
-                        pipelineStack.getNormalizedBranchName()));
+            .add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_NORMALIZED_BRANCH_NAME,
+                pipelineStack.getNormalizedBranchName()));
 
         parameters.add(
-                newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_CODEBUILD_OUTPUT_ARTIFACT,
-                        pipelineStack.getCodeBuildConfiguration().getOutputArtifact()));
+            newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_CODEBUILD_OUTPUT_ARTIFACT,
+                pipelineStack.getCodeBuildConfiguration().getOutputArtifact()));
         parameters.add(
-                newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_CODEBUILD_PROJECTNAME,
-                        pipelineStack.getCodeBuildConfiguration().getBuildProjectName()));
+            newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_CODEBUILD_PROJECTNAME,
+                pipelineStack.getCodeBuildConfiguration().getBuildProjectName()));
 
         parameters.add(
-                newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_EXECUTE_TESTS_PROJECTNAME,
-                        pipelineStack.getCodeBuildConfiguration().getExecuteTestsProjectName()));
+            newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_EXECUTE_TESTS_PROJECTNAME,
+                pipelineStack.getCodeBuildConfiguration().getExecuteTestsProjectName()));
 
         parameters.add(newParameter(
-                CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_TEST_SERVICE_STACK_NAME,
-                pipelineStack.getPipelineConfiguration().getTestServiceStack()));
+            CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_TEST_SERVICE_STACK_NAME,
+            pipelineStack.getPipelineConfiguration().getTestServiceStack()));
 
         parameters.add(newParameter(
-                CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_FINAL_SERVICE_STACK_NAME,
-                pipelineStack.getPipelineConfiguration().getFinalServiceStack()));
+            CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_FINAL_SERVICE_STACK_NAME,
+            pipelineStack.getPipelineConfiguration().getFinalServiceStack()));
 
         parameters.add(
-                newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_INIT_FUNCTION_NAME,
-                        pipelineStack.getPipelineConfiguration().getInitLambdaFunctionName()));
+            newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_INIT_FUNCTION_NAME,
+                pipelineStack.getPipelineConfiguration().getInitLambdaFunctionName()));
         parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_DESTROY_FUNCTION_NAME,
-                pipelineStack.getPipelineConfiguration().getDestroyLambdaFunctionName()));
+            pipelineStack.getPipelineConfiguration().getDestroyLambdaFunctionName()));
 
         parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_TEST_PHASE_NAME,
-                Stage.TEST.toString()));
+            Stage.TEST.toString()));
         parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_FINAL_PHASE_NAME,
-                Stage.FINAL.toString()));
+            Stage.FINAL.toString()));
 
         createStackRequest.setParameters(parameters);
     }
 
-    private void setPipelineStackTemplate(CreateStackRequest createStackRequest) throws IOException {
+    private void setPipelineStackTemplate(CreateStackRequest createStackRequest)
+        throws IOException {
         String templateBody = IoUtils
-                .resourceAsString(Paths.get(TEMPLATES_RESOURCE_DIRECTORY, PIPELINE_TEMPLATE));
+            .resourceAsString(Paths.get(TEMPLATES_RESOURCE_DIRECTORY, PIPELINE_TEMPLATE));
         createStackRequest.setTemplateBody(templateBody);
     }
 

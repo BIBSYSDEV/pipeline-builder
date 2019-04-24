@@ -3,6 +3,7 @@ package no.bibsys.aws.utils.github;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -12,11 +13,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.secrets.SecretsReader;
+import no.bibsys.aws.testtutils.LocalStackTest;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.Test;
 
-public class GithubReaderTest extends GithubTestUtilities {
+public class GithubReaderTest extends LocalStackTest {
 
     private static final Path ARBITRARY_PATH = Paths.get("folder", "folder", "file");
     private static final String OWNER = "ownername";
@@ -27,15 +29,25 @@ public class GithubReaderTest extends GithubTestUtilities {
     private static final SecretsReader SECRETS_READER = () -> "secret";
     private static final GithubConf githubConf = new GithubConf(OWNER, REPO, BRANCH,
         SECRETS_READER);
+    public static final String SOME_FILE_PATH = "directory/directory/file";
+
+    @Test
+    public void createUrlFromPathShouldThrowExceptionForNullGithubConf() throws IOException {
+        Path inputPath = Paths.get(SOME_FILE_PATH);
+
+        GithubReader githubReader = mockGithubReader();
+        NullPointerException exception = assertThrows(NullPointerException.class,
+            () -> githubReader.createUrl(inputPath));
+        assertThat(exception.getMessage(), is(equalTo(GithubReader.GITHUBCONF_NULL_ERROR_MESSAGE)));
+    }
+
 
     @Test
     public void createUrlFromPathShouldMapPathToValidUrl() {
-
-        Path inputPath = Paths.get("directory/directory/file");
+        Path inputPath = Paths.get(SOME_FILE_PATH);
         String expectedUrl = String.format(urlTemplate, OWNER, REPO, BRANCH, inputPath);
         CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
-
-        GithubReader githubReader = new GithubReader(githubConf, httpClient);
+        GithubReader githubReader = new GithubReader(httpClient).setGitHubConf(githubConf);
         String outputUrl = githubReader.createUrl(inputPath);
         assertThat(outputUrl, is(equalTo(expectedUrl)));
     }
@@ -48,7 +60,7 @@ public class GithubReaderTest extends GithubTestUtilities {
         when(httpClient.execute(any())).thenReturn(response);
         when(response.getEntity()).thenReturn(simpleResponse);
         when(response.getStatusLine()).thenReturn(STATUS_LINE_OK);
-        GithubReader githubReader = new GithubReader(githubConf, httpClient);
+        GithubReader githubReader = mockGithubReader().setGitHubConf(githubConf);
         String responseString = githubReader.readFile(ARBITRARY_PATH);
         assertThat(responseString, is(equalTo(EXPECTED_RESPONSE)));
     }

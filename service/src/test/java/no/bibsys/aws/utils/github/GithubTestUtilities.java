@@ -12,14 +12,16 @@ public class GithubTestUtilities {
 
     //package-private
     static final transient SecretsReader MOCK_SECRETS_READER = () -> "something";
-    static final String EXPECTED_RESPONSE = "This is the expected response";
+    protected static final String EXPECTED_RESPONSE = "This is the expected response";
     private static final String SUCCESS_REASON_PHRASE = "OK";
     private static final int MAJOR_VERSION = 1;
     private static final int MINOR_VERSION = 1;
     private static final String PROTOCOL = "http";
-    private static final ProtocolVersion PROTOCOL_VERSION = new ProtocolVersion(PROTOCOL, MAJOR_VERSION, MINOR_VERSION);
+    protected static final ProtocolVersion PROTOCOL_VERSION = new ProtocolVersion(PROTOCOL,
+        MAJOR_VERSION, MINOR_VERSION);
     //package-private
-    static final BasicStatusLine STATUS_LINE_OK = new BasicStatusLine(PROTOCOL_VERSION, HttpStatus.SC_OK,
+    protected static final BasicStatusLine STATUS_LINE_OK = new BasicStatusLine(PROTOCOL_VERSION,
+        HttpStatus.SC_OK,
         SUCCESS_REASON_PHRASE);
     private static final String BAD_CREDENTIALS_BODY = "{\"message\":\"Bad credentials\","
         + "\"documentation_url\":\"https://developer.github.com/v3\"}";
