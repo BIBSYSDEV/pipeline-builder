@@ -6,6 +6,9 @@ import com.amazonaws.services.cloudformation.model.Capability;
 import com.amazonaws.services.cloudformation.model.CreateStackRequest;
 import com.amazonaws.services.cloudformation.model.Parameter;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
+import com.amazonaws.services.identitymanagement.model.GetRoleRequest;
+import com.amazonaws.services.identitymanagement.model.GetRoleResult;
+import com.amazonaws.services.identitymanagement.model.NoSuchEntityException;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -22,7 +25,6 @@ import org.slf4j.LoggerFactory;
 public class StackBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(StackBuilder.class);
-
     private static final String CLOUDFORMATION_TEMPLATE_PARAMETER_GITHUB_OWNER = "GithubOwner";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_GITHUB_REPO = "GithubRepo";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_GITHUB_AUTH = "GithubAuth";
@@ -31,8 +33,8 @@ public class StackBuilder {
         "PipelineBucketname";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_ROLENAME =
         "PipelineRolename";
-    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_CREATE_STACK_ROLENAME =
-        "CreateStackRolename";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_CREATE_STACK_ROLE_ARN =
+        "CreateStackRoleArn";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_SOURCE_STAGE_OUTPUT_ARTIFACT =
         "SourceStageOutputArtifact";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PROJECT_ID = "ProjectId";
@@ -54,7 +56,6 @@ public class StackBuilder {
     private static final String STACK_DOES_NOT_EXIST_WARNING = "Stack does not exist";
     private static final String TEMPLATES_RESOURCE_DIRECTORY = "templates";
     private static final String PIPELINE_TEMPLATE = "pipelineTemplate.yaml";
-
     private final transient StackWiper stackWiper;
 
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
@@ -142,8 +143,8 @@ public class StackBuilder {
         parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_PIPELINE_ROLENAME,
             pipelineStack.getPipelineRoleName()));
 
-        parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_CREATE_STACK_ROLENAME,
-            pipelineStack.getCreateStackRoleName()));
+        parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_CREATE_STACK_ROLE_ARN,
+            getCreateStackRoleArn()));
 
         parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_SOURCE_STAGE_OUTPUT_ARTIFACT,
             pipelineStack.getPipelineConfiguration().getSourceOutputArtifactName()));
@@ -198,5 +199,11 @@ public class StackBuilder {
 
     private Parameter newParameter(String key, String value) {
         return new Parameter().withParameterKey(key).withParameterValue(value);
+    }
+
+    public String getCreateStackRoleArn() throws NoSuchEntityException {
+        GetRoleResult getRoleResult = amazonIdentityManagement
+            .getRole(new GetRoleRequest().withRoleName(pipelineStackConfiguration.getCreateStackRoleName()));
+        return getRoleResult.getRole().getArn();
     }
 }
