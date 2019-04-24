@@ -9,6 +9,7 @@ import com.amazonaws.services.identitymanagement.model.DeleteRoleResult;
 import com.amazonaws.services.identitymanagement.model.GetRoleRequest;
 import com.amazonaws.services.identitymanagement.model.GetRoleResult;
 import com.amazonaws.services.identitymanagement.model.ListRolePoliciesRequest;
+import com.amazonaws.services.identitymanagement.model.NoSuchEntityException;
 import com.amazonaws.services.identitymanagement.model.PutRolePolicyRequest;
 import com.amazonaws.services.identitymanagement.model.Role;
 import java.io.IOException;
@@ -20,12 +21,18 @@ import no.bibsys.aws.tools.IoUtils;
 import no.bibsys.aws.utils.github.GithubReader;
 import no.bibsys.aws.utils.github.NotFoundException;
 import no.bibsys.aws.utils.github.UnauthorizedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CreateStackRoleImpl implements CreateStackRole {
+
+    private static final Logger logger = LoggerFactory.getLogger(CreateStackRoleImpl.class);
 
     private static final String TEMPLATES_DIRECTORY = "templates";
     private static final String CREATE_STACK_ROLE_ASSUME_POLICY_JSON = "createStackRoleAssumePolicy.json";
     private static final String CREATE_STACK_ROLE_POLICY_DOCUMENT_JSON = "createStackRolePolicyDocument.json";
+    private static final String NON_EXISTING_ROLE_WARNING_MESSAGE = "Attempting to delete non existing role with name"
+        + " {}";
     private final transient GithubReader githubReader;
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
     private final transient AmazonIdentityManagement amazonIdentityManagement;
@@ -69,11 +76,20 @@ public class CreateStackRoleImpl implements CreateStackRole {
                 .withPolicyName(policyName)).collect(Collectors.toList());
 
         inlinePolicies.forEach(amazonIdentityManagement::deleteRolePolicy);
-        DeleteRoleResult deleteRoleResult = amazonIdentityManagement.deleteRole(
-            new DeleteRoleRequest()
-                .withRoleName(pipelineStackConfiguration.getCreateStackRoleName()));
+        return executeDeleteRoleRequest();
+    }
 
-        return deleteRoleResult;
+    private DeleteRoleResult executeDeleteRoleRequest() {
+        String roleName = pipelineStackConfiguration.getCreateStackRoleName();
+        try {
+            DeleteRoleResult result = amazonIdentityManagement.deleteRole(
+                new DeleteRoleRequest()
+                    .withRoleName(roleName));
+            return result;
+        } catch (NoSuchEntityException e) {
+            logger.warn(NON_EXISTING_ROLE_WARNING_MESSAGE, roleName);
+            return new DeleteRoleResult();
+        }
     }
 
     @Override
