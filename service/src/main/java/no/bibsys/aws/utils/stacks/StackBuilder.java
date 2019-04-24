@@ -35,6 +35,7 @@ public class StackBuilder {
         "PipelineRolename";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_CREATE_STACK_ROLE_ARN =
         "CreateStackRoleArn";
+    private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_CREATE_STACK_ROLE_NAME = "CreateStackRoleName";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_SOURCE_STAGE_OUTPUT_ARTIFACT =
         "SourceStageOutputArtifact";
     private static final String CLOUD_FORMATION_TEMPLATE_PARAMETER_PROJECT_ID = "ProjectId";
@@ -56,6 +57,7 @@ public class StackBuilder {
     private static final String STACK_DOES_NOT_EXIST_WARNING = "Stack does not exist";
     private static final String TEMPLATES_RESOURCE_DIRECTORY = "templates";
     private static final String PIPELINE_TEMPLATE = "pipelineTemplate.yaml";
+
     private final transient StackWiper stackWiper;
 
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
@@ -144,6 +146,8 @@ public class StackBuilder {
             pipelineStack.getPipelineRoleName()));
 
         parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_CREATE_STACK_ROLE_ARN,
+            getCreateStackRoleArn()));
+        parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_CREATE_STACK_ROLE_NAME,
             getCreateStackRoleArn()));
 
         parameters.add(newParameter(CLOUD_FORMATION_TEMPLATE_PARAMETER_SOURCE_STAGE_OUTPUT_ARTIFACT,

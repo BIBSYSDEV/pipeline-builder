@@ -20,6 +20,8 @@ Parameters:
     Type: String
   CreateStackRoleArn:
     Type: String
+  CreateStackRoleName:
+    Type: String
   PipelineName:
     Type: String
   PipelineTestServiceStackName:
@@ -58,6 +60,27 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: aws:kms
+
+  S3BucketAccessPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      Groups:
+        - String
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "s3:*"
+            Resource:
+              - !Join ["", [!GetAtt S3Bucket.Arn, "/*"]]
+              - !GetAtt S3Bucket.Arn
+              - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname, "/*"]]
+              - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname]]
+
+      PolicyName: String
+      Roles:
+        - !Ref CreateStackRoleName
 
   #  CreateStackRole:
   #    Type: AWS::IAM::Role

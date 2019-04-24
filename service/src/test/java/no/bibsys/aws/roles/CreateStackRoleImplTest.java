@@ -19,6 +19,7 @@ import com.amazonaws.services.identitymanagement.model.DeleteRoleResult;
 import com.amazonaws.services.identitymanagement.model.DetachRolePolicyResult;
 import com.amazonaws.services.identitymanagement.model.GetRoleResult;
 import com.amazonaws.services.identitymanagement.model.ListRolePoliciesResult;
+import com.amazonaws.services.identitymanagement.model.NoSuchEntityException;
 import com.amazonaws.services.identitymanagement.model.PutRolePolicyRequest;
 import com.amazonaws.services.identitymanagement.model.PutRolePolicyResult;
 import com.amazonaws.services.identitymanagement.model.Role;
@@ -31,16 +32,19 @@ import java.util.HashMap;
 import java.util.Map;
 import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.git.github.GithubConf;
+import no.bibsys.aws.testtutils.LocalStackTest;
 import no.bibsys.aws.tools.IoUtils;
 import no.bibsys.aws.tools.JsonUtils;
 import no.bibsys.aws.utils.github.GithubReader;
 import no.bibsys.aws.utils.github.NotFoundException;
 import no.bibsys.aws.utils.github.UnauthorizedException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 
-class CreateStackRoleImplTest {
+class CreateStackRoleImplTest extends LocalStackTest {
 
+    public static final String ROLE_NAME = "roleName";
     private static final String STATEMENT = "Statement";
     private static final String SERVICE = "Service";
     private static final String PRINCIPAL = "Principal";
@@ -53,12 +57,18 @@ class CreateStackRoleImplTest {
     private static final String ANY_CREATE_STACK_ROLE_POLICY_NAME = "Some vague hope of meaninglessness";
     private static final String SOME_ARN = "SomeArn";
     private static final String SOME_ROLE_NAME = "someRoleName";
-    public static final String ROLE_NAME = "roleName";
+    public static final String NON_EXISTING_ROLE_ERROR_MESSAGE = "Role does not exist";
 
-    GithubReader mockGithubReader = mock(GithubReader.class);
-    PipelineStackConfiguration mockPipelineStackConfiguration = mock(
-        PipelineStackConfiguration.class);
-    AmazonIdentityManagement mockAmazonIdentityManagement = mock(AmazonIdentityManagement.class);
+    private transient GithubReader mockGithubReader;
+    private transient PipelineStackConfiguration mockPipelineStackConfiguration;
+    private transient AmazonIdentityManagement mockAmazonIdentityManagement;
+
+    @BeforeEach
+    public void init() {
+        mockGithubReader = mock(GithubReader.class);
+        mockPipelineStackConfiguration = mock(PipelineStackConfiguration.class);
+        mockAmazonIdentityManagement = mock(AmazonIdentityManagement.class);
+    }
 
     @Test
     void createStackRoleImplConstructorExists() {
@@ -150,6 +160,19 @@ class CreateStackRoleImplTest {
     }
 
     @Test
+    public void deleteRoleShouldNotFailForNonExistingRole() {
+        PipelineStackConfiguration pipelineStackConfiguration = new PipelineStackConfiguration(mockGithubConf());
+        when(mockAmazonIdentityManagement.listRolePolicies(any()))
+            .thenReturn(new ListRolePoliciesResult().withPolicyNames("somePolicy"));
+        when(mockAmazonIdentityManagement.deleteRole(any())).thenThrow(new NoSuchEntityException(
+            NON_EXISTING_ROLE_ERROR_MESSAGE));
+        CreateStackRoleImpl createStackRoleImpl = new CreateStackRoleImpl(mockGithubReader, pipelineStackConfiguration,
+            mockAmazonIdentityManagement);
+
+        assertThat(createStackRoleImpl.deleteRole(), is(not(equalTo(null))));
+    }
+
+    @Test
     void deleteRoleShouldReturnNonEmptyResult() {
 
         GithubConf githubConf = mock(GithubConf.class);
@@ -206,3 +229,4 @@ class CreateStackRoleImplTest {
         return policyDocument.get(STATEMENT);
     }
 }
+

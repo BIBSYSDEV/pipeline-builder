@@ -52,16 +52,13 @@ public class CreateStackRoleImpl implements CreateStackRole {
 
         Role role = amazonIdentityManagement.createRole(createRoleRequest).getRole();
         waitForRole();
-
         amazonIdentityManagement.putRolePolicy(putRolePolicyRequest);
 
         return role.getRoleName();
-
     }
 
     @Override
     public DeleteRoleResult deleteRole() {
-
         List<DeleteRolePolicyRequest> inlinePolicies = amazonIdentityManagement
             .listRolePolicies(new ListRolePoliciesRequest()
                 .withRoleName(pipelineStackConfiguration.getCreateStackRoleName()))
