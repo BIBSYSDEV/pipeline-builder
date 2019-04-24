@@ -33,6 +33,8 @@ public class CreateStackRoleImpl implements CreateStackRole {
     private static final String CREATE_STACK_ROLE_POLICY_DOCUMENT_JSON = "createStackRolePolicyDocument.json";
     private static final String NON_EXISTING_ROLE_WARNING_MESSAGE = "Attempting to delete non existing role with name"
         + " {}";
+    private static final String CREATE_STACK_ROLE_DESCRIPTION = "Role that allows creation of resources in a deployed"
+        + " service";
     private final transient GithubReader githubReader;
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
     private final transient AmazonIdentityManagement amazonIdentityManagement;
@@ -98,7 +100,8 @@ public class CreateStackRoleImpl implements CreateStackRole {
             Paths.get(TEMPLATES_DIRECTORY, CREATE_STACK_ROLE_ASSUME_POLICY_JSON));
         return new CreateRoleRequest()
             .withAssumeRolePolicyDocument(assumeRolePolicy)
-            .withRoleName(this.pipelineStackConfiguration.getCreateStackRoleName());
+            .withRoleName(this.pipelineStackConfiguration.getCreateStackRoleName())
+            .withDescription(CREATE_STACK_ROLE_DESCRIPTION);
     }
 
     @Override

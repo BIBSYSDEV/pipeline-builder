@@ -78,7 +78,7 @@ Resources:
               - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname, "/*"]]
               - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname]]
 
-      PolicyName: String
+      PolicyName: !Join ["-", [!Ref CreateStackRoleName, "s3Access"]]
       Roles:
         - !Ref CreateStackRoleName
 
