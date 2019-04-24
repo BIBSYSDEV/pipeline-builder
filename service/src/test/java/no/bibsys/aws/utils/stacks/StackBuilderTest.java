@@ -41,16 +41,21 @@ public class StackBuilderTest extends LocalStackTest {
             mockCloudFormationwithNoStack(),
             mockS3Client(),
             mockLambdaClient(),
-            initializeMockLogsClient()
+            initializeMockLogsClient(),
+            mockAmazonIdentityManagement
         );
     }
 
     private GetRoleResult mockGetRoleExecution(InvocationOnMock invocation) {
         GetRoleRequest roleRequest = invocation.getArgument(0);
         String roleName = roleRequest.getRoleName();
+        Role role = new Role();
         if (pipelineStackConfiguration.getCreateStackRoleName().equals(roleName)) {
+            role = role.withRoleName(roleName);
+
             return new GetRoleResult()
-                .withRole(new Role().withArn(pipelineStackConfiguration.getCreateStackRoleName()));
+                .withRole(new Role()
+                    .withArn(pipelineStackConfiguration.getCreateStackRoleName()));
         } else {
             throw new NoSuchEntityException(String.format(MOCKED_ERROR_MESSAGE, roleName));
         }

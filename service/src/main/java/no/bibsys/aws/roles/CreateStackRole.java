@@ -10,6 +10,8 @@ import no.bibsys.aws.utils.github.UnauthorizedException;
 
 public interface CreateStackRole {
 
+    String ROLE_TAG_FOR_CREATE_STACK_ROLE = "CreateStackRole";
+
     CreateRoleRequest createNewCreateRoleRequest() throws IOException;
 
     PutRolePolicyRequest createNewPutRolePolicyRequest()

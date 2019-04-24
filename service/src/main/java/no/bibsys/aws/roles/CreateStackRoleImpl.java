@@ -3,19 +3,13 @@ package no.bibsys.aws.roles;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
 import com.amazonaws.services.identitymanagement.model.AttachRolePolicyRequest;
 import com.amazonaws.services.identitymanagement.model.CreateRoleRequest;
-import com.amazonaws.services.identitymanagement.model.DeleteRolePolicyRequest;
-import com.amazonaws.services.identitymanagement.model.DeleteRoleRequest;
-import com.amazonaws.services.identitymanagement.model.DeleteRoleResult;
 import com.amazonaws.services.identitymanagement.model.GetRoleRequest;
 import com.amazonaws.services.identitymanagement.model.GetRoleResult;
-import com.amazonaws.services.identitymanagement.model.ListRolePoliciesRequest;
-import com.amazonaws.services.identitymanagement.model.NoSuchEntityException;
 import com.amazonaws.services.identitymanagement.model.PutRolePolicyRequest;
 import com.amazonaws.services.identitymanagement.model.Role;
+import com.amazonaws.services.identitymanagement.model.Tag;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.stream.Collectors;
 import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.tools.IoUtils;
 import no.bibsys.aws.utils.github.GithubReader;
@@ -31,10 +25,9 @@ public class CreateStackRoleImpl implements CreateStackRole {
     private static final String TEMPLATES_DIRECTORY = "templates";
     private static final String CREATE_STACK_ROLE_ASSUME_POLICY_JSON = "createStackRoleAssumePolicy.json";
     private static final String CREATE_STACK_ROLE_POLICY_DOCUMENT_JSON = "createStackRolePolicyDocument.json";
-    private static final String NON_EXISTING_ROLE_WARNING_MESSAGE = "Attempting to delete non existing role with name"
-        + " {}";
     private static final String CREATE_STACK_ROLE_DESCRIPTION = "Role that allows creation of resources in a deployed"
         + " service";
+    public static final String CREATE_ROLE_SUCCESS_MESSAGE = "Created role with roleName {}";
     private final transient GithubReader githubReader;
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
     private final transient AmazonIdentityManagement amazonIdentityManagement;
@@ -62,46 +55,29 @@ public class CreateStackRoleImpl implements CreateStackRole {
         Role role = amazonIdentityManagement.createRole(createRoleRequest).getRole();
         waitForRole();
         amazonIdentityManagement.putRolePolicy(putRolePolicyRequest);
-
+        logger.info(CREATE_ROLE_SUCCESS_MESSAGE, role.getRoleName());
         return role.getRoleName();
-    }
-
-    @Override
-    public DeleteRoleResult deleteRole() {
-        List<DeleteRolePolicyRequest> inlinePolicies = amazonIdentityManagement
-            .listRolePolicies(new ListRolePoliciesRequest()
-                .withRoleName(pipelineStackConfiguration.getCreateStackRoleName()))
-            .getPolicyNames()
-            .stream()
-            .map(policyName -> new DeleteRolePolicyRequest()
-                .withRoleName(pipelineStackConfiguration.getCreateStackRoleName())
-                .withPolicyName(policyName)).collect(Collectors.toList());
-
-        inlinePolicies.forEach(amazonIdentityManagement::deleteRolePolicy);
-        return executeDeleteRoleRequest();
-    }
-
-    private DeleteRoleResult executeDeleteRoleRequest() {
-        String roleName = pipelineStackConfiguration.getCreateStackRoleName();
-        try {
-            DeleteRoleResult result = amazonIdentityManagement.deleteRole(
-                new DeleteRoleRequest()
-                    .withRoleName(roleName));
-            return result;
-        } catch (NoSuchEntityException e) {
-            logger.warn(NON_EXISTING_ROLE_WARNING_MESSAGE, roleName);
-            return new DeleteRoleResult();
-        }
     }
 
     @Override
     public CreateRoleRequest createNewCreateRoleRequest() throws IOException {
         String assumeRolePolicy = IoUtils.resourceAsString(
             Paths.get(TEMPLATES_DIRECTORY, CREATE_STACK_ROLE_ASSUME_POLICY_JSON));
+        Tag projectIdTag = new Tag()
+            .withKey(PipelineStackConfiguration.TAG_KEY_PROJECT_ID)
+            .withValue(pipelineStackConfiguration.getProjectId());
+        Tag branch = new Tag()
+            .withKey(PipelineStackConfiguration.TAG_KEY_BRANCH_NAME)
+            .withValue(pipelineStackConfiguration.getPipelineConfiguration().getBranchName());
+        Tag role = new Tag()
+            .withKey(PipelineStackConfiguration.TAG_KEY_ROLE)
+            .withValue(ROLE_TAG_FOR_CREATE_STACK_ROLE);
+
         return new CreateRoleRequest()
             .withAssumeRolePolicyDocument(assumeRolePolicy)
             .withRoleName(this.pipelineStackConfiguration.getCreateStackRoleName())
-            .withDescription(CREATE_STACK_ROLE_DESCRIPTION);
+            .withDescription(CREATE_STACK_ROLE_DESCRIPTION)
+            .withTags(projectIdTag, branch, role);
     }
 
     @Override

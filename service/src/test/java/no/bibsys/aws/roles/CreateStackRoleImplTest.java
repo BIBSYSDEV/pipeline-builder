@@ -1,6 +1,7 @@
 package no.bibsys.aws.roles;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNot.not;
@@ -13,23 +14,17 @@ import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
 import com.amazonaws.services.identitymanagement.model.AttachRolePolicyRequest;
 import com.amazonaws.services.identitymanagement.model.CreateRoleRequest;
 import com.amazonaws.services.identitymanagement.model.CreateRoleResult;
-import com.amazonaws.services.identitymanagement.model.DeletePolicyResult;
-import com.amazonaws.services.identitymanagement.model.DeleteRoleRequest;
-import com.amazonaws.services.identitymanagement.model.DeleteRoleResult;
-import com.amazonaws.services.identitymanagement.model.DetachRolePolicyResult;
 import com.amazonaws.services.identitymanagement.model.GetRoleResult;
-import com.amazonaws.services.identitymanagement.model.ListRolePoliciesResult;
-import com.amazonaws.services.identitymanagement.model.NoSuchEntityException;
 import com.amazonaws.services.identitymanagement.model.PutRolePolicyRequest;
 import com.amazonaws.services.identitymanagement.model.PutRolePolicyResult;
 import com.amazonaws.services.identitymanagement.model.Role;
+import com.amazonaws.services.identitymanagement.model.Tag;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.testtutils.LocalStackTest;
@@ -44,7 +39,6 @@ import org.mockito.stubbing.Answer;
 
 class CreateStackRoleImplTest extends LocalStackTest {
 
-    public static final String ROLE_NAME = "roleName";
     private static final String STATEMENT = "Statement";
     private static final String SERVICE = "Service";
     private static final String PRINCIPAL = "Principal";
@@ -54,32 +48,28 @@ class CreateStackRoleImplTest extends LocalStackTest {
     private static final Path CREATE_STACK_ROLE_POLICY_DOCUMENT_JSON =
         Paths.get("..", "createStackRolePolicyDocument.json");
     private static final String ANY_CREATE_STACK_ROLE_POLICY_DOCUMENT = "Owls doobie doobie doo, says Orestis";
-    private static final String ANY_CREATE_STACK_ROLE_POLICY_NAME = "Some vague hope of meaninglessness";
     private static final String SOME_ARN = "SomeArn";
     private static final String SOME_ROLE_NAME = "someRoleName";
-    public static final String NON_EXISTING_ROLE_ERROR_MESSAGE = "Role does not exist";
 
     private transient GithubReader mockGithubReader;
-    private transient PipelineStackConfiguration mockPipelineStackConfiguration;
     private transient AmazonIdentityManagement mockAmazonIdentityManagement;
 
     @BeforeEach
     public void init() {
         mockGithubReader = mock(GithubReader.class);
-        mockPipelineStackConfiguration = mock(PipelineStackConfiguration.class);
         mockAmazonIdentityManagement = mock(AmazonIdentityManagement.class);
     }
 
     @Test
     void createStackRoleImplConstructorExists() {
-        new CreateStackRoleImpl(mockGithubReader, mockPipelineStackConfiguration,
+        new CreateStackRoleImpl(mockGithubReader, pipelineStackConfiguration,
             mockAmazonIdentityManagement);
     }
 
     @Test
     void createStackRoleRequestShouldReturnCreateRoleRequestWithAssumePolicy() throws IOException {
         CreateStackRole createStackRole = new CreateStackRoleImpl(
-            mockGithubReader, mockPipelineStackConfiguration, mockAmazonIdentityManagement);
+            mockGithubReader, pipelineStackConfiguration, mockAmazonIdentityManagement);
         CreateRoleRequest createRoleRequest = createStackRole.createNewCreateRoleRequest();
         String assumeRolePolicyDocument = createRoleRequest.getAssumeRolePolicyDocument();
         String service = getPolicyStatementPrincipalService(assumeRolePolicyDocument);
@@ -87,6 +77,29 @@ class CreateStackRoleImplTest extends LocalStackTest {
 
         assertThat(service, is(equalTo(CLOUDFORMATION_AMAZONAWS_COM)));
         assertThat(assumeRole, is(equalTo(STS_ASSUME_ROLE)));
+    }
+
+    @Test
+    void createStackRoleRequestShouldReturnCreateRoleRequestWithExpectedTags() throws IOException {
+        CreateStackRole createStackRole = new CreateStackRoleImpl(
+            mockGithubReader, pipelineStackConfiguration, mockAmazonIdentityManagement);
+        CreateRoleRequest createRoleRequest = createStackRole.createNewCreateRoleRequest();
+
+        List<Tag> actualTags = createRoleRequest.getTags();
+
+        Tag projectIdTag = new Tag()
+            .withKey(PipelineStackConfiguration.TAG_KEY_PROJECT_ID)
+            .withValue(pipelineStackConfiguration.getProjectId());
+
+        Tag branchTag = new Tag()
+            .withKey(PipelineStackConfiguration.TAG_KEY_BRANCH_NAME)
+            .withValue(pipelineStackConfiguration.getPipelineConfiguration().getBranchName());
+
+        Tag roleTag = new Tag()
+            .withKey(PipelineStackConfiguration.TAG_KEY_ROLE)
+            .withValue(CreateStackRole.ROLE_TAG_FOR_CREATE_STACK_ROLE);
+
+        assertThat(actualTags, containsInAnyOrder(projectIdTag, branchTag, roleTag));
     }
 
     @Test
@@ -100,15 +113,13 @@ class CreateStackRoleImplTest extends LocalStackTest {
     void createNewRolePolicyRequestShouldReturnPolicyRequestWithUsersPolicy()
         throws IOException, UnauthorizedException, NotFoundException {
         when(mockGithubReader.readFile(any())).thenReturn(ANY_CREATE_STACK_ROLE_POLICY_DOCUMENT);
-        when(mockPipelineStackConfiguration.getCreateStackRolePolicyName())
-            .thenReturn(ANY_CREATE_STACK_ROLE_POLICY_NAME);
 
         CreateStackRole createStackRole = new CreateStackRoleImpl(
-            mockGithubReader, mockPipelineStackConfiguration, mockAmazonIdentityManagement);
+            mockGithubReader, pipelineStackConfiguration, mockAmazonIdentityManagement);
         PutRolePolicyRequest putRolePolicyRequest = createStackRole.createNewPutRolePolicyRequest();
         String expectedPolicyDocument = ANY_CREATE_STACK_ROLE_POLICY_DOCUMENT;
         String policyDocument = putRolePolicyRequest.getPolicyDocument();
-        String expectedPolicyName = ANY_CREATE_STACK_ROLE_POLICY_NAME;
+        String expectedPolicyName = pipelineStackConfiguration.getCreateStackRolePolicyName();
 
         assertThat(policyDocument, is(equalTo(expectedPolicyDocument)));
         assertThat(putRolePolicyRequest.getPolicyName(), is(equalTo(expectedPolicyName)));
@@ -117,7 +128,7 @@ class CreateStackRoleImplTest extends LocalStackTest {
     @Test
     void createNewAttachRolePolicyRequestShouldReturnRequestContainingPolicyArnAndRoleName() {
         CreateStackRole createStackRole
-            = new CreateStackRoleImpl(mockGithubReader, mockPipelineStackConfiguration,
+            = new CreateStackRoleImpl(mockGithubReader, pipelineStackConfiguration,
             mockAmazonIdentityManagement);
         AttachRolePolicyRequest attachRolePolicyRequest
             = createStackRole.createNewAttachPolicyRequest(SOME_ARN, SOME_ROLE_NAME);
@@ -159,55 +170,9 @@ class CreateStackRoleImplTest extends LocalStackTest {
         assertThat(result, is(equalTo(pipelineStackConfiguration.getCreateStackRoleName())));
     }
 
-    @Test
-    public void deleteRoleShouldNotFailForNonExistingRole() {
-        PipelineStackConfiguration pipelineStackConfiguration = new PipelineStackConfiguration(mockGithubConf());
-        when(mockAmazonIdentityManagement.listRolePolicies(any()))
-            .thenReturn(new ListRolePoliciesResult().withPolicyNames("somePolicy"));
-        when(mockAmazonIdentityManagement.deleteRole(any())).thenThrow(new NoSuchEntityException(
-            NON_EXISTING_ROLE_ERROR_MESSAGE));
-        CreateStackRoleImpl createStackRoleImpl = new CreateStackRoleImpl(mockGithubReader, pipelineStackConfiguration,
-            mockAmazonIdentityManagement);
 
-        assertThat(createStackRoleImpl.deleteRole(), is(not(equalTo(null))));
-    }
 
-    @Test
-    void deleteRoleShouldReturnNonEmptyResult() {
 
-        GithubConf githubConf = mock(GithubConf.class);
-        when(githubConf.getBranch()).thenReturn("master-branch");
-        when(githubConf.getRepository()).thenReturn("solitary-branch");
-        when(githubConf.getOwner()).thenReturn("capital-owner");
-
-        PipelineStackConfiguration pipelineStackConfiguration = new PipelineStackConfiguration(
-            githubConf);
-
-        Map<String, String> buffer = new HashMap<>();
-
-        when(mockAmazonIdentityManagement.deleteRole(any()))
-            .thenAnswer((Answer<DeleteRoleResult>) invocation -> {
-                DeleteRoleRequest request = invocation.getArgument(0);
-                buffer.put(ROLE_NAME, request.getRoleName());
-                return new DeleteRoleResult();
-            });
-
-        when(mockAmazonIdentityManagement.deletePolicy(any())).thenReturn(new DeletePolicyResult());
-        when(mockAmazonIdentityManagement.detachRolePolicy(any()))
-            .thenReturn(new DetachRolePolicyResult());
-        when(mockAmazonIdentityManagement.listRolePolicies(any()))
-            .thenReturn(new ListRolePoliciesResult());
-
-        CreateStackRole createStackRole
-            = new CreateStackRoleImpl(mockGithubReader, pipelineStackConfiguration,
-            mockAmazonIdentityManagement);
-
-        DeleteRoleResult deleteRoleResult = createStackRole.deleteRole();
-
-        assertThat(deleteRoleResult, is(not(equalTo(null))));
-        assertThat(buffer.get(ROLE_NAME),
-            is(equalTo(pipelineStackConfiguration.getCreateStackRoleName())));
-    }
 
     private String getAssumeRole(String assumeRolePolicyDocument) throws IOException {
         JsonNode statementsArray = getAssumeRolePolicyStatement(assumeRolePolicyDocument);

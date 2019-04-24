@@ -72,7 +72,7 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
                 readFromGithubSecretReader());
 
         Application application = new Application(gitInfo, cloudFormation, s3Client, lambdaClient,
-            logsClient);
+            logsClient, amazonIdentityManagement);
         application.wipeStacks();
     }
 
@@ -82,7 +82,7 @@ public abstract class ApiHandler extends ApiGatewayHandlerTemplate<String, Strin
                 readFromGithubSecretReader());
         githubReader.setGitHubConf(gitInfo);
         Application application = new Application(gitInfo, cloudFormation, s3Client, lambdaClient,
-            logsClient);
+            logsClient, amazonIdentityManagement);
         application.createStacks(cloudFormation, amazonIdentityManagement, githubReader);
     }
 

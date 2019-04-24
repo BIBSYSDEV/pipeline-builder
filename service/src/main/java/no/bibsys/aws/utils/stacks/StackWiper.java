@@ -5,6 +5,10 @@ import com.amazonaws.services.cloudformation.model.DeleteStackRequest;
 import com.amazonaws.services.cloudformation.model.DeleteStackResult;
 import com.amazonaws.services.cloudformation.model.Stack;
 import com.amazonaws.services.cloudformation.model.StackResource;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
+import com.amazonaws.services.identitymanagement.model.ListRolesResult;
+import com.amazonaws.services.identitymanagement.model.Role;
+import com.amazonaws.services.identitymanagement.model.Tag;
 import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.model.InvocationType;
 import com.amazonaws.services.lambda.model.InvokeRequest;
@@ -19,6 +23,7 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.VersionListing;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,6 +31,8 @@ import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.cloudformation.Stage;
 import no.bibsys.aws.cloudformation.helpers.ResourceType;
 import no.bibsys.aws.cloudformation.helpers.StackResources;
+import no.bibsys.aws.roles.CreateStackRole;
+import no.bibsys.aws.roles.DeleteRoleHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,18 +48,21 @@ public class StackWiper {
     private final transient AmazonS3 s3Client;
     private final transient AWSLambda lambdaClient;
     private final transient AWSLogs logsClient;
+    private final transient AmazonIdentityManagement amazonIdentiyManagement;
 
     public StackWiper(PipelineStackConfiguration pipelineStackConfiguration,
         AmazonCloudFormation acf,
         AmazonS3 s3Client,
         AWSLambda lambdaClient,
-        AWSLogs logsClient
+        AWSLogs logsClient,
+        AmazonIdentityManagement amazonIdentityManagement
     ) {
         this.pipelineStackConfiguration = pipelineStackConfiguration;
         this.cloudFormationClient = acf;
         this.s3Client = s3Client;
         this.lambdaClient = lambdaClient;
         this.logsClient = logsClient;
+        this.amazonIdentiyManagement = amazonIdentityManagement;
     }
 
     public void wipeStacks() {
@@ -68,8 +78,46 @@ public class StackWiper {
 
         // Delete buckets first because they cannot be deleted automatically when we delete a Stack
         deleteBuckets();
+        deleteCreateStackRole();
         deleteStacks();
         deleteLogs();
+    }
+
+    private void deleteCreateStackRole() {
+        List<Role> rolesToDelete = rolesForDeletion();
+        DeleteRoleHelper deleteRoleHelper = new DeleteRoleHelper(amazonIdentiyManagement);
+        rolesToDelete.forEach(deleteRoleHelper::deleteRole);
+    }
+
+    private List<Role> rolesForDeletion() {
+        ListRolesResult rolesResult = amazonIdentiyManagement.listRoles();
+        List<Role> roles = rolesResult.getRoles();
+        return roles.stream()
+            .filter(this::roleHasCorrectTags)
+            .collect(Collectors.toList());
+    }
+
+    private boolean roleHasCorrectTags(Role role) {
+
+        Tag projectIdTag = new Tag()
+            .withKey(PipelineStackConfiguration.TAG_KEY_PROJECT_ID)
+            .withValue(pipelineStackConfiguration.getProjectId());
+
+        Tag branchTag = new Tag()
+            .withKey(PipelineStackConfiguration.TAG_KEY_BRANCH_NAME)
+            .withValue(pipelineStackConfiguration.getPipelineConfiguration().getBranchName());
+
+        Tag roleTag = new Tag()
+            .withKey(PipelineStackConfiguration.TAG_KEY_ROLE)
+            .withValue(CreateStackRole.ROLE_TAG_FOR_CREATE_STACK_ROLE);
+
+        HashSet<Tag> expectedTagSet = new HashSet<>();
+        expectedTagSet.add(projectIdTag);
+        expectedTagSet.add(branchTag);
+        expectedTagSet.add(roleTag);
+
+        final List<Tag> tags = role.getTags();
+        return tags.containsAll(expectedTagSet);
     }
 
     public void deleteBuckets() {

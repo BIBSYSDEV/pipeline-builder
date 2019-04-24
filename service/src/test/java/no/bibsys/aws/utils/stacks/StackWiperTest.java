@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.model.AmazonCloudFormationException;
 import com.amazonaws.services.cloudformation.model.DeleteStackResult;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
 import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.s3.AmazonS3;
@@ -18,15 +19,20 @@ import org.junit.jupiter.api.Test;
 
 public class StackWiperTest extends LocalStackTest {
 
+    public static final String SOME_INLINE_POLICY_NAME = "some_policy";
+
     private StackWiper stackWiper;
 
     public StackWiperTest() {
+
         AmazonCloudFormation acf = mockCloudFormationWithStack();
         AmazonS3 s3 = mockS3Client();
         AWSLambda lambda = mockLambdaClient();
         AWSLogs logsClient = initializeMockLogsClient();
+        AmazonIdentityManagement mockIdentityManagement = mockIdentityManagement(pipelineStackConfiguration);
+
         this.stackWiper = new StackWiper(pipelineStackConfiguration, acf,
-            s3, lambda, logsClient);
+            s3, lambda, logsClient, mockIdentityManagement);
     }
 
     @Test
@@ -48,7 +54,8 @@ public class StackWiperTest extends LocalStackTest {
             mockCloudFormationwithNoStack(),
             mockS3Client(),
             mockLambdaClient(),
-            initializeMockLogsClient());
+            initializeMockLogsClient(),
+            mockIdentityManagement(pipelineStackConfiguration));
         assertThrows(AmazonCloudFormationException.class, stackWiper::wipeStacks);
     }
 
