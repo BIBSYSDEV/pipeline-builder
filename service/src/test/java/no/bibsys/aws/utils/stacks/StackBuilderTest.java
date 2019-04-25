@@ -41,7 +41,7 @@ public class StackBuilderTest extends LocalStackTest {
             mockCloudFormationwithNoStack(),
             mockS3Client(),
             mockLambdaClient(),
-            initializeMockLogsClient(),
+            mockLogsClient(),
             mockAmazonIdentityManagement
         );
     }

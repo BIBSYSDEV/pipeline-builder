@@ -20,7 +20,7 @@ class ApplicationTest extends LocalStackTest {
             mockCloudFormationWithStack(),
             mockS3Client(),
             mockLambdaClient(),
-            initializeMockLogsClient(),
+            mockLogsClient(),
             null);
     }
 

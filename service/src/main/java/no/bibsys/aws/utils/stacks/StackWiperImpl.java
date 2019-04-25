@@ -6,7 +6,6 @@ import com.amazonaws.services.cloudformation.model.DeleteStackResult;
 import com.amazonaws.services.cloudformation.model.Stack;
 import com.amazonaws.services.cloudformation.model.StackResource;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
-import com.amazonaws.services.identitymanagement.model.ListRolesResult;
 import com.amazonaws.services.identitymanagement.model.Role;
 import com.amazonaws.services.identitymanagement.model.Tag;
 import com.amazonaws.services.lambda.AWSLambda;
@@ -49,7 +48,7 @@ public class StackWiperImpl implements StackWiper {
     private final transient AmazonS3 s3Client;
     private final transient AWSLambda lambdaClient;
     private final transient AWSLogs logsClient;
-    private final transient AmazonIdentityManagement amazonIdentiyManagement;
+    private final transient AmazonIdentityManagement amazonIdentityManagement;
 
     public StackWiperImpl(PipelineStackConfiguration pipelineStackConfiguration,
         AmazonCloudFormation acf,
@@ -63,7 +62,7 @@ public class StackWiperImpl implements StackWiper {
         this.s3Client = s3Client;
         this.lambdaClient = lambdaClient;
         this.logsClient = logsClient;
-        this.amazonIdentiyManagement = amazonIdentityManagement;
+        this.amazonIdentityManagement = amazonIdentityManagement;
     }
 
     @Override
@@ -87,14 +86,15 @@ public class StackWiperImpl implements StackWiper {
 
     private void deleteCreateStackRole() {
         List<Role> rolesToDelete = rolesForDeletion();
-        DeleteRoleHelper deleteRoleHelper = new DeleteRoleHelper(amazonIdentiyManagement);
+        DeleteRoleHelper deleteRoleHelper = new DeleteRoleHelper(amazonIdentityManagement);
         rolesToDelete.forEach(deleteRoleHelper::deleteRole);
     }
 
     protected List<Role> rolesForDeletion() {
-        ListRolesResult rolesResult = amazonIdentiyManagement.listRoles();
-        List<Role> roles = rolesResult.getRoles();
-        return roles.stream()
+        return amazonIdentityManagement
+            .listRoles()
+            .getRoles()
+            .stream()
             .filter(this::roleHasCorrectTags)
             .collect(Collectors.toList());
     }

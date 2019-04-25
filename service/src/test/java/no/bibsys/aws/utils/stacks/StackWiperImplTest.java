@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -13,6 +14,10 @@ import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.model.AmazonCloudFormationException;
 import com.amazonaws.services.cloudformation.model.DeleteStackResult;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
+import com.amazonaws.services.identitymanagement.model.DeleteRolePolicyResult;
+import com.amazonaws.services.identitymanagement.model.DeleteRoleRequest;
+import com.amazonaws.services.identitymanagement.model.DeleteRoleResult;
+import com.amazonaws.services.identitymanagement.model.ListRolePoliciesResult;
 import com.amazonaws.services.identitymanagement.model.ListRolesResult;
 import com.amazonaws.services.identitymanagement.model.Role;
 import com.amazonaws.services.identitymanagement.model.Tag;
@@ -28,13 +33,21 @@ import org.junit.jupiter.api.Test;
 
 public class StackWiperImplTest extends LocalStackTest {
 
-    public static final String WELL_FORMED_ROLE_NAME = "wellFormedRole";
-    public static final String ILLFORMED_ROLE_NAME = "illformedRole";
+    public static final int EXPECTED_NUMBER_OF_DELETED_ROLES = 1;
+    public static final int INVOCATION_ARGUMENT = 0;
+    private static final String ILLFORMED_ROLE_NAME = "illformedRole";
+    private static final String[] SOME_POLICIES = {"policy1", "policy2"};
     private static final String SOME_TAG_KEY = "someKey";
     private static final String SOME_TAG_VALUE = "someTagValue";
     private static final String SOME_ROLE_TAG = "someRoleTag";
     private static final String SOME_BRANCH = "someBranch";
     private static final String SOME_PROJECT = "someProject";
+    private static final int LIST_ROLE_POLICIES = 1;
+    private static final int LIST_ROLES_LIST_ROLE_POLICIES_DELETE_ROLE_POLICIES_DELETE_ROLE = 4;
+    private static final int CALLED_LIST_POLICIES = 1;
+    private static final int CALLED_LIST_ROLES = 0;
+    private static final int DELETE_ROLE_POLICIES = 2;
+    private static final int DELETE_ROLE = 3;
     private StackWiperImpl stackWiper;
 
     public StackWiperImplTest() {
@@ -42,7 +55,7 @@ public class StackWiperImplTest extends LocalStackTest {
         AmazonCloudFormation acf = mockCloudFormationWithStack();
         AmazonS3 s3 = mockS3Client();
         AWSLambda lambda = mockLambdaClient();
-        AWSLogs logsClient = initializeMockLogsClient();
+        AWSLogs logsClient = mockLogsClient();
         AmazonIdentityManagement mockIdentityManagement = mockIdentityManagement(pipelineStackConfiguration);
 
         this.stackWiper = new StackWiperImpl(pipelineStackConfiguration, acf,
@@ -126,7 +139,7 @@ public class StackWiperImplTest extends LocalStackTest {
         AmazonCloudFormation acf = mockCloudFormationWithStack();
         AmazonS3 s3 = mockS3Client();
         AWSLambda lambda = mockLambdaClient();
-        AWSLogs logsClient = initializeMockLogsClient();
+        AWSLogs logsClient = mockLogsClient();
 
         AmazonIdentityManagement mockIam = mock(AmazonIdentityManagement.class);
 
@@ -141,8 +154,59 @@ public class StackWiperImplTest extends LocalStackTest {
     }
 
     @Test
-    public void deleteCreateStackRoleShouldDeleteInlinePoliciesOfthRole() {
-        assertThat(false, is(true));
+    public void deleteCreateStackRoleShouldMakeCallsToDeleteARoleAndItsPolicies() {
+
+        AmazonIdentityManagement iam = mock(AmazonIdentityManagement.class);
+        boolean[] calledApisList = new boolean[LIST_ROLES_LIST_ROLE_POLICIES_DELETE_ROLE_POLICIES_DELETE_ROLE];
+
+        iam = setUpListRoles(iam, calledApisList);
+        iam = setUpListRolePolicies(iam, calledApisList);
+        iam = setUpDeleteRolePolicies(iam, calledApisList);
+        iam = setUpDeleteRole(iam, calledApisList);
+
+        StackWiper stackWiper = new StackWiperImpl(pipelineStackConfiguration,
+            mockCloudFormationWithStack(),
+            mockS3Client(),
+            mockLambdaClient(),
+            mockLogsClient(),
+            iam);
+        stackWiper.wipeStacks();
+
+        assertThat(calledApisList[CALLED_LIST_ROLES], is(true));
+        assertThat(calledApisList[CALLED_LIST_POLICIES], is(true));
+        assertThat(calledApisList[DELETE_ROLE_POLICIES], is(true));
+        assertThat(calledApisList[DELETE_ROLE], is(true));
+    }
+
+    @Test
+    public void deleteCreateStackRoleShouldDeleteOnlyTheAppropriateRole() {
+        AmazonIdentityManagement iam = mock(AmazonIdentityManagement.class);
+
+        when(iam.listRoles()).thenReturn(new ListRolesResult().withRoles(createWellFormedRole(),
+            createIllformedRole()));
+
+        when(iam.listRolePolicies(any())).thenReturn(new ListRolePoliciesResult().withPolicyNames(SOME_POLICIES));
+
+        List<String> deletedRolenames = new ArrayList<>();
+        when(iam.deleteRole(any())).thenAnswer(invocation -> {
+
+            DeleteRoleRequest request = invocation.getArgument(INVOCATION_ARGUMENT);
+            String roleName = request.getRoleName();
+            deletedRolenames.add(roleName);
+            return new DeleteRoleResult();
+        });
+
+        StackWiper stackWiper = new StackWiperImpl(pipelineStackConfiguration,
+            mockCloudFormationWithStack(),
+            mockS3Client(),
+            mockLambdaClient(),
+            mockLogsClient(),
+            iam);
+        stackWiper.wipeStacks();
+
+        assertThat(deletedRolenames.size(), is(equalTo(EXPECTED_NUMBER_OF_DELETED_ROLES)));
+        assertThat(deletedRolenames, contains(pipelineStackConfiguration.getCreateStackRoleName()));
+        assertThat(deletedRolenames, not(contains(createIllformedRole().getRoleName())));
     }
 
     @Test
@@ -164,7 +228,7 @@ public class StackWiperImplTest extends LocalStackTest {
             mockCloudFormationwithNoStack(),
             mockS3Client(),
             mockLambdaClient(),
-            initializeMockLogsClient(),
+            mockLogsClient(),
             mockIdentityManagement(pipelineStackConfiguration));
         assertThrows(AmazonCloudFormationException.class, stackWiper::wipeStacks);
     }
@@ -191,6 +255,44 @@ public class StackWiperImplTest extends LocalStackTest {
         Tag projectTag = new Tag().withKey(PipelineStackConfiguration.TAG_KEY_PROJECT_ID)
             .withValue(pipelineStackConfiguration.getProjectId());
 
-        return new Role().withTags(roleTag, branchTag, projectTag).withRoleName(WELL_FORMED_ROLE_NAME);
+        return new Role().withTags(roleTag, branchTag, projectTag)
+            .withRoleName(pipelineStackConfiguration.getCreateStackRoleName());
+    }
+
+    private AmazonIdentityManagement setUpDeleteRole(AmazonIdentityManagement mockIam, boolean[] calledApisList) {
+        when(mockIam.deleteRole(any())).thenAnswer(invocation -> {
+            calledApisList[DELETE_ROLE] = true;
+            return new DeleteRoleResult();
+        });
+        return mockIam;
+    }
+
+    private AmazonIdentityManagement setUpDeleteRolePolicies(AmazonIdentityManagement mockIam,
+        boolean[] calledApisList) {
+        when(mockIam.deleteRolePolicy(any())).thenAnswer(invocation -> {
+            calledApisList[DELETE_ROLE_POLICIES] = true;
+            return new DeleteRolePolicyResult();
+        });
+        return mockIam;
+    }
+
+    private AmazonIdentityManagement setUpListRoles(AmazonIdentityManagement mockIam, boolean[] calledApisList) {
+        when(mockIam.listRoles()).thenAnswer(invocation -> {
+            calledApisList[CALLED_LIST_ROLES] = true;
+            return new ListRolesResult()
+                .withRoles(createWellFormedRole());
+        });
+        return mockIam;
+    }
+
+    private AmazonIdentityManagement setUpListRolePolicies(AmazonIdentityManagement mockIam,
+        boolean[] calledListPolices) {
+        when(mockIam.listRolePolicies(any())).thenAnswer(invocation -> {
+                calledListPolices[CALLED_LIST_POLICIES] = true;
+                return new ListRolePoliciesResult().withPolicyNames(SOME_POLICIES);
+            }
+        );
+
+        return mockIam;
     }
 }

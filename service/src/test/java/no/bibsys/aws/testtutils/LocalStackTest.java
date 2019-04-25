@@ -132,6 +132,7 @@ public class LocalStackTest extends GithubTestUtilities {
     }
 
     protected static AmazonIdentityManagement mockIdentityManagement(
+
         PipelineStackConfiguration pipelineStackConfiguration) {
         AmazonIdentityManagement mockAmazonIdentityManagement = mock(
             AmazonIdentityManagement.class);
@@ -155,8 +156,9 @@ public class LocalStackTest extends GithubTestUtilities {
                 .withRoles(new Role().withRoleName(pipelineStackConfiguration.getCreateStackRoleName())));
 
         when(mockAmazonIdentityManagement.listRolePolicies(any()))
-            .thenReturn(new ListRolePoliciesResult().withPolicyNames(
-                SOME_INLINE_POLICY_NAME));
+            .thenAnswer(invocation ->
+                new ListRolePoliciesResult().withPolicyNames(SOME_INLINE_POLICY_NAME)
+            );
 
         return mockAmazonIdentityManagement;
     }
@@ -215,7 +217,7 @@ public class LocalStackTest extends GithubTestUtilities {
         return lambdaClient;
     }
 
-    protected AWSLogs initializeMockLogsClient() {
+    protected AWSLogs mockLogsClient() {
         AWSLogs logsClient = mock(AWSLogs.class);
         when(logsClient.describeLogGroups()).thenReturn(new DescribeLogGroupsResult()
             .withLogGroups(Collections.emptyList()));
