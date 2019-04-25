@@ -3,7 +3,7 @@
 def awsSdkVersion = '1.11.534'
 
 dependencies{
-    implementation 'no.bibsys.aws:aws-build-tools:1.5.2'
+    implementation 'no.bibsys.aws:aws-build-tools:1.5.3'
    
     // useful java libraries
     implementation group: 'com.google.guava', name: 'guava', version: '27.0-jre'
