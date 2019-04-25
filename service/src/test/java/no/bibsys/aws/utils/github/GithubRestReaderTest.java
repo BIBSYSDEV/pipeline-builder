@@ -13,15 +13,17 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import no.bibsys.aws.git.github.GithubConf;
+import no.bibsys.aws.testtutils.LocalStackTest;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.Test;
 
-class GithubRestReaderTest extends GithubTestUtilities {
+class GithubRestReaderTest extends LocalStackTest {
 
     private static final String OWNER = "owner";
     private static final String REPO = "repo";
@@ -59,9 +61,10 @@ class GithubRestReaderTest extends GithubTestUtilities {
 
         GithubRestReader githubRestReader = new GithubRestReader(httpClient)
             .setGitHubConf(githubConf);
-        String result = githubRestReader.executeRequest(githubRestReader.createRequest(URL));
+        Optional<String> result = githubRestReader.executeRequest(githubRestReader.createRequest(URL));
 
-        assertThat(result, is(equalTo(EXPECTED_RESPONSE)));
+        assertThat(result.isPresent(), is(true));
+        assertThat(result.get(), is(equalTo(EXPECTED_RESPONSE)));
     }
 
     @Test
@@ -79,18 +82,13 @@ class GithubRestReaderTest extends GithubTestUtilities {
     }
 
     @Test
-    public void executeRequestShouldThrowExceptionOnInvalidUrl() throws IOException {
+    public void executeRequestShouldReturnEmptyOptionalForMissingFile()
+        throws IOException, UnauthorizedException, NotFoundException {
 
-        CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
-        CloseableHttpResponse mockHttpResponse = mock(CloseableHttpResponse.class);
-
-        when(mockHttpResponse.getStatusLine()).thenReturn(STATUS_LINE_NOT_FOUND);
-        when(httpClient.execute(any())).thenReturn(mockHttpResponse);
-
-        GithubRestReader githubRestReader = new GithubRestReader(httpClient)
+        GithubRestReader githubRestReader = new GithubRestReader(mockHttpClientReturningNotFound())
             .setGitHubConf(githubConf);
-        assertThrows(NotFoundException.class,
-            () -> githubRestReader.executeRequest(githubRestReader.createRequest(URL)));
+        assertThat(githubRestReader.executeRequest(githubRestReader.createRequest(URL)).isPresent(),
+            is(equalTo(false)));
     }
 
     @Test

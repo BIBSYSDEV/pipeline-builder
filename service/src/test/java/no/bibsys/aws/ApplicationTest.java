@@ -17,10 +17,11 @@ class ApplicationTest extends LocalStackTest {
         GithubConf githubConf = new GithubConf("owner", "repository", "branch",
             mockSecretsReader());
         application = new Application(githubConf,
-            initializeMockCloudFormation(),
-            initializeS3(),
-            initializeLambdaClient(),
-            initializeMockLogsClient());
+            mockCloudFormationWithStack(),
+            mockS3Client(),
+            mockLambdaClient(),
+            mockLogsClient(),
+            null);
     }
 
     @Test

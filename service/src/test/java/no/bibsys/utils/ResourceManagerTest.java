@@ -21,7 +21,7 @@ public class ResourceManagerTest extends ResourceManager {
     private static final String MASTER_BRANCH = "master";
 
     public ResourceManagerTest() {
-        super(new LocalStackTest().initializeMockCloudFormation());
+        super(new LocalStackTest().mockCloudFormationWithStack());
     }
 
     @Test

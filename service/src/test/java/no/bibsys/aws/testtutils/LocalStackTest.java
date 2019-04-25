@@ -28,6 +28,8 @@ import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
 import com.amazonaws.services.identitymanagement.model.CreateRoleRequest;
 import com.amazonaws.services.identitymanagement.model.CreateRoleResult;
 import com.amazonaws.services.identitymanagement.model.GetRoleResult;
+import com.amazonaws.services.identitymanagement.model.ListRolePoliciesResult;
+import com.amazonaws.services.identitymanagement.model.ListRolesResult;
 import com.amazonaws.services.identitymanagement.model.PutRolePolicyResult;
 import com.amazonaws.services.identitymanagement.model.Role;
 import com.amazonaws.services.lambda.AWSLambda;
@@ -59,7 +61,6 @@ import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.tools.IoUtils;
 import no.bibsys.aws.tools.JsonUtils;
 import no.bibsys.aws.utils.github.GithubReader;
-import no.bibsys.aws.utils.github.GithubTestUtilities;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -68,12 +69,12 @@ import org.mockito.stubbing.Answer;
 
 public class LocalStackTest extends GithubTestUtilities {
 
-    private static final Region ARBITRARY_REGION = Region.getRegion(Regions.EU_WEST_1);
+    public static final String SOME_MESSAGE = "some message";
     protected static final String APPROVE_ALL_KEYS = null;
+    protected static final String TEST_STACK = "testStack";
+    private static final Region ARBITRARY_REGION = Region.getRegion(Regions.EU_WEST_1);
     private static final int ENV_VARIABLE_NAME = 0;
     private static final String ARBITRARY_SECRET_KEY = "secretKey";
-
-    protected static final String TEST_STACK = "testStack";
     private static final String SOME_REPO_OWNER = "owner";
     private static final String SOME_REPO = "repo";
     private static final String SOME_GIT_BRANCH = "branch";
@@ -91,18 +92,12 @@ public class LocalStackTest extends GithubTestUtilities {
     private static final String MOCK_BASEPATH_PREFIX = "basepath.for.";
     private static final String OPENAPI_RESOURCES_FOLDER = "openapi";
     private static final String OPENAPI_FILE = "openapi.yml";
-    public static final String SOME_MESSAGE = "some message";
-
+    private static final String SOME_INLINE_POLICY_NAME = "some_inline_policy";
     protected final transient PipelineStackConfiguration pipelineStackConfiguration;
 
     public LocalStackTest() {
         GithubConf gitInfo = mockGithubConf();
         pipelineStackConfiguration = new PipelineStackConfiguration(gitInfo);
-    }
-
-    public GithubConf mockGithubConf() {
-        return new GithubConf(SOME_REPO_OWNER, SOME_REPO, SOME_GIT_BRANCH,
-            mockSecretsReader());
     }
 
     public static SecretsReader mockSecretsReader() {
@@ -135,6 +130,43 @@ public class LocalStackTest extends GithubTestUtilities {
         return mockEnvironment(Collections.singletonMap(envVariable, value));
     }
 
+    protected static AmazonIdentityManagement mockIdentityManagement(
+
+        PipelineStackConfiguration pipelineStackConfiguration) {
+        AmazonIdentityManagement mockAmazonIdentityManagement = mock(
+            AmazonIdentityManagement.class);
+
+        when(mockAmazonIdentityManagement.createRole(any()))
+            .thenAnswer((Answer<CreateRoleResult>) invocation -> {
+                CreateRoleRequest request = invocation.getArgument(0);
+                return new CreateRoleResult()
+                    .withRole(new Role().withRoleName(request.getRoleName()));
+            });
+
+        when(mockAmazonIdentityManagement.putRolePolicy(any()))
+            .thenReturn(new PutRolePolicyResult());
+
+        when(mockAmazonIdentityManagement.getRole(any()))
+            .thenReturn(new GetRoleResult().withRole(new Role()
+                .withRoleName(pipelineStackConfiguration.getCreateStackRoleName())));
+
+        when(mockAmazonIdentityManagement.listRoles())
+            .thenReturn(new ListRolesResult()
+                .withRoles(new Role().withRoleName(pipelineStackConfiguration.getCreateStackRoleName())));
+
+        when(mockAmazonIdentityManagement.listRolePolicies(any()))
+            .thenAnswer(invocation ->
+                new ListRolePoliciesResult().withPolicyNames(SOME_INLINE_POLICY_NAME)
+            );
+
+        return mockAmazonIdentityManagement;
+    }
+
+    public GithubConf mockGithubConf() {
+        return new GithubConf(SOME_REPO_OWNER, SOME_REPO, SOME_GIT_BRANCH,
+            mockSecretsReader());
+    }
+
     public GithubHandler getGithubHandlerWithMockSecretsReader(Environment environment)
         throws IOException {
 
@@ -150,26 +182,6 @@ public class LocalStackTest extends GithubTestUtilities {
             mockIdentityManagement(pipelineStackConfiguration),
             mockGithubReader()
         );
-    }
-
-    protected static AmazonIdentityManagement mockIdentityManagement(
-        PipelineStackConfiguration pipelineStackConfiguration) {
-        AmazonIdentityManagement mockAmazonIdentityManagement = mock(
-            AmazonIdentityManagement.class);
-        when(mockAmazonIdentityManagement.createRole(any()))
-            .thenAnswer((Answer<CreateRoleResult>) invocation -> {
-                CreateRoleRequest request = invocation.getArgument(0);
-                return new CreateRoleResult()
-                    .withRole(new Role().withRoleName(request.getRoleName()));
-            });
-
-        when(mockAmazonIdentityManagement.putRolePolicy(any()))
-            .thenReturn(new PutRolePolicyResult());
-
-        when(mockAmazonIdentityManagement.getRole(any()))
-            .thenReturn(new GetRoleResult().withRole(new Role()
-                .withRoleName(pipelineStackConfiguration.getCreateStackRoleName())));
-        return mockAmazonIdentityManagement;
     }
 
     protected GithubReader mockGithubReader() throws IOException {
@@ -197,21 +209,21 @@ public class LocalStackTest extends GithubTestUtilities {
             .withHostedZones(hostedZone);
     }
 
-    protected AWSLambda initializeLambdaClient() {
+    protected AWSLambda mockLambdaClient() {
         AWSLambda lambdaClient = mock(AWSLambda.class);
         when(lambdaClient.invoke(any())).thenAnswer(invocation -> new InvokeResult()
             .withStatusCode(HttpStatus.SC_OK));
         return lambdaClient;
     }
 
-    protected AWSLogs initializeMockLogsClient() {
+    protected AWSLogs mockLogsClient() {
         AWSLogs logsClient = mock(AWSLogs.class);
         when(logsClient.describeLogGroups()).thenReturn(new DescribeLogGroupsResult()
             .withLogGroups(Collections.emptyList()));
         return logsClient;
     }
 
-    public AmazonCloudFormation initializeMockCloudFormation() {
+    public AmazonCloudFormation mockCloudFormationWithStack() {
         AmazonCloudFormation cloudFormation = mock(AmazonCloudFormation.class);
 
         when(cloudFormation.listStacks()).thenReturn(listWithStackSummaries());
@@ -263,7 +275,7 @@ public class LocalStackTest extends GithubTestUtilities {
         return new GetDomainNameResult().withRegionalDomainName(regionalDomainName);
     }
 
-    protected AmazonS3 initializeS3() {
+    protected AmazonS3 mockS3Client() {
         AmazonS3 s3 = mock(AmazonS3.class);
         when(s3.listVersions(any()))
             .then(invocation -> listVersionsAnswer())
@@ -273,6 +285,16 @@ public class LocalStackTest extends GithubTestUtilities {
             .then((Answer<ObjectListing>) invocation -> objectListingAnswer())
             .thenReturn(new ObjectListing());
         return s3;
+    }
+
+    protected CloseableHttpClient mockHttpClientReturningNotFound() throws IOException {
+        CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
+        CloseableHttpResponse response = mock(CloseableHttpResponse.class);
+
+        when(httpClient.execute(any())).thenReturn(response);
+        when(response.getEntity()).thenReturn(simpleResponse);
+        when(response.getStatusLine()).thenReturn(STATUS_LINE_NOT_FOUND);
+        return httpClient;
     }
 
     private ObjectListing objectListingAnswer() {

@@ -23,6 +23,7 @@ import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.utils.github.GithubReader;
 import no.bibsys.aws.utils.stacks.StackBuilder;
 import no.bibsys.aws.utils.stacks.StackWiper;
+import no.bibsys.aws.utils.stacks.StackWiperImpl;
 import org.apache.http.impl.client.HttpClients;
 
 public class Application {
@@ -51,12 +52,14 @@ public class Application {
         AmazonCloudFormation acf,
         AmazonS3 s3Client,
         AWSLambda lambdaClient,
-        AWSLogs logsClient) {
+        AWSLogs logsClient,
+        AmazonIdentityManagement amazonIdentityManagement) {
         this.pipelineStackConfiguration = new PipelineStackConfiguration(gitInfo);
         this.repoName = gitInfo.getRepository();
         this.branch = gitInfo.getBranch();
 
-        wiper = new StackWiper(pipelineStackConfiguration, acf, s3Client, lambdaClient, logsClient);
+        wiper = new StackWiperImpl(pipelineStackConfiguration, acf, s3Client, lambdaClient, logsClient,
+            amazonIdentityManagement);
         checkNulls();
     }
 
@@ -76,8 +79,11 @@ public class Application {
         AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
         AWSLambda lambdaClient = AWSLambdaClientBuilder.defaultClient();
         AWSLogs logsClient = AWSLogsClientBuilder.defaultClient();
+        AmazonIdentityManagement amazonIdentityManagement = AmazonIdentityManagementClientBuilder.defaultClient();
+
+
         Application application = new Application(gitInfo, cloudFormation, s3Client, lambdaClient,
-            logsClient);
+            logsClient, amazonIdentityManagement);
         if (Action.CREATE.equals(Action.fromString(action))) {
             application
                 .createStacks(cloudFormation, AmazonIdentityManagementClientBuilder.defaultClient(),

@@ -35,9 +35,9 @@ public abstract class ResourceHandler extends CodePipelineFunctionHandlerTemplat
     protected transient AmazonApiGateway apiGatewayClient;
     protected transient SecretsReader swaggerHubSecretsReader;
     protected transient AmazonRoute53 route53Client;
-    private transient String swagerApiId;
-    private transient String swagerApiVersion;
-    private transient String swagerApiOwner;
+    private transient String swaggerApiId;
+    private transient String swaggerApiVersion;
+    private transient String swaggerApiOwner;
     private transient String zoneName;
     private transient String applicationUrl;
 
@@ -56,9 +56,9 @@ public abstract class ResourceHandler extends CodePipelineFunctionHandlerTemplat
         this.branch = environment.readEnv(EnvironmentConstants.BRANCH);
         this.applicationUrl = environment.readEnv(EnvironmentConstants.APPLICATION_URL);
 
-        this.swagerApiId = environment.readEnv(EnvironmentConstants.SWAGGER_API_ID);
-        this.swagerApiVersion = environment.readEnv(EnvironmentConstants.SWAGGER_API_VERSION);
-        this.swagerApiOwner = environment.readEnv(EnvironmentConstants.SWAGGER_API_OWNER);
+        this.swaggerApiId = environment.readEnv(EnvironmentConstants.SWAGGER_API_ID);
+        this.swaggerApiVersion = environment.readEnv(EnvironmentConstants.SWAGGER_API_VERSION);
+        this.swaggerApiOwner = environment.readEnv(EnvironmentConstants.SWAGGER_API_OWNER);
 
         this.zoneName = environment.readEnv(EnvironmentConstants.ZONE_NAME_ENV);
         this.stackName = environment.readEnv(EnvironmentConstants.STACK_NAME);
@@ -88,7 +88,7 @@ public abstract class ResourceHandler extends CodePipelineFunctionHandlerTemplat
 
     protected SwaggerHubInfo initializeSwaggerHubInfo() {
 
-        return new SwaggerHubInfo(swagerApiId, swagerApiVersion, swagerApiOwner,
+        return new SwaggerHubInfo(swaggerApiId, swaggerApiVersion, swaggerApiOwner,
             swaggerHubSecretsReader);
     }
 

@@ -42,9 +42,9 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
     @Test
     public void processInput_closeRequest_actionClose() throws Exception {
         UpdateStackRequestHandler handler = new UpdateStackRequestHandler(mockEnvironment(),
-            initializeMockCloudFormation(),
-            initializeS3(), initializeLambdaClient(),
-            initializeMockLogsClient(),
+            mockCloudFormationWithStack(),
+            mockS3Client(), mockLambdaClient(),
+            mockLogsClient(),
             mockSecretsReader(),
             mockSecretsReader(),
             mockIdentityManagement(pipelineStackConfiguration),
@@ -63,9 +63,9 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
     @Test
     public void processInput_createStackRequest_actionCreate() throws Exception {
         UpdateStackRequestHandler handler = new UpdateStackRequestHandler(mockEnvironment(),
-            initializeMockCloudFormation(),
-            initializeS3(), initializeLambdaClient(),
-            initializeMockLogsClient(),
+            mockCloudFormationWithStack(),
+            mockS3Client(), mockLambdaClient(),
+            mockLogsClient(),
             mockSecretsReader(),
             mockSecretsReader(),
             mockIdentityManagement(pipelineStackConfiguration),
@@ -111,10 +111,10 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
 
         UpdateStackRequestHandler handler = new UpdateStackRequestHandler(
             env,
-            initializeMockCloudFormation(),
-            initializeS3(),
-            initializeLambdaClient(),
-            initializeMockLogsClient(),
+            mockCloudFormationWithStack(),
+            mockS3Client(),
+            mockLambdaClient(),
+            mockLogsClient(),
             mockSecretsReader(),
             mockSecretsReader(),
             mockIdentityManagement(pipelineStackConfiguration),
