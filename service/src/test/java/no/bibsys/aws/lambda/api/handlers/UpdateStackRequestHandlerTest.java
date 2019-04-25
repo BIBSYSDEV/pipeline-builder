@@ -47,7 +47,7 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
             mockLogsClient(),
             mockSecretsReader(),
             mockSecretsReader(),
-            mockIdentityManagement(pipelineStackConfiguration),
+            mockIdentityManagement(pipelineStackConfiguration, createWellFormedRole()),
             mockGithubReader()
 
         );
@@ -68,7 +68,7 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
             mockLogsClient(),
             mockSecretsReader(),
             mockSecretsReader(),
-            mockIdentityManagement(pipelineStackConfiguration),
+            mockIdentityManagement(pipelineStackConfiguration, createWellFormedRole()),
             mockGithubReader()
         );
 

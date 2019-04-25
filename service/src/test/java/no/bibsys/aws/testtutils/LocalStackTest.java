@@ -29,9 +29,11 @@ import com.amazonaws.services.identitymanagement.model.CreateRoleRequest;
 import com.amazonaws.services.identitymanagement.model.CreateRoleResult;
 import com.amazonaws.services.identitymanagement.model.GetRoleResult;
 import com.amazonaws.services.identitymanagement.model.ListRolePoliciesResult;
+import com.amazonaws.services.identitymanagement.model.ListRoleTagsResult;
 import com.amazonaws.services.identitymanagement.model.ListRolesResult;
 import com.amazonaws.services.identitymanagement.model.PutRolePolicyResult;
 import com.amazonaws.services.identitymanagement.model.Role;
+import com.amazonaws.services.identitymanagement.model.Tag;
 import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.model.InvokeResult;
 import com.amazonaws.services.logs.AWSLogs;
@@ -55,6 +57,7 @@ import no.bibsys.aws.cloudformation.helpers.ResourceType;
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.lambda.EnvironmentConstants;
 import no.bibsys.aws.lambda.api.handlers.GithubHandler;
+import no.bibsys.aws.roles.CreateStackRole;
 import no.bibsys.aws.secrets.GithubSignatureChecker;
 import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.tools.Environment;
@@ -93,7 +96,10 @@ public class LocalStackTest extends GithubTestUtilities {
     private static final String OPENAPI_RESOURCES_FOLDER = "openapi";
     private static final String OPENAPI_FILE = "openapi.yml";
     private static final String SOME_INLINE_POLICY_NAME = "some_inline_policy";
+    private static final String ILLFORMED_ROLE_NAME = "illformedRole";
+
     protected final transient PipelineStackConfiguration pipelineStackConfiguration;
+
 
     public LocalStackTest() {
         GithubConf gitInfo = mockGithubConf();
@@ -160,6 +166,13 @@ public class LocalStackTest extends GithubTestUtilities {
             );
 
         return mockAmazonIdentityManagement;
+    }
+
+    protected static AmazonIdentityManagement mockIdentityManagement(PipelineStackConfiguration
+        pipelineStackConfiguration, Role role) {
+        AmazonIdentityManagement iam = mockIdentityManagement(pipelineStackConfiguration);
+        when(iam.listRoleTags(any())).thenReturn(new ListRoleTagsResult().withTags(role.getTags()));
+        return iam;
     }
 
     public GithubConf mockGithubConf() {
@@ -353,5 +366,26 @@ public class LocalStackTest extends GithubTestUtilities {
                 new Stack().withStackName(PIPELINE_STACK)
 
             );
+    }
+
+    protected Role createRoleMissingOneTag() {
+        Tag roleTag = new Tag().withKey(PipelineStackConfiguration.TAG_KEY_ROLE)
+            .withValue(CreateStackRole.ROLE_TAG_FOR_CREATE_STACK_ROLE);
+        Tag branchTag = new Tag().withKey(PipelineStackConfiguration.TAG_KEY_BRANCH_NAME)
+            .withValue(pipelineStackConfiguration.getPipelineConfiguration().getBranchName());
+
+        return new Role().withTags(roleTag, branchTag).withRoleName(ILLFORMED_ROLE_NAME);
+    }
+
+    protected Role createWellFormedRole() {
+        Tag roleTag = new Tag().withKey(PipelineStackConfiguration.TAG_KEY_ROLE)
+            .withValue(CreateStackRole.ROLE_TAG_FOR_CREATE_STACK_ROLE);
+        Tag branchTag = new Tag().withKey(PipelineStackConfiguration.TAG_KEY_BRANCH_NAME)
+            .withValue(pipelineStackConfiguration.getPipelineConfiguration().getBranchName());
+        Tag projectTag = new Tag().withKey(PipelineStackConfiguration.TAG_KEY_PROJECT_ID)
+            .withValue(pipelineStackConfiguration.getProjectId());
+
+        return new Role().withTags(roleTag, branchTag, projectTag)
+            .withRoleName(pipelineStackConfiguration.getCreateStackRoleName());
     }
 }

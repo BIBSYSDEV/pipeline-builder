@@ -6,6 +6,7 @@ import com.amazonaws.services.cloudformation.model.DeleteStackResult;
 import com.amazonaws.services.cloudformation.model.Stack;
 import com.amazonaws.services.cloudformation.model.StackResource;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
+import com.amazonaws.services.identitymanagement.model.ListRoleTagsRequest;
 import com.amazonaws.services.identitymanagement.model.Role;
 import com.amazonaws.services.identitymanagement.model.Tag;
 import com.amazonaws.services.lambda.AWSLambda;
@@ -87,6 +88,9 @@ public class StackWiperImpl implements StackWiper {
 
     private void deleteCreateStackRole() {
         List<Role> rolesToDelete = rolesForDeletion();
+        List<String> roleNames = rolesToDelete.stream().map(Role::getRoleName).collect(Collectors.toList());
+        String roleNamesList = String.join(",", roleNames);
+        logger.info("Deleting roles:{}", roleNamesList);
         DeleteRoleHelper deleteRoleHelper = new DeleteRoleHelper(amazonIdentityManagement);
         rolesToDelete.forEach(deleteRoleHelper::deleteRole);
     }
@@ -118,8 +122,9 @@ public class StackWiperImpl implements StackWiper {
         expectedTagSet.add(projectIdTag);
         expectedTagSet.add(branchTag);
         expectedTagSet.add(roleTag);
+        List<Tag> tags = amazonIdentityManagement
+            .listRoleTags(new ListRoleTagsRequest().withRoleName(role.getRoleName())).getTags();
 
-        final List<Tag> tags = role.getTags();
         return tags.containsAll(expectedTagSet);
     }
 

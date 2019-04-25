@@ -41,7 +41,7 @@ public class GithubHandlerTest extends LocalStackTest {
             signatureChecker,
             mockSecretsReader(),
             mockSecretsReader(),
-            mockIdentityManagement(pipelineStackConfiguration),
+            mockIdentityManagement(pipelineStackConfiguration, createWellFormedRole()),
             mockGithubReader()
         );
         String githubCloseRequest = IoUtils.resourceAsString(Paths.get(GITHUB_RESOURCES_FOLDER,
@@ -64,7 +64,7 @@ public class GithubHandlerTest extends LocalStackTest {
             signatureChecker,
             mockSecretsReader(),
             mockSecretsReader(),
-            mockIdentityManagement(pipelineStackConfiguration),
+            mockIdentityManagement(pipelineStackConfiguration, createWellFormedRole()),
             mockGithubReader()
         );
         String githubCloseRequest = IoUtils.resourceAsString(Paths.get(GITHUB_RESOURCES_FOLDER,
@@ -88,7 +88,7 @@ public class GithubHandlerTest extends LocalStackTest {
             signatureChecker,
             mockSecretsReader(),
             mockSecretsReader(),
-            mockIdentityManagement(pipelineStackConfiguration),
+            mockIdentityManagement(pipelineStackConfiguration, createWellFormedRole()),
             mockGithubReader()
         );
         String githubCloseRequest = IoUtils.resourceAsString(Paths.get(GITHUB_RESOURCES_FOLDER,
