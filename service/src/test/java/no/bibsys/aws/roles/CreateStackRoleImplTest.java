@@ -1,11 +1,14 @@
 package no.bibsys.aws.roles;
 
+import static no.bibsys.aws.roles.CreateStackRoleImpl.MISSING_CONFIGURATION_EXCEPTION_MESSAGE;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.text.IsEmptyString.emptyString;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -111,7 +114,7 @@ class CreateStackRoleImplTest extends LocalStackTest {
 
     @Test
     void createNewRolePolicyRequestShouldReturnPolicyRequestWithUsersPolicy()
-        throws IOException, UnauthorizedException, NotFoundException {
+        throws IOException, UnauthorizedException, NotFoundException, MissingConfigurationException {
         when(mockGithubReader.readFile(any())).thenReturn(ANY_CREATE_STACK_ROLE_POLICY_DOCUMENT);
 
         CreateStackRole createStackRole = new CreateStackRoleImpl(
@@ -170,9 +173,16 @@ class CreateStackRoleImplTest extends LocalStackTest {
         assertThat(result, is(equalTo(pipelineStackConfiguration.getCreateStackRoleName())));
     }
 
+    @Test
+    public void createNewPutRolePolicyRequestShouldThrowExceptionForMissingConfigurationFile() throws IOException {
+        GithubReader githubReader = new GithubReader(mockHttpClientReturningNotFound()).setGitHubConf(mockGithubConf());
+        CreateStackRole createStackRole = new CreateStackRoleImpl(githubReader, pipelineStackConfiguration,
+            mockAmazonIdentityManagement);
+        MissingConfigurationException exception = assertThrows(MissingConfigurationException.class,
+            createStackRole::createNewPutRolePolicyRequest);
 
-
-
+        assertThat(exception.getMessage(), containsString(MISSING_CONFIGURATION_EXCEPTION_MESSAGE));
+    }
 
     private String getAssumeRole(String assumeRolePolicyDocument) throws IOException {
         JsonNode statementsArray = getAssumeRolePolicyStatement(assumeRolePolicyDocument);

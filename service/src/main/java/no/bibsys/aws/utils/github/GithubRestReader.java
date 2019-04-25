@@ -2,6 +2,7 @@ package no.bibsys.aws.utils.github;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.tools.IoUtils;
 import org.apache.http.HttpEntity;
@@ -13,22 +14,22 @@ import org.apache.http.message.BasicHeader;
 
 public class GithubRestReader {
 
+    protected static final String GITHUBCONF_NULL_ERROR_MESSAGE = "You need to set the githubConf";
     private static final String BAD_GITHUB_CREDENTIALS = "Bad Github credentials";
     private static final String AUTHORIZATION = "Authorization";
     private static final String TOKEN = "token ";
     private static final String ACCEPT = "Accept";
     private static final String ACCEPT_FORMAT = "application/vnd.github.VERSION.raw";
     private static final String ERROR_MESSAGE = "Response HttpEntity was null";
-    private static final String PATH_NOT_FOUND = "Github path not found";
-    protected static final String GITHUBCONF_NULL_ERROR_MESSAGE = "You need to set the githubConf";
-    private transient GithubConf githubConf;
     private final transient CloseableHttpClient httpClient;
+    private transient GithubConf githubConf;
 
     public GithubRestReader(CloseableHttpClient httpClient) {
         this.httpClient = httpClient;
     }
 
-    public String executeRequest(HttpGet httpGet) throws IOException, UnauthorizedException, NotFoundException {
+    public Optional<String> executeRequest(HttpGet httpGet)
+        throws IOException, UnauthorizedException {
         CloseableHttpResponse response = this.httpClient.execute(httpGet);
         int statusCode = response.getStatusLine().getStatusCode();
         String responseString = null;
@@ -37,8 +38,7 @@ public class GithubRestReader {
                 handleUnauthorized();
                 break;
             case HttpStatus.SC_NOT_FOUND:
-                handleNotFound();
-                break;
+                return handleNotFound();
             case HttpStatus.SC_OK:
             default:
                 responseString = handleSuccess(response);
@@ -46,11 +46,11 @@ public class GithubRestReader {
         }
 
         Objects.requireNonNull(responseString, ERROR_MESSAGE);
-        return responseString;
+        return Optional.of(responseString);
     }
 
-    private void handleNotFound() throws NotFoundException {
-        throw new NotFoundException(PATH_NOT_FOUND);
+    private Optional<String> handleNotFound() {
+        return Optional.empty();
     }
 
     private void handleUnauthorized() throws UnauthorizedException {

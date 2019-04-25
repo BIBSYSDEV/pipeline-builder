@@ -61,7 +61,6 @@ import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.tools.IoUtils;
 import no.bibsys.aws.tools.JsonUtils;
 import no.bibsys.aws.utils.github.GithubReader;
-import no.bibsys.aws.utils.github.GithubTestUtilities;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -286,6 +285,16 @@ public class LocalStackTest extends GithubTestUtilities {
             .then((Answer<ObjectListing>) invocation -> objectListingAnswer())
             .thenReturn(new ObjectListing());
         return s3;
+    }
+
+    protected CloseableHttpClient mockHttpClientReturningNotFound() throws IOException {
+        CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
+        CloseableHttpResponse response = mock(CloseableHttpResponse.class);
+
+        when(httpClient.execute(any())).thenReturn(response);
+        when(response.getEntity()).thenReturn(simpleResponse);
+        when(response.getStatusLine()).thenReturn(STATUS_LINE_NOT_FOUND);
+        return httpClient;
     }
 
     private ObjectListing objectListingAnswer() {

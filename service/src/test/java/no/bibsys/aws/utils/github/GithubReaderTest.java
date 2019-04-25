@@ -3,6 +3,7 @@ package no.bibsys.aws.utils.github;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 public class GithubReaderTest extends LocalStackTest {
 
+    public static final String SOME_FILE_PATH = "directory/directory/file";
     private static final Path ARBITRARY_PATH = Paths.get("folder", "folder", "file");
     private static final String OWNER = "ownername";
     private static final String REPO = "reponame";
@@ -29,7 +31,6 @@ public class GithubReaderTest extends LocalStackTest {
     private static final SecretsReader SECRETS_READER = () -> "secret";
     private static final GithubConf githubConf = new GithubConf(OWNER, REPO, BRANCH,
         SECRETS_READER);
-    public static final String SOME_FILE_PATH = "directory/directory/file";
 
     @Test
     public void createUrlFromPathShouldThrowExceptionForNullGithubConf() throws IOException {
@@ -40,7 +41,6 @@ public class GithubReaderTest extends LocalStackTest {
             () -> githubReader.createUrl(inputPath));
         assertThat(exception.getMessage(), is(equalTo(GithubReader.GITHUBCONF_NULL_ERROR_MESSAGE)));
     }
-
 
     @Test
     public void createUrlFromPathShouldMapPathToValidUrl() {
@@ -63,5 +63,19 @@ public class GithubReaderTest extends LocalStackTest {
         GithubReader githubReader = mockGithubReader().setGitHubConf(githubConf);
         String responseString = githubReader.readFile(ARBITRARY_PATH);
         assertThat(responseString, is(equalTo(EXPECTED_RESPONSE)));
+    }
+
+    @Test
+    public void readFileShouldThrowExceptionForMissingFile()
+        throws IOException {
+
+        GithubReader githubReader = new GithubReader(mockHttpClientReturningNotFound())
+            .setGitHubConf(githubConf);
+        NotFoundException exception = assertThrows(NotFoundException.class,
+            () -> githubReader.readFile(ARBITRARY_PATH));
+
+        String exceptionMessage = exception.getMessage();
+
+        assertThat(exceptionMessage, containsString(ARBITRARY_PATH.toString()));
     }
 }

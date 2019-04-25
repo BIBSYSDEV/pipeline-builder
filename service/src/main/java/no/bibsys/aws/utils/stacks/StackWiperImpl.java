@@ -79,9 +79,10 @@ public class StackWiperImpl implements StackWiper {
 
         // Delete buckets first because they cannot be deleted automatically when we delete a Stack
         deleteBuckets();
-        deleteCreateStackRole();
         deleteStacks();
         deleteLogs();
+        // should be executed last to allow the deletion of the test and final stack.
+        deleteCreateStackRole();
     }
 
     private void deleteCreateStackRole() {

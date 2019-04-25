@@ -14,7 +14,7 @@ public interface CreateStackRole {
     CreateRoleRequest createNewCreateRoleRequest() throws IOException;
 
     PutRolePolicyRequest createNewPutRolePolicyRequest()
-        throws IOException, UnauthorizedException, NotFoundException;
+        throws IOException, UnauthorizedException, NotFoundException, MissingConfigurationException;
 
     AttachRolePolicyRequest createNewAttachPolicyRequest(String policyArn, String roleName);
 

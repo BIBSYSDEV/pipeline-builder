@@ -20,8 +20,9 @@ import org.slf4j.LoggerFactory;
 
 public class CreateStackRoleImpl implements CreateStackRole {
 
+    protected static final String MISSING_CONFIGURATION_EXCEPTION_MESSAGE =
+        "Missing configuration exception. Probably due to missing role policy document file.";
     private static final Logger logger = LoggerFactory.getLogger(CreateStackRoleImpl.class);
-
     private static final String TEMPLATES_DIRECTORY = "templates";
     private static final String CREATE_STACK_ROLE_ASSUME_POLICY_JSON = "createStackRoleAssumePolicy.json";
     private static final String CREATE_STACK_ROLE_POLICY_DOCUMENT_JSON = "createStackRolePolicyDocument.json";
@@ -82,13 +83,18 @@ public class CreateStackRoleImpl implements CreateStackRole {
 
     @Override
     public PutRolePolicyRequest createNewPutRolePolicyRequest()
-        throws IOException, UnauthorizedException, NotFoundException {
-        String createStackRolePolicyDocument = githubReader
-            .readFile(Paths.get(CREATE_STACK_ROLE_POLICY_DOCUMENT_JSON));
-        return new PutRolePolicyRequest()
-            .withPolicyDocument(createStackRolePolicyDocument)
-            .withPolicyName(pipelineStackConfiguration.getCreateStackRolePolicyName())
-            .withRoleName(pipelineStackConfiguration.getCreateStackRoleName());
+        throws IOException, UnauthorizedException, MissingConfigurationException {
+        try {
+            String createStackRolePolicyDocument = githubReader
+                .readFile(Paths.get(CREATE_STACK_ROLE_POLICY_DOCUMENT_JSON));
+            return new PutRolePolicyRequest()
+                .withPolicyDocument(createStackRolePolicyDocument)
+                .withPolicyName(pipelineStackConfiguration.getCreateStackRolePolicyName())
+                .withRoleName(pipelineStackConfiguration.getCreateStackRoleName());
+        } catch (NotFoundException e) {
+            throw new MissingConfigurationException(
+                MISSING_CONFIGURATION_EXCEPTION_MESSAGE, e);
+        }
     }
 
     private void waitForRole() {
