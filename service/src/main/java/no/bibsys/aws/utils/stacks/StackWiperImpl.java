@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 public class StackWiperImpl implements StackWiper {
 
     private static final String LOG_MESSAGE_TEMPLATE = "%s->%s";
-    private static final String DESTROYED_STACK_LOG_MESSAGE = "Destroyed Stack status code:";
+    private static final String DESTROYED_STACK_LOG_MESSAGE = "Destroyed Stack status code:{}";
     private static final Logger logger = LoggerFactory.getLogger(StackWiperImpl.class);
     private static final int WAIT_UNTIL_CHECKING_AGAIN = 1000;
     private static final int MAX_TIMES_TO_CHECK = 100;
