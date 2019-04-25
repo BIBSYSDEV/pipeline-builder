@@ -5,13 +5,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
-import com.amazonaws.services.cloudformation.model.AmazonCloudFormationException;
 import com.amazonaws.services.cloudformation.model.DeleteStackResult;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
 import com.amazonaws.services.identitymanagement.model.DeleteRolePolicyResult;
@@ -29,6 +27,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.roles.CreateStackRole;
 import no.bibsys.aws.testtutils.LocalStackTest;
@@ -261,14 +260,37 @@ public class StackWiperImplTest extends LocalStackTest {
     }
 
     @Test
-    public void wipeStacks_stackDoesNotExist_exception() {
+    public void wipeStacks_stackDoesNotExist_noException() {
+
         StackWiperImpl stackWiper = new StackWiperImpl(pipelineStackConfiguration,
             mockCloudFormationwithNoStack(),
             mockS3Client(),
             mockLambdaClient(),
             mockLogsClient(),
-            mockIdentityManagement(pipelineStackConfiguration));
-        assertThrows(AmazonCloudFormationException.class, stackWiper::wipeStacks);
+            mockIdentityManagement(pipelineStackConfiguration, createWellFormedRole()));
+        stackWiper.wipeStacks();
+    }
+
+    @Test
+    public void wipeStacks_stackDoesNotExist_rolesAreDeleted() {
+
+        AmazonIdentityManagement iam = mockIdentityManagement(pipelineStackConfiguration, createWellFormedRole());
+        AtomicBoolean deleteRoleIsCalled = new AtomicBoolean(false);
+
+        when(iam.deleteRole(any())).thenAnswer(invocation -> {
+            deleteRoleIsCalled.set(true);
+            return new DeleteRoleResult();
+        });
+
+        StackWiperImpl stackWiper = new StackWiperImpl(pipelineStackConfiguration,
+            mockCloudFormationwithNoStack(),
+            mockS3Client(),
+            mockLambdaClient(),
+            mockLogsClient(),
+            iam);
+
+        stackWiper.wipeStacks();
+        assertThat(deleteRoleIsCalled.get(), is(true));
     }
 
     @Test
@@ -277,8 +299,6 @@ public class StackWiperImplTest extends LocalStackTest {
             mockIdentityManagement(pipelineStackConfiguration, createWellFormedRole()));
         stackWiper.wipeStacks();
     }
-
-
 
     private AmazonIdentityManagement setUpDeleteRole(AmazonIdentityManagement mockIam, boolean[] calledApisList) {
         when(mockIam.deleteRole(any())).thenAnswer(invocation -> {

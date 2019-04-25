@@ -171,7 +171,9 @@ public class LocalStackTest extends GithubTestUtilities {
     protected static AmazonIdentityManagement mockIdentityManagement(PipelineStackConfiguration
         pipelineStackConfiguration, Role role) {
         AmazonIdentityManagement iam = mockIdentityManagement(pipelineStackConfiguration);
-        when(iam.listRoleTags(any())).thenReturn(new ListRoleTagsResult().withTags(role.getTags()));
+        when(iam.listRoleTags(any())).thenAnswer(invocation -> {
+            return new ListRoleTagsResult().withTags(role.getTags());
+        });
         return iam;
     }
 
@@ -253,6 +255,7 @@ public class LocalStackTest extends GithubTestUtilities {
         when(cloudFormation.describeStackResources(any()))
             .thenThrow(AmazonCloudFormationException.class);
         when(cloudFormation.deleteStack(any())).thenThrow(AmazonCloudFormationException.class);
+        when(cloudFormation.listStacks()).thenReturn(new ListStacksResult());
         return cloudFormation;
     }
 

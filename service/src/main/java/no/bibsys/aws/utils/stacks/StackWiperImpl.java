@@ -79,9 +79,14 @@ public class StackWiperImpl implements StackWiper {
             .forEach(message -> logger.debug(DESTROYED_STACK_LOG_MESSAGE, message));
 
         // Delete buckets first because they cannot be deleted automatically when we delete a Stack
-        deleteBuckets();
-        deleteStacks();
-        deleteLogs();
+
+        StackResources stackResources = new StackResources(pipelineStackConfiguration.getPipelineStackName(),
+            cloudFormationClient);
+        if (stackResources.stackExists()) {
+            deleteBuckets();
+            deleteStacks();
+            deleteLogs();
+        }
         // should be executed last to allow the deletion of the test and final stack.
         deleteCreateStackRole();
     }

@@ -27,11 +27,11 @@ public class StackBuilderTest extends LocalStackTest {
     public static final String MOCKED_ERROR_MESSAGE = "A Role with name %s does not exist";
     public static final String NON_EXISTING_ROLENAME = "notExistingRolename";
     private final transient AmazonIdentityManagement mockAmazonIdentityManagement;
-    private final transient AmazonCloudFormation acf;
+    private final transient AmazonCloudFormation cloudFormationWithStack;
     private final transient StackWiper wiper;
 
     public StackBuilderTest() {
-        acf = mockCloudFormationWithStack();
+        cloudFormationWithStack = mockCloudFormationWithStack();
 
         mockAmazonIdentityManagement = mockIdentityManagement(pipelineStackConfiguration);
         when(mockAmazonIdentityManagement.getRole(any()))
@@ -65,7 +65,7 @@ public class StackBuilderTest extends LocalStackTest {
 
         StackBuilder stackBuilder = new StackBuilder(wiper,
             pipelineStackConfiguration,
-            acf,
+            cloudFormationWithStack,
             mockAmazonIdentityManagement,
             mockGithubReader().setGitHubConf(mockGithubConf())
         );
@@ -76,7 +76,7 @@ public class StackBuilderTest extends LocalStackTest {
     public void getCreateStackRoleArn_existingRole_RoleArn() throws IOException {
         StackBuilder stackBuilder = new StackBuilder(wiper,
             pipelineStackConfiguration,
-            acf,
+            cloudFormationWithStack,
             mockAmazonIdentityManagement,
             mockGithubReader().setGitHubConf(mockGithubConf())
         );
@@ -90,7 +90,7 @@ public class StackBuilderTest extends LocalStackTest {
         StackBuilder stackBuilder = new StackBuilder(
             wiper,
             pipelineStackConfiguration,
-            acf,
+            cloudFormationWithStack,
             mockAmazonIdentityManagement,
             mockGithubReader().setGitHubConf(mockGithubConf()));
 
@@ -100,9 +100,13 @@ public class StackBuilderTest extends LocalStackTest {
 
     @Test
     public void createStacks_existingStack_noException() throws Exception {
-
+        AmazonIdentityManagement iam = mockIdentityManagement(pipelineStackConfiguration, createWellFormedRole());
+        StackWiper wiper = new StackWiperImpl(pipelineStackConfiguration, cloudFormationWithStack, mockS3Client(),
+            mockLambdaClient(),
+            mockLogsClient(), iam);
         StackBuilder stackBuilder = new StackBuilder(
-            wiper, pipelineStackConfiguration, acf, mockAmazonIdentityManagement,
+            wiper, pipelineStackConfiguration, cloudFormationWithStack,
+            iam,
             mockGithubReader().setGitHubConf(mockGithubConf()));
 
         stackBuilder.createStacks();
