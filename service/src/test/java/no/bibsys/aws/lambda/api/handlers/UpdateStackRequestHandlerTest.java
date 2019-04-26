@@ -40,13 +40,16 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
     }
 
     @Test
-    public void processInput_closeRequest_actionClose() throws IOException {
+    public void processInput_closeRequest_actionClose() throws Exception {
         UpdateStackRequestHandler handler = new UpdateStackRequestHandler(mockEnvironment(),
-            initializeMockCloudFormation(),
-            initializeS3(), initializeLambdaClient(),
-            initializeMockLogsClient(),
+            mockCloudFormationWithStack(),
+            mockS3Client(), mockLambdaClient(),
+            mockLogsClient(),
             mockSecretsReader(),
-            mockSecretsReader()
+            mockSecretsReader(),
+            mockIdentityManagement(pipelineStackConfiguration, createWellFormedRole()),
+            mockGithubReader()
+
         );
         String json = deleteStackRequest();
         String key = mockSecretsReader().readSecret();
@@ -58,14 +61,17 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
     }
 
     @Test
-    public void processInput_createStackRequest_actionCreate() throws IOException {
+    public void processInput_createStackRequest_actionCreate() throws Exception {
         UpdateStackRequestHandler handler = new UpdateStackRequestHandler(mockEnvironment(),
-            initializeMockCloudFormation(),
-            initializeS3(), initializeLambdaClient(),
-            initializeMockLogsClient(),
+            mockCloudFormationWithStack(),
+            mockS3Client(), mockLambdaClient(),
+            mockLogsClient(),
             mockSecretsReader(),
-            mockSecretsReader()
+            mockSecretsReader(),
+            mockIdentityManagement(pipelineStackConfiguration, createWellFormedRole()),
+            mockGithubReader()
         );
+
         String json = createStackRequest();
         String key = mockSecretsReader().readSecret();
         Map<String, String> headersMap = Collections.singletonMap(
@@ -78,19 +84,19 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
     private String deleteStackRequest() throws JsonProcessingException {
         UpdateStackRequest request = new UpdateStackRequest(SOME_OWNER, SOME_REPO, SOME_BRANCH,
             Action.DELETE.toString());
-        ObjectMapper parser = JsonUtils.newJsonParser();
+        ObjectMapper parser = JsonUtils.jsonParser;
         return parser.writeValueAsString(request);
     }
 
     private String createStackRequest() throws JsonProcessingException {
         UpdateStackRequest request = new UpdateStackRequest(SOME_OWNER, SOME_REPO, SOME_BRANCH,
             Action.CREATE.toString());
-        ObjectMapper parser = JsonUtils.newJsonParser();
+        ObjectMapper parser = JsonUtils.jsonParser;
         return parser.writeValueAsString(request);
     }
 
     @Test
-    public void handleRequest_falseSignature_UnauthorizedException() {
+    public void handleRequest_falseSignature_UnauthorizedException() throws IOException {
         UpdateStackRequestHandler handler = newHandlerWithMockSecretsReader();
         Map<String, String> headers = new HashMap<>();
         headers.put(API_KEY_HEADEER, WRONG_API_KEY);
@@ -99,17 +105,20 @@ public class UpdateStackRequestHandlerTest extends LocalStackTest {
             () -> handler.processInput(requestJson, headers, null));
     }
 
-    private UpdateStackRequestHandler newHandlerWithMockSecretsReader() {
+    private UpdateStackRequestHandler newHandlerWithMockSecretsReader() throws IOException {
         Environment env = mockEnvironment(EnvironmentConstants.AWS_REGION,
             ARBITRARY_REGION.getName());
+
         UpdateStackRequestHandler handler = new UpdateStackRequestHandler(
             env,
-            initializeMockCloudFormation(),
-            initializeS3(),
-            initializeLambdaClient(),
-            initializeMockLogsClient(),
+            mockCloudFormationWithStack(),
+            mockS3Client(),
+            mockLambdaClient(),
+            mockLogsClient(),
             mockSecretsReader(),
-            mockSecretsReader()
+            mockSecretsReader(),
+            mockIdentityManagement(pipelineStackConfiguration),
+            mockGithubReader()
         );
 
         return handler;

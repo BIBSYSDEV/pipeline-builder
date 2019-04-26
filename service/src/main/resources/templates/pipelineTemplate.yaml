@@ -18,7 +18,9 @@ Parameters:
     Type: String
   PipelineRolename:
     Type: String
-  CreateStackRolename:
+  CreateStackRoleArn:
+    Type: String
+  CreateStackRoleName:
     Type: String
   PipelineName:
     Type: String
@@ -44,9 +46,6 @@ Parameters:
     Type: String
 
 
-Conditions:
-  CreateProdStack: !Equals [ !Ref ProjectBranch, 'master' ]
-
 Resources:
 
   S3Bucket:
@@ -62,96 +61,26 @@ Resources:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: aws:kms
 
-  CreateStackRole:
-    DependsOn:
-      - PipelineRole
-    Type: AWS::IAM::Role
+  S3BucketAccessPolicy:
+    Type: AWS::IAM::Policy
     Properties:
-      RoleName: !Ref CreateStackRolename
-      AssumeRolePolicyDocument:
+      PolicyDocument:
         Version: "2012-10-17"
         Statement:
-          - Sid: 1
-            Effect: Allow
+          - Effect: Allow
             Action:
-              - sts:AssumeRole
-            Principal:
-              Service:
-                - cloudformation.amazonaws.com
-                - codepipeline.amazonaws.com
-                - codebuild.amazonaws.com
-                - iam.amazonaws.com
-              AWS: !GetAtt PipelineRole.Arn
+              - "s3:*"
+            Resource:
+              - !Join ["", [!GetAtt S3Bucket.Arn, "/*"]]
+              - !GetAtt S3Bucket.Arn
+              - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname, "/*"]]
+              - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname]]
 
-      Policies:
-        - PolicyName: "passRole"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Action:
-                  - 'iam:PassRole'
-                Effect: Allow
-                Resource: "*"
-              - Action:
-                  - 'cloudformation:CreateChangeSet'
-                Effect: Allow
-                Resource:
-                  - arn:aws:cloudformation:eu-west-1:aws:transform/Serverless-2016-10-31
-                  - arn:aws:cloudformation:eu-west-1:aws:transform/Include
-              - Action:
-                  - 'iam:GetRole'
-                  - 'iam:CreateRole'
-                  - 'iam:PutRolePolicy'
-                  - 'iam:DetachRolePolicy'
-                  - 'iam:DeleteRolePolicy'
-                  - 'iam:DeleteRole'
-                  - 'iam:AttachRolePolicy'
-                  - 'ssm:PutParameter'
-                  - 'ssm:DeleteParameter'
-                Resource: '*'
-                Effect: Allow
-        - PolicyName: s3Access
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "s3:*"
-                Resource:
-                  - !Join ["", [!GetAtt S3Bucket.Arn, "/*"]]
-                  - !GetAtt S3Bucket.Arn
-                  - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname, "/*"]]
-                  - !Join ["", ["arn:aws:s3:::",!Ref PipelineBucketname]]
-        - PolicyName: ec2Support
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - 'ec2:*'
-                Resource: '*'
-        - PolicyName: createLambdaFunctions
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - 'lambda:CreateFunction'
-                  - 'lambda:DeleteFunction'
-                  - 'lambda:AddPermission'
-                  - 'lambda:UpdateFunction'
-                  - 'lambda:UpdateFunctionCode'
-                  - 'lambda:GetFunction'
-                  - 'lambda:GetFunctionConfiguration'
-                  - 'lambda:UpdateFunctionConfiguration'
-                  - 'lambda:RemovePermission'
-                  - 'lambda:InvokeFunction'
-                  - 'lambda:listTags'
-                  - 'lambda:TagResource'
-                  - 'lambda:UntagResource'
-                  - 'apigateway:*'
-                  - 'ssm:GetParameters'
-                Resource: '*'
+      PolicyName: !Join ["-", [!Ref CreateStackRoleName, "s3Access"]]
+      Roles:
+        - !Ref CreateStackRoleName
+
+
   PipelineRole:
     Type: AWS::IAM::Role
     Properties:
@@ -202,14 +131,6 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource: "*"
-        - PolicyName: ec2Support
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - 'ec2:*'
-                Resource: '*'
         - PolicyName: cloudFormationAccess
           PolicyDocument:
             Version: '2012-10-17'
@@ -318,7 +239,6 @@ Resources:
   Pipeline:
     DependsOn:
       - CodeBuildProject
-      - CreateStackRole
       - PipelineRole
     Type: AWS::CodePipeline::Pipeline
     Properties:
@@ -347,7 +267,7 @@ Resources:
                 Branch: !Ref ProjectBranch
               OutputArtifacts:
                 - Name: !Ref SourceStageOutputArtifact
-        - Name: CodeBuild
+        - Name: CodeBuild_step
           Actions:
             - Name: CodeBuildAction
               ActionTypeId:
@@ -375,7 +295,7 @@ Resources:
                 StackName: !Ref PipelineTestServiceStackName
                 ChangeSetName: TestStageChangeSet
                 Capabilities: CAPABILITY_NAMED_IAM
-                RoleArn: !GetAtt CreateStackRole.Arn
+                RoleArn: !Ref CreateStackRoleArn
                 TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
                 ParameterOverrides:
                   !Sub
@@ -438,7 +358,7 @@ Resources:
                 Version: '1'
               Configuration:
                 ActionMode: DELETE_ONLY
-                RoleArn: !GetAtt CreateStackRole.Arn
+                RoleArn: !Ref CreateStackRoleArn
                 StackName: !Ref PipelineTestServiceStackName
               RunOrder: 6
         - Name: ProdStack
@@ -454,7 +374,7 @@ Resources:
                 StackName: !Ref PipelineFinalServiceStackName
                 ChangeSetName: ProdStageChangeSet
                 Capabilities: CAPABILITY_NAMED_IAM
-                RoleArn: !GetAtt CreateStackRole.Arn
+                RoleArn: !Ref CreateStackRoleArn
                 TemplatePath: !Join ["", [!Ref CodebuildOutputArtifact,"::template-export.yml"]]
                 ParameterOverrides:
                   !Sub

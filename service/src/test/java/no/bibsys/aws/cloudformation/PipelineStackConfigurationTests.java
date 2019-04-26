@@ -27,17 +27,6 @@ public class PipelineStackConfigurationTests extends ConfigurationTests {
         assertThat(conf.getPipelineStackName(), containsString(normalizedBranch));
     }
 
-    @Test
-    public void initCreateStackRole_projectIdAndNormalizedBranch_containsNormalizedBranch() {
-        assertThat(conf.getCreateStackRoleName(), containsString(normalizedBranch));
-    }
-
-
-    @Test
-    public void initCreateStackRole_projectIdAndNormalizedBranch_containsProjectId() {
-        assertThat(conf.getCreateStackRoleName(), containsString(projectId));
-    }
-
 
     @Test
     public void initPipelineRole_projectIdAndNormalizedBranch_containsProjectId() {

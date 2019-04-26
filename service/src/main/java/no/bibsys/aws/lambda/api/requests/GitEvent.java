@@ -21,8 +21,8 @@ public class GitEvent {
         return owner;
     }
 
-    public void setOwner(String pwner) {
-        this.owner = pwner;
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 
     public String getRepository() {

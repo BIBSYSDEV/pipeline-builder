@@ -2,6 +2,7 @@ package no.bibsys.aws.testtutils;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.amazonaws.regions.Region;
@@ -23,6 +24,16 @@ import com.amazonaws.services.cloudformation.model.ListStacksResult;
 import com.amazonaws.services.cloudformation.model.Stack;
 import com.amazonaws.services.cloudformation.model.StackResource;
 import com.amazonaws.services.cloudformation.model.StackSummary;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
+import com.amazonaws.services.identitymanagement.model.CreateRoleRequest;
+import com.amazonaws.services.identitymanagement.model.CreateRoleResult;
+import com.amazonaws.services.identitymanagement.model.GetRoleResult;
+import com.amazonaws.services.identitymanagement.model.ListRolePoliciesResult;
+import com.amazonaws.services.identitymanagement.model.ListRoleTagsResult;
+import com.amazonaws.services.identitymanagement.model.ListRolesResult;
+import com.amazonaws.services.identitymanagement.model.PutRolePolicyResult;
+import com.amazonaws.services.identitymanagement.model.Role;
+import com.amazonaws.services.identitymanagement.model.Tag;
 import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.model.InvokeResult;
 import com.amazonaws.services.logs.AWSLogs;
@@ -46,24 +57,27 @@ import no.bibsys.aws.cloudformation.helpers.ResourceType;
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.lambda.EnvironmentConstants;
 import no.bibsys.aws.lambda.api.handlers.GithubHandler;
+import no.bibsys.aws.roles.CreateStackRole;
 import no.bibsys.aws.secrets.GithubSignatureChecker;
 import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.tools.IoUtils;
 import no.bibsys.aws.tools.JsonUtils;
+import no.bibsys.aws.utils.github.GithubReader;
 import org.apache.http.HttpStatus;
-import org.mockito.Mockito;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-public class LocalStackTest {
+public class LocalStackTest extends GithubTestUtilities {
 
-    public static final Region ARBITRARY_REGION = Region.getRegion(Regions.EU_WEST_1);
-    public static final String APPROVE_ALL_KEYS = null;
+    public static final String SOME_MESSAGE = "some message";
+    protected static final String APPROVE_ALL_KEYS = null;
+    protected static final String TEST_STACK = "testStack";
+    private static final Region ARBITRARY_REGION = Region.getRegion(Regions.EU_WEST_1);
     private static final int ENV_VARIABLE_NAME = 0;
     private static final String ARBITRARY_SECRET_KEY = "secretKey";
-
-    protected static final String TEST_STACK = "testStack";
     private static final String SOME_REPO_OWNER = "owner";
     private static final String SOME_REPO = "repo";
     private static final String SOME_GIT_BRANCH = "branch";
@@ -81,12 +95,14 @@ public class LocalStackTest {
     private static final String MOCK_BASEPATH_PREFIX = "basepath.for.";
     private static final String OPENAPI_RESOURCES_FOLDER = "openapi";
     private static final String OPENAPI_FILE = "openapi.yml";
+    private static final String SOME_INLINE_POLICY_NAME = "some_inline_policy";
+    private static final String ILLFORMED_ROLE_NAME = "illformedRole";
 
     protected final transient PipelineStackConfiguration pipelineStackConfiguration;
 
+
     public LocalStackTest() {
-        GithubConf gitInfo = new GithubConf(SOME_REPO_OWNER, SOME_REPO, SOME_GIT_BRANCH,
-            mockSecretsReader());
+        GithubConf gitInfo = mockGithubConf();
         pipelineStackConfiguration = new PipelineStackConfiguration(gitInfo);
     }
 
@@ -107,7 +123,7 @@ public class LocalStackTest {
         newMap.put(EnvironmentConstants.AWS_REGION, ARBITRARY_REGION.getName());
         newMap.putAll(mockEnvValues);
 
-        Environment environment = Mockito.mock(Environment.class);
+        Environment environment = mock(Environment.class);
         when(environment.readEnv(anyString()))
             .then(invocation -> {
                 String envVariable = invocation.getArgument(ENV_VARIABLE_NAME);
@@ -120,22 +136,82 @@ public class LocalStackTest {
         return mockEnvironment(Collections.singletonMap(envVariable, value));
     }
 
-    public static GithubHandler getGithubHandlerWithMockSecretsReader(Environment environment) {
+    protected static AmazonIdentityManagement mockIdentityManagement(
+
+        PipelineStackConfiguration pipelineStackConfiguration) {
+        AmazonIdentityManagement mockAmazonIdentityManagement = mock(
+            AmazonIdentityManagement.class);
+
+        when(mockAmazonIdentityManagement.createRole(any()))
+            .thenAnswer((Answer<CreateRoleResult>) invocation -> {
+                CreateRoleRequest request = invocation.getArgument(0);
+                return new CreateRoleResult()
+                    .withRole(new Role().withRoleName(request.getRoleName()));
+            });
+
+        when(mockAmazonIdentityManagement.putRolePolicy(any()))
+            .thenReturn(new PutRolePolicyResult());
+
+        when(mockAmazonIdentityManagement.getRole(any()))
+            .thenReturn(new GetRoleResult().withRole(new Role()
+                .withRoleName(pipelineStackConfiguration.getCreateStackRoleName())));
+
+        when(mockAmazonIdentityManagement.listRoles())
+            .thenReturn(new ListRolesResult()
+                .withRoles(new Role().withRoleName(pipelineStackConfiguration.getCreateStackRoleName())));
+
+        when(mockAmazonIdentityManagement.listRolePolicies(any()))
+            .thenAnswer(invocation ->
+                new ListRolePoliciesResult().withPolicyNames(SOME_INLINE_POLICY_NAME)
+            );
+
+        return mockAmazonIdentityManagement;
+    }
+
+    protected static AmazonIdentityManagement mockIdentityManagement(PipelineStackConfiguration
+        pipelineStackConfiguration, Role role) {
+        AmazonIdentityManagement iam = mockIdentityManagement(pipelineStackConfiguration);
+        when(iam.listRoleTags(any())).thenAnswer(invocation -> {
+            return new ListRoleTagsResult().withTags(role.getTags());
+        });
+        return iam;
+    }
+
+    public GithubConf mockGithubConf() {
+        return new GithubConf(SOME_REPO_OWNER, SOME_REPO, SOME_GIT_BRANCH,
+            mockSecretsReader());
+    }
+
+    public GithubHandler getGithubHandlerWithMockSecretsReader(Environment environment)
+        throws IOException {
 
         GithubSignatureChecker signatureChecker = new GithubSignatureChecker(mockSecretsReader());
         return new GithubHandler(environment,
-            Mockito.mock(AmazonCloudFormation.class),
-            Mockito.mock(AmazonS3.class),
-            Mockito.mock(AWSLambda.class),
-            Mockito.mock(AWSLogs.class),
+            mock(AmazonCloudFormation.class),
+            mock(AmazonS3.class),
+            mock(AWSLambda.class),
+            mock(AWSLogs.class),
             signatureChecker,
             mockSecretsReader(),
-            mockSecretsReader()
+            mockSecretsReader(),
+            mockIdentityManagement(pipelineStackConfiguration),
+            mockGithubReader()
         );
     }
 
+    protected GithubReader mockGithubReader() throws IOException {
+        CloseableHttpClient mockClient = mock(CloseableHttpClient.class);
+        CloseableHttpResponse mockResponse = mock(CloseableHttpResponse.class);
+
+        when(mockResponse.getEntity()).thenReturn(simpleResponse);
+        when(mockResponse.getStatusLine()).thenReturn(GithubTestUtilities.STATUS_LINE_OK);
+        when(mockClient.execute(any())).thenReturn(mockResponse);
+        GithubReader githubReader = new GithubReader(mockClient);
+        return githubReader;
+    }
+
     protected AmazonRoute53 initializeRoute53Client(String zoneName) {
-        AmazonRoute53 route53 = Mockito.mock(AmazonRoute53.class);
+        AmazonRoute53 route53 = mock(AmazonRoute53.class);
         when(route53.listHostedZones()).thenReturn(listHostedZonesResult(zoneName));
         return route53;
     }
@@ -148,22 +224,22 @@ public class LocalStackTest {
             .withHostedZones(hostedZone);
     }
 
-    protected AWSLambda initializeLambdaClient() {
-        AWSLambda lambdaClient = Mockito.mock(AWSLambda.class);
+    protected AWSLambda mockLambdaClient() {
+        AWSLambda lambdaClient = mock(AWSLambda.class);
         when(lambdaClient.invoke(any())).thenAnswer(invocation -> new InvokeResult()
             .withStatusCode(HttpStatus.SC_OK));
         return lambdaClient;
     }
 
-    protected AWSLogs initializeMockLogsClient() {
-        AWSLogs logsClient = Mockito.mock(AWSLogs.class);
+    protected AWSLogs mockLogsClient() {
+        AWSLogs logsClient = mock(AWSLogs.class);
         when(logsClient.describeLogGroups()).thenReturn(new DescribeLogGroupsResult()
             .withLogGroups(Collections.emptyList()));
         return logsClient;
     }
 
-    public AmazonCloudFormation initializeMockCloudFormation() {
-        AmazonCloudFormation cloudFormation = Mockito.mock(AmazonCloudFormation.class);
+    public AmazonCloudFormation mockCloudFormationWithStack() {
+        AmazonCloudFormation cloudFormation = mock(AmazonCloudFormation.class);
 
         when(cloudFormation.listStacks()).thenReturn(listWithStackSummaries());
         when(cloudFormation.describeStacks()).thenReturn(describeStackResults());
@@ -175,14 +251,16 @@ public class LocalStackTest {
     }
 
     public AmazonCloudFormation mockCloudFormationwithNoStack() {
-        AmazonCloudFormation cloudFormation = Mockito.mock(AmazonCloudFormation.class);
-        when(cloudFormation.describeStackResources(any())).thenThrow(AmazonCloudFormationException.class);
+        AmazonCloudFormation cloudFormation = mock(AmazonCloudFormation.class);
+        when(cloudFormation.describeStackResources(any()))
+            .thenThrow(AmazonCloudFormationException.class);
         when(cloudFormation.deleteStack(any())).thenThrow(AmazonCloudFormationException.class);
+        when(cloudFormation.listStacks()).thenReturn(new ListStacksResult());
         return cloudFormation;
     }
 
     protected AmazonApiGateway initializeAmazonApiGateway() throws IOException {
-        AmazonApiGateway apiGateway = Mockito.mock(AmazonApiGateway.class);
+        AmazonApiGateway apiGateway = mock(AmazonApiGateway.class);
         when(apiGateway.getDomainName(any()))
             .then((Answer<GetDomainNameResult>) this::getDomainNameResult);
         when(apiGateway.getBasePathMappings(any())).then(this::getBasePathMappingResult);
@@ -213,8 +291,8 @@ public class LocalStackTest {
         return new GetDomainNameResult().withRegionalDomainName(regionalDomainName);
     }
 
-    protected AmazonS3 initializeS3() {
-        AmazonS3 s3 = Mockito.mock(AmazonS3.class);
+    protected AmazonS3 mockS3Client() {
+        AmazonS3 s3 = mock(AmazonS3.class);
         when(s3.listVersions(any()))
             .then(invocation -> listVersionsAnswer())
             .thenReturn(new VersionListing());
@@ -223,6 +301,16 @@ public class LocalStackTest {
             .then((Answer<ObjectListing>) invocation -> objectListingAnswer())
             .thenReturn(new ObjectListing());
         return s3;
+    }
+
+    protected CloseableHttpClient mockHttpClientReturningNotFound() throws IOException {
+        CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
+        CloseableHttpResponse response = mock(CloseableHttpResponse.class);
+
+        when(httpClient.execute(any())).thenReturn(response);
+        when(response.getEntity()).thenReturn(simpleResponse);
+        when(response.getStatusLine()).thenReturn(STATUS_LINE_NOT_FOUND);
+        return httpClient;
     }
 
     private ObjectListing objectListingAnswer() {
@@ -281,5 +369,26 @@ public class LocalStackTest {
                 new Stack().withStackName(PIPELINE_STACK)
 
             );
+    }
+
+    protected Role createRoleMissingOneTag() {
+        Tag roleTag = new Tag().withKey(PipelineStackConfiguration.TAG_KEY_ROLE)
+            .withValue(CreateStackRole.ROLE_TAG_FOR_CREATE_STACK_ROLE);
+        Tag branchTag = new Tag().withKey(PipelineStackConfiguration.TAG_KEY_BRANCH_NAME)
+            .withValue(pipelineStackConfiguration.getPipelineConfiguration().getBranchName());
+
+        return new Role().withTags(roleTag, branchTag).withRoleName(ILLFORMED_ROLE_NAME);
+    }
+
+    protected Role createWellFormedRole() {
+        Tag roleTag = new Tag().withKey(PipelineStackConfiguration.TAG_KEY_ROLE)
+            .withValue(CreateStackRole.ROLE_TAG_FOR_CREATE_STACK_ROLE);
+        Tag branchTag = new Tag().withKey(PipelineStackConfiguration.TAG_KEY_BRANCH_NAME)
+            .withValue(pipelineStackConfiguration.getPipelineConfiguration().getBranchName());
+        Tag projectTag = new Tag().withKey(PipelineStackConfiguration.TAG_KEY_PROJECT_ID)
+            .withValue(pipelineStackConfiguration.getProjectId());
+
+        return new Role().withTags(roleTag, branchTag, projectTag)
+            .withRoleName(pipelineStackConfiguration.getCreateStackRoleName());
     }
 }

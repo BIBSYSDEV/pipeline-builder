@@ -8,18 +8,18 @@ import org.slf4j.LoggerFactory;
  * Class with basic information about the project and the branch. * See also {@link
  * PipelineStackConfiguration}, {@link CodeBuildConfiguration}, and {@link PipelineConfiguration}
  */
-public class CloudFormationConfigurable {
+public class Configurable {
 
     public static final int NORMALIZED_BRANCH_MAX_LENGTH = 25;
-    public static final int MAX_BRANCH_WORD_LENGTH = 6;
+    private static final int MAX_BRANCH_WORD_LENGTH = 6;
     public static final int MAX_PROJECT_WORD_LENGTH = 3;
-    private static final Logger logger = LoggerFactory.getLogger(CloudFormationConfigurable.class);
+    private static final Logger logger = LoggerFactory.getLogger(Configurable.class);
     protected final transient String projectId;
     protected final transient String normalizedBranchName;
     private final transient StringUtils stringUtils = new StringUtils();
     private final transient String branchName;
 
-    public CloudFormationConfigurable(String repositoryName, String branchName) {
+    public Configurable(String repositoryName, String branchName) {
         this.projectId = initProjectId(repositoryName);
         this.branchName = branchName;
         this.normalizedBranchName = initNormalizedBranchName(branchName);

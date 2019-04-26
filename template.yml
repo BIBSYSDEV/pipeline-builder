@@ -126,10 +126,10 @@ Resources:
       Timeout: 900
       Environment:
         Variables:
-          REST_USER_API_KEY_SECRET_NAME: 'infrastructure'
-          REST_USER_API_KEY_SECRET_KEY:   'buildbranch'
+          REST_API_KEY_SECRET_NAME: 'infrastructure'
+          REST_API_KEY_SECRET_KEY: 'buildbranch'
           READ_FROM_GITHUB_SECRET_NAME: 'infrastructure'
-          READ_FROM_GITHUB_SECRET_KEY:  'read_from_github'
+          READ_FROM_GITHUB_SECRET_KEY: 'read_from_github'
       Events:
         RestApiEvent:
           Type: Api

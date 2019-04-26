@@ -11,9 +11,9 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import org.junit.jupiter.api.Test;
 
-public class CloudFormationConfigurableTest extends ConfigurationTests {
+public class ConfigurableTest extends ConfigurationTests {
 
-    public CloudFormationConfigurableTest() {
+    public ConfigurableTest() {
         super();
     }
 
@@ -33,7 +33,7 @@ public class CloudFormationConfigurableTest extends ConfigurationTests {
     @Test
     public void initNormalizedBranchName_branchName_normalizedBranchNameUnderSpecifiedLength() {
         assertThat(conf.getNormalizedBranchName().length(),
-            is(not(greaterThan(CloudFormationConfigurable.NORMALIZED_BRANCH_MAX_LENGTH))));
+            is(not(greaterThan(Configurable.NORMALIZED_BRANCH_MAX_LENGTH))));
     }
 
     @Test
@@ -49,7 +49,7 @@ public class CloudFormationConfigurableTest extends ConfigurationTests {
         String[] tokens = projectId.split("-");
         Arrays.stream(tokens).forEach(token -> {
             assertThat(token.length(),
-                is(not(greaterThan(CloudFormationConfigurable.MAX_PROJECT_WORD_LENGTH))));
+                is(not(greaterThan(Configurable.MAX_PROJECT_WORD_LENGTH))));
         });
     }
 

@@ -3,10 +3,20 @@ package no.bibsys.aws.cloudformation;
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.tools.StringUtils;
 
-public class PipelineStackConfiguration extends CloudFormationConfigurable {
+public class PipelineStackConfiguration extends Configurable {
+
+    public static final String TAG_KEY_BRANCH_NAME = "branch";
+    public static final String TAG_KEY_ROLE = "role";
+    public static final String TAG_KEY_PROJECT_ID = "projectId";
 
     public static final Integer MAX_ROLENAME_SIZE = 64;
     public static final Integer BUCKET_NAME_SIZE = 20;
+
+    private static final int CREATE_STACK_ROLE_NAME_LENGTH = 10;
+
+    private static final String POLICY = "policy";
+    private static final String PIPELINE_STACK = "pipelineStack";
+    private static final String PIPELINE_ROLE = "PipelineRole";
     private final transient String pipelineStackName;
 
     // Role for creating the stack of the pipeline
@@ -22,6 +32,7 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
     private final transient PipelineConfiguration pipelineConfiguration;
     private final transient CodeBuildConfiguration codeBuildConfiguration;
+    private final transient StringUtils stringUtils = new StringUtils();
 
     public PipelineStackConfiguration(GithubConf gitInfo) {
         super(gitInfo.getRepository(), gitInfo.getBranch());
@@ -42,11 +53,11 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
     }
 
     private String initCreateStackRole() {
-        return format("CreateStack", projectId, normalizedBranchName);
+        return stringUtils.randomString(CREATE_STACK_ROLE_NAME_LENGTH);
     }
 
     private String initBucketName() {
-        return new StringUtils().randomString(BUCKET_NAME_SIZE);
+        return stringUtils.randomString(BUCKET_NAME_SIZE);
     }
 
     public String getBucketName() {
@@ -58,11 +69,11 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
     }
 
     private String initPipelineStackName() {
-        return format(projectId, normalizedBranchName, "pipelineStack");
+        return format(projectId, normalizedBranchName, PIPELINE_STACK);
     }
 
     private String initPipelineRoleName() {
-        return format("PipelineRole", projectId, normalizedBranchName);
+        return format(PIPELINE_ROLE, projectId, normalizedBranchName);
     }
 
     public String getPipelineRoleName() {
@@ -83,5 +94,9 @@ public class PipelineStackConfiguration extends CloudFormationConfigurable {
 
     public GithubConf getGithubConf() {
         return githubConf;
+    }
+
+    public String getCreateStackRolePolicyName() {
+        return format(createStackRoleName, POLICY);
     }
 }
