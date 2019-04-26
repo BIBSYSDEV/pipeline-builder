@@ -9,7 +9,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
-import com.amazonaws.services.cloudformation.model.AmazonCloudFormationException;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
 import com.amazonaws.services.identitymanagement.model.GetRoleRequest;
 import com.amazonaws.services.identitymanagement.model.GetRoleResult;
@@ -86,27 +85,30 @@ public class StackBuilderTest extends LocalStackTest {
 
     @Test
     public void createStacks_notExistingStack_noException() throws Exception {
-
+        AmazonIdentityManagement mockIam = mockIdentityManagement(pipelineStackConfiguration, createWellFormedRole());
+        StackWiper wiper = new StackWiperImpl(pipelineStackConfiguration, cloudFormationWithStack, mockS3Client(),
+            mockLambdaClient(),
+            mockLogsClient(), mockIam);
         StackBuilder stackBuilder = new StackBuilder(
             wiper,
             pipelineStackConfiguration,
             cloudFormationWithStack,
-            mockAmazonIdentityManagement,
+            mockIam,
             mockGithubReader().setGitHubConf(mockGithubConf()));
 
-        assertThrows(AmazonCloudFormationException.class, wiper::wipeStacks);
+
         stackBuilder.createStacks();
     }
 
     @Test
     public void createStacks_existingStack_noException() throws Exception {
-        AmazonIdentityManagement iam = mockIdentityManagement(pipelineStackConfiguration, createWellFormedRole());
+        AmazonIdentityManagement mockIam = mockIdentityManagement(pipelineStackConfiguration, createWellFormedRole());
         StackWiper wiper = new StackWiperImpl(pipelineStackConfiguration, cloudFormationWithStack, mockS3Client(),
             mockLambdaClient(),
-            mockLogsClient(), iam);
+            mockLogsClient(), mockIam);
         StackBuilder stackBuilder = new StackBuilder(
             wiper, pipelineStackConfiguration, cloudFormationWithStack,
-            iam,
+            mockIam,
             mockGithubReader().setGitHubConf(mockGithubConf()));
 
         stackBuilder.createStacks();
