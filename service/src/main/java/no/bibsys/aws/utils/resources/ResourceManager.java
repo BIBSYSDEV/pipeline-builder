@@ -29,8 +29,8 @@ public class ResourceManager {
         this.cloudFormation = cloudFormation;
     }
 
-    protected String findRestApi(String stackId) {
-        StackResources stackResources = new StackResources(stackId, cloudFormation);
+    protected String findRestApi(String stackName) {
+        StackResources stackResources = new StackResources(stackName, cloudFormation);
         Optional<String> restApiId = stackResources.getResources(ResourceType.REST_API).stream()
             .map(StackResource::getPhysicalResourceId).findAny();
         return restApiId
