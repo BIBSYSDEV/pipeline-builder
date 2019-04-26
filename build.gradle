@@ -21,8 +21,7 @@ allprojects {
     apply plugin: 'base'
     apply plugin: 'jacoco'
     repositories {
-        mavenCentral()
-        maven { url "https://dl.bintray.com/orestis-unit/aws-build-tools" }
+        jcenter()
     }
 }
 
