@@ -45,16 +45,16 @@ public class ResourceInitializer extends ResourceManager {
     ) {
         super(cloudFormationClient);
 
-        String apiGatewayRestApi = findRestApi(stackName);
+        String apiGatewayRestApiId = findRestApi(stackName);
 
         this.swaggerHubUpdater = initSwaggerHubUpdater(stackName,
             swaggerHubConnectionDetails.getSwaggerHubInfo(), stage, gitInfo,
             apiGatewayClient,
-            apiGatewayRestApi, swaggerHubConnectionDetails.getSwaggerHubSecretsReader());
+            apiGatewayRestApiId, swaggerHubConnectionDetails.getSwaggerHubSecretsReader());
 
         StaticUrlInfo newStaticUrlInfo = initStaticUrlInfo(staticUrlInfo, gitInfo.getBranch());
 
-        route53Updater = new Route53Updater(newStaticUrlInfo, apiGatewayRestApi, apiGatewayClient,
+        route53Updater = new Route53Updater(newStaticUrlInfo, apiGatewayRestApiId, apiGatewayClient,
             route53Client);
         this.certificateArn = certificateArn;
     }
