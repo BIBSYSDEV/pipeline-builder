@@ -56,7 +56,6 @@ Resources:
           - cloudformation:DescribeStackResources
           - cloudformation:DescribeStacks
           - cloudformation:DeleteStack
-          - cloudformation:ListStacks
           - codebuild:CreateProject
           - codebuild:DeleteProject
           - codepipeline:CreatePipeline
