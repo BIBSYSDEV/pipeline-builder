@@ -1,6 +1,8 @@
 package no.bibsys.aws;
 
 import org.apache.http.impl.client.HttpClients;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
@@ -50,6 +52,8 @@ public class Application {
 
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
 
+    private static final Logger logger = LoggerFactory.getLogger(Application.class);
+    
     public Application(GithubConf gitInfo,
         AmazonCloudFormation acf,
         AmazonS3 s3Client,

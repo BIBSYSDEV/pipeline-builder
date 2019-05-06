@@ -1,0 +1,29 @@
+<appender name="cloud-watch" class="io.github.dibog.AwsLogAppender">
+
+    <awsConfig>
+        <credentials>
+            <accessKeyId></accessKeyId>
+            <secretAccessKey></secretAccessKey>
+        </credentials>
+        
+        <profileName>awsProfile</profileName>
+
+        <region></region>
+
+        <clientConfig class="com.amazonaws.ClientConfiguration">
+            <proxyHost></proxyHost>
+            <proxyPort></proxyPort>
+        </clientConfig>
+    </awsConfig>
+
+    <createLogGroup>false</createLogGroup>
+    <queueLength>100</queueLength>
+    <groupName>group-name</groupName>
+    <streamName>stream-name</streamName>
+    <dateFormat>yyyyMMdd_HHmm</dateFormat>
+    
+     <layout>
+        <pattern>[%X{a} %X{b}] %-4relative [%thread] %-5level %logger{35} - %msg %n</pattern>
+     </layout>
+
+</appender>
