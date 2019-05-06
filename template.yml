@@ -229,8 +229,8 @@ Resources:
           APPLICATION_URL: '{{resolve:ssm:INFRASTRUCTURE_URL:1}}'
           REGIONAL_CERTIFICATE_ARN: '{{resolve:ssm:INFRASTRUCTURE_CERTIFICATE_ARN:1}}'
           STACK_NAME: !Ref AWS::StackName
-          ACCESS_SWAGGERHUB_SECRET_NAME: infrastructure
-          ACCESS_SWAGGERHUB_SECRET_KEY: swaggerapikey
+          ACCESS_SWAGGERHUB_SECRET_NAME: 'infrastructure'
+          ACCESS_SWAGGERHUB_SECRET_KEY: 'swaggerapikey'
 
       CodeUri: build/libs/pipeline-fat.jar
       Policies:
