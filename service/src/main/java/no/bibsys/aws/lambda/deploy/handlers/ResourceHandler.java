@@ -1,5 +1,11 @@
 package no.bibsys.aws.lambda.deploy.handlers;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.apigateway.AmazonApiGateway;
@@ -9,8 +15,7 @@ import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.route53.AmazonRoute53;
 import com.amazonaws.services.route53.AmazonRoute53ClientBuilder;
-import java.io.IOException;
-import java.net.URISyntaxException;
+
 import no.bibsys.aws.cloudformation.Stage;
 import no.bibsys.aws.git.github.BranchInfo;
 import no.bibsys.aws.lambda.EnvironmentConstants;
@@ -41,6 +46,8 @@ public abstract class ResourceHandler extends CodePipelineFunctionHandlerTemplat
     private transient String zoneName;
     private transient String applicationUrl;
 
+    private static final Logger logger = LoggerFactory.getLogger(ResourceHandler.class);
+    
     public ResourceHandler(Environment environment,
         CodePipelineCommunicator codePipelineCommunicator) {
         super(codePipelineCommunicator);
@@ -73,8 +80,12 @@ public abstract class ResourceHandler extends CodePipelineFunctionHandlerTemplat
             .readEnv(EnvironmentConstants.ACCESS_SWAGGERHUB_SECRET_NAME);
         String swaggerHubApiKeySecretsKey = environment
             .readEnv(EnvironmentConstants.ACCESS_SWAGGERHUB_SECRET_KEY);
+        
+        logger.info(String.format("Secrets key: %s - Secrets name: %s", swaggerHubApiKeySecretsKey, swaggerHubApiKeySecretsName));
+        
         Region region = Region
             .getRegion(Regions.fromName(environment.readEnv(EnvironmentConstants.AWS_REGION)));
+        
         this.swaggerHubSecretsReader = new AwsSecretsReader(swaggerHubApiKeySecretsName,
             swaggerHubApiKeySecretsKey, region);
     }

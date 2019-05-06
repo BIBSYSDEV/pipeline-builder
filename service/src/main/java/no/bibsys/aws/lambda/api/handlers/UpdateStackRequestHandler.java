@@ -5,6 +5,13 @@ import static no.bibsys.aws.lambda.EnvironmentConstants.READ_FROM_GITHUB_SECRET_
 import static no.bibsys.aws.lambda.EnvironmentConstants.REST_API_KEY_SECRET_KEY;
 import static no.bibsys.aws.lambda.EnvironmentConstants.REST_API_KEY_SECRET_NAME;
 
+import java.io.IOException;
+import java.util.Map;
+
+import org.apache.http.impl.client.HttpClients;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.amazonaws.services.apigateway.model.UnauthorizedException;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
@@ -18,8 +25,7 @@ import com.amazonaws.services.logs.AWSLogsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.util.Map;
+
 import no.bibsys.aws.lambda.api.requests.UpdateStackRequest;
 import no.bibsys.aws.lambda.api.utils.Action;
 import no.bibsys.aws.secrets.AwsSecretsReader;
@@ -27,9 +33,6 @@ import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.tools.JsonUtils;
 import no.bibsys.aws.utils.github.GithubReader;
-import org.apache.http.impl.client.HttpClients;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class UpdateStackRequestHandler extends ApiHandler {
 
@@ -48,9 +51,11 @@ public class UpdateStackRequestHandler extends ApiHandler {
             AmazonIdentityManagementClientBuilder.defaultClient(),
             new GithubReader(HttpClients.createMinimal()));
 
-        this.restApiKeySecretsReader = new AwsSecretsReader(
-            environment.readEnv(REST_API_KEY_SECRET_NAME),
-            environment.readEnv(REST_API_KEY_SECRET_KEY),
+        
+        String restApiKeySecretName = environment.readEnv(REST_API_KEY_SECRET_NAME);
+        String restApiKeySecretKey = environment.readEnv(REST_API_KEY_SECRET_KEY);
+        logger.info(String.format("Secrets key: %s - Secrets name: %s", restApiKeySecretKey, restApiKeySecretName));
+        this.restApiKeySecretsReader = new AwsSecretsReader(restApiKeySecretName, restApiKeySecretKey,
             region);
 
         this.readFromGithubSecretsReader = new AwsSecretsReader(

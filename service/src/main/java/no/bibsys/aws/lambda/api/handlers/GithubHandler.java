@@ -6,6 +6,14 @@ import static no.bibsys.aws.lambda.EnvironmentConstants.GITHUB_WEBHOOK_SECRET_NA
 import static no.bibsys.aws.lambda.EnvironmentConstants.READ_FROM_GITHUB_SECRET_KEY;
 import static no.bibsys.aws.lambda.EnvironmentConstants.READ_FROM_GITHUB_SECRET_NAME;
 
+import java.io.IOException;
+import java.util.Map;
+import java.util.Optional;
+
+import org.apache.http.impl.client.HttpClients;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.apigateway.model.UnauthorizedException;
@@ -20,9 +28,7 @@ import com.amazonaws.services.logs.AWSLogs;
 import com.amazonaws.services.logs.AWSLogsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import java.io.IOException;
-import java.util.Map;
-import java.util.Optional;
+
 import no.bibsys.aws.lambda.api.requests.GitEvent;
 import no.bibsys.aws.lambda.api.requests.SimplePullRequest;
 import no.bibsys.aws.secrets.AwsSecretsReader;
@@ -30,9 +36,6 @@ import no.bibsys.aws.secrets.GithubSignatureChecker;
 import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.tools.Environment;
 import no.bibsys.aws.utils.github.GithubReader;
-import org.apache.http.impl.client.HttpClients;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class GithubHandler extends ApiHandler {
 
@@ -62,10 +65,12 @@ public class GithubHandler extends ApiHandler {
 
         String regionString = environment.readEnv(AWS_REGION);
         Region region = Region.getRegion(Regions.fromName(regionString));
-        this.webhookSecretsReader = new AwsSecretsReader(
-            environment.readEnv(GITHUB_WEBHOOK_SECRET_NAME),
-            environment.readEnv(GITHUB_WEBHOOK_SECRET_KEY),
-            region);
+        String gitHubWebhookSecretName = environment.readEnv(GITHUB_WEBHOOK_SECRET_NAME);
+        String gitHubWebhookSecretKey = environment.readEnv(GITHUB_WEBHOOK_SECRET_KEY);
+
+        logger.info(String.format("Secrets key: %s - Secrets name: %s", gitHubWebhookSecretKey, gitHubWebhookSecretName));
+
+        this.webhookSecretsReader = new AwsSecretsReader(gitHubWebhookSecretName, gitHubWebhookSecretKey, region);
         this.readFromGithubSecretsReader = new AwsSecretsReader(
             environment.readEnv(READ_FROM_GITHUB_SECRET_NAME),
             environment.readEnv(READ_FROM_GITHUB_SECRET_KEY),

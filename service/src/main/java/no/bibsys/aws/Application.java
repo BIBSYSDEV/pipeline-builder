@@ -1,5 +1,7 @@
 package no.bibsys.aws;
 
+import org.apache.http.impl.client.HttpClients;
+
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
@@ -15,6 +17,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.google.common.base.Preconditions;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+
 import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.lambda.api.utils.Action;
@@ -24,7 +27,6 @@ import no.bibsys.aws.utils.github.GithubReader;
 import no.bibsys.aws.utils.stacks.StackBuilder;
 import no.bibsys.aws.utils.stacks.StackWiper;
 import no.bibsys.aws.utils.stacks.StackWiperImpl;
-import org.apache.http.impl.client.HttpClients;
 
 public class Application {
 
@@ -113,6 +115,7 @@ public class Application {
 
         Region region = Region.getRegion(Regions.fromName(awsRegion));
 
+        logger.info(String.format("Secrets key: %s - Secrets name: %s", readFromGithubSecretKey, readFromGithubSecretName));
         SecretsReader secretsReader = new AwsSecretsReader(readFromGithubSecretName,
             readFromGithubSecretKey, region);
         Application.run(repoOwner, repository, branch, action, secretsReader);
