@@ -1,21 +1,24 @@
 package no.bibsys.aws.utils.resources;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.amazonaws.services.apigateway.AmazonApiGateway;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.route53.AmazonRoute53;
 import com.amazonaws.services.route53.model.ChangeResourceRecordSetsRequest;
 import com.amazonaws.services.route53.model.ChangeResourceRecordSetsResult;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Optional;
+
 import no.bibsys.aws.cloudformation.Stage;
 import no.bibsys.aws.git.github.GitInfo;
 import no.bibsys.aws.lambda.deploy.handlers.SwaggerHubUpdater;
 import no.bibsys.aws.lambda.responses.SimpleResponse;
 import no.bibsys.aws.route53.Route53Updater;
 import no.bibsys.aws.route53.StaticUrlInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * It is called after the creation of a CloudFormation Stack in order to create resources that do
@@ -63,6 +66,8 @@ public class ResourceInitializer extends ResourceManager {
 
         logger.debug("Lambda function started");
         logger.debug("Updating Route 53");
+        System.out.println("Lambda function started");
+        System.out.println("Updating Route 53");
 
         deletePreviousResources();
 

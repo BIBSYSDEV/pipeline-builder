@@ -81,7 +81,7 @@ public abstract class ResourceHandler extends CodePipelineFunctionHandlerTemplat
         String swaggerHubApiKeySecretsKey = environment
             .readEnv(EnvironmentConstants.ACCESS_SWAGGERHUB_SECRET_KEY);
         
-        logger.info(String.format("Secrets key: %s - Secrets name: %s", swaggerHubApiKeySecretsKey, swaggerHubApiKeySecretsName));
+        System.out.println(String.format("Secrets key: %s - Secrets name: %s", swaggerHubApiKeySecretsKey, swaggerHubApiKeySecretsName));
         
         Region region = Region
             .getRegion(Regions.fromName(environment.readEnv(EnvironmentConstants.AWS_REGION)));

@@ -119,7 +119,7 @@ public class Application {
 
         Region region = Region.getRegion(Regions.fromName(awsRegion));
 
-        logger.info(String.format("Secrets key: %s - Secrets name: %s", readFromGithubSecretKey, readFromGithubSecretName));
+        System.out.println(String.format("Secrets key: %s - Secrets name: %s", readFromGithubSecretKey, readFromGithubSecretName));
         SecretsReader secretsReader = new AwsSecretsReader(readFromGithubSecretName,
             readFromGithubSecretKey, region);
         Application.run(repoOwner, repository, branch, action, secretsReader);

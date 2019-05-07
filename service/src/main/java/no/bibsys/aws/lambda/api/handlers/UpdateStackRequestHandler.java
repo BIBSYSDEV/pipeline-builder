@@ -54,7 +54,7 @@ public class UpdateStackRequestHandler extends ApiHandler {
         
         String restApiKeySecretName = environment.readEnv(REST_API_KEY_SECRET_NAME);
         String restApiKeySecretKey = environment.readEnv(REST_API_KEY_SECRET_KEY);
-        logger.info(String.format("Secrets key: %s - Secrets name: %s", restApiKeySecretKey, restApiKeySecretName));
+        System.out.println(String.format("Secrets key: %s - Secrets name: %s", restApiKeySecretKey, restApiKeySecretName));
         this.restApiKeySecretsReader = new AwsSecretsReader(restApiKeySecretName, restApiKeySecretKey,
             region);
 
