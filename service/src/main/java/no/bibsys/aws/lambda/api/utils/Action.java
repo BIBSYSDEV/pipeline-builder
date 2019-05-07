@@ -4,10 +4,11 @@ import java.util.Locale;
 
 public enum Action {
 
-    CREATE, DELETE;
+    CREATE, DELETE, INFO;
 
     private static final String CREATE_STRING = "create";
     private static final String DELETE_STRING = "delete";
+    private static final String INFO_STRING = "info";
 
     @Override
     public String toString() {
@@ -19,6 +20,8 @@ public enum Action {
             return CREATE;
         } else if (actionString.equalsIgnoreCase(DELETE_STRING)) {
             return DELETE;
+        } else if (actionString.equalsIgnoreCase(INFO_STRING)) {
+            return INFO;
         } else {
             throw new IllegalArgumentException();
         }

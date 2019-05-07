@@ -7,6 +7,7 @@ dependencies{
 
     implementation group: 'com.amazonaws', name: 'aws-java-sdk-api-gateway', version: '1.11.+'
     implementation group: 'com.amazonaws', name: 'aws-java-sdk-cloudformation', version: '1.11.+'
+    implementation group: 'com.amazonaws', name: 'aws-java-sdk-codepipeline', version: '1.11.+'
     implementation group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: '1.11.+'
     implementation group: 'com.amazonaws', name: 'aws-java-sdk-lambda', version: '1.11.+'
     implementation group: 'com.amazonaws', name: 'aws-java-sdk-route53', version: '1.11.+'

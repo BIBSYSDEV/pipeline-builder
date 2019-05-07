@@ -1,5 +1,7 @@
 package no.bibsys.aws;
 
+import java.io.IOException;
+
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
@@ -13,12 +15,13 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.google.common.base.Preconditions;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import java.io.IOException;
+
 import no.bibsys.aws.cloudformation.PipelineStackConfiguration;
 import no.bibsys.aws.git.github.GithubConf;
 import no.bibsys.aws.lambda.api.utils.Action;
 import no.bibsys.aws.secrets.AwsSecretsReader;
 import no.bibsys.aws.secrets.SecretsReader;
+import no.bibsys.aws.utils.PipelineInfo;
 import no.bibsys.aws.utils.stacks.StackBuilder;
 import no.bibsys.aws.utils.stacks.StackWiper;
 
@@ -44,11 +47,8 @@ public class Application {
 
     private final transient PipelineStackConfiguration pipelineStackConfiguration;
 
-    public Application(GithubConf gitInfo,
-        AmazonCloudFormation acf,
-        AmazonS3 s3Client,
-        AWSLambda lambdaClient,
-        AWSLogs logsClient) {
+    public Application(GithubConf gitInfo, AmazonCloudFormation acf, AmazonS3 s3Client, AWSLambda lambdaClient,
+            AWSLogs logsClient) {
         this.pipelineStackConfiguration = new PipelineStackConfiguration(gitInfo);
         this.repoName = gitInfo.getRepository();
         this.branch = gitInfo.getBranch();
@@ -57,27 +57,25 @@ public class Application {
         checkNulls();
     }
 
-    private static void run(String repoOwner,
-        String repository,
-        String branch,
-        String action,
-        SecretsReader secretsReader
-    )
-        throws IOException {
+    private static void run(String repoOwner, String repository, String branch, String action,
+            SecretsReader secretsReader) throws IOException {
 
         GithubConf gitInfo = new GithubConf(repoOwner, repository, branch, secretsReader);
         AmazonCloudFormation cloudFormation = AmazonCloudFormationClientBuilder.defaultClient();
         AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
         AWSLambda lambdaClient = AWSLambdaClientBuilder.defaultClient();
         AWSLogs logsClient = AWSLogsClientBuilder.defaultClient();
-        Application application = new Application(gitInfo, cloudFormation, s3Client, lambdaClient,
-            logsClient);
+        Application application = new Application(gitInfo, cloudFormation, s3Client, lambdaClient, logsClient);
         if (Action.CREATE.equals(Action.fromString(action))) {
             application.createStacks(cloudFormation);
         } else if (Action.DELETE.equals(Action.fromString(action))) {
             application.wipeStacks();
+        } else if (Action.INFO.equals(Action.fromString(action))) {
+            new PipelineInfo().dumpStackState(gitInfo);
         }
     }
+
+
 
     @SuppressWarnings("PMD")
     public static void main(String... args) throws IOException {
@@ -99,8 +97,8 @@ public class Application {
 
         Region region = Region.getRegion(Regions.fromName(awsRegigon));
 
-        SecretsReader secretsReader = new AwsSecretsReader(readFromGithubSecretName,
-            readFromGithubSecretKey, region);
+        SecretsReader secretsReader = new AwsSecretsReader(readFromGithubSecretName, readFromGithubSecretKey, region);
+
         Application.run(repoOwner, repository, branch, action, secretsReader);
     }
 
@@ -109,9 +107,7 @@ public class Application {
     }
 
     public void createStacks(AmazonCloudFormation cloudFormation) throws IOException {
-        StackBuilder stackBuilder = new StackBuilder(wiper,
-            pipelineStackConfiguration,
-            cloudFormation);
+        StackBuilder stackBuilder = new StackBuilder(wiper, pipelineStackConfiguration, cloudFormation);
         stackBuilder.createStacks();
     }
 

@@ -61,6 +61,104 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: aws:kms
+              
+  ExecuteTestsFailedEventRule: 
+    Type: "AWS::Events::Rule"
+    Properties: 
+      Description: "ExecuteTests Failed"
+      EventPattern: 
+        source:
+        - aws.codepipeline
+        detail-type:
+        - CodePipeline Action Execution State Change
+        detail:
+          state:
+          - FAILED
+      State: "ENABLED"
+      Targets: 
+        - 
+          Arn: "arn:aws:sns:eu-west-1:514691704213:PipelineStateChangeV1"
+          Id: "PipelineStateChangeV1"
+          InputTransformer:
+            InputTemplate: '"A ExecuteTests action has failed. Go to https://console.aws.amazon.com/codepipeline/home?region=eu-west-1#/view/<pipeline>" '
+            InputPathsMap:
+              pipeline: "$.detail.pipeline" 
+
+  ExecuteTestsSuccededEventRule: 
+    Type: "AWS::Events::Rule"
+    Properties: 
+      Description: "ExecuteTests succeded"
+      EventPattern: 
+        source:
+        - aws.codepipeline
+        detail-type:
+        - CodePipeline Action Execution State Change
+        detail:
+          pipeline:
+          - !Ref PipelineName
+          state:
+          - SUCCEEDED
+          action:
+          - ExecuteTests
+      State: "ENABLED"
+      Targets: 
+        - 
+          Arn: "arn:aws:sns:eu-west-1:514691704213:PipelineStateChangeV1"
+          Id: "PipelineStateChangeV1"
+#          InputTransformer:
+#            InputTemplate: '"A ExecuteTests action has succeded. Go to https://console.aws.amazon.com/codepipeline/home?region=eu-west-1#/view/<pipeline>" '
+#            InputPathsMap:
+#              pipeline: "$.detail.pipeline" 
+
+
+
+#  PipelineFailedEventRule: 
+#    Type: "AWS::Events::Rule"
+#    Properties: 
+#      Description: "EventRule"
+#      EventPattern: 
+#        source:
+#        - aws.codepipeline
+#        detail-type:
+#        - CodePipeline Pipeline Execution State Change
+##        - CodePipeline Action Execution State Change
+#        detail:
+#          state:
+#          - FAILED
+#      State: "ENABLED"
+#      Targets: 
+#        - 
+#          Arn: "arn:aws:sns:eu-west-1:514691704213:PipelineStateChangeV1"
+#          Id: "PipelineStateChangeV1"
+#          InputTransformer:
+#            InputTemplate: '"The Pipeline has failed. Go to https://console.aws.amazon.com/codepipeline/home?region=eu-west-1#/view/<pipeline>" '
+#            InputPathsMap:
+#              pipeline: "$.detail.pipeline" 
+#
+#  PipelineSuccessEventRule: 
+#    Type: "AWS::Events::Rule"
+#    Properties: 
+#      Description: "EventRule"
+#      EventPattern: 
+#        source:
+#        - aws.codepipeline
+#        detail-type:
+#        - CodePipeline Pipeline Execution State Change
+##        - CodePipeline Action Execution State Change
+#        detail:
+#          state:
+#          - SUCCEEDED
+#      State: "ENABLED"
+#      Targets: 
+#        - 
+#          Arn: "arn:aws:sns:eu-west-1:514691704213:PipelineStateChangeV1"
+#          Id: "PipelineStateChangeV1"
+#          InputTransformer:
+#            InputTemplate: '"The Pipeline has SUCCEEDED. Go to https://console.aws.amazon.com/codepipeline/home?region=eu-west-1#/view/<pipeline>" '
+#            InputPathsMap:
+#              pipeline: "$.detail.pipeline" 
+
+
 
   CreateStackRole:
     DependsOn:
@@ -108,6 +206,7 @@ Resources:
                   - 'iam:AttachRolePolicy'
                   - 'ssm:PutParameter'
                   - 'ssm:DeleteParameter'
+                  - 'secretsmanager:GetSecretValue'
                 Resource: '*'
                 Effect: Allow
         - PolicyName: s3Access
@@ -130,6 +229,20 @@ Resources:
                 Action:
                   - 'ec2:*'
                 Resource: '*'
+        - PolicyName: rdsSupport
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Action:
+                - 'rds:*'
+              Resource: '*'
+            - Action: iam:CreateServiceLinkedRole
+              Effect: Allow
+              Resource: arn:aws:iam::*:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS
+              Condition:
+                StringLike:
+                  iam:AWSServiceName: rds.amazonaws.com
         - PolicyName: createLambdaFunctions
           PolicyDocument:
             Version: '2012-10-17'
