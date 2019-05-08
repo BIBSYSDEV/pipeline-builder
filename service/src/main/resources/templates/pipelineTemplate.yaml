@@ -131,33 +131,52 @@ Resources:
       Runtime: python3.6
       Role : !GetAtt PipelineRole.Arn
       Description: Updates github build status for given repo and branch.
+      Environment:
+        Variables:
+          GITHUB_OWNER: !Ref GithubOwner
+          GITHUB_REPO: !Ref GithubRepo
+          GITHUB_BRANCH: !Ref ProjectBranch
+          GITHUB_AUTH: !Ref GithubAuth
       Code:
         ZipFile:  |
           from urllib.parse import urlencode
           from urllib.request import Request, urlopen
-          import json 
+          import json
 
-          event_dict = json.loads(event)
-          get_url = "https://api.github.com/repos/%s/%s/branches/%s" % (${!Ref GithubOwner}, ${!Ref GithubRepo}, ${!Ref ProjectBranch} )
+          def lambda_handler(event, context):
+              owner = os.environ['GITHUB_OWNER']
+              repo = os.environ['GITHUB_REPO']
+              branch = os.environ['GITHUB_BRANCH']
+              auth = os.environ['GITHUB_AUTH']
+              event_dict = json.loads(event)
+              pipeline = event_dict ['detail']['pipeline']
+              aws_state = event_dict['detail']['state']
+              translated_state = translate_state(aws_state)
+              return post_status_to_github(owner, repo, branchname, pipeline, state, auth)
 
-          get_request = Request(get_url)
+          def translate_state(state):
+              translated = 'failure'
+              if state == 'SUCCEEDED':
+                  translated = 'success'
+              return translated
 
-          sha = json.load(urlopen(get_request))['commit']['sha']
+          def fetch_sha(owner, repo, branchname):
+              get_url = "https://api.github.com/repos/%s/%s/branches/%s" % (owner, repo, branch)
+              get_request = Request(get_url)
+              return json.load(urlopen(get_request))['commit']['sha']
 
-          post_url = "https://api.github.com/repos/%s/%s/statuses/%s" %  (${!Ref GithubOwner}, ${!Ref GithubRepo}, sha)
+          def post_status_to_github(owner, repo, branchname, pipeline, state, auth):
+              sha = fetch_sha(owner, repo, branchname)
+              post_url = "https://api.github.com/repos/%s/%s/statuses/%s" %  (owner, repo, sha)
 
-          pipeline_target = "https://eu-west-1.console.aws.amazon.com/codesuite/codepipeline/pipelines/%s/view" % ( event_dict ['detail']['pipeline'])
+              pipeline_target = "https://eu-west-1.console.aws.amazon.com/codesuite/codepipeline/pipelines/%s/view" % (pipeline)
+              post_data = {"state": state, "target_url": pipeline_target, "description": "OK", "context": "continuous-integration"}
 
-          state = 'failure'
-          if event_dict['detail']['state'] == 'SUCCEEDED':
-              state = 'success'
-
-          post_data = {"state": state, "target_url": pipeline_target, "description": "OK", "context": "continuous-integration"}
-
-          post_request = Request(post_url, bytes(urlencode(post_data).encode('ascii')))
-          bearer_token = "Bearer %s" % (${!Ref GithubAuth})
-          post_request.add_header('Authorization', bearer_token)
-          post_response = urlopen(post_request).read().decode()      
+              post_request = Request(post_url, bytes(urlencode(post_data).encode('ascii')))
+              bearer_token = "Bearer %s" % (auth)
+              post_request.add_header('Authorization', bearer_token)
+              post_response = urlopen(post_request).read().decode()
+              return 'done'
 
   LambdaInvokePermission:
     Type: "AWS::Lambda::Permission"
