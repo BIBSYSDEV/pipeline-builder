@@ -45,7 +45,6 @@ Parameters:
   FinalPhaseName:
     Type: String
 
-
 Resources:
 
   S3Bucket:
@@ -80,6 +79,95 @@ Resources:
       Roles:
         - !Ref CreateStackRoleName
 
+  ExecuteTestsFailedEventRule: 
+    Type: "AWS::Events::Rule"
+    Properties: 
+      Description: "ExecuteTests Failed"
+      EventPattern: 
+        source:
+        - aws.codepipeline
+        detail-type:
+        - CodePipeline Action Execution State Change
+        detail:
+          pipeline:
+          - !Ref PipelineName
+          state:
+          - FAILED
+      State: "ENABLED"
+      Targets: 
+        -
+          Arn: !GetAtt UpdateGithubStatus.Arn
+          Id: updateGithubStatus
+
+  ExecuteTestsSuccededEventRule: 
+    Type: "AWS::Events::Rule"
+    Properties: 
+      Description: "ExecuteTests succeded"
+      EventPattern: 
+        source:
+        - aws.codepipeline
+        detail-type:
+        - CodePipeline Action Execution State Change
+        detail:
+          pipeline:
+          - !Ref PipelineName
+          state:
+          - SUCCEEDED
+          action:
+          - ExecuteTests
+      State: "ENABLED"
+      Targets: 
+        -
+          Arn: !GetAtt UpdateGithubStatus.Arn
+          Id: updateGithubStatus
+
+  UpdateGithubStatus:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.handler
+      FunctionName:  updateGithubStatusFunction
+      Runtime: python3.6
+      Role : !GetAtt PipelineRole.Arn
+      Description: Updates github build status for given repo and branch.
+      Code:
+        ZipFile:  |
+          from urllib.parse import urlencode
+          from urllib.request import Request, urlopen
+          import json 
+                    
+          event_dict = json.loads(event)
+          get_url = "https://api.github.com/repos/%s/%s/branches/%s" % (${!Ref GithubOwner}, ${!Ref GithubRepo}, ${!Ref ProjectBranch} )
+          
+          get_request = Request(get_url)
+          
+          sha = json.load(urlopen(get_request))['commit']['sha']
+          
+          post_url = "https://api.github.com/repos/%s/%s/statuses/%s" %  (${!Ref GithubOwner}, ${!Ref GithubRepo}, sha)
+          
+          pipeline_target = "https://eu-west-1.console.aws.amazon.com/codesuite/codepipeline/pipelines/%s/view" % ( event_dict ['detail']['pipeline'])
+          
+          state = 'failure'
+          if event_dict['detail']['state'] == 'SUCCEEDED':
+              state = 'success'
+              
+          post_data = {"state": state, "target_url": pipeline_target, "description": "OK", "context": "continuous-integration"}
+          
+          post_request = Request(post_url, bytes(urlencode(post_data).encode('ascii')))
+          bearer_token = "Bearer %s" % (${!Ref GithubAuth})
+          post_request.add_header('Authorization', bearer_token)
+          post_response = urlopen(post_request).read().decode()      
+
+  LambdaInvokePermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      FunctionName: !GetAtt
+        - UpdateGithubStatus
+        - Arn
+      Action: 'lambda:InvokeFunction'
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt
+        - ExecuteTestsSuccededEventRule
+        - Arn
 
   PipelineRole:
     Type: AWS::IAM::Role
@@ -175,6 +263,10 @@ Resources:
                 Action:
                   - 'codepipeline:DisableStageTransition'
                 Resource: '*'
+
+
+                
+                
   CodeBuildProject:
     DependsOn:
       - S3Bucket
