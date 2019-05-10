@@ -142,17 +142,22 @@ Resources:
           from urllib.parse import urlencode
           from urllib.request import Request, urlopen
           import json
+          import os
+          import logging
 
-          def lambda_handler(event, context):
+          logging.basicConfig(level=logging.INFO)
+          logger = logging.getLogger(__name__)
+
+          def handler(event, context):
               owner = os.environ['GITHUB_OWNER']
               repo = os.environ['GITHUB_REPO']
               branch = os.environ['GITHUB_BRANCH']
               auth = os.environ['GITHUB_AUTH']
-              event_dict = json.loads(event)
+              event_dict = event
               pipeline = event_dict ['detail']['pipeline']
               aws_state = event_dict['detail']['state']
               translated_state = translate_state(aws_state)
-              return post_status_to_github(owner, repo, branchname, pipeline, state, auth)
+              return post_status_to_github(owner, repo, branch, pipeline, translated_state, auth)
 
           def translate_state(state):
               translated = 'failure'
@@ -160,14 +165,16 @@ Resources:
                   translated = 'success'
               return translated
 
-          def fetch_sha(owner, repo, branchname):
+          def fetch_sha(owner, repo, branch):
               get_url = "https://api.github.com/repos/%s/%s/branches/%s" % (owner, repo, branch)
+              logger.info('Fetching sha from: %s', get_url)
               get_request = Request(get_url)
               return json.load(urlopen(get_request))['commit']['sha']
 
-          def post_status_to_github(owner, repo, branchname, pipeline, state, auth):
-              sha = fetch_sha(owner, repo, branchname)
+          def post_status_to_github(owner, repo, branch, pipeline, state, auth):
+              sha = fetch_sha(owner, repo, branch)
               post_url = "https://api.github.com/repos/%s/%s/statuses/%s" %  (owner, repo, sha)
+              logger.info('Posting status %s to %s', state, post_url )
 
               pipeline_target = "https://eu-west-1.console.aws.amazon.com/codesuite/codepipeline/pipelines/%s/view" % (pipeline)
               post_data = {"state": state, "target_url": pipeline_target, "description": "OK", "context": "continuous-integration"}
@@ -176,6 +183,7 @@ Resources:
               bearer_token = "Bearer %s" % (auth)
               post_request.add_header('Authorization', bearer_token)
               post_response = urlopen(post_request).read().decode()
+              logger.info('Post to Github got response %s', reponse)
               return 'done'
 
   LambdaInvokePermission:
