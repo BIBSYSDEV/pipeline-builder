@@ -1,11 +1,5 @@
 package no.bibsys.aws.lambda.deploy.handlers;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.apigateway.AmazonApiGateway;
@@ -15,7 +9,6 @@ import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.route53.AmazonRoute53;
 import com.amazonaws.services.route53.AmazonRoute53ClientBuilder;
-
 import no.bibsys.aws.cloudformation.Stage;
 import no.bibsys.aws.git.github.BranchInfo;
 import no.bibsys.aws.lambda.EnvironmentConstants;
@@ -28,6 +21,9 @@ import no.bibsys.aws.secrets.AwsSecretsReader;
 import no.bibsys.aws.secrets.SecretsReader;
 import no.bibsys.aws.swaggerhub.SwaggerHubInfo;
 import no.bibsys.aws.tools.Environment;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 public abstract class ResourceHandler extends CodePipelineFunctionHandlerTemplate<SimpleResponse> {
 
@@ -46,8 +42,6 @@ public abstract class ResourceHandler extends CodePipelineFunctionHandlerTemplat
     private transient String zoneName;
     private transient String applicationUrl;
 
-    private static final Logger logger = LoggerFactory.getLogger(ResourceHandler.class);
-    
     public ResourceHandler(Environment environment,
         CodePipelineCommunicator codePipelineCommunicator) {
         super(codePipelineCommunicator);
