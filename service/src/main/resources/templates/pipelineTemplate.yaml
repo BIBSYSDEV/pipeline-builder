@@ -179,7 +179,7 @@ Resources:
               pipeline_target = "https://eu-west-1.console.aws.amazon.com/codesuite/codepipeline/pipelines/%s/view" % (pipeline)
               post_data = {"state": state, "target_url": pipeline_target, "description": "OK", "context": "continuous-integration"}
 
-              post_request = Request(post_url, bytes(urlencode(post_data).encode('ascii')))
+              post_request = Request(post_url, bytes(urlencode(post_data))
               bearer_token = "Bearer %s" % (auth)
               post_request.add_header('Authorization', bearer_token)
               post_response = urlopen(post_request).read().decode()
