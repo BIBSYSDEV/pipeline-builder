@@ -139,7 +139,7 @@ Resources:
           GITHUB_AUTH: !Ref GithubAuth
       Code:
         ZipFile:  |
-          import botocore.vendored.urllib3 as urllib3
+          import botocore.vendored.requests.packages.urllib3 as urllib3          
           import json
           import os
           import logging
@@ -183,7 +183,7 @@ Resources:
               encoded_post_data = json.dumps(post_data).encode('utf-8')
 
               bearer_token = "Bearer %s" % (auth)
-              header_data = {'Authorization', bearer_token, 'Content-Type': 'application/json'}
+              header_data = [{'Authorization', bearer_token}, {'Content-Type', 'application/json'}]
               post_response = http.request('POST', post_url, body=encoded_post_data, headers=header_data)
               logger.info('Post to Github got response %s', post_response)
               return 'done'
