@@ -121,8 +121,6 @@ Resources:
           Arn: !GetAtt UpdateGithubStatus.Arn
           Id: updateGithubStatus
 
-# https://stackoverflow.com/questions/49503569/lambda-with-cloud-formation-pass-cloud-formation-variable-to-python-code
-
   UpdateGithubStatus:
     Type: AWS::Lambda::Function
     Properties:
@@ -169,7 +167,7 @@ Resources:
           def fetch_sha(owner, repo, branch):
               get_url = "https://api.github.com/repos/%s/%s/branches/%s" % (owner, repo, branch)
               logger.info('Fetching sha from: %s', get_url)
-              header_data = {'Content-Type': 'application/json', "User-Agent": "AWS-Codepipeline"}
+              header_data = {'Content-Type': 'application/json', "User-Agent": "AWS-pipeline-builder"}
               github_response = http.request('GET', get_url, headers=header_data)
               github_response_json = json.loads(github_response.data)
               sha = github_response_json['commit']['sha']
@@ -180,11 +178,11 @@ Resources:
               post_url = "https://api.github.com/repos/%s/%s/statuses/%s" %  (owner, repo, sha)
               logger.info('Posting status %s to %s', state, post_url )
               pipeline_target = "https://eu-west-1.console.aws.amazon.com/codesuite/codepipeline/pipelines/%s/view" % (pipeline)
-              post_data = {"state": state, "target_url": pipeline_target, "description": "OK", "context": "AWS Codepipeline"}
+              post_data = {"state": state, "target_url": pipeline_target, "description": state, "context": "AWS Codepipeline tests"}
               encoded_post_data = json.dumps(post_data).encode('utf-8')
           
               bearer_token = "Bearer %s" % (auth)
-              header_data = {'Authorization': bearer_token, 'Content-Type': 'application/json', "User-Agent": "AWS-Codepipeline"}
+              header_data = {'Authorization': bearer_token, 'Content-Type': 'application/json', "User-Agent": "AWS-pipeline-builder"}
               post_response = http.request('POST', post_url, body=encoded_post_data, headers=header_data)
               logger.info('Post to Github got response %s', post_response)
               return 'done'
