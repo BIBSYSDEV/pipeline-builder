@@ -185,7 +185,7 @@ Resources:
               bearer_token = "Bearer %s" % (auth)
               header_data = {'Authorization', bearer_token, 'Content-Type': 'application/json'}
               post_response = http.request('POST', post_url, body=encoded_post_data, headers=header_data)
-              logger.info('Post to Github got response %s', reponse)
+              logger.info('Post to Github got response %s', post_response)
               return 'done'
 
   LambdaInvokePermission:
