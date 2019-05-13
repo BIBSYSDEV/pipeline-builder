@@ -139,14 +139,14 @@ Resources:
           GITHUB_AUTH: !Ref GithubAuth
       Code:
         ZipFile:  |
-          from urllib.parse import urlencode
-          from urllib.request import Request, urlopen
+          import urllib3
           import json
           import os
           import logging
 
           logging.basicConfig(level=logging.INFO)
           logger = logging.getLogger(__name__)
+          http = urllib3.PoolManager()
 
           def handler(event, context):
               owner = os.environ['GITHUB_OWNER']
@@ -168,8 +168,10 @@ Resources:
           def fetch_sha(owner, repo, branch):
               get_url = "https://api.github.com/repos/%s/%s/branches/%s" % (owner, repo, branch)
               logger.info('Fetching sha from: %s', get_url)
-              get_request = Request(get_url)
-              return json.load(urlopen(get_request))['commit']['sha']
+              github_response = http.request('GET', get_url)
+              github_response_json = json.load(github_response)
+              sha = github_response_json['commit']['sha']
+              return sha
 
           def post_status_to_github(owner, repo, branch, pipeline, state, auth):
               sha = fetch_sha(owner, repo, branch)
@@ -178,11 +180,11 @@ Resources:
 
               pipeline_target = "https://eu-west-1.console.aws.amazon.com/codesuite/codepipeline/pipelines/%s/view" % (pipeline)
               post_data = {"state": state, "target_url": pipeline_target, "description": "OK", "context": "continuous-integration"}
+              encoded_post_data = json.dumps(post_data).encode('utf-8')
 
-              post_request = Request(post_url, bytes(urlencode(post_data).encode('ascii')))
               bearer_token = "Bearer %s" % (auth)
-              post_request.add_header('Authorization', bearer_token)
-              post_response = urlopen(post_request).read().decode()
+              header_data = {'Authorization', bearer_token, 'Content-Type': 'application/json'}
+              post_response = http.request('POST', post_url, body=encoded_post_data, headers=header_data)
               logger.info('Post to Github got response %s', reponse)
               return 'done'
 
