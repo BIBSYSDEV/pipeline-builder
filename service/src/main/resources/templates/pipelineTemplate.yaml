@@ -128,7 +128,7 @@ Resources:
     Properties:
       Handler: index.handler
       FunctionName:  updateGithubStatusFunction
-      Runtime: python3.6
+      Runtime: python3.7
       Role : !GetAtt PipelineRole.Arn
       Description: Updates github build status for given repo and branch.
       Environment:
