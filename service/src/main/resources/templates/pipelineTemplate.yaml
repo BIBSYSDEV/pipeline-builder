@@ -82,7 +82,7 @@ Resources:
   ExecuteTestsFailedEventRule: 
     Type: "AWS::Events::Rule"
     Properties: 
-      Description: "ExecuteTests Failed"
+      Description: "ExecuteTests failed"
       EventPattern: 
         source:
         - aws.codepipeline
@@ -93,6 +93,8 @@ Resources:
           - !Ref PipelineName
           state:
           - FAILED
+          action:
+          - ExecuteTests
       State: "ENABLED"
       Targets: 
         -
