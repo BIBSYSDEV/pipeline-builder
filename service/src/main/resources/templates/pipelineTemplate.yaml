@@ -79,27 +79,27 @@ Resources:
       Roles:
         - !Ref CreateStackRoleName
 
-  ExecuteTestsFailedEventRule: 
-    Type: "AWS::Events::Rule"
-    Properties: 
-      Description: "ExecuteTests failed"
-      EventPattern: 
-        source:
-        - aws.codepipeline
-        detail-type:
-        - CodePipeline Action Execution State Change
-        detail:
-          pipeline:
-          - !Ref PipelineName
-          state:
-          - FAILED
-          action:
-          - ExecuteTests
-      State: "ENABLED"
-      Targets: 
-        -
-          Arn: !GetAtt UpdateGithubStatus.Arn
-          Id: updateGithubStatus
+#  ExecuteTestsFailedEventRule: 
+#    Type: "AWS::Events::Rule"
+#    Properties: 
+#      Description: "ExecuteTests failed"
+#      EventPattern: 
+#        source:
+#        - aws.codepipeline
+#        detail-type:
+#        - CodePipeline Action Execution State Change
+#        detail:
+#          pipeline:
+#          - !Ref PipelineName
+#          state:
+#          - FAILED
+#          action:
+#          - ExecuteTests
+#      State: "ENABLED"
+#      Targets: 
+#        -
+#          Arn: !GetAtt UpdateGithubStatus.Arn
+#          Id: updateGithubStatus
 
   ExecuteTestsSuccededEventRule: 
     Type: "AWS::Events::Rule"
@@ -115,6 +115,7 @@ Resources:
           - !Ref PipelineName
           state:
           - SUCCEEDED
+          - FAILED
           action:
           - ExecuteTests
       State: "ENABLED"
