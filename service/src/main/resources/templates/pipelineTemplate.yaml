@@ -234,7 +234,7 @@ Resources:
       Action: 'lambda:InvokeFunction'
       Principal: events.amazonaws.com
       SourceArn: !GetAtt
-        - ExecuteTestsSuccededEventRule
+        - ExecuteTestsEventRule
         - Arn
 
   PipelineRole:
