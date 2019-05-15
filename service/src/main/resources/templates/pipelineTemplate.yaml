@@ -120,55 +120,110 @@ Resources:
           GITHUB_AUTH: !Ref GithubAuth
       Code:
         ZipFile:  |
-          import botocore.vendored.requests.packages.urllib3 as urllib3 
+          import botocore.vendored.requests.packages.urllib3 as urllib3
+          from botocore.vendored.requests.packages.urllib3.exceptions import NewConnectionError
           import pip._vendor.certifi as certifi
           import json
           import os
           import logging
-          
+
+
+          LOGGER_POST_TO_GITHUB_CONNECTION_ERROR_MESSAGE = \
+          'There was an error creating the post request to {} with data {} and bearer token beginning {}'
+
+          CONTENT_TYPE = 'Content-Type'
+          APPLICATION_JSON = 'application/json'
+          USER_AGENT = 'User-Agent'
+          UNIT_AWS_PIPELINE_BUILDER = 'Unit-AWS-pipeline-builder'
+          BEARER_STRING = "Bearer {}"
+          GET = 'GET'
+          POST = 'POST'
+          UTF_8 = 'utf-8'
+
+          DETAIL_KEY = 'detail'
+          PIPELINE_KEY = 'pipeline'
+          STATE_KEY = 'state'
+          DESCRIPTION_KEY = 'description'
+          CONTEXT_KEY = 'context'
+          FAILURE = 'failure'
+          SUCCEEDED = 'SUCCEEDED'
+          SUCCESS = 'success'
+          COMMIT_KEY = 'commit'
+          SHA_KEY = 'sha'
+          TARGET_URL_STRING = 'target_url'
+          AUTHORIZATION = 'Authorization'
+          GITHUB_PRESENTATION_MESSAGE = 'AWS Codepipeline tests'
+          OWNER = os.environ['GITHUB_OWNER']
+          REPO = os.environ['GITHUB_REPO']
+          BRANCH = os.environ['GITHUB_BRANCH']
+          AUTH = os.environ['GITHUB_AUTH']
+          API_GET_SHA_URL = "https://api.github.com/repos/{}/{}/branches/{}".format(OWNER, REPO, BRANCH)
+          API_POST_URL = "https://api.github.com/repos/%s/%s/statuses/{}"
+          PIPELINE_URL_TEMPLATE = "https://eu-west-1.console.aws.amazon.com/codesuite/codepipeline/pipelines/{}/view"
+
+          LOGGER_POST_MESSAGE = "Post to Github got response {}"
+          LOGGER_GET_GITHUB_SHA_ERROR_MESSAGE = "There was an error requesting data from {}"
+          LOGGER_POST_INFO_MESSAGE = "Posting status {} to {}"
           logging.basicConfig(level=logging.INFO)
           logger = logging.getLogger(__name__)
           http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-          
+
+
           def handler(event, context):
-              owner = os.environ['GITHUB_OWNER']
-              repo = os.environ['GITHUB_REPO']
-              branch = os.environ['GITHUB_BRANCH']
-              auth = os.environ['GITHUB_AUTH']
-              event_dict = event
-              pipeline = event_dict ['detail']['pipeline']
-              aws_state = event_dict['detail']['state']
-              translated_state = translate_state(aws_state)
-              return post_status_to_github(owner, repo, branch, pipeline, translated_state, auth)
-          
+            event_dict = event
+            pipeline = event_dict[DETAIL_KEY][PIPELINE_KEY]
+            aws_state = event_dict[DETAIL_KEY][STATE_KEY]
+            translated_state = translate_state(aws_state)
+            return post_status_to_github(pipeline, translated_state)
+
+
           def translate_state(state):
-              translated = 'failure'
-              if state == 'SUCCEEDED':
-                  translated = 'success'
-              return translated
-          
-          def fetch_sha(owner, repo, branch):
-              get_url = "https://api.github.com/repos/%s/%s/branches/%s" % (owner, repo, branch)
-              logger.info('Fetching sha from: %s', get_url)
-              header_data = {'Content-Type': 'application/json', "User-Agent": "AWS-pipeline-builder"}
-              github_response = http.request('GET', get_url, headers=header_data)
-              github_response_json = json.loads(github_response.data)
-              sha = github_response_json['commit']['sha']
-              return sha
-          
-          def post_status_to_github(owner, repo, branch, pipeline, state, auth):
-              sha = fetch_sha(owner, repo, branch)
-              post_url = "https://api.github.com/repos/%s/%s/statuses/%s" %  (owner, repo, sha)
-              logger.info('Posting status %s to %s', state, post_url )
-              pipeline_target = "https://eu-west-1.console.aws.amazon.com/codesuite/codepipeline/pipelines/%s/view" % (pipeline)
-              post_data = {"state": state, "target_url": pipeline_target, "description": state, "context": "AWS Codepipeline tests"}
-              encoded_post_data = json.dumps(post_data).encode('utf-8')
-          
-              bearer_token = "Bearer %s" % (auth)
-              header_data = {'Authorization': bearer_token, 'Content-Type': 'application/json', "User-Agent": "AWS-pipeline-builder"}
-              post_response = http.request('POST', post_url, body=encoded_post_data, headers=header_data)
-              logger.info('Post to Github got response %s', post_response)
-              return 'done'
+            translated = FAILURE
+            if state == SUCCEEDED:
+              translated = SUCCESS
+            return translated
+
+
+          def fetch_sha():
+            json_data = get_sha()
+            sha = json_data[COMMIT_KEY][SHA_KEY]
+            return sha
+
+
+          def post_status_to_github(pipeline, state):
+            sha = fetch_sha()
+            url = API_POST_URL.format(OWNER, REPO, sha)
+            logger.info(LOGGER_POST_INFO_MESSAGE, state, url)
+            pipeline_target = PIPELINE_URL_TEMPLATE.format(pipeline)
+            post_data = {STATE_KEY: state, TARGET_URL_STRING: pipeline_target, DESCRIPTION_KEY: state,
+                                                                CONTEXT_KEY: GITHUB_PRESENTATION_MESSAGE}
+            post(url, post_data)
+            return 'done'
+
+
+          def get_sha():
+            logger.info('Attempting to fetch sha from: %s', API_GET_SHA_URL)
+            try:
+              header_data = {CONTENT_TYPE: APPLICATION_JSON, USER_AGENT: UNIT_AWS_PIPELINE_BUILDER}
+              github_response = http.request(GET, API_GET_SHA_URL, headers=header_data)
+              return json.loads(github_response.data)
+            except NewConnectionError as error:
+              logger.error(LOGGER_GET_GITHUB_SHA_ERROR_MESSAGE.format(API_GET_SHA_URL))
+              logger.error(error)
+
+
+          def post(url, data):
+            encoded_post_data = json.dumps(data).encode(UTF_8)
+            bearer_token = BEARER_STRING.format(AUTH)
+            header_data = {AUTHORIZATION: bearer_token, CONTENT_TYPE: APPLICATION_JSON,
+                                            USER_AGENT: UNIT_AWS_PIPELINE_BUILDER}
+            try:
+              post_response = http.request(POST, url, body=encoded_post_data, headers=header_data)
+              logger.info(LOGGER_POST_MESSAGE.format(post_response))
+            except NewConnectionError as error:
+              logger.error(
+              LOGGER_POST_TO_GITHUB_CONNECTION_ERROR_MESSAGE.format(url, data, bearer_token[0:5]))
+              logger.error(error)
 
   LambdaInvokePermission:
     Type: "AWS::Lambda::Permission"
