@@ -33,7 +33,7 @@ subprojects {
         //libraries for testing
         testImplementation('org.hamcrest:java-hamcrest:2.0.0.0')
         testImplementation('org.mockito:mockito-core:2.25.0')
-        testImplementation('org.junit.jupiter:junit-jupiter-api:5.3.2')
+        testImplementation('org.junit.jupiter:junit-jupiter-api:5.4.2')
         testImplementation('org.junit.jupiter:junit-jupiter-params:5.3.2')
         testImplementation('org.junit.jupiter:junit-jupiter-engine:5.3.2')
     }
