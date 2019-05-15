@@ -45,7 +45,6 @@ Parameters:
   FinalPhaseName:
     Type: String
 
-
 Resources:
 
   S3Bucket:
@@ -80,6 +79,165 @@ Resources:
       Roles:
         - !Ref CreateStackRoleName
 
+  ExecuteTestsEventRule: 
+    Type: "AWS::Events::Rule"
+    Properties: 
+      Description: "ExecuteTests status"
+      EventPattern: 
+        source:
+        - aws.codepipeline
+        detail-type:
+        - CodePipeline Action Execution State Change
+        detail:
+          pipeline:
+          - !Ref PipelineName
+          state:
+          - STARTED
+          - SUCCEEDED
+          - FAILED
+          - CANCELED
+          action:
+          - ExecuteTests
+      State: "ENABLED"
+      Targets: 
+        -
+          Arn: !GetAtt UpdateGithubStatus.Arn
+          Id: updateGithubStatus
+
+  UpdateGithubStatus:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.handler
+      FunctionName:  updateGithubStatusFunction
+      Runtime: python3.7
+      Role : !GetAtt PipelineRole.Arn
+      Description: Updates github build status for given repo and branch.
+      Environment:
+        Variables:
+          GITHUB_OWNER: !Ref GithubOwner
+          GITHUB_REPO: !Ref GithubRepo
+          GITHUB_BRANCH: !Ref ProjectBranch
+          GITHUB_AUTH: !Ref GithubAuth
+      Code:
+        ZipFile:  |
+          import botocore.vendored.requests.packages.urllib3 as urllib3
+          import botocore.vendored.requests.packages.urllib3.exceptions as exceptions
+          import pip._vendor.certifi as certifi
+          import json
+          import os
+          import logging
+
+
+          LOGGER_POST_TO_GITHUB_CONNECTION_ERROR_MESSAGE = \
+          'There was an error creating the post request to {} with data {} and bearer token beginning {}'
+
+          CONTENT_TYPE = 'Content-Type'
+          APPLICATION_JSON = 'application/json'
+          USER_AGENT = 'User-Agent'
+          UNIT_AWS_PIPELINE_BUILDER = 'Unit-AWS-pipeline-builder'
+          BEARER_STRING = "Bearer {}"
+          GET = 'GET'
+          POST = 'POST'
+          UTF_8 = 'utf-8'
+
+          DETAIL_KEY = 'detail'
+          PIPELINE_KEY = 'pipeline'
+          STATE_KEY = 'state'
+          DESCRIPTION_KEY = 'description'
+          CONTEXT_KEY = 'context'
+          FAILURE = 'failure'
+          SUCCEEDED = 'SUCCEEDED'
+          SUCCESS = 'success'
+          COMMIT_KEY = 'commit'
+          SHA_KEY = 'sha'
+          TARGET_URL_STRING = 'target_url'
+          AUTHORIZATION = 'Authorization'
+          GITHUB_PRESENTATION_MESSAGE = 'AWS Codepipeline tests'
+          OWNER = os.environ['GITHUB_OWNER']
+          REPO = os.environ['GITHUB_REPO']
+          BRANCH = os.environ['GITHUB_BRANCH']
+          AUTH = os.environ['GITHUB_AUTH']
+          API_GET_SHA_URL = "https://api.github.com/repos/{}/{}/branches/{}".format(OWNER, REPO, BRANCH)
+          API_POST_URL = "https://api.github.com/repos/{}/{}/statuses/{}"
+          PIPELINE_URL_TEMPLATE = "https://eu-west-1.console.aws.amazon.com/codesuite/codepipeline/pipelines/{}/view"
+
+          LOGGER_POST_MESSAGE = "Post to Github got response status code {}"
+          LOGGER_GET_GITHUB_SHA_ERROR_MESSAGE = "There was an error requesting data from {}"
+          LOGGER_POST_INFO_MESSAGE = "Posting status {} to {}"
+          logger = logging.getLogger(__name__)
+          logger.setLevel(logging.INFO)
+
+          http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+
+
+          def handler(event, context):
+            event_dict = event
+            pipeline = event_dict[DETAIL_KEY][PIPELINE_KEY]
+            aws_state = event_dict[DETAIL_KEY][STATE_KEY]
+            translated_state = translate_state(aws_state)
+            return post_status_to_github(pipeline, translated_state)
+
+
+          def translate_state(state):
+            translated = FAILURE
+            if state == SUCCEEDED:
+              translated = SUCCESS
+            return translated
+
+
+          def fetch_sha():
+            json_data = get_sha()
+            sha = json_data[COMMIT_KEY][SHA_KEY]
+            return sha
+
+
+          def post_status_to_github(pipeline, state):
+            sha = fetch_sha()
+            url = API_POST_URL.format(OWNER, REPO, sha)
+            logger.info(LOGGER_POST_INFO_MESSAGE.format(state, url))
+            pipeline_target = PIPELINE_URL_TEMPLATE.format(pipeline)
+            post_data = {STATE_KEY: state, TARGET_URL_STRING: pipeline_target, DESCRIPTION_KEY: state,
+                                                                CONTEXT_KEY: GITHUB_PRESENTATION_MESSAGE}
+            post(url, post_data)
+            return 'done'
+
+
+          def get_sha():
+            logger.info('Attempting to fetch sha from: {}'.format(API_GET_SHA_URL))
+            try:
+              header_data = {CONTENT_TYPE: APPLICATION_JSON, USER_AGENT: UNIT_AWS_PIPELINE_BUILDER}
+              github_response = http.request(GET, API_GET_SHA_URL, headers=header_data)
+              return json.loads(github_response.data)
+            except NewConnectionError as error:
+              logger.error(LOGGER_GET_GITHUB_SHA_ERROR_MESSAGE.format(API_GET_SHA_URL))
+              logger.error(str(error))
+
+
+          def post(url, data):
+            encoded_post_data = json.dumps(data).encode(UTF_8)
+            bearer_token = BEARER_STRING.format(AUTH)
+            header_data = {AUTHORIZATION: bearer_token, CONTENT_TYPE: APPLICATION_JSON,
+                                            USER_AGENT: UNIT_AWS_PIPELINE_BUILDER}
+            try:
+              post_response = http.request(POST, url, body=encoded_post_data, headers=header_data)
+              logger.info(LOGGER_POST_MESSAGE.format(post_response.status))
+            except NewConnectionError as error:
+              logger.error(
+              LOGGER_POST_TO_GITHUB_CONNECTION_ERROR_MESSAGE.format(url, data, bearer_token[0:5]))
+              logger.error(str(error))
+
+
+  LambdaInvokePermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      FunctionName: !GetAtt
+        - UpdateGithubStatus
+        - Arn
+      Action: 'lambda:InvokeFunction'
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt
+        - ExecuteTestsEventRule
+        - Arn
 
   PipelineRole:
     Type: AWS::IAM::Role
@@ -175,6 +333,7 @@ Resources:
                 Action:
                   - 'codepipeline:DisableStageTransition'
                 Resource: '*'
+
   CodeBuildProject:
     DependsOn:
       - S3Bucket
