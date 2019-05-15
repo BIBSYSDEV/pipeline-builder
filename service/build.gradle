@@ -21,7 +21,7 @@ dependencies{
     
     implementation group: 'io.github.dibog', name: 'cloudwatch-logback-appender', version: '1.0.6'
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.26'
-    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5'
+    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.8'
 
     implementation 'com.typesafe:config:1.3.2'
 }
