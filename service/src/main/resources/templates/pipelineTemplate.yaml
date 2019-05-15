@@ -210,7 +210,7 @@ Resources:
               return json.loads(github_response.data)
             except NewConnectionError as error:
               logger.error(LOGGER_GET_GITHUB_SHA_ERROR_MESSAGE.format(API_GET_SHA_URL))
-              logger.error(error)
+              logger.error(str(error))
 
 
           def post(url, data):
@@ -224,7 +224,7 @@ Resources:
             except NewConnectionError as error:
               logger.error(
               LOGGER_POST_TO_GITHUB_CONNECTION_ERROR_MESSAGE.format(url, data, bearer_token[0:5]))
-              logger.error(error)
+              logger.error(str(error))
 
 
   LambdaInvokePermission:
@@ -334,9 +334,6 @@ Resources:
                   - 'codepipeline:DisableStageTransition'
                 Resource: '*'
 
-
-                
-                
   CodeBuildProject:
     DependsOn:
       - S3Bucket

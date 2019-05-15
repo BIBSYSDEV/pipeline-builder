@@ -68,9 +68,6 @@ public class GithubHandler extends ApiHandler {
         String gitHubWebhookSecretName = environment.readEnv(GITHUB_WEBHOOK_SECRET_NAME);
         String gitHubWebhookSecretKey = environment.readEnv(GITHUB_WEBHOOK_SECRET_KEY);
 
-        System.out.println(String.format("Secrets key: %s - Secrets name: %s",
-                gitHubWebhookSecretKey, gitHubWebhookSecretName));
-
         this.webhookSecretsReader = new AwsSecretsReader(gitHubWebhookSecretName, gitHubWebhookSecretKey, region);
         this.readFromGithubSecretsReader = new AwsSecretsReader(
             environment.readEnv(READ_FROM_GITHUB_SECRET_NAME),
