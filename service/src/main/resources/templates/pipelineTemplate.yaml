@@ -121,7 +121,7 @@ Resources:
       Code:
         ZipFile:  |
           import botocore.vendored.requests.packages.urllib3 as urllib3
-          from botocore.vendored.requests.packages.urllib3.exceptions import NewConnectionError
+          import botocore.vendored.requests.packages.urllib3.exceptions as exceptions
           import pip._vendor.certifi as certifi
           import json
           import os
@@ -158,14 +158,15 @@ Resources:
           BRANCH = os.environ['GITHUB_BRANCH']
           AUTH = os.environ['GITHUB_AUTH']
           API_GET_SHA_URL = "https://api.github.com/repos/{}/{}/branches/{}".format(OWNER, REPO, BRANCH)
-          API_POST_URL = "https://api.github.com/repos/%s/%s/statuses/{}"
+          API_POST_URL = "https://api.github.com/repos/{}/{}/statuses/{}"
           PIPELINE_URL_TEMPLATE = "https://eu-west-1.console.aws.amazon.com/codesuite/codepipeline/pipelines/{}/view"
 
-          LOGGER_POST_MESSAGE = "Post to Github got response {}"
+          LOGGER_POST_MESSAGE = "Post to Github got response status code {}"
           LOGGER_GET_GITHUB_SHA_ERROR_MESSAGE = "There was an error requesting data from {}"
           LOGGER_POST_INFO_MESSAGE = "Posting status {} to {}"
-          logging.basicConfig(level=logging.INFO)
           logger = logging.getLogger(__name__)
+          logger.setLevel(logging.INFO)
+
           http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 
 
@@ -193,7 +194,7 @@ Resources:
           def post_status_to_github(pipeline, state):
             sha = fetch_sha()
             url = API_POST_URL.format(OWNER, REPO, sha)
-            logger.info(LOGGER_POST_INFO_MESSAGE, state, url)
+            logger.info(LOGGER_POST_INFO_MESSAGE.format(state, url))
             pipeline_target = PIPELINE_URL_TEMPLATE.format(pipeline)
             post_data = {STATE_KEY: state, TARGET_URL_STRING: pipeline_target, DESCRIPTION_KEY: state,
                                                                 CONTEXT_KEY: GITHUB_PRESENTATION_MESSAGE}
@@ -202,7 +203,7 @@ Resources:
 
 
           def get_sha():
-            logger.info('Attempting to fetch sha from: %s', API_GET_SHA_URL)
+            logger.info('Attempting to fetch sha from: {}'.format(API_GET_SHA_URL))
             try:
               header_data = {CONTENT_TYPE: APPLICATION_JSON, USER_AGENT: UNIT_AWS_PIPELINE_BUILDER}
               github_response = http.request(GET, API_GET_SHA_URL, headers=header_data)
@@ -219,11 +220,12 @@ Resources:
                                             USER_AGENT: UNIT_AWS_PIPELINE_BUILDER}
             try:
               post_response = http.request(POST, url, body=encoded_post_data, headers=header_data)
-              logger.info(LOGGER_POST_MESSAGE.format(post_response))
+              logger.info(LOGGER_POST_MESSAGE.format(post_response.status))
             except NewConnectionError as error:
               logger.error(
               LOGGER_POST_TO_GITHUB_CONNECTION_ERROR_MESSAGE.format(url, data, bearer_token[0:5]))
               logger.error(error)
+
 
   LambdaInvokePermission:
     Type: "AWS::Lambda::Permission"
