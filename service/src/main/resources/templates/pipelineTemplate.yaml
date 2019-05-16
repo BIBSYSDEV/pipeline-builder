@@ -108,7 +108,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Handler: index.handler
-      FunctionName:  updateGithubStatusFunction
+      FunctionName:  !Join ['-',["update-github-status", !Ref NormalizedBranchName]]
       Runtime: python3.7
       Role : !GetAtt PipelineRole.Arn
       Description: Updates github build status for given repo and branch.
