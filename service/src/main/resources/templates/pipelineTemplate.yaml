@@ -335,6 +335,18 @@ Resources:
                 Action:
                   - 'codepipeline:DisableStageTransition'
                 Resource: '*'
+        - PolicyName: resourceTagging
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'tag:GetResources'
+                  - 'tag:GetTagKeys'
+                  - 'tag:GetTagValues'
+                  - 'tag:TagResources'
+                  - 'tag:UntagGetResources'
+                Resource: '*'
 
   CodeBuildProject:
     DependsOn:
