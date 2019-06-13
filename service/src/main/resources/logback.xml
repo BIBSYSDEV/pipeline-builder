@@ -1,29 +1,34 @@
 <configuration>
+
+  <property name="pattern" value="%-5level %logger{35} - %msg%n" />
+
   <appender name="cloud-watch" class="io.github.dibog.AwsLogAppender">
-
-    <awsConfig>
-
-      <clientConfig class="com.amazonaws.ClientConfiguration">
-        <proxyHost></proxyHost>
-        <proxyPort></proxyPort>
-      </clientConfig>
-    </awsConfig>
 
     <createLogGroup>true</createLogGroup>
     <queueLength>100</queueLength>
     <groupName>pipeline-builder</groupName>
-    <streamName>log-stream</streamName>  
-    <dateFormat>yyyyMMdd_HHmm</dateFormat>
+    <streamName>pipeline-builder-log-stream</streamName>
 
     <layout>
-      <pattern>%-5level %logger{35} - %msg %n</pattern>
+      <pattern>${pattern}</pattern>
     </layout>
 
   </appender>
 
-  <logger name="org.apache.http" level="ERROR" />
+  <logger name="org.apache" level="ERROR" />
+  <logger name="software.amazon" level="ERROR" />
+  <logger name="com.amazonaws" level="ERROR" />
+  <logger name="org.gradle" level="ERROR" />
+  <logger name="io.swagger" level="ERROR" />
 
-  <root level="INFO">
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>${pattern}</pattern>
+    </encoder>
+  </appender>
+
+  <root level="DEBUG">
+    <appender-ref ref="CONSOLE" />
     <appender-ref ref="cloud-watch" />
   </root>
 
