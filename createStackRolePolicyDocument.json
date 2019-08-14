@@ -43,6 +43,7 @@
       "Action": [
         "iam:GetRole",
         "iam:CreateRole",
+        "iam:PassRole",
         "iam:PutRolePolicy",
         "iam:DetachRolePolicy",
         "iam:DeleteRolePolicy",
