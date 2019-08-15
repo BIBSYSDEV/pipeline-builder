@@ -246,6 +246,7 @@ Resources:
           - route53:ChangeResourceRecordSets
           - apigateway:*
           - cloudformation:DescribeStackResources
+          - iam:PassRole
           Effect: Allow
           Resource: "*"
         - Effect: Allow
