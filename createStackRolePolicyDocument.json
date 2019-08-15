@@ -24,13 +24,6 @@
     },
     {
       "Action": [
-        "iam:PassRole"
-      ],
-      "Resource": "*",
-      "Effect": "Allow"
-    },
-    {
-      "Action": [
         "cloudformation:CreateChangeSet"
       ],
       "Resource": [
